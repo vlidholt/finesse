@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// The WCAG contrast ratio between two colours, ignoring their alpha.
 double contrast(Color a, Color b) {
@@ -304,7 +304,7 @@ void main() {
       );
       final theme = ThemeData(colorScheme: scheme);
       expect(theme.colorScheme.tint, scheme.tint);
-      // finesse fills its progress bar with the tint.
+      // una fills its progress bar with the tint.
       expect(theme.progressBarTheme.color, scheme.tint);
       expect(theme.navigationBarTheme.selectedIconColor, scheme.tint);
     });

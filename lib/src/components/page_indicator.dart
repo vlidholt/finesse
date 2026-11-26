@@ -1,13 +1,13 @@
 import 'dart:math' as math;
 
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/raw_components/pressable.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/debug_check.dart';
-import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/raw_components/pressable.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/debug_check.dart';
+import 'package:una/src/utils/spring.dart';
 
 /// How a [PageIndicator] is drawn.
 enum PageIndicatorVariant {
@@ -224,7 +224,7 @@ class _PageIndicatorState extends State<PageIndicator>
       );
     }
 
-    final strings = FinesseLocalizations.of(context).carousel;
+    final strings = UnaLocalizations.of(context).carousel;
     String label(int index) => strings.page(page: index + 1, count: count);
     final current = _current;
     final onSelected = widget.onSelected;

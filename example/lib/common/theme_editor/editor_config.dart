@@ -1,8 +1,8 @@
 import 'package:example/common/theme_editor/fonts.dart';
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
-/// The package's *base colours*: Finesse's own teal, and the three shadcn/ui
+/// The package's *base colours*: Una's own teal, and the three shadcn/ui
 /// neutrals it kept.
 enum BaseColor {
   teal('Teal'),
@@ -71,7 +71,7 @@ enum AccentColor {
 }
 
 /// The radius presets. [style] follows the selected style's own radius —
-/// 10 for Finesse — which is what the package does when no radius is given.
+/// 10 for Una — which is what the package does when no radius is given.
 /// The others are shadcn/ui's `--radius` presets; components use
 /// `--radius-md`, which is `--radius * 0.8`.
 enum RadiusPreset {
@@ -89,14 +89,14 @@ enum RadiusPreset {
   final double? value;
 }
 
-/// The package's named styles: Finesse's own, and the three shadcn/ui
+/// The package's named styles: Una's own, and the three shadcn/ui
 /// styles it kept.
 ///
 /// Each is a preset over [StyleTokens] — corner radii, focus-ring
 /// thickness and opacity, and label typography — so picking one reshapes every
 /// component at once.
 enum StylePreset {
-  finesse('Finesse'),
+  una('Una'),
   nova('Nova'),
   maia('Maia'),
   lyra('Lyra');
@@ -119,7 +119,7 @@ enum MenuSurfaceColor {
 }
 
 /// The menu surface finish: shadcn's "Solid/Translucent", after the option
-/// to leave it to the style — glass in Finesse, solid in the shadcn styles.
+/// to leave it to the style — glass in Una, solid in the shadcn styles.
 enum MenuSurfaceFinish {
   style('Style'),
   solid('Solid'),
@@ -185,7 +185,7 @@ enum EditorLiquidGlass {
   /// Liquid Glass on every platform.
   on('On', LiquidGlassMode.always),
 
-  /// finesse's frosted glass on every platform.
+  /// una's frosted glass on every platform.
   off('Off', LiquidGlassMode.never);
 
   const EditorLiquidGlass(this.label, this.mode);
@@ -196,7 +196,7 @@ enum EditorLiquidGlass {
 }
 
 enum EditorFormFactor {
-  /// Follow the width the page has, as `FinesseApp` does by itself.
+  /// Follow the width the page has, as `UnaApp` does by itself.
   auto('Auto', null),
 
   /// The desktop layout, whatever the width.
@@ -234,7 +234,7 @@ enum EditorFormFactor {
 class ThemeEditorConfig {
   const ThemeEditorConfig({
     this.brightness = Brightness.light,
-    this.style = StylePreset.finesse,
+    this.style = StylePreset.una,
     this.baseColor = BaseColor.teal,
     this.accentColor = AccentColor.base,
     this.headingFontTitle,
@@ -617,7 +617,7 @@ class ThemeEditorConfig {
     // shadcn's create editor: inverted menus take the dark palette,
     // translucent ones the blurred 70% surface, and a bold accent rewrites
     // the scheme's accent pair with its primary. Left to the style, menus
-    // are glass in Finesse and solid in the shadcn styles.
+    // are glass in Una and solid in the shadcn styles.
     return ThemeData(
       brightness: brightness,
       colorScheme: colorScheme,
@@ -626,7 +626,7 @@ class ThemeEditorConfig {
           ? textTheme
           : textTheme.copyWith(custom: customTextStyles),
       style: styleTokens,
-      // Null leaves it to `FinesseApp`, which follows the window.
+      // Null leaves it to `UnaApp`, which follows the window.
       formFactor: formFactor.forced,
       spacing: spacing,
       disableSecondaryBorder: focusRing == FocusRingPlacement.inside,
@@ -665,8 +665,7 @@ class ThemeEditorConfig {
       if (!usesStyleRadius)
         'radius: BorderRadius.circular(${_number(effectiveRadius)}),',
       ..._prefixed('textTheme: ', _textThemeCode()),
-      if (styleTokens != StyleTokens.finesse)
-        ..._prefixed('style: ', _styleCode()),
+      if (styleTokens != StyleTokens.una) ..._prefixed('style: ', _styleCode()),
       if (density != Density.normal)
         'spacing: const Spacing(step: ${_number(density.step)}),',
       if (focusRing == FocusRingPlacement.inside)
@@ -683,7 +682,7 @@ class ThemeEditorConfig {
     return ['ThemeData(', ..._indented(lines), ')'].join('\n');
   }
 
-  /// The `FinesseApp(...)` that reproduces the whole configuration: the
+  /// The `UnaApp(...)` that reproduces the whole configuration: the
   /// light theme, the dark one, and the form factor when one is pinned.
   ///
   /// This is what the panel shows and copies. [textScale] is left out: it
@@ -696,7 +695,7 @@ class ThemeEditorConfig {
       // Every editor font comes from Google Fonts. An app can also bundle
       // the face itself and pass `TextTheme(family: 'Inter')`.
       '// flutter pub add google_fonts',
-      'FinesseApp(',
+      'UnaApp(',
       ..._indented(_prefixed('theme: ', '$light,'.split('\n'))),
       ..._indented(_prefixed('darkTheme: ', '$dark,'.split('\n'))),
       if (forced != null) '  formFactor: FormFactor.${forced.name},',

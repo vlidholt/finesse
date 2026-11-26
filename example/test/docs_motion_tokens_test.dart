@@ -1,14 +1,14 @@
 import 'package:example/docs/examples/motion/motion_tokens.dart';
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 // The "Tokens" example of the Motion page: the code a reader copies to
 // scope a motion vocabulary to a subtree.
 
 Future<void> _pump(WidgetTester tester) async {
   await tester.pumpWidget(
-    FinesseApp(
+    UnaApp(
       theme: ThemeData(),
       home: const Scaffold(body: Center(child: MotionTokensExample())),
     ),
@@ -75,7 +75,7 @@ void main() {
     await _pump(tester);
     expect(_scoped(tester).brightness, Brightness.light);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         theme: ThemeData(brightness: Brightness.dark),
         home: const Scaffold(body: Center(child: MotionTokensExample())),
       ),

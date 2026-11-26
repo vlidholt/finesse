@@ -1,10 +1,10 @@
-import 'package:finesse/src/theme/color_scheme/accent.dart';
-import 'package:finesse/src/theme/color_scheme/neutral.dart';
-import 'package:finesse/src/theme/color_scheme/stone.dart';
-import 'package:finesse/src/theme/color_scheme/teal.dart';
-import 'package:finesse/src/theme/color_scheme/zinc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/color_scheme/accent.dart';
+import 'package:una/src/theme/color_scheme/neutral.dart';
+import 'package:una/src/theme/color_scheme/stone.dart';
+import 'package:una/src/theme/color_scheme/teal.dart';
+import 'package:una/src/theme/color_scheme/zinc.dart';
 
 /// The colour tokens of a theme, one field per shadcn/ui CSS variable.
 ///

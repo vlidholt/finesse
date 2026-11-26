@@ -1,7 +1,7 @@
-import 'package:finesse/finesse.dart';
-import 'package:finesse/src/utils/entrance.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/src/utils/entrance.dart';
+import 'package:una/una.dart';
 
 /// [EntranceProgress] is the timing under every overlay entrance and the
 /// page route: a curve on the way in, a straight line on the way out, and

@@ -1,9 +1,9 @@
 import 'dart:ui' show Tristate;
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// A button is one semantics node: its role, its label, whether it can be
 /// pressed, and the tap. It used to be two — the role on a parent, the label
@@ -11,7 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// "button" about nothing.
 void main() {
   Future<void> pump(WidgetTester tester, Widget child) {
-    return tester.pumpWidget(FinesseApp(home: Center(child: child)));
+    return tester.pumpWidget(UnaApp(home: Center(child: child)));
   }
 
   /// The node that carries [label], and nothing else about it.

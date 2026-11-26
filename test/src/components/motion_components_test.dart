@@ -1,8 +1,8 @@
-import 'package:finesse/finesse.dart';
-import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/src/utils/moving_indicator.dart';
+import 'package:una/una.dart';
 
 import '../../decoration_finders.dart';
 
@@ -24,7 +24,7 @@ Widget _app(
   bool reduceMotion = false,
   Motion? motion,
 }) {
-  return FinesseApp(
+  return UnaApp(
     theme: ThemeData(motion: motion ?? _motion),
     home: Builder(
       builder: (context) => MediaQuery(
@@ -964,7 +964,7 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('shimmers in the finesse style and pulses in a shadcn one', (
+    testWidgets('shimmers in the una style and pulses in a shadcn one', (
       tester,
     ) async {
       BoxDecoration decoration() =>
@@ -979,14 +979,14 @@ void main() {
               as BoxDecoration;
 
       await tester.pumpWidget(
-        const FinesseApp(home: Skeleton(width: 100, height: 20)),
+        const UnaApp(home: Skeleton(width: 100, height: 20)),
       );
       await tester.pump(const Duration(milliseconds: 100));
       expect(decoration().gradient, isNotNull);
       await tester.pumpWidget(const SizedBox());
 
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           theme: ThemeData(style: StyleTokens.nova),
           home: const Skeleton(width: 100, height: 20),
         ),

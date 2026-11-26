@@ -2,40 +2,40 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui';
 
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/components/divider.dart';
-import 'package:finesse/src/components/dropdown_menu.dart';
-import 'package:finesse/src/components/popover.dart';
-import 'package:finesse/src/components/scroll_area.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/liquid_glass/liquid_glass.dart';
-import 'package:finesse/src/liquid_glass/menu.dart';
-import 'package:finesse/src/raw_components/portal.dart';
-import 'package:finesse/src/theme/components/button.dart';
-import 'package:finesse/src/theme/components/context_menu.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/components/layout.dart';
-import 'package:finesse/src/theme/data.dart';
-import 'package:finesse/src/theme/form_factor.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/theme/theme_scope.dart';
-import 'package:finesse/src/utils/arrow_key_focus.dart';
-import 'package:finesse/src/utils/border.dart';
-import 'package:finesse/src/utils/browser_context_menu/browser_context_menu.dart';
-import 'package:finesse/src/utils/dismiss_shortcut.dart';
-import 'package:finesse/src/utils/entrance.dart';
-import 'package:finesse/src/utils/extensions/text_style.dart';
-import 'package:finesse/src/utils/gesture_detector.dart';
-import 'package:finesse/src/utils/haptics.dart';
-import 'package:finesse/src/utils/mouse_area.dart';
-import 'package:finesse/src/utils/pop_in.dart';
-import 'package:finesse/src/utils/provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/button.dart';
+import 'package:una/src/components/divider.dart';
+import 'package:una/src/components/dropdown_menu.dart';
+import 'package:una/src/components/popover.dart';
+import 'package:una/src/components/scroll_area.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/liquid_glass/liquid_glass.dart';
+import 'package:una/src/liquid_glass/menu.dart';
+import 'package:una/src/raw_components/portal.dart';
+import 'package:una/src/theme/components/button.dart';
+import 'package:una/src/theme/components/context_menu.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/components/layout.dart';
+import 'package:una/src/theme/data.dart';
+import 'package:una/src/theme/form_factor.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/theme/theme_scope.dart';
+import 'package:una/src/utils/arrow_key_focus.dart';
+import 'package:una/src/utils/border.dart';
+import 'package:una/src/utils/browser_context_menu/browser_context_menu.dart';
+import 'package:una/src/utils/dismiss_shortcut.dart';
+import 'package:una/src/utils/entrance.dart';
+import 'package:una/src/utils/extensions/text_style.dart';
+import 'package:una/src/utils/gesture_detector.dart';
+import 'package:una/src/utils/haptics.dart';
+import 'package:una/src/utils/mouse_area.dart';
+import 'package:una/src/utils/pop_in.dart';
+import 'package:una/src/utils/provider.dart';
 
 part 'menu_items.dart';
 part 'show_menu.dart';
@@ -96,7 +96,7 @@ class ContextMenuRegion extends StatefulWidget {
   final List<BoxShadow>? shadows;
 
   /// {@macro Popover.decoration}
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// {@macro Popover.filter}
   final ImageFilter? filter;
@@ -209,7 +209,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
       decoration: widget.decoration,
       filter: widget.filter,
       requestFocus: widget.requestFocus,
-      child: FinesseGestureDetector(
+      child: UnaGestureDetector(
         behavior: widget.hitTestBehavior,
         supportedDevices: widget.supportedDevices,
         onTapDown: (d) {
@@ -390,7 +390,7 @@ class ContextMenu extends StatefulWidget {
   final List<BoxShadow>? shadows;
 
   /// {@macro Popover.decoration}
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// {@macro Popover.filter}
   final ImageFilter? filter;
@@ -509,7 +509,7 @@ class _ContextMenuState extends State<ContextMenu> {
 
   void _onOpenChanged() {
     final controller = this.controller;
-    // A menu opened at a point is a finesse popover, never a morph.
+    // A menu opened at a point is a una popover, never a morph.
     if (_builtMorph && controller.position != null) setState(() {});
     // Closed from inside while its parent still says open.
     if (!controller.isOpen && (widget.open ?? false)) {
@@ -692,7 +692,7 @@ class _ContextMenuState extends State<ContextMenu> {
         const EdgeInsets.symmetric(vertical: 4);
 
     final effectiveDecoration =
-        (theme.contextMenuTheme.decoration ?? const FinesseDecoration()).merge(
+        (theme.contextMenuTheme.decoration ?? const UnaDecoration()).merge(
           widget.decoration,
         );
 
@@ -841,7 +841,7 @@ class _ContextMenuState extends State<ContextMenu> {
 /// Tracks whether a [MenuItem] is hovered or focused, and the same
 /// for the items in its submenu.
 ///
-/// Used internally. It is not exported from `package:finesse/finesse.dart`.
+/// Used internally. It is not exported from `package:una/una.dart`.
 class _MenuItemController extends ChangeNotifier {
   /// Creates a controller for the item identified by [itemKey].
   _MenuItemController({
@@ -1232,9 +1232,9 @@ class _MenuItemState extends State<MenuItem> {
     final effectiveButtonVariant =
         menuTheme.buttonVariant ?? ButtonVariant.ghost;
 
-    final effectiveDecoration = const FinesseDecoration(
-      secondaryBorder: FinesseBorder.none,
-      secondaryFocusedBorder: FinesseBorder.none,
+    final effectiveDecoration = const UnaDecoration(
+      secondaryBorder: UnaBorder.none,
+      secondaryFocusedBorder: UnaBorder.none,
     ).merge(menuTheme.itemDecoration);
 
     // Menu rows draw their colours from the menu palette slots. shadcn's

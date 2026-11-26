@@ -1,9 +1,9 @@
 import 'dart:ui' as ui;
 
-import 'package:finesse/src/theme/text_theme/text_styles_default.dart';
-import 'package:finesse/src/theme/themes/default_theme_variant.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/text_theme/text_styles_default.dart';
+import 'package:una/src/theme/themes/default_theme_variant.dart';
 
 /// Strips the font family from a [TextStyle].
 extension OmitFamilyAndPackageExtension on TextStyle {
@@ -451,7 +451,7 @@ class TextTheme {
 
   /// The font family of the theme.
   ///
-  /// Null means the platform font. finesse bundles no fonts: set this to a
+  /// Null means the platform font. una bundles no fonts: set this to a
   /// family your app declares under `flutter: fonts:`, or build the theme
   /// with [TextTheme.fromGoogleFont].
   final String? family;

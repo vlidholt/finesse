@@ -1,9 +1,9 @@
-import 'package:finesse/material.dart';
-import 'package:finesse/src/app.dart';
-import 'package:finesse/src/components/table.dart';
 import 'package:flutter/material.dart' hide Card;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart';
+import 'package:una/material.dart';
+import 'package:una/src/app.dart';
+import 'package:una/src/components/table.dart';
 
 const invoices = [
   (
@@ -50,33 +50,33 @@ const invoices = [
   ),
 ];
 void main() {
-  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
+  // Helper method to create a test widget wrapped in UnaApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return FinesseApp(
-      builder: (context, child) => FinesseMaterial(child: child!),
+    return UnaApp(
+      builder: (context, child) => UnaMaterial(child: child!),
       home: Scaffold(body: child),
     );
   }
 
-  group('FinesseTable', () {
-    testWidgets('FinesseTable matches goldens', (tester) async {
+  group('UnaTable', () {
+    testWidgets('UnaTable matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          FinesseTable.list(
+          UnaTable.list(
             header: const [
-              FinesseTableCell.header(child: Text('Invoice')),
-              FinesseTableCell.header(child: Text('Status')),
-              FinesseTableCell.header(child: Text('Method')),
-              FinesseTableCell.header(
+              UnaTableCell.header(child: Text('Invoice')),
+              UnaTableCell.header(child: Text('Status')),
+              UnaTableCell.header(child: Text('Method')),
+              UnaTableCell.header(
                 alignment: Alignment.centerRight,
                 child: Text('Amount'),
               ),
             ],
             footer: const [
-              FinesseTableCell.footer(child: Text('Total')),
-              FinesseTableCell.footer(child: Text('')),
-              FinesseTableCell.footer(child: Text('')),
-              FinesseTableCell.footer(
+              UnaTableCell.footer(child: Text('Total')),
+              UnaTableCell.footer(child: Text('')),
+              UnaTableCell.footer(child: Text('')),
+              UnaTableCell.footer(
                 alignment: Alignment.centerRight,
                 child: Text(r'$2500.00'),
               ),
@@ -94,7 +94,7 @@ void main() {
             },
             children: invoices.map(
               (invoice) => [
-                FinesseTableCell(
+                UnaTableCell(
                   child: Text(
                     invoice.invoice,
                     style: const TextStyle(
@@ -102,9 +102,9 @@ void main() {
                     ),
                   ),
                 ),
-                FinesseTableCell(child: Text(invoice.paymentStatus)),
-                FinesseTableCell(child: Text(invoice.paymentMethod)),
-                FinesseTableCell(
+                UnaTableCell(child: Text(invoice.paymentStatus)),
+                UnaTableCell(child: Text(invoice.paymentMethod)),
+                UnaTableCell(
                   alignment: Alignment.centerRight,
                   child: Text(
                     invoice.totalAmount,
@@ -117,7 +117,7 @@ void main() {
       );
 
       await expectLater(
-        find.byType(FinesseTable),
+        find.byType(UnaTable),
         matchesGoldenFile('goldens/table.png'),
       );
     });

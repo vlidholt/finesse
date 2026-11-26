@@ -1,10 +1,10 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
-import '../../finesse_harness.dart';
+import '../../una_harness.dart';
 
 const _menubar = Align(
   alignment: Alignment.topLeft,
@@ -30,7 +30,7 @@ Future<void> _frames(WidgetTester tester, [int count = 30]) async {
 
 void main() {
   testWidgets('tapping another menubar menu switches to it', (tester) async {
-    await tester.pumpWidget(const FinesseApp(home: _menubar));
+    await tester.pumpWidget(const UnaApp(home: _menubar));
 
     await tester.tap(find.text('File'));
     await tester.pumpAndSettle();
@@ -44,7 +44,7 @@ void main() {
 
   group('a menu that closes itself leaves the menubar closed', () {
     Future<TestGesture> openFile(WidgetTester tester) async {
-      await pumpFinesse(tester, _menubar);
+      await pumpUna(tester, _menubar);
       final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
       await mouse.addPointer(location: const Offset(700, 700));
       addTearDown(mouse.removePointer);
@@ -86,7 +86,7 @@ void main() {
     testWidgets('opened from the keyboard, Escape closes it for good', (
       tester,
     ) async {
-      await pumpFinesse(tester, _menubar);
+      await pumpUna(tester, _menubar);
       await tester.sendKeyEvent(LogicalKeyboardKey.tab);
       await _frames(tester);
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);

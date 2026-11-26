@@ -4,12 +4,12 @@ import 'package:example/docs/docs.dart';
 import 'package:example/docs/examples/board/board_limit.dart';
 import 'package:example/docs/examples/board/board_many.dart';
 import 'package:example/docs/pages/board.dart';
-import 'package:finesse/finesse.dart';
-import 'package:finesse/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart' show ByteData, FontLoader;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/material.dart';
+import 'package:una/una.dart';
 
 import 'support.dart' show setUpFonts;
 
@@ -34,9 +34,9 @@ Future<void> _pumpPage(WidgetTester tester) async {
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
   await tester.pumpWidget(
-    FinesseApp(
+    UnaApp(
       theme: ThemeData(textTheme: TextTheme(family: _font)),
-      builder: (context, child) => FinesseMaterial(child: child!),
+      builder: (context, child) => UnaMaterial(child: child!),
       home: Scaffold(body: ComponentDocPage(doc: boardDoc)),
     ),
   );

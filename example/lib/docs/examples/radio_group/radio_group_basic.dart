@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 enum NotifyAbout {
   all('All new messages'),
@@ -16,7 +16,7 @@ class RadioGroupBasicExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FinesseRadioGroup<NotifyAbout>(
+    return UnaRadioGroup<NotifyAbout>(
       initialValue: NotifyAbout.mentions,
       onChanged: (value) {},
       items: [

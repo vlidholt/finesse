@@ -1,7 +1,7 @@
-import 'package:finesse/src/icons/thickened_glyph.dart';
-import 'package:finesse/src/theme/components/phosphor_icon.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/icons/thickened_glyph.dart';
+import 'package:una/src/theme/components/phosphor_icon.dart';
+import 'package:una/src/theme/theme.dart';
 
 /// An [Icon] that keeps a small Phosphor icon's line from thinning with its
 /// size.
@@ -68,7 +68,7 @@ class PhosphorIcon extends Icon {
   /// Whether [icon] is a glyph of `PhosphorIconsRegular`: the only icons
   /// whose line is thickened.
   static bool adapts(IconData icon) =>
-      icon.fontFamily == 'PhosphorRegular' && icon.fontPackage == 'finesse';
+      icon.fontFamily == 'PhosphorRegular' && icon.fontPackage == 'una';
 
   @override
   Widget build(BuildContext context) {

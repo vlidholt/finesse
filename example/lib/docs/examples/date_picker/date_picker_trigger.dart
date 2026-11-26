@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// The trigger restyled, and replaced: `variant` makes the default field a
 /// button and `formatDate` writes the date; `triggerBuilder` builds any
@@ -20,7 +20,7 @@ class _DatePickerTriggerExampleState extends State<DatePickerTriggerExample> {
 
   @override
   Widget build(BuildContext context) {
-    return FinesseRow(
+    return UnaRow(
       mainAxisSize: MainAxisSize.min,
       gap: GapSize.md,
       children: [

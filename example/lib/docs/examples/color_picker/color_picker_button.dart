@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// A swatch that opens the picker: in a popover on a desktop, where the
 /// colour is taken as it changes, and in a bottom sheet with Cancel and
@@ -27,7 +27,7 @@ class _ColorPickerButtonExampleState extends State<ColorPickerButtonExample> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return FinesseRow(
+    return UnaRow(
       mainAxisSize: MainAxisSize.min,
       gap: GapSize.md,
       children: [

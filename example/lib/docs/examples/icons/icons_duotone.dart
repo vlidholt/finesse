@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// Duotone icons draw a fill layer under the outline. By default it is the
 /// outline's colour at 20%; both the colour and the opacity can be set.

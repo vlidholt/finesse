@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// A carousel that moves on by itself. It waits while the pointer is over
 /// it, while the focus is in it and while it is touched, and stands still

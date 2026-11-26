@@ -1,8 +1,8 @@
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/components/calendar.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
+import 'package:una/src/components/button.dart';
+import 'package:una/src/components/calendar.dart';
+import 'package:una/src/theme/components/decorator.dart';
 
 part 'calendar.g.theme.dart';
 
@@ -129,15 +129,15 @@ class CalendarTheme with _$CalendarTheme {
 
   /// The decoration of the calendar, defaults to
   /// ```dart
-  /// FinesseDecoration(
-  ///   border: FinesseBorder.all(
+  /// UnaDecoration(
+  ///   border: UnaBorder.all(
   ///     borderRadius: radius,
   ///     padding: const EdgeInsets.all(12),
   ///     color: colorScheme.border
   ///   ),
   /// )
   /// ```
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// The spacing between months, defaults to 16
   final double? spacingBetweenMonths;
@@ -207,38 +207,38 @@ class CalendarTheme with _$CalendarTheme {
 
   /// The decoration of the day buttons, defaults to
   /// ```dart
-  /// FinesseDecoration(
+  /// UnaDecoration(
   ///   secondaryBorder:
-  ///       const FinesseBorder(padding: EdgeInsets.zero),
+  ///       const UnaBorder(padding: EdgeInsets.zero),
   ///   border: isInRange &&
   ///           !isFirstDateInRange &&
   ///           !isLastDateInRange
   ///       ? isFirstOfRow
-  ///           ? FinesseBorder(
+  ///           ? UnaBorder(
   ///               borderRadius: BorderRadius.only(
   ///                 topLeft: theme.radius.topLeft,
   ///                 bottomLeft: theme.radius.bottomLeft,
   ///               ),
   ///             )
   ///           : isLastOfRow
-  ///               ? FinesseBorder(
+  ///               ? UnaBorder(
   ///                   borderRadius: BorderRadius.only(
   ///                     topRight: theme.radius.topRight,
   ///                     bottomRight:
   ///                         theme.radius.bottomRight,
   ///                   ),
   ///                 )
-  ///               : const FinesseBorder(
+  ///               : const UnaBorder(
   ///                   borderRadius: BorderRadius.zero,
   ///                 )
   ///       : null,
-  ///    secondaryFocusedBorder: FinesseBorder.all(
+  ///    secondaryFocusedBorder: UnaBorder.all(
   ///       offset: 2,
   ///       color: theme.colorScheme.ring.withValues(alpha: .5),
   ///     ),
   ///   ),
   /// ```
-  final FinesseDecoration? dayButtonDecoration;
+  final UnaDecoration? dayButtonDecoration;
 
   /// The text style of the selected day button, defaults to
   /// ```dart

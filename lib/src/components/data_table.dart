@@ -1,19 +1,19 @@
 import 'dart:math' as math;
 
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/components/checkbox.dart';
-import 'package:finesse/src/components/empty.dart';
-import 'package:finesse/src/components/pagination.dart';
-import 'package:finesse/src/components/skeleton.dart';
-import 'package:finesse/src/components/table.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/raw_components/pressable.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/debug_check.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart';
+import 'package:una/src/components/button.dart';
+import 'package:una/src/components/checkbox.dart';
+import 'package:una/src/components/empty.dart';
+import 'package:una/src/components/pagination.dart';
+import 'package:una/src/components/skeleton.dart';
+import 'package:una/src/components/table.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/raw_components/pressable.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/debug_check.dart';
 
 /// Width of the leading checkbox column in a selectable [DataTable].
 ///
@@ -92,7 +92,7 @@ class DataTableColumn<T> {
   ///
   /// When null, this column flexes to fill the viewport minus any trailing
   /// [FixedTableSpanExtent] columns after it. If there is no trailing fixed
-  /// column, [FinesseTable]'s default of 100 logical pixels applies.
+  /// column, [UnaTable]'s default of 100 logical pixels applies.
   final TableSpanExtent? extent;
 
   /// The alignment of cell content.
@@ -596,7 +596,7 @@ class DataTableController<T> extends ChangeNotifier {
 /// A sortable, selectable, paginated table.
 ///
 /// Mirrors shadcn/ui's Data Table, which is a composition rather than a single
-/// primitive: this wraps [FinesseTable] for presentation and adds a
+/// primitive: this wraps [UnaTable] for presentation and adds a
 /// [DataTableController] for sort, filter, page and selection state.
 ///
 /// ```dart
@@ -614,7 +614,7 @@ class DataTableController<T> extends ChangeNotifier {
 /// )
 /// ```
 ///
-/// [FinesseTable] is built on `TableView`, a two-dimensional scroll view with
+/// [UnaTable] is built on `TableView`, a two-dimensional scroll view with
 /// no shrink-wrap, so this needs a bounded height — give it one via [height],
 /// an [Expanded], or a [SizedBox].
 /// {@endtemplate}
@@ -768,7 +768,7 @@ class _DataTableState<T> extends State<DataTable<T>> {
     final controller = widget.controller;
     final builder = widget.errorBuilder;
     if (builder != null) return builder(context, error, controller.reload);
-    final strings = FinesseLocalizations.of(context);
+    final strings = UnaLocalizations.of(context);
     return Center(
       child: Empty(
         title: Text(strings.dataTable.loadFailed),
@@ -845,7 +845,7 @@ class _DataTableState<T> extends State<DataTable<T>> {
     final label = Text(column.header, overflow: TextOverflow.ellipsis);
     if (!column.sortable) return label;
 
-    final strings = FinesseLocalizations.of(context).dataTable;
+    final strings = UnaLocalizations.of(context).dataTable;
     final ascending = controller.sortDirection == SortDirection.ascending;
     final content = Row(
       mainAxisSize: MainAxisSize.min,
@@ -927,7 +927,7 @@ class _DataTableState<T> extends State<DataTable<T>> {
       table =
           widget.emptyBuilder?.call(context) ?? const Center(child: Empty());
     } else {
-      table = FinesseTable(
+      table = UnaTable(
         columnCount: columnCount,
         rowCount: loading ? _placeholderRowCount : rows.length,
         pinnedRowCount: 1,
@@ -939,7 +939,7 @@ class _DataTableState<T> extends State<DataTable<T>> {
         },
         header: (context, column) {
           if (widget.selectable && column == 0) {
-            return FinesseTableCell.header(
+            return UnaTableCell.header(
               height: widget.headerHeight,
               padding: _kSelectionCellPadding,
               child: _buildSelectAllCheckbox(rows),
@@ -948,7 +948,7 @@ class _DataTableState<T> extends State<DataTable<T>> {
           final definition = columns[column - selectionOffset];
           final dataColumnIndex = column - selectionOffset;
           final isLastColumn = dataColumnIndex == columns.length - 1;
-          return FinesseTableCell.header(
+          return UnaTableCell.header(
             alignment: definition.headerAlignment ?? definition.alignment,
             height: widget.headerHeight,
             padding: isLastColumn ? _kTrailingCellPadding : null,
@@ -959,7 +959,7 @@ class _DataTableState<T> extends State<DataTable<T>> {
           if (loading) {
             final selection = widget.selectable && vicinity.column == 0;
             final dataColumnIndex = vicinity.column - selectionOffset;
-            return FinesseTableCell(
+            return UnaTableCell(
               alignment: selection ? null : columns[dataColumnIndex].alignment,
               height: widget.rowHeight,
               padding: selection
@@ -981,7 +981,7 @@ class _DataTableState<T> extends State<DataTable<T>> {
           final row = rows[vicinity.row];
           if (widget.selectable && vicinity.column == 0) {
             final key = widget.keyOf!(row);
-            return FinesseTableCell(
+            return UnaTableCell(
               height: widget.rowHeight,
               padding: _kSelectionCellPadding,
               child: Checkbox(
@@ -993,7 +993,7 @@ class _DataTableState<T> extends State<DataTable<T>> {
           final definition = columns[vicinity.column - selectionOffset];
           final dataColumnIndex = vicinity.column - selectionOffset;
           final isLastColumn = dataColumnIndex == columns.length - 1;
-          return FinesseTableCell(
+          return UnaTableCell(
             alignment: definition.alignment,
             height: widget.rowHeight,
             padding: isLastColumn ? _kTrailingCellPadding : null,
@@ -1020,7 +1020,7 @@ class _DataTableState<T> extends State<DataTable<T>> {
     if (loading) {
       // One announcement for the page, in place of a bar per cell.
       table = Semantics(
-        label: FinesseLocalizations.of(context).dataTable.loading,
+        label: UnaLocalizations.of(context).dataTable.loading,
         liveRegion: true,
         child: table,
       );
@@ -1034,7 +1034,7 @@ class _DataTableState<T> extends State<DataTable<T>> {
     if (widget.selectable && widget.showSelectionCount) {
       footerChildren.add(
         Text(
-          FinesseLocalizations.of(context).dataTable.selectedCount(
+          UnaLocalizations.of(context).dataTable.selectedCount(
             selected: controller.selectedKeys.length,
             total: controller.totalRowCount,
           ),

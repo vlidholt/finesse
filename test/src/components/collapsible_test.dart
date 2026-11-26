@@ -1,10 +1,10 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 void main() {
   group('Collapsible', () {
-    Widget wrap(Widget child) => FinesseApp(home: Center(child: child));
+    Widget wrap(Widget child) => UnaApp(home: Center(child: child));
 
     testWidgets('hides content until opened', (tester) async {
       final controller = CollapsibleController();

@@ -1,7 +1,7 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// Everything that is pressed is pressed from the keyboard too: Enter, the
 /// number pad's Enter and Space activate whatever has the focus.
@@ -63,7 +63,7 @@ void main() {
       testWidgets('$keyName activates a focused $name', (tester) async {
         var activations = 0;
         await tester.pumpWidget(
-          FinesseApp(
+          UnaApp(
             home: Scaffold(
               // Scrollable: on the web Space scrolls unless something
               // takes it first.
@@ -105,7 +105,7 @@ void main() {
     final controller = ScrollController()..addListener(() => scrolled = true);
     addTearDown(controller.dispose);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Scaffold(
           body: ListView(
             controller: controller,

@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
-import 'package:finesse/src/utils/clipboard/clipboard_service_stub.dart'
-    if (dart.library.js_interop) 'package:finesse/src/utils/clipboard/clipboard_service_web.dart'
+import 'package:una/src/utils/clipboard/clipboard_service_stub.dart'
+    if (dart.library.js_interop) 'package:una/src/utils/clipboard/clipboard_service_web.dart'
     as impl;
 
 /// A single item read from the system clipboard.
@@ -17,7 +17,7 @@ typedef PasteFilesErrorCallback = void Function(Object error);
 ///
 /// On web, listens to the browser `paste` event and extracts file items from
 /// the clipboard data. On other platforms, every method is a no-op.
-abstract final class FinesseClipboard {
+abstract final class UnaClipboard {
   /// Registers a listener for paste events containing file data.
   ///
   /// The [callback] is invoked only when the paste contains file items.

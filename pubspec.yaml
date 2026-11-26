@@ -1,12 +1,12 @@
-name: finesse
+name: una
 description: >-
   A themeable Flutter design system: 60+ widgets, frosted-glass surfaces,
   desktop and mobile metrics in one theme, Liquid Glass on iOS and macOS,
   and no Material dependency.
 version: 0.1.0
-homepage: https://github.com/vlidholt/finesse
-repository: https://github.com/vlidholt/finesse
-issue_tracker: https://github.com/vlidholt/finesse/issues
+homepage: https://github.com/vlidholt/una
+repository: https://github.com/vlidholt/una
+issue_tracker: https://github.com/vlidholt/una/issues
 topics:
   - user-interface
   - design-system
@@ -14,7 +14,7 @@ topics:
   - material-alternative
   - widgets
 screenshots:
-  - description: Strand, the demo app built with finesse.
+  - description: Strand, the demo app built with una.
     path: assets/screenshot.png
 
 environment:
@@ -38,7 +38,7 @@ dependencies:
   slang: ^4.19.0
   slang_flutter: ^4.19.0
   theme_extensions_builder_annotation: ^7.1.0
-  # Re-exported in part: FinesseTableCell extends TableViewCell.
+  # Re-exported in part: UnaTableCell extends TableViewCell.
   two_dimensional_scrollables: ^0.5.3
   web: ^1.1.1
 
@@ -54,7 +54,7 @@ dev_dependencies:
 flutter:
   # The Phosphor icon fonts, copied unchanged from phosphor_flutter 2.1.0.
   # MIT licensed: see fonts/phosphor/LICENSE and this package's LICENSE.
-  # They are the only fonts finesse bundles; text uses the platform font.
+  # They are the only fonts una bundles; text uses the platform font.
   fonts:
     - family: PhosphorRegular
       fonts:

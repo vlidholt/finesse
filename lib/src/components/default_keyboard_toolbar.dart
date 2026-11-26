@@ -1,9 +1,9 @@
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/components/icon_button.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/button.dart';
+import 'package:una/src/components/icon_button.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/theme/theme.dart';
 
 /// {@template DefaultKeyboardToolbar}
 /// A default keyboard toolbar with "Previous", "Next", and "Done" buttons.
@@ -53,7 +53,7 @@ class DefaultKeyboardToolbar extends StatelessWidget {
         theme.defaultKeyboardToolbarTheme.backgroundColor ??
         theme.colorScheme.accent;
 
-    final l = FinesseLocalizations.of(context);
+    final l = UnaLocalizations.of(context);
     final effectiveDoneText =
         doneText ??
         theme.defaultKeyboardToolbarTheme.doneText ??

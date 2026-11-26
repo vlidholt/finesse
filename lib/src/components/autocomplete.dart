@@ -1,14 +1,14 @@
 import 'dart:async';
 
-import 'package:finesse/src/components/popover.dart';
-import 'package:finesse/src/components/text_field.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/popover.dart';
+import 'package:una/src/components/text_field.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/extensions/text_style.dart';
 
 /// A text field that suggests completions under itself as the user types.
 ///
@@ -177,7 +177,7 @@ class Autocomplete<T extends Object> extends StatefulWidget {
   final TextInputAction? textInputAction;
 
   /// Merged over the theme's text field decoration.
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   @override
   State<Autocomplete<T>> createState() => _AutocompleteState<T>();
@@ -367,7 +367,7 @@ class _AutocompleteState<T extends Object> extends State<Autocomplete<T>> {
   }
 
   void _announceCount(int count) {
-    final l = FinesseLocalizations.of(context);
+    final l = UnaLocalizations.of(context);
     final message = switch (count) {
       0 => l.autocomplete.noResults,
       1 => l.autocomplete.oneResult,

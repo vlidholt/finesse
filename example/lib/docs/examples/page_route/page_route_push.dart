@@ -1,8 +1,8 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// A navigator in a phone-sized frame. Pages are pushed with
-/// `FinessePageRoute`; `backGesture: true` offers the swipe from the start
+/// `UnaPageRoute`; `backGesture: true` offers the swipe from the start
 /// edge on every platform, where it is otherwise iOS's alone.
 class PageRoutePushExample extends StatelessWidget {
   const PageRoutePushExample({super.key});
@@ -26,7 +26,7 @@ class PageRoutePushExample extends StatelessWidget {
           removeTop: true,
           removeBottom: true,
           child: Navigator(
-            onGenerateRoute: (settings) => FinessePageRoute<void>(
+            onGenerateRoute: (settings) => UnaPageRoute<void>(
               settings: settings,
               builder: (context) => const _Page(depth: 1),
             ),
@@ -45,7 +45,7 @@ class _Page extends StatelessWidget {
 
   void _push(BuildContext context, {bool fullscreenDialog = false}) {
     Navigator.of(context).push(
-      FinessePageRoute<void>(
+      UnaPageRoute<void>(
         fullscreenDialog: fullscreenDialog,
         // Drag the page away from its left edge.
         backGesture: true,
@@ -64,7 +64,7 @@ class _Page extends StatelessWidget {
         title: Text(dialog ? 'New note' : 'Page $depth'),
       ),
       body: PageContainer(
-        child: FinesseColumn(
+        child: UnaColumn(
           gap: GapSize.md,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

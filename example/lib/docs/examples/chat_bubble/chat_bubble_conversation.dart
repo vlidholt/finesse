@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// A short exchange. Only the last bubble of each run keeps its tail, and a
 /// bubble never grows past a fraction of the width, so long messages wrap.

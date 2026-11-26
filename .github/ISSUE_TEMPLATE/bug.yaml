@@ -1,6 +1,6 @@
 name: Report a bug
 description: |
-  You found a bug in finesse causing your application to crash or throw an
+  You found a bug in una causing your application to crash or throw an
   exception, a widget is buggy, or something looks wrong.
 labels:
   - bug
@@ -9,16 +9,16 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thank you for using finesse!
+        Thank you for using una!
 
         If you are looking for support, please check out the documentation:
 
-          - https://vlidholt.github.io/finesse/
+          - https://vlidholt.github.io/una/
   - type: markdown
     attributes:
       value: |
         Before filling the form fields, please consider the following:
-        - Ensure that you have searched the [existing issues](https://github.com/vlidholt/finesse/issues)
+        - Ensure that you have searched the [existing issues](https://github.com/vlidholt/una/issues)
   - type: textarea
     attributes:
       label: Steps to reproduce
@@ -43,8 +43,8 @@ body:
       required: true
   - type: input
     attributes:
-      label: finesse version
-      description: Please tell us which version of finesse you are using.
+      label: una version
+      description: Please tell us which version of una you are using.
       placeholder: ex. 0.7.3
     validations:
       required: true

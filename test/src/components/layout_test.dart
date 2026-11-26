@@ -1,6 +1,6 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 void main() {
   Widget wrap(Widget child, {Spacing spacing = const Spacing()}) {
@@ -115,7 +115,7 @@ void main() {
     });
   });
 
-  group('FinessePadding', () {
+  group('UnaPadding', () {
     testWidgets('all, symmetric and only are measured in steps', (
       tester,
     ) async {
@@ -124,13 +124,13 @@ void main() {
           const Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              FinessePadding.all(6, child: SizedBox.shrink()),
-              FinessePadding.symmetric(
+              UnaPadding.all(6, child: SizedBox.shrink()),
+              UnaPadding.symmetric(
                 horizontal: 4,
                 vertical: 2,
                 child: SizedBox.shrink(),
               ),
-              FinessePadding.only(top: 3, child: SizedBox.shrink()),
+              UnaPadding.only(top: 3, child: SizedBox.shrink()),
             ],
           ),
         ),
@@ -154,7 +154,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         wrap(
-          const FinessePadding.directional(
+          const UnaPadding.directional(
             start: 5,
             child: SizedBox.shrink(),
           ),
@@ -168,11 +168,11 @@ void main() {
     });
   });
 
-  group('FinesseColumn / FinesseRow', () {
+  group('UnaColumn / UnaRow', () {
     testWidgets('spacing is expressed in steps', (tester) async {
       await tester.pumpWidget(
         wrap(
-          const FinesseColumn(
+          const UnaColumn(
             mainAxisSize: MainAxisSize.min,
             spacing: 4,
             children: [
@@ -184,13 +184,13 @@ void main() {
       );
 
       // Two 10px children plus one 16px gap.
-      expect(tester.getSize(find.byType(FinesseColumn)).height, 36);
+      expect(tester.getSize(find.byType(UnaColumn)).height, 36);
     });
 
-    testWidgets('FinesseRow spaces horizontally', (tester) async {
+    testWidgets('UnaRow spaces horizontally', (tester) async {
       await tester.pumpWidget(
         wrap(
-          const FinesseRow(
+          const UnaRow(
             mainAxisSize: MainAxisSize.min,
             spacing: 2,
             children: [
@@ -201,7 +201,7 @@ void main() {
         ),
       );
 
-      expect(tester.getSize(find.byType(FinesseRow)).width, 28);
+      expect(tester.getSize(find.byType(UnaRow)).width, 28);
     });
   });
 }

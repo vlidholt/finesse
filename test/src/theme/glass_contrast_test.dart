@@ -1,8 +1,8 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
-/// The floating surfaces of the `finesse` style are glass, so what is read
+/// The floating surfaces of the `una` style are glass, so what is read
 /// on them depends on what is behind them. These walk every menu option in
 /// both brightnesses over the page, over black and over white — the two
 /// ends a blurred photograph can come out at — and hold the text to WCAG
@@ -26,7 +26,7 @@ void main() {
     bool? translucent,
     bool inverted = false,
     MenuAccent accent = MenuAccent.subtle,
-    StyleTokens style = StyleTokens.finesse,
+    StyleTokens style = StyleTokens.una,
   }) => ThemeData(
     brightness: brightness,
     style: style,
@@ -39,7 +39,7 @@ void main() {
         : null,
   );
 
-  test('the finesse style makes every floating surface glass', () {
+  test('the una style makes every floating surface glass', () {
     for (final brightness in Brightness.values) {
       final theme = themeOf(brightness);
       final style = theme.style;

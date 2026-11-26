@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
-import '../../finesse_harness.dart';
+import '../../una_harness.dart';
 
 const _frame = Duration(milliseconds: 16);
 
@@ -123,7 +123,7 @@ void main() {
     testWidgets('text that is there when it is built is not revealed', (
       tester,
     ) async {
-      await pumpFinesse(tester, const _Host(text: 'Hello there'));
+      await pumpUna(tester, const _Host(text: 'Hello there'));
       final state = _state(tester);
       expect(state.revealed, 11);
       expect(state.solid, 11);
@@ -132,7 +132,7 @@ void main() {
     testWidgets('finished text is a plain Text and animates nothing', (
       tester,
     ) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const _Host(text: 'Hello there', streaming: false),
       );
@@ -145,7 +145,7 @@ void main() {
     testWidgets('new text is revealed monotonically and ends complete', (
       tester,
     ) async {
-      await pumpFinesse(tester, const _Host());
+      await pumpUna(tester, const _Host());
       _host(tester).update(text: 'The quick brown fox');
       await tester.pump();
 
@@ -172,7 +172,7 @@ void main() {
       tester,
     ) async {
       // The test font is a 15-point square a glyph: 10 fit in 150.
-      await pumpFinesse(tester, const _Host(width: 150));
+      await pumpUna(tester, const _Host(width: 150));
       const text = 'aaaa bbbb cccc dddd eeee ffff';
       _host(tester).update(text: text);
       await tester.pump();
@@ -202,7 +202,7 @@ void main() {
     testWidgets('lines already showing stay as they are when more arrives', (
       tester,
     ) async {
-      await pumpFinesse(tester, const _Host(width: 150));
+      await pumpUna(tester, const _Host(width: 150));
       // Arrives in three pieces, each a line of its own.
       const pieces = ['aaaa bbbb ', 'cccc dddd ', 'eeee'];
       final text = StringBuffer();
@@ -227,7 +227,7 @@ void main() {
     testWidgets('a burst is caught up with quickly, and evenly', (
       tester,
     ) async {
-      await pumpFinesse(tester, const _Host(width: 600));
+      await pumpUna(tester, const _Host(width: 600));
       final burst = List.filled(400, 'word').join(' ');
       expect(burst.length, 1999);
       _host(tester).update(text: burst);
@@ -252,7 +252,7 @@ void main() {
     });
 
     testWidgets('an uneven stream is shown at an even pace', (tester) async {
-      await pumpFinesse(tester, const _Host(width: 600));
+      await pumpUna(tester, const _Host(width: 600));
       // 12 characters every 96 ms: 125 characters a second, in lumps.
       final text = StringBuffer();
       final steps = <int>[];
@@ -279,7 +279,7 @@ void main() {
       tester,
     ) async {
       var revealed = 0;
-      await pumpFinesse(tester, _Host(onRevealed: () => revealed++));
+      await pumpUna(tester, _Host(onRevealed: () => revealed++));
       _host(tester).update(text: 'Nearly there');
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 48));
@@ -295,7 +295,7 @@ void main() {
     });
 
     testWidgets('the caret shows only while more is expected', (tester) async {
-      await pumpFinesse(tester, const _Host(text: 'Thinking'));
+      await pumpUna(tester, const _Host(text: 'Thinking'));
       expect(_state(tester).caret, greaterThan(0));
       // It breathes, so a stream that is open keeps a frame scheduled.
       final seen = <double>{};
@@ -316,7 +316,7 @@ void main() {
     testWidgets('showCaret: false paints none and lets an open stream rest', (
       tester,
     ) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Align(
           alignment: Alignment.topLeft,
@@ -330,7 +330,7 @@ void main() {
     testWidgets('never splits a surrogate pair cut by a chunk boundary', (
       tester,
     ) async {
-      await pumpFinesse(tester, const _Host(width: 600));
+      await pumpUna(tester, const _Host(width: 600));
       const grin = '\u{1F600}';
       // The first chunk ends in the middle of the emoji.
       _host(tester).update(text: 'ok ${grin.substring(0, 1)}');
@@ -351,7 +351,7 @@ void main() {
     testWidgets('reveals whole grapheme clusters, whatever the chunks', (
       tester,
     ) async {
-      await pumpFinesse(tester, const _Host(width: 600));
+      await pumpUna(tester, const _Host(width: 600));
       // A family joined by zero-width joiners, a flag, a skin tone, a
       // letter with a combining accent, Devanagari and Arabic.
       const full =
@@ -385,7 +385,7 @@ void main() {
     testWidgets('holds back a joiner and half a flag until they complete', (
       tester,
     ) async {
-      await pumpFinesse(tester, const _Host(width: 600));
+      await pumpUna(tester, const _Host(width: 600));
       // Ends on a joiner: the man waits for whoever he is joined to.
       _host(tester).update(text: 'x\u{1F468}‍');
       for (var i = 0; i < 40; i++) {
@@ -407,7 +407,7 @@ void main() {
     testWidgets('text that is not a continuation keeps the common part', (
       tester,
     ) async {
-      await pumpFinesse(tester, const _Host(text: 'Hello world'));
+      await pumpUna(tester, const _Host(text: 'Hello world'));
       expect(_state(tester).revealed, 11);
       _host(tester).update(text: 'Hello there, friend');
       await tester.pump();
@@ -422,7 +422,7 @@ void main() {
     testWidgets('finished text that is edited is simply replaced', (
       tester,
     ) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const _Host(text: 'First draft', streaming: false),
       );
@@ -438,7 +438,7 @@ void main() {
           'A reply long enough to wrap over several lines of a narrow '
           'bubble, with a second sentence after it.';
       for (final direction in TextDirection.values) {
-        await pumpFinesse(
+        await pumpUna(
           tester,
           _Host(key: ValueKey(direction), text: text, width: 220),
           textDirection: direction,
@@ -456,7 +456,7 @@ void main() {
     testWidgets('follows the ambient text style, scale and direction', (
       tester,
     ) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const MediaQuery(
           data: MediaQueryData(textScaler: TextScaler.linear(2)),
@@ -475,7 +475,7 @@ void main() {
     testWidgets('right-to-left text grows from the right edge of its box', (
       tester,
     ) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const _Host(width: 300),
         textDirection: TextDirection.rtl,
@@ -499,7 +499,7 @@ void main() {
       tester,
     ) async {
       final handle = tester.ensureSemantics();
-      await pumpFinesse(tester, const _Host());
+      await pumpUna(tester, const _Host());
       _host(tester).update(text: 'The whole answer');
       await tester.pump();
       await tester.pump(_frame);
@@ -529,7 +529,7 @@ void main() {
             ),
       );
 
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const MediaQuery(
           data: MediaQueryData(supportsAnnounce: true),
@@ -550,7 +550,7 @@ void main() {
     testWidgets('a placeholder shows until the first text, then gives way', (
       tester,
     ) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const _Host(placeholder: TypingIndicator()),
       );
@@ -599,7 +599,7 @@ void main() {
       var tail = 'bo';
       var streaming = true;
       late StateSetter rebuild;
-      await pumpFinesse(
+      await pumpUna(
         tester,
         Align(
           alignment: Alignment.topLeft,
@@ -631,7 +631,7 @@ void main() {
     testWidgets('each chunk appears at once, with a short fade', (
       tester,
     ) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const MediaQuery(
           data: MediaQueryData(disableAnimations: true),
@@ -653,7 +653,7 @@ void main() {
     });
 
     testWidgets('Motion.none shows it in the same frame', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const _Host(),
         theme: ThemeData(motion: Motion.none),
@@ -676,7 +676,7 @@ void main() {
     ) async {
       final chunks = StreamController<String>();
       var revealed = 0;
-      await pumpFinesse(
+      await pumpUna(
         tester,
         Align(
           alignment: Alignment.topLeft,
@@ -711,7 +711,7 @@ void main() {
     ) async {
       final chunks = StreamController<String>();
       Object? reported;
-      await pumpFinesse(
+      await pumpUna(
         tester,
         Align(
           alignment: Alignment.topLeft,
@@ -738,7 +738,7 @@ void main() {
       final chunks = StreamController<String>(
         onCancel: () => cancelled = true,
       );
-      await pumpFinesse(tester, StreamingText.stream(chunks.stream));
+      await pumpUna(tester, StreamingText.stream(chunks.stream));
       expect(chunks.hasListener, isTrue);
       await tester.pumpWidget(const SizedBox());
       expect(cancelled, isTrue);
@@ -750,7 +750,7 @@ void main() {
       final second = StreamController<String>();
       var stream = first.stream;
       late StateSetter rebuild;
-      await pumpFinesse(
+      await pumpUna(
         tester,
         Align(
           alignment: Alignment.topLeft,
@@ -844,7 +844,7 @@ void main() {
     ) async {
       final controller = StreamingTextController();
       addTearDown(controller.dispose);
-      await pumpFinesse(
+      await pumpUna(
         tester,
         Align(
           alignment: Alignment.topLeft,
@@ -870,16 +870,16 @@ void main() {
     ) async {
       final controller = StreamingTextController(text: 'Kept')..append(' on');
       addTearDown(controller.dispose);
-      await pumpFinesse(tester, StreamingText.controller(controller));
+      await pumpUna(tester, StreamingText.controller(controller));
       await tester.pumpWidget(const SizedBox());
-      await pumpFinesse(tester, StreamingText.controller(controller));
+      await pumpUna(tester, StreamingText.controller(controller));
       // Built with it: shown, not revealed again.
       expect(_state(tester).revealed, 7);
     });
   });
 
   testWidgets('describes its reveal for the inspector', (tester) async {
-    await pumpFinesse(tester, const _Host(text: 'abc'));
+    await pumpUna(tester, const _Host(text: 'abc'));
     final node = tester.renderObject(_paragraph).toDiagnosticsNode();
     expect(
       node.getProperties().map((p) => p.name),

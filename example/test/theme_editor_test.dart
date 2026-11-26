@@ -5,10 +5,10 @@ import 'package:example/common/theme_editor/fonts.dart';
 import 'package:example/common/theme_editor/presets.dart';
 import 'package:example/main.dart';
 import 'package:example/screens/components_screen.dart';
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_solidart/flutter_solidart.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 import 'support.dart';
 
@@ -63,11 +63,11 @@ void main() {
   group('ThemeEditorConfig', () {
     test('the default config is the package default look', () {
       const config = ThemeEditorConfig();
-      expect(config.style, StylePreset.finesse);
+      expect(config.style, StylePreset.una);
       expect(config.baseColor, BaseColor.teal);
       expect(config.accentColor, AccentColor.base);
       expect(config.fontTitle, 'Geist');
-      // The radius is left to the style, which is 10 for Finesse.
+      // The radius is left to the style, which is 10 for Una.
       expect(config.usesStyleRadius, isTrue);
       expect(config.effectiveRadius, 10);
 
@@ -79,7 +79,7 @@ void main() {
           brightness: brightness,
           textTheme: config.textTheme,
         );
-        expect(theme.style, StyleTokens.finesse);
+        expect(theme.style, StyleTokens.una);
         expect(theme.radius, BorderRadius.circular(10));
         expect(theme.colorScheme, packageDefault.colorScheme);
         expect(
@@ -145,25 +145,25 @@ void main() {
     test('the focus ring comes from the style, not from the editor', () {
       // There are no ring knobs; the style owns it.
       final lyra = const ThemeEditorConfig(style: StylePreset.lyra).build();
-      final finesse = const ThemeEditorConfig().build();
+      final una = const ThemeEditorConfig().build();
 
       expect(lyra.decoration.secondaryFocusedBorder!.top!.width, 1);
-      expect(finesse.decoration.secondaryFocusedBorder!.top!.width, 3);
+      expect(una.decoration.secondaryFocusedBorder!.top!.width, 3);
       expect(
-        finesse.decoration.secondaryFocusedBorder!.top!.color!.a,
-        closeTo(StyleTokens.finesse.ringOpacity, .01),
+        una.decoration.secondaryFocusedBorder!.top!.color!.a,
+        closeTo(StyleTokens.una.ringOpacity, .01),
       );
     });
 
     test('a style retypes the components and keeps the chosen font', () {
-      final finesse = const ThemeEditorConfig().build();
+      final una = const ThemeEditorConfig().build();
       final lyra = const ThemeEditorConfig(style: StylePreset.lyra).build();
 
       // Lyra is the compact, monospace-flavoured style: its menu rows are
-      // set a step smaller than Finesse's.
+      // set a step smaller than Una's.
       expect(lyra.commandTheme.itemTextStyle!.fontSize, 12);
       expect(
-        finesse.commandTheme.itemTextStyle!.fontSize,
+        una.commandTheme.itemTextStyle!.fontSize,
         greaterThan(lyra.commandTheme.itemTextStyle!.fontSize!),
       );
       // The chosen font survives the style's typography, in the face for
@@ -192,10 +192,10 @@ void main() {
       final lyra = const ThemeEditorConfig(style: StylePreset.lyra).build();
       expect(lyra.cardTheme.borderRadius, BorderRadius.zero);
       // ...and a rounded one scales the card past the control radius.
-      final finesse = const ThemeEditorConfig().build();
+      final una = const ThemeEditorConfig().build();
       expect(
-        finesse.cardTheme.borderRadius!.topLeft.x,
-        greaterThan(finesse.radius.topLeft.x),
+        una.cardTheme.borderRadius!.topLeft.x,
+        greaterThan(una.radius.topLeft.x),
       );
     });
 
@@ -225,7 +225,7 @@ void main() {
       expect(snippet, contains('Brightness.dark'));
       expect(snippet, contains('ZincColorScheme.dark()'));
       expect(snippet, contains('applyAccentScheme'));
-      // Finesse is the package default style, so it is not spelled out…
+      // Una is the package default style, so it is not spelled out…
       expect(snippet, isNot(contains('style:')));
       // …and any other is.
       expect(
@@ -360,7 +360,7 @@ void main() {
         expect(find.text(label), findsOneWidget, reason: 'missing $label');
       }
       // The defaults, as the pickers show them.
-      expect(find.text('Finesse'), findsOneWidget);
+      expect(find.text('Una'), findsOneWidget);
       expect(find.text('Teal'), findsOneWidget);
       expect(find.text('Geist'), findsOneWidget);
       // Light/dark and direction are app-wide switches, not settings this
@@ -475,7 +475,7 @@ void main() {
         themeConfigProvider.of(appContext(tester)).value,
         const ThemeEditorConfig(),
       );
-      expect(pageTheme(tester).style, StyleTokens.finesse);
+      expect(pageTheme(tester).style, StyleTokens.una);
     });
 
     testWidgets('a preset re-themes the app, and a change after it is Custom', (
@@ -627,7 +627,7 @@ void main() {
 
       expect(appTheme(tester).formFactor, FormFactor.mobile);
       expect(pageTheme(tester).formFactor, FormFactor.mobile);
-      expect(pageTheme(tester).style, StyleTokens.finesseMobile);
+      expect(pageTheme(tester).style, StyleTokens.unaMobile);
       // The phone's chrome: the sidebar is a sheet, closed.
       expect(find.byType(Sidebar), findsNothing);
       // Laid out at a phone's size, centred in the window.
@@ -698,7 +698,7 @@ void main() {
       await setFormFactor(tester, EditorFormFactor.desktop);
 
       expect(appTheme(tester).formFactor, FormFactor.desktop);
-      expect(pageTheme(tester).style, StyleTokens.finesse);
+      expect(pageTheme(tester).style, StyleTokens.una);
       // The desktop's sidebar, beside the page.
       expect(find.byType(Sidebar), findsOneWidget);
       // Laid out at the narrowest width a desktop layout is designed for…
@@ -995,7 +995,7 @@ void main() {
     });
 
     test('every font comes from Google Fonts through a cached builder', () {
-      // finesse bundles no fonts, so every option, Inter included, resolves
+      // una bundles no fonts, so every option, Inter included, resolves
       // through google_fonts.
       for (final font in EditorFont.all) {
         expect(

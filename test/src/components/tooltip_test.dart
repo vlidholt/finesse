@@ -1,22 +1,22 @@
-import 'package:finesse/material.dart';
-import 'package:finesse/src/app.dart';
-import 'package:finesse/src/components/kbd.dart';
-import 'package:finesse/src/components/popover.dart';
-import 'package:finesse/src/components/tooltip.dart';
-import 'package:finesse/src/theme/data.dart';
-import 'package:finesse/src/theme/style.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/backdrop.dart';
 import 'package:flutter/material.dart' hide Theme, ThemeData, Tooltip;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/material.dart';
+import 'package:una/src/app.dart';
+import 'package:una/src/components/kbd.dart';
+import 'package:una/src/components/popover.dart';
+import 'package:una/src/components/tooltip.dart';
+import 'package:una/src/theme/data.dart';
+import 'package:una/src/theme/style.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/backdrop.dart';
 
 import '../../fixture_styles.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
+  // Helper method to create a test widget wrapped in UnaApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return FinesseApp(
-      builder: (context, child) => FinesseMaterial(child: child!),
+    return UnaApp(
+      builder: (context, child) => UnaMaterial(child: child!),
       home: Scaffold(body: child),
     );
   }
@@ -123,7 +123,7 @@ void main() {
       expect(tooltip.arrowRadius, 2);
     });
 
-    test('in the finesse style it is inverted glass', () {
+    test('in the una style it is inverted glass', () {
       for (final brightness in Brightness.values) {
         final theme = ThemeData(brightness: brightness);
         final tooltip = theme.tooltipTheme;
@@ -159,8 +159,8 @@ void main() {
       // vega `rounded-md` 8, maia `rounded-2xl` 16, luma `rounded-xl` 14.
       expect(radiusOf(FixtureStyles.vega).topLeft.x, 8);
       expect(radiusOf(StyleTokens.nova).topLeft.x, 8);
-      // finesse: the `sm` step of its own scale, 6 at a base of 10.
-      expect(radiusOf(StyleTokens.finesse).topLeft.x, 6);
+      // una: the `sm` step of its own scale, 6 at a base of 10.
+      expect(radiusOf(StyleTokens.una).topLeft.x, 6);
       expect(radiusOf(StyleTokens.maia).topLeft.x, 16);
       expect(radiusOf(FixtureStyles.luma).topLeft.x, 14);
       expect(radiusOf(StyleTokens.lyra), BorderRadius.zero);
@@ -212,7 +212,7 @@ void main() {
   group('the arrow', () {
     // The arrow is part of the bubble's own outline; an empty keyed box
     // marks where its square sits.
-    Finder diamond() => find.byKey(const ValueKey('finesse_tooltip_arrow'));
+    Finder diamond() => find.byKey(const ValueKey('una_tooltip_arrow'));
 
     testWidgets('rides the bottom edge when the tooltip sits above', (
       tester,

@@ -1,17 +1,17 @@
-import 'package:finesse/material.dart';
-import 'package:finesse/src/app.dart';
-import 'package:finesse/src/components/avatar.dart'; // Adjust import path based on your project structure
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/theme/data.dart';
-import 'package:finesse/src/theme/style.dart';
 import 'package:flutter/material.dart' hide ThemeData;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/material.dart';
+import 'package:una/src/app.dart';
+import 'package:una/src/components/avatar.dart'; // Adjust import path based on your project structure
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/theme/data.dart';
+import 'package:una/src/theme/style.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
+  // Helper method to create a test widget wrapped in UnaApp and Scaffold
   Widget createTestWidget(Widget child, {ThemeData? theme}) {
-    return FinesseApp(
-      builder: (context, child) => FinesseMaterial(child: child!),
+    return UnaApp(
+      builder: (context, child) => UnaMaterial(child: child!),
       theme: theme,
       home: Scaffold(
         body: child,
@@ -117,7 +117,7 @@ void main() {
         ),
       );
 
-      // Check Container applies default size — the finesse style's 40.
+      // Check Container applies default size — the una style's 40.
       final containerFinder = find.byType(Container);
       expect(containerFinder, findsOneWidget);
       final container = tester.widget<Container>(containerFinder);

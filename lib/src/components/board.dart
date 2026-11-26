@@ -1,21 +1,21 @@
 import 'dart:math' as math;
 
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/raw_components/pressable.dart';
-import 'package:finesse/src/theme/components/board.dart';
-import 'package:finesse/src/theme/data.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/debug_check.dart';
-import 'package:finesse/src/utils/haptics.dart';
-import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/raw_components/pressable.dart';
+import 'package:una/src/theme/components/board.dart';
+import 'package:una/src/theme/data.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/debug_check.dart';
+import 'package:una/src/utils/haptics.dart';
+import 'package:una/src/utils/shadow.dart';
 
 part 'board_column.dart';
 part 'board_motion.dart';
@@ -479,9 +479,7 @@ class BoardDragHandle extends StatelessWidget {
             : HitTestBehavior.deferToChild,
         onPointerDown: active ? scope.startHandleDrag : null,
         child: Semantics(
-          label: active
-              ? FinesseLocalizations.of(context).board.dragHandle
-              : null,
+          label: active ? UnaLocalizations.of(context).board.dragHandle : null,
           child: child,
         ),
       ),

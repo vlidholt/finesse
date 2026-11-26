@@ -34,7 +34,7 @@ mixin _$ResizableTheme {
       handleIcon: t < 0.5 ? a.handleIcon : b.handleIcon,
       dividerSize: lerpDouble$(a.dividerSize, b.dividerSize, t),
       resetOnDoubleTap: t < 0.5 ? a.resetOnDoubleTap : b.resetOnDoubleTap,
-      handleDecoration: FinesseDecoration.lerp(
+      handleDecoration: UnaDecoration.lerp(
         a.handleDecoration,
         b.handleDecoration,
         t,
@@ -59,7 +59,7 @@ mixin _$ResizableTheme {
     Widget? handleIcon,
     double? dividerSize,
     bool? resetOnDoubleTap,
-    FinesseDecoration? handleDecoration,
+    UnaDecoration? handleDecoration,
     EdgeInsetsGeometry? handlePadding,
     double? handleSize,
     double? dividerThickness,

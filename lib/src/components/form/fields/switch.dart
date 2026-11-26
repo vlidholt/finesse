@@ -1,13 +1,13 @@
-import 'package:finesse/src/components/control_affinity.dart';
-import 'package:finesse/src/components/form/field.dart';
-import 'package:finesse/src/components/switch.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/control_affinity.dart';
+import 'package:una/src/components/form/field.dart';
+import 'package:una/src/components/switch.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/theme.dart';
 
-/// A [Switch] that takes part in a `FinesseForm`, with a label, a
+/// A [Switch] that takes part in a `UnaForm`, with a label, a
 /// description and validation.
-class SwitchFormField extends FinesseFormField<bool> {
+class SwitchFormField extends UnaFormField<bool> {
   /// Creates a switch form field.
   SwitchFormField({
     super.id,
@@ -29,7 +29,7 @@ class SwitchFormField extends FinesseFormField<bool> {
     required bool initialValue,
 
     /// {@macro Switch.decoration}
-    FinesseDecoration? decoration,
+    UnaDecoration? decoration,
     super.focusNode,
 
     /// Returns an error message for the value, or null when it is valid.
@@ -72,8 +72,7 @@ class SwitchFormField extends FinesseFormField<bool> {
                  return validator(v ?? false);
                },
          decorationBuilder: (context) =>
-             (Theme.of(context).switchTheme.decoration ??
-                     const FinesseDecoration())
+             (Theme.of(context).switchTheme.decoration ?? const UnaDecoration())
                  .merge(decoration),
          builder: (state) {
            state as _SwitchFormFieldState;
@@ -98,10 +97,9 @@ class SwitchFormField extends FinesseFormField<bool> {
        );
 
   @override
-  FinesseFormFieldState<SwitchFormField, bool> createState() =>
+  UnaFormFieldState<SwitchFormField, bool> createState() =>
       _SwitchFormFieldState();
 }
 
 /// The state of a [SwitchFormField].
-class _SwitchFormFieldState
-    extends FinesseFormFieldState<SwitchFormField, bool> {}
+class _SwitchFormFieldState extends UnaFormFieldState<SwitchFormField, bool> {}

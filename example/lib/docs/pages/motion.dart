@@ -31,7 +31,7 @@ final motionDoc = ComponentDoc(
           id: 'motion_tokens',
           title: 'One vocabulary for everything',
           description:
-              '`StyleTokens.finesse` moves with `Motion.lively`; the shadcn '
+              '`StyleTokens.una` moves with `Motion.lively`; the shadcn '
               'styles with the quieter `Motion.calm`. Pass `motion:` to '
               '`ThemeData` to replace it, or `Motion.none` to switch every '
               'transition off.',
@@ -135,7 +135,7 @@ final motionDoc = ComponentDoc(
             'tooltip that takes over from its neighbour only fades.',
           ),
           DocParagraph(
-            '`FinessePageRoute` brings a page in on the same tokens: from '
+            '`UnaPageRoute` brings a page in on the same tokens: from '
             'the end side on a phone, a few pixels up on a desktop. For a '
             'transition of your own, `EntranceProgress` turns a route\'s '
             '`animation` into a spring on the way in and a straight line '

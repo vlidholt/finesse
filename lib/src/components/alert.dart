@@ -1,19 +1,19 @@
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/components/decorator.dart';
-import 'package:finesse/src/components/icon_button.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/theme/components/alert.dart';
-import 'package:finesse/src/theme/components/button.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/components/layout.dart';
-import 'package:finesse/src/theme/data.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/border.dart';
-import 'package:finesse/src/utils/expand_reveal.dart';
-import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/button.dart';
+import 'package:una/src/components/decorator.dart';
+import 'package:una/src/components/icon_button.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/theme/components/alert.dart';
+import 'package:una/src/theme/components/button.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/components/layout.dart';
+import 'package:una/src/theme/data.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/border.dart';
+import 'package:una/src/utils/expand_reveal.dart';
+import 'package:una/src/utils/spring.dart';
 
 /// Variants available for the [Alert] widget.
 enum AlertVariant {
@@ -138,7 +138,7 @@ class Alert extends StatefulWidget {
   /// Custom decoration for the alert, merged with theme defaults if provided.
   /// Allows customization of border, padding, and other visual properties.
   /// {@endtemplate}
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// {@template Alert.iconPadding}
   /// Padding around the icon, defaults to right padding of 12 if not specified.
@@ -268,8 +268,8 @@ class _AlertState extends State<Alert> {
         effectiveAlertTheme.iconPadding ??
         const EdgeInsetsDirectional.only(end: 12);
 
-    final defaultDecoration = FinesseDecoration(
-      border: FinesseBorder.all(
+    final defaultDecoration = UnaDecoration(
+      border: UnaBorder.all(
         color: theme.colorScheme.border,
         borderRadius: theme.radius,
         padding: const EdgeInsets.all(16),
@@ -288,7 +288,7 @@ class _AlertState extends State<Alert> {
       final border = themeDecoration.border;
       if (border != null) {
         themeDecoration = themeDecoration.copyWith(
-          border: FinesseBorder(
+          border: UnaBorder(
             canMerge: border.canMerge,
             top: border.top,
             right: border.left,
@@ -304,11 +304,11 @@ class _AlertState extends State<Alert> {
     if (tint != null) {
       // The outline takes a little of the accent, so the alert has an edge
       // on a card of its own colour.
-      final edge = FinesseBorderSide(
+      final edge = UnaBorderSide(
         color: tint.$1.withValues(alpha: tint.$1.a * .3),
       );
       // The accent bar, on the start edge, takes the accent whole.
-      final bar = FinesseBorderSide(color: tint.$1);
+      final bar = UnaBorderSide(color: tint.$1);
       final border = themeDecoration.border;
       themeDecoration = themeDecoration.copyWith(
         color: tint.$2,
@@ -429,7 +429,7 @@ class _AlertState extends State<Alert> {
                     ),
                     child: IconButton.ghost(
                       size: ButtonSize.sm,
-                      tooltip: FinesseLocalizations.of(context).alert.dismiss,
+                      tooltip: UnaLocalizations.of(context).alert.dismiss,
                       style: ButtonTheme(
                         foregroundColor: effectiveDescriptionStyle.color,
                       ),

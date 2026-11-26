@@ -4,9 +4,9 @@ import 'package:example/common/app_state.dart';
 import 'package:example/common/theme_editor/customizer_panel.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/screens/components_screen.dart';
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_solidart/flutter_solidart.dart';
+import 'package:una/una.dart';
 
 /// The application frame: the page, with the theme customizer docked beside
 /// it when it is open.
@@ -42,7 +42,7 @@ class AppShell extends StatefulWidget {
   /// the one the editor pins, or else the one the page's width calls for —
   /// a phone below [breakpoint], the theme's `md`.
   ///
-  /// `App` passes this to `FinesseApp` and the shell lays the page out for
+  /// `App` passes this to `UnaApp` and the shell lays the page out for
   /// it, so the two are computed in one place.
   static FormFactor formFactorFor(
     double windowWidth, {
@@ -98,7 +98,7 @@ class _AppShellState extends State<AppShell> {
             final breakpoint = theme.breakpoints.md.value;
 
             // `App` picks the form factor from the width the page will
-            // have, and `FinesseApp` applies a theme in the build it is
+            // have, and `UnaApp` applies a theme in the build it is
             // given in, so the two normally agree. Should a theme ever
             // arrive late (an app that lerps its theme), docking the panel
             // at once would squeeze a desktop layout into a phone-sized
@@ -326,7 +326,7 @@ class _PageNavigatorState extends State<_PageNavigator> {
     final navigator = Navigator(
       key: widget.navigatorKey,
       observers: [_observer],
-      onGenerateRoute: (settings) => FinessePageRoute<void>(
+      onGenerateRoute: (settings) => UnaPageRoute<void>(
         settings: settings,
         builder: (context) => ColoredBox(
           color: Theme.of(context).colorScheme.background,

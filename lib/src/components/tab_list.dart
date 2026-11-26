@@ -1,26 +1,26 @@
 import 'dart:ui' show SemanticsRole;
 
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/components/decorator.dart';
-import 'package:finesse/src/components/tooltip.dart';
-import 'package:finesse/src/raw_components/pressable.dart';
-import 'package:finesse/src/theme/components/button.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/components/layout.dart';
-import 'package:finesse/src/theme/data.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/theme/themes/shadows.dart';
-import 'package:finesse/src/utils/border.dart';
-import 'package:finesse/src/utils/haptics.dart';
-import 'package:finesse/src/utils/motion_color.dart';
-import 'package:finesse/src/utils/moving_indicator.dart';
-import 'package:finesse/src/utils/shadow.dart';
-import 'package:finesse/src/utils/text_scaled_height.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/button.dart';
+import 'package:una/src/components/decorator.dart';
+import 'package:una/src/components/tooltip.dart';
+import 'package:una/src/raw_components/pressable.dart';
+import 'package:una/src/theme/components/button.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/components/layout.dart';
+import 'package:una/src/theme/data.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/theme/themes/shadows.dart';
+import 'package:una/src/utils/border.dart';
+import 'package:una/src/utils/haptics.dart';
+import 'package:una/src/utils/motion_color.dart';
+import 'package:una/src/utils/moving_indicator.dart';
+import 'package:una/src/utils/shadow.dart';
+import 'package:una/src/utils/text_scaled_height.dart';
 
 /// How a list of tabs is drawn.
 enum TabBarVariant {
@@ -391,9 +391,9 @@ class _TabListState extends State<TabList> {
   Widget _buildSegmented(BuildContext context, ThemeData theme) {
     final tabsTheme = theme.tabsTheme;
     final padding = tabsTheme.padding ?? EdgeInsets.zero;
-    final decoration = FinesseDecoration(
+    final decoration = UnaDecoration(
       color: theme.colorScheme.muted,
-      border: FinesseBorder.all(borderRadius: theme.radius, width: 0),
+      border: UnaBorder.all(borderRadius: theme.radius, width: 0),
     ).merge(tabsTheme.decoration);
     final expand = widget.expand && !widget.scrollable;
     final selected = _selected;
@@ -498,27 +498,27 @@ class _TabListState extends State<TabList> {
     if (item.child is! Flexible) label = Flexible(child: label);
 
     final defaultDecoration = switch (theme.disableSecondaryBorder) {
-      true => FinesseDecoration(
-        border: FinesseBorder.all(
+      true => UnaDecoration(
+        border: UnaBorder.all(
           borderRadius: BorderRadius.circular(2),
           width: 0,
           padding: const EdgeInsets.all(2),
         ),
-        focusedBorder: FinesseBorder.all(
+        focusedBorder: UnaBorder.all(
           width: 2,
           borderRadius: BorderRadius.circular(2),
           color: theme.colorScheme.ring,
         ),
       ),
-      false => FinesseDecoration(
-        border: FinesseBorder.all(
+      false => UnaDecoration(
+        border: UnaBorder.all(
           borderRadius: BorderRadius.circular(2),
           width: 0,
         ),
         // No inner gutter around a tab: the strip's own padding is the only
         // inset. The focus ring is the standard outward ring; it may
         // overlap the strip.
-        secondaryFocusedBorder: FinesseBorder.all(
+        secondaryFocusedBorder: UnaBorder.all(
           width: 2,
           borderRadius: theme.radius,
           offset: 2,
@@ -539,7 +539,7 @@ class _TabListState extends State<TabList> {
     final pillFill = gradient == null ? selectedFill : null;
     final pill = ShadowDecoration(
       shadows: tabsTheme.tabSelectedShadows ?? Shadows.sm,
-      decoration: border is FinesseRoundedSuperellipseBorder
+      decoration: border is UnaRoundedSuperellipseBorder
           ? ShapeDecoration(
               color: pillFill,
               gradient: gradient,

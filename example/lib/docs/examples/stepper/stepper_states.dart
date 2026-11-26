@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 class StepperStatesExample extends StatefulWidget {
   const StepperStatesExample({super.key});
@@ -17,7 +17,7 @@ class _StepperStatesExampleState extends State<StepperStatesExample> {
       currentStep: _step,
       onStepTapped: (step) => setState(() => _step = step),
       // Your own controls in place of Continue and Cancel.
-      controlsBuilder: (context, controls) => FinesseRow(
+      controlsBuilder: (context, controls) => UnaRow(
         gap: GapSize.sm,
         children: [
           Button.outline(

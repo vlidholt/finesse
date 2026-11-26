@@ -1,18 +1,18 @@
-import 'package:finesse/src/components/control_affinity.dart';
-import 'package:finesse/src/components/decorator.dart';
-import 'package:finesse/src/components/disabled.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/raw_components/focusable.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/activation_keys.dart';
-import 'package:finesse/src/utils/debug_check.dart';
-import 'package:finesse/src/utils/extensions/text_style.dart';
-import 'package:finesse/src/utils/haptics.dart';
-import 'package:finesse/src/utils/motion_color.dart';
-import 'package:finesse/src/utils/pop_in.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/control_affinity.dart';
+import 'package:una/src/components/decorator.dart';
+import 'package:una/src/components/disabled.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/raw_components/focusable.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/activation_keys.dart';
+import 'package:una/src/utils/debug_check.dart';
+import 'package:una/src/utils/extensions/text_style.dart';
+import 'package:una/src/utils/haptics.dart';
+import 'package:una/src/utils/motion_color.dart';
+import 'package:una/src/utils/pop_in.dart';
 
 /// A box that is checked or not, with an optional label and description
 /// beside it.
@@ -101,7 +101,7 @@ class Checkbox extends StatefulWidget {
   /// The decoration applied to the checkbox box.
   /// Merged with the theme’s default decoration if provided.
   /// {@endtemplate}
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// {@template Checkbox.size}
   /// The size (width and height) of the checkbox box.
@@ -224,7 +224,7 @@ class _CheckboxState extends State<Checkbox> {
                     ? theme.checkboxTheme.checkedDecoration ??
                           theme.checkboxTheme.decoration
                     : theme.checkboxTheme.decoration) ??
-                const FinesseDecoration())
+                const UnaDecoration())
             .merge(widget.decoration)
             .copyWith(
               color: filled ? effectiveColor : effectiveUncheckedColor,

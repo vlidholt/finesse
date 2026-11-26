@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// People to follow: an avatar, a name, a quieter second line and a trailing
 /// action. Long text truncates instead of pushing the button out.

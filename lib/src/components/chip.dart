@@ -1,12 +1,12 @@
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/raw_components/pressable.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/spring.dart';
-import 'package:finesse/src/utils/text_scaled_height.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/raw_components/pressable.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/spring.dart';
+import 'package:una/src/utils/text_scaled_height.dart';
 
 /// How a [Chip] is outlined.
 enum ChipVariant {
@@ -394,8 +394,7 @@ class _ChipDelete extends StatelessWidget {
     final theme = Theme.of(context);
     final button = Pressable(
       onPressed: onDeleted,
-      semanticLabel:
-          semanticLabel ?? FinesseLocalizations.of(context).chip.remove,
+      semanticLabel: semanticLabel ?? UnaLocalizations.of(context).chip.remove,
       // The whole end of the chip is the target; only the disc is drawn.
       builder: (context, states) {
         final active =

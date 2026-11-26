@@ -1,8 +1,8 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
-import '../../finesse_harness.dart';
+import '../../una_harness.dart';
 
 void main() {
   const target = SizedBox(key: Key('target'), width: 24, height: 24);
@@ -40,7 +40,7 @@ void main() {
 
   group('IndicatorBadge count', () {
     testWidgets('shows the count', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(child: IndicatorBadge(count: 3, child: target)),
       );
@@ -49,14 +49,14 @@ void main() {
     });
 
     testWidgets('shows 99+ above the maximum', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(child: IndicatorBadge(count: 100, child: target)),
       );
       expect(find.text('99+'), findsOneWidget);
       expect(find.text('100'), findsNothing);
 
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(child: IndicatorBadge(count: 12345, child: target)),
       );
@@ -64,7 +64,7 @@ void main() {
     });
 
     testWidgets('shows the maximum itself in full', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(child: IndicatorBadge(count: 99, child: target)),
       );
@@ -73,7 +73,7 @@ void main() {
     });
 
     testWidgets('maxCount moves the cut-off', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(
           child: IndicatorBadge(count: 10, maxCount: 9, child: target),
@@ -81,7 +81,7 @@ void main() {
       );
       expect(find.text('9+'), findsOneWidget);
 
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(
           child: IndicatorBadge(count: 150, maxCount: 999, child: target),
@@ -91,7 +91,7 @@ void main() {
     });
 
     testWidgets('hides on zero, leaving only the child', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(child: IndicatorBadge(count: 0, child: target)),
       );
@@ -105,7 +105,7 @@ void main() {
     });
 
     testWidgets('hides on a negative count', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(child: IndicatorBadge(count: -2, child: target)),
       );
@@ -113,7 +113,7 @@ void main() {
     });
 
     testWidgets('showZero keeps a zero visible', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(
           child: IndicatorBadge(count: 0, showZero: true, child: target),
@@ -124,7 +124,7 @@ void main() {
     });
 
     testWidgets('a zero count with no child takes no space', (tester) async {
-      await pumpFinesse(tester, const Center(child: IndicatorBadge(count: 0)));
+      await pumpUna(tester, const Center(child: IndicatorBadge(count: 0)));
       expect(tester.getSize(find.byType(IndicatorBadge)), Size.zero);
     });
 
@@ -136,14 +136,14 @@ void main() {
         IndicatorBadge(label: Text('new'), visible: false, child: target),
         IndicatorBadge(visible: false, child: target),
       ]) {
-        await pumpFinesse(tester, Center(child: badge));
+        await pumpUna(tester, Center(child: badge));
         expect(badgeBox(), findsNothing);
         expect(find.byKey(const Key('target')), findsOneWidget);
       }
     });
 
     testWidgets('appears and disappears as the count changes', (tester) async {
-      Future<void> pump(int count) => pumpFinesse(
+      Future<void> pump(int count) => pumpUna(
         tester,
         Center(
           child: IndicatorBadge(count: count, child: target),
@@ -162,7 +162,7 @@ void main() {
   group('IndicatorBadge on its way out', () {
     // Pumped by hand: the harness settles, and these look at the middle of
     // the exit.
-    Widget app(IndicatorBadge badge) => FinesseApp(home: Center(child: badge));
+    Widget app(IndicatorBadge badge) => UnaApp(home: Center(child: badge));
 
     /// The scale of the pop a changed count plays; 1 at rest.
     double pop(WidgetTester tester) => tester
@@ -326,7 +326,7 @@ void main() {
 
   group('IndicatorBadge shape', () {
     testWidgets('with neither count nor label it is a dot', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(child: IndicatorBadge(child: target)),
       );
@@ -336,7 +336,7 @@ void main() {
     });
 
     testWidgets('a single digit is a circle of the theme size', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(child: IndicatorBadge(count: 3, child: target)),
       );
@@ -349,9 +349,9 @@ void main() {
     testWidgets('a longer count widens into a pill, never taller', (
       tester,
     ) async {
-      await pumpFinesse(tester, const Center(child: IndicatorBadge(count: 3)));
+      await pumpUna(tester, const Center(child: IndicatorBadge(count: 3)));
       final one = tester.getSize(badgeBox());
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(child: IndicatorBadge(count: 250)),
       );
@@ -366,7 +366,7 @@ void main() {
     testWidgets("a badge on a small child is not squeezed to the child's "
         'width', (tester) async {
       // The badge is free-standing here…
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(child: IndicatorBadge(count: 250)),
       );
@@ -375,7 +375,7 @@ void main() {
 
       // …and pinned to a 24px icon here. It overhangs the icon; it must not
       // be laid out inside the icon's 24px and clip its own digits.
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(child: IndicatorBadge(count: 250, child: target)),
       );
@@ -387,18 +387,18 @@ void main() {
     testWidgets('size sets the pill height and the dot diameter', (
       tester,
     ) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(child: IndicatorBadge(count: 1, size: 24)),
       );
       expect(tester.getSize(badgeBox()).height, 24);
 
-      await pumpFinesse(tester, const Center(child: IndicatorBadge(size: 6)));
+      await pumpUna(tester, const Center(child: IndicatorBadge(size: 6)));
       expect(tester.getSize(badgeBox()), const Size.square(6));
     });
 
     testWidgets('a label replaces the count', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(
           child: IndicatorBadge(count: 7, label: Text('new'), child: target),
@@ -410,7 +410,7 @@ void main() {
     });
 
     testWidgets('without a child it is laid out on its own', (tester) async {
-      await pumpFinesse(tester, const Center(child: IndicatorBadge(count: 3)));
+      await pumpUna(tester, const Center(child: IndicatorBadge(count: 3)));
       expect(
         find.descendant(
           of: find.byType(IndicatorBadge),
@@ -431,7 +431,7 @@ void main() {
       tester,
     ) async {
       for (final brightness in Brightness.values) {
-        await pumpFinesse(
+        await pumpUna(
           tester,
           const Center(child: IndicatorBadge(count: 3, child: target)),
           theme: ThemeData(brightness: brightness),
@@ -458,7 +458,7 @@ void main() {
       const fill = Color(0xff00aa55);
       const text = Color(0xff001122);
       const ring = Color(0xff334455);
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(
           child: IndicatorBadge(
@@ -483,7 +483,7 @@ void main() {
     });
 
     testWidgets('a ring width of zero removes the ring', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(child: IndicatorBadge(count: 3, ringWidth: 0)),
       );
@@ -494,12 +494,12 @@ void main() {
     });
 
     testWidgets("the ring does not change the badge's size", (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(child: IndicatorBadge(count: 3, ringWidth: 0)),
       );
       final bare = tester.getSize(badgeBox());
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(child: IndicatorBadge(count: 3, ringWidth: 6)),
       );
@@ -511,7 +511,7 @@ void main() {
     testWidgets('does not change the size of the widget it is pinned to', (
       tester,
     ) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(child: IndicatorBadge(count: 3, child: target)),
       );
@@ -545,7 +545,7 @@ void main() {
     testWidgets('sits on the top end corner, hanging 35% of itself outside', (
       tester,
     ) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(child: IndicatorBadge(child: target)),
       );
@@ -560,7 +560,7 @@ void main() {
     testWidgets('mirrors to the top start corner in right-to-left', (
       tester,
     ) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(child: IndicatorBadge(child: target)),
         textDirection: TextDirection.rtl,
@@ -573,7 +573,7 @@ void main() {
     });
 
     testWidgets('alignment picks another corner', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(
           child: IndicatorBadge(
@@ -591,7 +591,7 @@ void main() {
     testWidgets('an overhang of zero keeps the badge inside the child', (
       tester,
     ) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(
           child: IndicatorBadge(
@@ -610,7 +610,7 @@ void main() {
     testWidgets('offset nudges it: positive x towards the end, positive y '
         'down', (tester) async {
       Future<Rect> dotWith(Offset offset, TextDirection direction) async {
-        await pumpFinesse(
+        await pumpUna(
           tester,
           Center(
             child: IndicatorBadge(offset: offset, child: target),
@@ -633,7 +633,7 @@ void main() {
     });
 
     testWidgets('the overhang is not clipped by the stack', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(child: IndicatorBadge(count: 3, child: target)),
       );
@@ -650,7 +650,7 @@ void main() {
   group('IndicatorBadge semantics', () {
     testWidgets('the count is read as text by default', (tester) async {
       final handle = tester.ensureSemantics();
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(child: IndicatorBadge(count: 3, child: target)),
       );
@@ -660,7 +660,7 @@ void main() {
 
     testWidgets('semanticLabel replaces the bare number', (tester) async {
       final handle = tester.ensureSemantics();
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(
           child: IndicatorBadge(
@@ -677,7 +677,7 @@ void main() {
 
     testWidgets('a dot can be given a meaning', (tester) async {
       final handle = tester.ensureSemantics();
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(
           child: IndicatorBadge(semanticLabel: 'Online', child: target),

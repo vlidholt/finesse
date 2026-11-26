@@ -1,13 +1,13 @@
 import 'dart:math' as math;
 
-import 'package:finesse/src/components/list_section.dart';
-import 'package:finesse/src/components/list_tile.dart';
-import 'package:finesse/src/icons/phosphor_icon.dart';
-import 'package:finesse/src/icons/phosphor_icons_regular.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/utils/expand_reveal.dart';
-import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/list_section.dart';
+import 'package:una/src/components/list_tile.dart';
+import 'package:una/src/icons/phosphor_icon.dart';
+import 'package:una/src/icons/phosphor_icons_regular.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/utils/expand_reveal.dart';
+import 'package:una/src/utils/spring.dart';
 
 /// A list row that opens to show rows of its own: a group of settings
 /// folded under one heading, the parts of an order, the replies to a

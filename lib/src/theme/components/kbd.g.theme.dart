@@ -28,7 +28,7 @@ mixin _$KbdTheme {
     return KbdTheme(
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
       foregroundColor: Color.lerp(a.foregroundColor, b.foregroundColor, t),
-      border: FinesseBorder.lerp(a.border, b.border, t),
+      border: UnaBorder.lerp(a.border, b.border, t),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       textStyle: TextStyle.lerp(a.textStyle, b.textStyle, t),
       gap: lerpDouble$(a.gap, b.gap, t),
@@ -40,7 +40,7 @@ mixin _$KbdTheme {
   KbdTheme copyWith({
     Color? backgroundColor,
     Color? foregroundColor,
-    FinesseBorder? border,
+    UnaBorder? border,
     EdgeInsetsGeometry? padding,
     TextStyle? textStyle,
     double? gap,

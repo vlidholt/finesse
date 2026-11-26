@@ -1,9 +1,9 @@
-import 'package:finesse/finesse.dart';
-import 'package:finesse/src/components/toast.dart' show RenderToastStack;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/src/components/toast.dart' show RenderToastStack;
+import 'package:una/una.dart';
 
 import '../../frame_sampler.dart';
 
@@ -31,7 +31,7 @@ void main() {
   ThemeData themeOf(StyleTokens style, Brightness brightness) => ThemeData(
     style: style,
     brightness: brightness,
-    colorScheme: style == StyleTokens.finesse
+    colorScheme: style == StyleTokens.una
         ? null
         : brightness == Brightness.dark
         ? const NeutralColorScheme.dark()
@@ -39,9 +39,9 @@ void main() {
   );
 
   group('the toast themes', () {
-    test('a toast is a popover surface: glass in the finesse style', () {
+    test('a toast is a popover surface: glass in the una style', () {
       for (final brightness in Brightness.values) {
-        final theme = themeOf(StyleTokens.finesse, brightness);
+        final theme = themeOf(StyleTokens.una, brightness);
         final toast = theme.toastTheme;
         expect(toast.backgroundColor, theme.popoverTheme.decoration!.color);
         expect(toast.backgroundColor!.a, lessThan(1));
@@ -83,7 +83,7 @@ void main() {
 
     test('every variant shares that surface and says what it is with an '
         'icon that reads on it', () {
-      for (final style in [StyleTokens.finesse, ...shadcn]) {
+      for (final style in [StyleTokens.una, ...shadcn]) {
         for (final brightness in Brightness.values) {
           final theme = themeOf(style, brightness);
           final toast = theme.toastTheme;
@@ -112,7 +112,7 @@ void main() {
     });
 
     test('its text, and a button on it, read over anything', () {
-      for (final style in [StyleTokens.finesse, ...shadcn]) {
+      for (final style in [StyleTokens.una, ...shadcn]) {
         for (final brightness in Brightness.values) {
           final theme = themeOf(style, brightness);
           final toast = theme.toastTheme;
@@ -161,7 +161,7 @@ void main() {
       await tester.pumpWidget(const SizedBox());
       await tester.pumpWidget(
         sampler.wrap(
-          FinesseApp(
+          UnaApp(
             theme: theme.copyWith(
               // Room under the toast for its shadow to be read.
               toasterTheme: const ToasterTheme(padding: EdgeInsets.all(40)),
@@ -192,7 +192,7 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
     }
 
-    for (final style in [StyleTokens.finesse, ...shadcn]) {
+    for (final style in [StyleTokens.una, ...shadcn]) {
       for (final brightness in Brightness.values) {
         testWidgets('${style.name} ${brightness.name}: a toast has an edge '
             'over the page and over a card', (tester) async {
@@ -236,7 +236,7 @@ void main() {
                 reason: where,
               );
             }
-            final finesse = style == StyleTokens.finesse;
+            final una = style == StyleTokens.una;
             final dark = brightness == Brightness.dark;
 
             // The edge: the hairline against what is outside it — the bare
@@ -259,7 +259,7 @@ void main() {
               lessThanOrEqualTo(backdrop.computeLuminance()),
               reason: 'the shadow, $where',
             );
-            if (!dark || finesse) {
+            if (!dark || una) {
               expect(
                 contrast(shadow, backdrop),
                 greaterThan(dark ? 1.08 : 1.12),
@@ -271,7 +271,7 @@ void main() {
             // in both modes, in the shadcn ones in dark, where the popover
             // is a step lighter than the page. (shadcn's light popover *is*
             // its page colour; a toast there is its hairline and shadow.)
-            if (name == 'the page' && (finesse || dark)) {
+            if (name == 'the page' && (una || dark)) {
               final difference = [
                 for (var c = 0; c < 3; c++)
                   (rgbOf(fill)[c] - rgbOf(backdrop)[c]).abs(),
@@ -288,7 +288,7 @@ void main() {
         'each gets its own when the stack opens', (tester) async {
       await pump(
         tester,
-        themeOf(StyleTokens.finesse, Brightness.light),
+        themeOf(StyleTokens.una, Brightness.light),
         const Color(0xfff3f5f7),
       );
       final toaster = toasterOf(tester);
@@ -334,7 +334,7 @@ void main() {
           'opacity layer', (tester) async {
         await pump(
           tester,
-          themeOf(StyleTokens.finesse, Brightness.light),
+          themeOf(StyleTokens.una, Brightness.light),
           const Color(0xfff3f5f7),
         );
         toasterOf(tester).show(const Toast(title: Text('Saved')));

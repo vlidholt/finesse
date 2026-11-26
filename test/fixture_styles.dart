@@ -1,7 +1,7 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
-/// shadcn/ui styles that finesse no longer ships, kept as test fixtures.
+/// shadcn/ui styles that una no longer ships, kept as test fixtures.
 ///
 /// `StyleTokens` still carries the tokens these styles were the only users
 /// of — underlined fields, upper-cased roles, the accent-bar alert, borderless

@@ -2,12 +2,12 @@ import 'package:flutter/foundation.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
 
 // The package's own types that a LiquidGlassTheme is configured with. They
-// are reached through this library, so no finesse file outside
+// are reached through this library, so no una file outside
 // lib/src/liquid_glass/ imports the package.
 export 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
     show GlassQuality, GlassStyle, GlassThemeSettings;
 
-/// When finesse draws a component with Liquid Glass instead of its own
+/// When una draws a component with Liquid Glass instead of its own
 /// frosted glass.
 enum LiquidGlassMode {
   /// Liquid Glass on Apple platforms — iOS and macOS, natively or in a
@@ -17,11 +17,11 @@ enum LiquidGlassMode {
   /// Liquid Glass on every platform.
   always,
 
-  /// Never Liquid Glass: finesse's own frosted glass everywhere.
+  /// Never Liquid Glass: una's own frosted glass everywhere.
   never,
 }
 
-/// How finesse uses Liquid Glass: where it switches to it, and the
+/// How una uses Liquid Glass: where it switches to it, and the
 /// `liquid_glass_widgets` options it passes on.
 ///
 /// ```dart
@@ -34,9 +34,9 @@ enum LiquidGlassMode {
 /// `liquidGlass` (`AppBarTheme(liquidGlass: LiquidGlassMode.never)`) decides
 /// for that component. Liquid Glass is never used when the system asks for
 /// more contrast (see [respectSystemAccessibility]) or when its shaders
-/// failed to load; finesse's frosted glass stands in.
+/// failed to load; una's frosted glass stands in.
 ///
-/// The glass is tinted from the finesse colour scheme. [light] and [dark]
+/// The glass is tinted from the una colour scheme. [light] and [dark]
 /// override any of the package's material settings on top of that, for
 /// the brightness each names.
 @immutable
@@ -72,12 +72,12 @@ class LiquidGlassTheme {
   /// device that cannot keep up. Experimental in the package.
   final bool adaptiveQuality;
 
-  /// Whether Liquid Glass gives way to finesse's frosted glass when the
+  /// Whether Liquid Glass gives way to una's frosted glass when the
   /// system asks for more contrast (Increase Contrast on iOS and macOS, high
   /// contrast elsewhere), and whether the package honours Reduce Motion.
   final bool respectSystemAccessibility;
 
-  /// Whether the glass takes its tint from the finesse colour scheme's bar
+  /// Whether the glass takes its tint from the una colour scheme's bar
   /// colour. False keeps the package's own neutral tint.
   final bool tintFromColorScheme;
 

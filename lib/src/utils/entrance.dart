@@ -1,7 +1,7 @@
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/utils/backdrop.dart';
-import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/utils/backdrop.dart';
+import 'package:una/src/utils/spring.dart';
 
 /// Says where the content below it grows from: the point of its own box that
 /// faces whatever opened it.
@@ -116,7 +116,7 @@ Object _comparable(Curve curve) =>
 /// value: two built from equal tokens are equal, so nothing has to be kept
 /// to tell whether the entrance changed.
 ///
-/// Internal: it is not exported from `package:finesse/finesse.dart`. An app
+/// Internal: it is not exported from `package:una/una.dart`. An app
 /// animates its own content with [Entrance].
 @immutable
 class EntranceSpec {
@@ -210,7 +210,7 @@ class EntranceSpec {
 /// frame that first builds this widget; an owner that starts it itself
 /// passes false.
 ///
-/// Internal: it is not exported from `package:finesse/finesse.dart`.
+/// Internal: it is not exported from `package:una/una.dart`.
 class OverlayEntrance extends StatefulWidget {
   /// Creates the entrance of an overlay.
   const OverlayEntrance({

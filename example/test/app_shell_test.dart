@@ -1,9 +1,9 @@
 import 'package:example/common/app_shell.dart';
 import 'package:example/common/theme_editor/customizer_panel.dart';
 import 'package:example/screens/components_screen.dart';
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 import 'support.dart';
 
@@ -49,7 +49,7 @@ void main() {
       expect(find.byType(Sidebar), findsOneWidget);
       expect(find.text('Components'), findsWidgets);
       expect(
-        find.textContaining('finesse is a Flutter implementation'),
+        find.textContaining('una is a Flutter implementation'),
         findsOneWidget,
       );
       // The first route: nothing to go back to.

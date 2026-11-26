@@ -2,19 +2,19 @@
 // package's Example tab. Keep the two in sync.
 import 'dart:io';
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return FinesseApp(
+    return UnaApp(
       theme: ThemeData(
         colorScheme: const ZincColorScheme.light(),
-        // One of the four styles: finesse (the default), or shadcn/ui's
+        // One of the four styles: una (the default), or shadcn/ui's
         // nova, maia or lyra.
         style: StyleTokens.nova,
       ),

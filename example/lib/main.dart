@@ -4,10 +4,10 @@ import 'package:example/common/app_state.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/theme_editor/fonts.dart';
 import 'package:example/docs/docs.dart';
-import 'package:finesse/finesse.dart';
-import 'package:finesse/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_solidart/flutter_solidart.dart';
+import 'package:una/material.dart';
+import 'package:una/una.dart';
 
 export 'package:example/common/app_state.dart';
 
@@ -19,7 +19,7 @@ Future<void> main() async {
   await Future.wait([
     // The docs' code blocks need the Dart grammar and highlighter theme.
     CodeHighlighter.ensureInitialized(),
-    // finesse bundles no fonts. Fetch the editor's default face before the
+    // una bundles no fonts. Fetch the editor's default face before the
     // first frame, so the app does not open in the fallback font and then
     // reflow.
     EditorFont.byTitle(const ThemeEditorConfig().fontTitle).load(
@@ -95,13 +95,13 @@ class _AppState extends State<App> {
 
           return LayoutBuilder(
             builder: (context, constraints) {
-              // FinesseApp would pick the form factor from the window. The
+              // UnaApp would pick the form factor from the window. The
               // docked editor takes a slice of it, so pick from the width
               // the page is left with: docking the panel beside a
               // medium-width window shows the phone layout it has room for.
               // The editor can also pin one; `AppShell` then gives that
               // layout a box it fits in.
-              return FinesseApp(
+              return UnaApp(
                 debugShowCheckedModeBanner: false,
                 themeMode: themeMode,
                 theme: theme,
@@ -115,8 +115,8 @@ class _AppState extends State<App> {
                 home: const AppShell(),
                 builder: (context, child) {
                   // The docs and the theme editor use a few Material widgets
-                  // (Slider, SelectionArea); FinesseMaterial themes them from
-                  // the finesse theme and adds their localizations.
+                  // (Slider, SelectionArea); UnaMaterial themes them from
+                  // the una theme and adds their localizations.
                   return Directionality(
                     textDirection: directionality,
                     // The editor's text scale applies to the whole app; the
@@ -125,7 +125,7 @@ class _AppState extends State<App> {
                       data: MediaQuery.of(context).copyWith(
                         textScaler: TextScaler.linear(config.textScale),
                       ),
-                      child: FinesseMaterial(child: child!),
+                      child: UnaMaterial(child: child!),
                     ),
                   );
                 },

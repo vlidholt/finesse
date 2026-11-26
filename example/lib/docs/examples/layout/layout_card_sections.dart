@@ -1,7 +1,7 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
-/// A card interior laid out with `FinesseColumn` spacing and separators.
+/// A card interior laid out with `UnaColumn` spacing and separators.
 class LayoutCardSectionsExample extends StatefulWidget {
   const LayoutCardSectionsExample({super.key});
 
@@ -21,7 +21,7 @@ class _LayoutCardSectionsExampleState extends State<LayoutCardSectionsExample> {
       child: Card(
         title: const Text('Notifications'),
         description: const Text('Choose what you want to be notified about'),
-        child: FinesseColumn(
+        child: UnaColumn(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           spacing: 4,

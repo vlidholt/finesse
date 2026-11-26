@@ -1,8 +1,8 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
-/// `FinesseRadioGroup(child:)`: the radios are laid out by the caller, and
+/// `UnaRadioGroup(child:)`: the radios are laid out by the caller, and
 /// the group only holds the selection.
 void main() {
   testWidgets('a list section of radio tiles takes the width it is given', (
@@ -10,13 +10,13 @@ void main() {
   ) async {
     String? plan = 'free';
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Align(
           alignment: Alignment.topCenter,
           child: SizedBox(
             width: 340,
             child: StatefulBuilder(
-              builder: (context, setState) => FinesseRadioGroup<String>(
+              builder: (context, setState) => UnaRadioGroup<String>(
                 value: plan,
                 onChanged: (value) => setState(() => plan = value),
                 // In the wrap of `items:` a section had no width to fill.
@@ -46,9 +46,9 @@ void main() {
   ) async {
     final seen = <int>[];
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Center(
-          child: FinesseRadioGroup<int>(
+          child: UnaRadioGroup<int>(
             initialValue: 1,
             onChanged: seen.add,
             child: const Row(
@@ -74,7 +74,7 @@ void main() {
     await tester.tap(find.text('Two'));
     await tester.pumpAndSettle();
     expect(seen, [2]);
-    final group = FinesseRadioGroup.maybeOf<int>(
+    final group = UnaRadioGroup.maybeOf<int>(
       tester.element(find.text('Two')),
     );
     expect(group?.value, 2);
@@ -83,9 +83,9 @@ void main() {
   testWidgets('a disabled group takes no tap', (tester) async {
     final seen = <int>[];
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Center(
-          child: FinesseRadioGroup<int>(
+          child: UnaRadioGroup<int>(
             initialValue: 1,
             enabled: false,
             onChanged: seen.add,
@@ -100,13 +100,13 @@ void main() {
   });
 
   testWidgets('the form field takes a child too', (tester) async {
-    final formKey = GlobalKey<FinesseFormState>();
+    final formKey = GlobalKey<UnaFormState>();
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Center(
           child: SizedBox(
             width: 340,
-            child: FinesseForm(
+            child: UnaForm(
               key: formKey,
               child: RadioGroupFormField<String>(
                 id: 'plan',
@@ -129,9 +129,9 @@ void main() {
   });
 
   test('items and child are one or the other', () {
-    expect(FinesseRadioGroup<int>.new, throwsA(isA<AssertionError>()));
+    expect(UnaRadioGroup<int>.new, throwsA(isA<AssertionError>()));
     expect(
-      () => FinesseRadioGroup<int>(
+      () => UnaRadioGroup<int>(
         onChanged: (_) {},
         items: const [],
         child: const SizedBox(),

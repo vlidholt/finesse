@@ -1,7 +1,7 @@
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/spring.dart';
 
 /// A customizable linear progress indicator widget.
 ///

@@ -1,18 +1,18 @@
 import 'dart:math' as math;
 
-import 'package:finesse/src/liquid_glass/controls.dart';
-import 'package:finesse/src/liquid_glass/liquid_glass.dart';
-import 'package:finesse/src/raw_components/focusable.dart';
-import 'package:finesse/src/theme/components/slider.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/gesture_detector.dart';
-import 'package:finesse/src/utils/haptics.dart';
-import 'package:finesse/src/utils/shadow.dart';
-import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/liquid_glass/controls.dart';
+import 'package:una/src/liquid_glass/liquid_glass.dart';
+import 'package:una/src/raw_components/focusable.dart';
+import 'package:una/src/theme/components/slider.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/gesture_detector.dart';
+import 'package:una/src/utils/haptics.dart';
+import 'package:una/src/utils/shadow.dart';
+import 'package:una/src/utils/spring.dart';
 
 /// Possible ways for a user to interact with a [Slider].
 enum SliderInteraction {
@@ -317,7 +317,7 @@ class _SliderState extends State<Slider> {
     final theme = Theme.of(context);
     final sliderTheme = theme.sliderTheme;
     // A value bubble, division marks and restricted interaction are
-    // finesse's own; a slider that asks for one keeps finesse's look.
+    // una's own; a slider that asks for one keeps una's look.
     if (widget.valueIndicator != SliderValueIndicator.always &&
         (widget.divisions == null || !widget.showDivisionMarks) &&
         widget.allowedInteraction == null &&
@@ -1106,7 +1106,7 @@ class _SliderCoreState extends State<_SliderCore> {
                     child: SizedBox(
                       width: effectiveThumbRadius * 2,
                       height: effectiveThumbRadius * 2,
-                      child: FinesseGestureDetector(
+                      child: UnaGestureDetector(
                         mouseCursor: widget.enabled
                             ? effectiveMouseCursor
                             : effectiveDisabledMouseCursor,
@@ -1219,7 +1219,7 @@ class _SliderCoreState extends State<_SliderCore> {
             alignment: Alignment.centerLeft,
             children: [
               // Track with gesture handling based on interaction mode
-              FinesseGestureDetector(
+              UnaGestureDetector(
                 mouseCursor: widget.enabled
                     ? effectiveMouseCursor
                     : effectiveDisabledMouseCursor,

@@ -1,15 +1,15 @@
 // ignore_for_file: avoid_redundant_argument_values
 
-import 'package:finesse/material.dart';
-import 'package:finesse/src/app.dart';
-import 'package:finesse/src/raw_components/portal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/material.dart';
+import 'package:una/src/app.dart';
+import 'package:una/src/raw_components/portal.dart';
 
 void main() {
   Widget createTestWidget(Widget child) {
-    return FinesseApp(
-      builder: (context, child) => FinesseMaterial(child: child!),
+    return UnaApp(
+      builder: (context, child) => UnaMaterial(child: child!),
       home: Scaffold(body: Center(child: child)),
     );
   }
@@ -193,8 +193,8 @@ void main() {
         const triggerKey = Key('trigger');
 
         await tester.pumpWidget(
-          FinesseApp(
-            builder: (context, child) => FinesseMaterial(child: child!),
+          UnaApp(
+            builder: (context, child) => UnaMaterial(child: child!),
             home: Scaffold(
               body: Align(
                 alignment: Alignment.bottomCenter,

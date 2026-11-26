@@ -1,15 +1,15 @@
-import 'package:finesse/src/components/checkbox.dart';
-import 'package:finesse/src/components/control_affinity.dart';
-import 'package:finesse/src/components/decorator.dart';
-import 'package:finesse/src/components/list_tile.dart';
-import 'package:finesse/src/components/radio.dart';
-import 'package:finesse/src/components/switch.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/motion_color.dart';
-import 'package:finesse/src/utils/pop_in.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/checkbox.dart';
+import 'package:una/src/components/control_affinity.dart';
+import 'package:una/src/components/decorator.dart';
+import 'package:una/src/components/list_tile.dart';
+import 'package:una/src/components/radio.dart';
+import 'package:una/src/components/switch.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/motion_color.dart';
+import 'package:una/src/utils/pop_in.dart';
 
 /// A row with a title and a switch: the whole row is the target.
 ///
@@ -203,7 +203,7 @@ class CheckboxListTile extends StatelessWidget {
 /// A row with a title and a radio button: one choice of several, with the
 /// whole row as the target.
 ///
-/// Like a `Radio`, it is one of the choices of the `FinesseRadioGroup`
+/// Like a `Radio`, it is one of the choices of the `UnaRadioGroup`
 /// around it, which holds the selection: the row is selected when its
 /// [value] is the group's, and activating it selects it through the group.
 /// The rows hold no state themselves, so they can be the rows of a
@@ -211,7 +211,7 @@ class CheckboxListTile extends StatelessWidget {
 /// section as its `child`.
 ///
 /// ```dart
-/// FinesseRadioGroup<Audience>(
+/// UnaRadioGroup<Audience>(
 ///   value: selected,
 ///   onChanged: (value) => setState(() => selected = value),
 ///   child: ListSection(
@@ -230,7 +230,7 @@ class CheckboxListTile extends StatelessWidget {
 /// The radio inside takes no focus of its own, and assistive technology
 /// meets one control: the title, "radio button", and whether it is
 /// selected. A radio with an inline label, for a form, is a `Radio` in a
-/// `FinesseRadioGroup`.
+/// `UnaRadioGroup`.
 class RadioListTile<T> extends StatelessWidget {
   /// Creates a row with a radio button.
   const RadioListTile({
@@ -255,7 +255,7 @@ class RadioListTile<T> extends StatelessWidget {
   final Widget? secondary;
 
   /// The choice this row stands for. The row is selected when it is the
-  /// value of the `FinesseRadioGroup` around it.
+  /// value of the `UnaRadioGroup` around it.
   final T value;
 
   /// Whether the row responds. A row in a disabled group does not either.
@@ -272,11 +272,11 @@ class RadioListTile<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final group = FinesseRadioGroup.maybeOf<T>(context);
+    final group = UnaRadioGroup.maybeOf<T>(context);
     assert(() {
       if (group == null) {
         throw FlutterError(
-          'A RadioListTile needs a FinesseRadioGroup above it.\n'
+          'A RadioListTile needs a UnaRadioGroup above it.\n'
           'The group holds the selection. Give it the rows, or the '
           'ListSection they are in, as its child.',
         );
@@ -382,7 +382,7 @@ class _RadioMark extends StatelessWidget {
     final decoration =
         (selected ? radio.checkedDecoration ?? radio.decoration : null) ??
         radio.decoration ??
-        const FinesseDecoration();
+        const UnaDecoration();
     final size = radio.size ?? 16;
     final dot = radio.circleSize ?? 8;
     final spring = motion.bouncy;

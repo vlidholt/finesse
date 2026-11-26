@@ -1,11 +1,11 @@
-import 'package:finesse/src/components/select.dart';
-import 'package:finesse/src/components/text_field.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/select.dart';
+import 'package:una/src/components/text_field.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/extensions/text_style.dart';
 
 /// Whether a [TimeOfDay] is before or after noon.
 enum DayPeriod {
@@ -237,7 +237,7 @@ class TimeField extends StatefulWidget {
   final Widget? trailing;
 
   /// The decoration of each field, merged over the theme's.
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// Whether the time can be edited.
   final bool enabled;
@@ -419,7 +419,7 @@ class _TimeFieldState extends State<TimeField> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final field = theme.timeFieldTheme;
-    final l = FinesseLocalizations.of(context);
+    final l = UnaLocalizations.of(context);
     final twentyFour = _twentyFour!;
 
     final style = theme.textTheme.muted
@@ -434,8 +434,9 @@ class _TimeFieldState extends State<TimeField> {
     );
     // Like TextField: the theme's field decoration is the whole base, so a
     // style whose fields underline keeps underlining here.
-    final decoration = (field.fieldDecoration ?? const FinesseDecoration())
-        .merge(widget.decoration);
+    final decoration = (field.fieldDecoration ?? const UnaDecoration()).merge(
+      widget.decoration,
+    );
     final jump = field.jumpToNextFieldWhenFilled ?? true;
     final gap = field.gap ?? 4;
     final nodes = _order;
@@ -527,11 +528,10 @@ class _TimeFieldState extends State<TimeField> {
                     style: theme.textTheme.muted,
                   ),
                   initialValue: _period,
-                  decoration:
-                      (field.periodDecoration ?? const FinesseDecoration())
-                          .merge(
-                            widget.decoration,
-                          ),
+                  decoration: (field.periodDecoration ?? const UnaDecoration())
+                      .merge(
+                        widget.decoration,
+                      ),
                   enabled: widget.enabled,
                   options: [
                     SelectOption(
@@ -610,7 +610,7 @@ class _TimeUnitField extends StatelessWidget {
   final TextStyle placeholderStyle;
   final double width;
   final EdgeInsetsGeometry padding;
-  final FinesseDecoration decoration;
+  final UnaDecoration decoration;
   final bool enabled;
   final ValueChanged<String> onChanged;
   final TextInputAction textInputAction;

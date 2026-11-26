@@ -1,7 +1,7 @@
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/debug_check.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/debug_check.dart';
 
 /// A widget that displays an avatar image with customizable size, shape, and
 /// fallback.

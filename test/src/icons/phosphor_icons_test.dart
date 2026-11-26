@@ -1,15 +1,15 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
-import '../../finesse_harness.dart';
+import '../../una_harness.dart';
 
 /// The Phosphor icons are vendored: the glyph fonts ship in this package, so
-/// every `IconData` has to name finesse as its font package or the glyphs
+/// every `IconData` has to name una as its font package or the glyphs
 /// resolve to nothing in an app.
 void main() {
   group('vendored icon data', () {
-    test('each weight names its own family in the finesse package', () {
+    test('each weight names its own family in the una package', () {
       const expected = {
         'PhosphorRegular': PhosphorIconsRegular.house,
         'PhosphorBold': PhosphorIconsBold.house,
@@ -19,14 +19,14 @@ void main() {
       };
       for (final entry in expected.entries) {
         expect(entry.value.fontFamily, entry.key);
-        expect(entry.value.fontPackage, 'finesse', reason: entry.key);
+        expect(entry.value.fontPackage, 'una', reason: entry.key);
       }
     });
 
     test('the regular house is the glyph it has always been', () {
       expect(PhosphorIconsRegular.house.codePoint, 0xe2c2);
       expect(PhosphorIconsRegular.house.fontFamily, 'PhosphorRegular');
-      expect(PhosphorIconsRegular.house.fontPackage, 'finesse');
+      expect(PhosphorIconsRegular.house.fontPackage, 'una');
       // Plain `IconData`, so it works anywhere an icon is accepted.
       expect(PhosphorIconsRegular.house.runtimeType, IconData);
     });
@@ -48,10 +48,10 @@ void main() {
     test('a duotone icon is an outline over a fill, in the duotone family', () {
       const house = PhosphorIconsDuotone.house;
       expect(house.primary.fontFamily, 'PhosphorDuotone');
-      expect(house.primary.fontPackage, 'finesse');
+      expect(house.primary.fontPackage, 'una');
       expect(house.secondary, isNotNull);
       expect(house.secondary!.fontFamily, 'PhosphorDuotone');
-      expect(house.secondary!.fontPackage, 'finesse');
+      expect(house.secondary!.fontPackage, 'una');
       expect(house.primary.codePoint, isNot(house.secondary!.codePoint));
     });
 
@@ -65,8 +65,8 @@ void main() {
 
     test('duotone data compares by value', () {
       const a = PhosphorDuotoneIconData(
-        IconData(0xe2c3, fontFamily: 'PhosphorDuotone', fontPackage: 'finesse'),
-        IconData(0xe2c2, fontFamily: 'PhosphorDuotone', fontPackage: 'finesse'),
+        IconData(0xe2c3, fontFamily: 'PhosphorDuotone', fontPackage: 'una'),
+        IconData(0xe2c2, fontFamily: 'PhosphorDuotone', fontPackage: 'una'),
       );
       expect(a, PhosphorIconsDuotone.house);
       expect(a.hashCode, PhosphorIconsDuotone.house.hashCode);
@@ -76,9 +76,9 @@ void main() {
     test('nothing under lib/ reaches for the phosphor_flutter package', () {
       // The fonts are declared in this package's own pubspec; an icon naming
       // another package would render as a missing glyph.
-      expect(PhosphorIconsRegular.x.fontPackage, 'finesse');
-      expect(PhosphorIconsRegular.caretDown.fontPackage, 'finesse');
-      expect(PhosphorIconsRegular.calendarBlank.fontPackage, 'finesse');
+      expect(PhosphorIconsRegular.x.fontPackage, 'una');
+      expect(PhosphorIconsRegular.caretDown.fontPackage, 'una');
+      expect(PhosphorIconsRegular.calendarBlank.fontPackage, 'una');
     });
   });
 
@@ -92,7 +92,7 @@ void main() {
       tester,
     ) async {
       const colour = Color(0xff176b83);
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(
           child: PhosphorDuotoneIcon(
@@ -122,7 +122,7 @@ void main() {
     });
 
     testWidgets('an icon with no fill layer is a single icon', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(
           child: PhosphorDuotoneIcon(PhosphorIconsDuotone.wifiNone, size: 24),
@@ -150,7 +150,7 @@ void main() {
       tester,
     ) async {
       const colour = Color(0xffcc3300);
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(
           child: IconTheme(
@@ -171,7 +171,7 @@ void main() {
     });
 
     testWidgets('takes its size from a button, like any icon', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         Center(
           child: IconButton(
@@ -192,7 +192,7 @@ void main() {
     ) async {
       const outline = Color(0xff000000);
       const fill = Color(0xff00aa00);
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(
           child: PhosphorDuotoneIcon(
@@ -214,7 +214,7 @@ void main() {
       tester,
     ) async {
       const colour = Color(0x80112233);
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(
           child: PhosphorDuotoneIcon(PhosphorIconsDuotone.house, color: colour),
@@ -228,7 +228,7 @@ void main() {
 
     testWidgets('is announced once, by its label', (tester) async {
       final handle = tester.ensureSemantics();
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(
           child: PhosphorDuotoneIcon(

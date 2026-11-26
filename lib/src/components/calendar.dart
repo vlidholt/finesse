@@ -1,23 +1,23 @@
 import 'dart:math' as math;
 
 import 'package:collection/collection.dart';
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/components/decorator.dart';
-import 'package:finesse/src/components/icon_button.dart';
-import 'package:finesse/src/components/select.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/theme/components/button.dart';
-import 'package:finesse/src/theme/components/calendar.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/border.dart';
-import 'package:finesse/src/utils/content_switch.dart';
-import 'package:finesse/src/utils/extensions/date_time.dart';
-import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart' hide TextDirection;
+import 'package:una/src/components/button.dart';
+import 'package:una/src/components/decorator.dart';
+import 'package:una/src/components/icon_button.dart';
+import 'package:una/src/components/select.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/theme/components/button.dart';
+import 'package:una/src/theme/components/calendar.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/border.dart';
+import 'package:una/src/utils/content_switch.dart';
+import 'package:una/src/utils/extensions/date_time.dart';
+import 'package:una/src/utils/extensions/text_style.dart';
 
 /// Encapsulates a start and end [DateTime] that represent the range of dates.
 ///
@@ -708,8 +708,7 @@ class _CalendarState extends State<Calendar> {
     final effectiveNavigationButtonDisabledOpacity =
         calendar.navigationButtonDisabledOpacity ?? .5;
 
-    final effectiveDecoration =
-        calendar.decoration ?? const FinesseDecoration();
+    final effectiveDecoration = calendar.decoration ?? const UnaDecoration();
 
     final effectiveSpacingBetweenMonths = calendar.spacingBetweenMonths ?? 16;
 
@@ -858,11 +857,11 @@ class _CalendarState extends State<Calendar> {
       initialValue: currentMonth.year,
       padding: effectiveYearSelectorPadding,
       minHeight: effectiveSelectorMinHeight,
-      decoration: FinesseDecoration(
+      decoration: UnaDecoration(
         // The dropdown trigger rounds with the cells
         // (`rounded-(--cell-radius)`), not with the field radius.
-        border: FinesseBorder(borderRadius: effectiveDayButtonRadius),
-        secondaryFocusedBorder: FinesseBorder.all(
+        border: UnaBorder(borderRadius: effectiveDayButtonRadius),
+        secondaryFocusedBorder: UnaBorder.all(
           color: theme.colorScheme.ring.withValues(alpha: .5),
         ),
       ),
@@ -889,9 +888,9 @@ class _CalendarState extends State<Calendar> {
     final monthSelector = Select<int>(
       initialValue: currentMonth.month,
       minHeight: effectiveSelectorMinHeight,
-      decoration: FinesseDecoration(
-        border: FinesseBorder(borderRadius: effectiveDayButtonRadius),
-        secondaryFocusedBorder: FinesseBorder.all(
+      decoration: UnaDecoration(
+        border: UnaBorder(borderRadius: effectiveDayButtonRadius),
+        secondaryFocusedBorder: UnaBorder.all(
           color: theme.colorScheme.ring.withValues(alpha: .5),
         ),
       ),
@@ -1251,47 +1250,45 @@ class _CalendarState extends State<Calendar> {
                               6;
 
                           final cellRadius = effectiveDayButtonRadius;
-                          final effectiveDayButtonDecoration =
-                              FinesseDecoration(
-                                secondaryBorder: const FinesseBorder(
-                                  padding: EdgeInsets.zero,
-                                ),
-                                border:
-                                    isInRange &&
-                                        !isFirstDateInRange &&
-                                        !isLastDateInRange
-                                    // A row starts at the right where text
-                                    // runs that way: the grid is mirrored.
-                                    ? isFirstOfRow
-                                          ? FinesseBorder(
-                                              borderRadius:
-                                                  BorderRadiusDirectional.only(
-                                                    topStart:
-                                                        cellRadius.topLeft,
-                                                    bottomStart:
-                                                        cellRadius.bottomLeft,
-                                                  ),
-                                            )
-                                          : isLastOfRow
-                                          ? FinesseBorder(
-                                              borderRadius:
-                                                  BorderRadiusDirectional.only(
-                                                    topEnd: cellRadius.topRight,
-                                                    bottomEnd:
-                                                        cellRadius.bottomRight,
-                                                  ),
-                                            )
-                                          : const FinesseBorder(
-                                              borderRadius: BorderRadius.zero,
-                                            )
-                                    : FinesseBorder(borderRadius: cellRadius),
-                                secondaryFocusedBorder: FinesseBorder.all(
-                                  offset: 2,
-                                  color: theme.colorScheme.ring.withValues(
-                                    alpha: .5,
-                                  ),
-                                ),
-                              ).merge(calendar.dayButtonDecoration);
+                          final effectiveDayButtonDecoration = UnaDecoration(
+                            secondaryBorder: const UnaBorder(
+                              padding: EdgeInsets.zero,
+                            ),
+                            border:
+                                isInRange &&
+                                    !isFirstDateInRange &&
+                                    !isLastDateInRange
+                                // A row starts at the right where text
+                                // runs that way: the grid is mirrored.
+                                ? isFirstOfRow
+                                      ? UnaBorder(
+                                          borderRadius:
+                                              BorderRadiusDirectional.only(
+                                                topStart: cellRadius.topLeft,
+                                                bottomStart:
+                                                    cellRadius.bottomLeft,
+                                              ),
+                                        )
+                                      : isLastOfRow
+                                      ? UnaBorder(
+                                          borderRadius:
+                                              BorderRadiusDirectional.only(
+                                                topEnd: cellRadius.topRight,
+                                                bottomEnd:
+                                                    cellRadius.bottomRight,
+                                              ),
+                                        )
+                                      : const UnaBorder(
+                                          borderRadius: BorderRadius.zero,
+                                        )
+                                : UnaBorder(borderRadius: cellRadius),
+                            secondaryFocusedBorder: UnaBorder.all(
+                              offset: 2,
+                              color: theme.colorScheme.ring.withValues(
+                                alpha: .5,
+                              ),
+                            ),
+                          ).merge(calendar.dayButtonDecoration);
 
                           return Center(
                             child: Opacity(

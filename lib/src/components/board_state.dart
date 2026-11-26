@@ -409,7 +409,7 @@ class _BoardState<T extends Object> extends State<Board<T>>
           final target = _columnOf(drag.targetColumn);
           if (refused && target != null) {
             _announce(
-              FinesseLocalizations.of(
+              UnaLocalizations.of(
                 context,
               ).board.refused(column: target.label),
             );
@@ -1030,7 +1030,7 @@ class _BoardState<T extends Object> extends State<Board<T>>
       _scheduleAfterFrame();
     }
     if (drag.mode == _DragMode.keyboard && mounted) {
-      final strings = FinesseLocalizations.of(context).board;
+      final strings = UnaLocalizations.of(context).board;
       _announce(
         refused && target != null
             ? strings.refused(column: target.label)
@@ -1085,7 +1085,7 @@ class _BoardState<T extends Object> extends State<Board<T>>
       toColumn: to.id,
       toIndex: index,
     );
-    final strings = FinesseLocalizations.of(context).board;
+    final strings = UnaLocalizations.of(context).board;
     if (!_allows(move)) {
       if (announce) _announce(strings.refused(column: to.label));
       return false;
@@ -1223,7 +1223,7 @@ class _BoardState<T extends Object> extends State<Board<T>>
         touch: false,
       );
       if (started == null) return KeyEventResult.ignored;
-      _announce(FinesseLocalizations.of(context).board.pickedUp);
+      _announce(UnaLocalizations.of(context).board.pickedUp);
       return KeyEventResult.handled;
     }
     return KeyEventResult.ignored;
@@ -1294,7 +1294,7 @@ class _BoardState<T extends Object> extends State<Board<T>>
     final item = _itemAt(source);
     if (source == null || item == null) return;
     final from = _columnIds[source.column];
-    final strings = FinesseLocalizations.of(context).board;
+    final strings = UnaLocalizations.of(context).board;
 
     var columnIndex = _columnIds.indexOf(drag.targetColumn ?? from);
     if (columnIndex < 0) columnIndex = source.column;

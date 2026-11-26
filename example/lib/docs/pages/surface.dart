@@ -6,7 +6,7 @@ final surfaceDoc = ComponentDoc(
   slug: 'surface',
   title: 'Surface',
   description:
-      'The popover and menu chrome as a widget, for floating UI finesse has no '
+      'The popover and menu chrome as a widget, for floating UI una has no '
       'component for, and a popover anchored to any rectangle.',
   examples: [
     ComponentExample(

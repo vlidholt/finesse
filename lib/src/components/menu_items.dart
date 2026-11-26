@@ -493,13 +493,13 @@ class MenuShortcut extends StatelessWidget {
   ///
   /// Apple's platforms use the glyphs of their menus, with nothing between
   /// them; the others spell the modifiers out and join them with `+`.
-  /// [FinesseLocalizations] names the keys that are spelled out.
+  /// [UnaLocalizations] names the keys that are spelled out.
   static String describe(
     BuildContext context,
     SingleActivator activator, {
     TargetPlatform? platform,
   }) {
-    final strings = FinesseLocalizations.of(context).menu;
+    final strings = UnaLocalizations.of(context).menu;
     final effectivePlatform = platform ?? defaultTargetPlatform;
     final apple =
         effectivePlatform == TargetPlatform.macOS ||

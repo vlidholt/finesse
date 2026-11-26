@@ -1,9 +1,9 @@
-import 'package:finesse/src/components/context_menu.dart';
-import 'package:finesse/src/components/text_magnifier.dart';
-import 'package:finesse/src/components/text_selection.dart';
-import 'package:finesse/src/raw_components/portal.dart';
 import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/context_menu.dart';
+import 'package:una/src/components/text_magnifier.dart';
+import 'package:una/src/components/text_selection.dart';
+import 'package:una/src/raw_components/portal.dart';
 
 // What `SelectionArea.onSelectionChanged` reports; the widgets library
 // does not export it.
@@ -15,7 +15,7 @@ export 'package:flutter/rendering.dart' show SelectedContent;
 /// With a mouse the text is selected by dragging, double-click selects a
 /// word and a right-click opens a menu with Copy and Select all. On a touch
 /// screen a long press selects a word and shows this system's handles
-/// ([FinesseTextSelectionControls]), toolbar ([TextSelectionToolbar]) and
+/// ([UnaTextSelectionControls]), toolbar ([TextSelectionToolbar]) and
 /// magnifier ([TextMagnifier]). On the web the browser's own menu is used
 /// unless the app has disabled it.
 ///
@@ -56,7 +56,7 @@ class SelectionArea extends StatefulWidget {
   final FocusNode? focusNode;
 
   /// Builds the selection handles. Defaults to
-  /// [FinesseTextSelectionControls.adaptive]: handles on a touch platform,
+  /// [UnaTextSelectionControls.adaptive]: handles on a touch platform,
   /// none on a desktop.
   final TextSelectionControls? selectionControls;
 
@@ -79,7 +79,7 @@ class SelectionArea extends StatefulWidget {
     BuildContext context,
     SelectableRegionState selectableRegionState,
   ) {
-    if (FinesseTextSelectionControls.usesTouchSelection) {
+    if (UnaTextSelectionControls.usesTouchSelection) {
       return TextSelectionToolbar.selectableRegion(
         selectableRegionState: selectableRegionState,
       );
@@ -130,7 +130,7 @@ class SelectionAreaState extends State<SelectionArea> {
       focusNode: widget.focusNode,
       selectionControls:
           widget.selectionControls ??
-          FinesseTextSelectionControls.adaptive ??
+          UnaTextSelectionControls.adaptive ??
           _noHandles,
       contextMenuBuilder: widget.contextMenuBuilder,
       magnifierConfiguration:

@@ -1,7 +1,7 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// A [Pressable] acknowledges a press by itself: its content shrinks a
 /// little while held and springs back, and a tap too quick to have been
@@ -12,7 +12,7 @@ const _frame = Duration(milliseconds: 16);
 final _motion = Motion.lively.copyWith(snappy: const MotionSpring());
 
 Widget _app(Widget child, {bool reduceMotion = false, Motion? motion}) {
-  return FinesseApp(
+  return UnaApp(
     theme: ThemeData(motion: motion ?? _motion),
     home: Builder(
       builder: (context) => MediaQuery(

@@ -1,13 +1,13 @@
-import 'package:finesse/src/raw_components/pressable.dart';
-import 'package:finesse/src/theme/components/card.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/backdrop.dart';
-import 'package:finesse/src/utils/border.dart';
-import 'package:finesse/src/utils/extensions/text_style.dart';
-import 'package:finesse/src/utils/separated_iterable.dart';
-import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/raw_components/pressable.dart';
+import 'package:una/src/theme/components/card.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/backdrop.dart';
+import 'package:una/src/utils/border.dart';
+import 'package:una/src/utils/extensions/text_style.dart';
+import 'package:una/src/utils/separated_iterable.dart';
+import 'package:una/src/utils/shadow.dart';
 
 // A customizable card widget for displaying structured content.
 ///
@@ -113,9 +113,9 @@ class Card extends StatelessWidget {
     final effectiveRadius = cardTheme.borderRadius ?? theme.radius;
     final effectiveBorder = selected
         ? style?.border ??
-              FinesseBorder.all(color: theme.colorScheme.tint, width: 1.5)
+              UnaBorder.all(color: theme.colorScheme.tint, width: 1.5)
         : cardTheme.border ??
-              FinesseBorder.all(color: theme.colorScheme.border, width: 1);
+              UnaBorder.all(color: theme.colorScheme.border, width: 1);
     final effectiveShadows = cardTheme.shadows;
 
     // A `Container` lays its border out as padding, so the heavier outline
@@ -126,7 +126,7 @@ class Card extends StatelessWidget {
     if (selected) {
       final restingBorder =
           theme.cardTheme.border ??
-          FinesseBorder.all(color: theme.colorScheme.border, width: 1);
+          UnaBorder.all(color: theme.colorScheme.border, width: 1);
       effectivePadding = themePadding
           .add(restingBorder.toBorder().dimensions)
           .subtract(effectiveBorder.toBorder().dimensions)

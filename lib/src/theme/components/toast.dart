@@ -1,10 +1,10 @@
 import 'dart:ui' show ImageFilter;
 
-import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
-import 'package:finesse/src/utils/border.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
+import 'package:una/src/liquid_glass/liquid_glass_theme.dart';
+import 'package:una/src/utils/border.dart';
 
 part 'toast.g.theme.dart';
 
@@ -57,7 +57,7 @@ class ToastTheme with _$ToastTheme {
   final ImageFilter? filter;
 
   /// The outline of the toast.
-  final FinesseBorder? border;
+  final UnaBorder? border;
 
   /// The corners of the toast.
   final BorderRadius? borderRadius;

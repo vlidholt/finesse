@@ -1,6 +1,6 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 void main() {
   Future<void> pump(WidgetTester tester, Alignment alignment) async {
@@ -8,7 +8,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Align(
           alignment: alignment,
           child: DropdownMenu(

@@ -1,8 +1,8 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// `showMenu` puts a `ContextMenu` in a route of its own, for a menu with
 /// no widget to hang on. These hold what the route adds: where the menu
@@ -26,7 +26,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         // Around the navigator: a route is not under its opener.
         builder: (context, child) =>
             Directionality(textDirection: textDirection, child: child!),
@@ -536,7 +536,7 @@ void main() {
     addTearDown(tester.view.reset);
     late BuildContext context;
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         theme: ThemeData(motion: Motion.none),
         home: Builder(
           builder: (c) {

@@ -1,11 +1,11 @@
-import 'package:finesse/material.dart';
-import 'package:finesse/src/app.dart';
-import 'package:finesse/src/components/otp_field.dart';
-import 'package:finesse/src/components/text_field.dart';
-import 'package:finesse/src/theme/data.dart';
-import 'package:finesse/src/theme/style.dart';
 import 'package:flutter/material.dart' hide TextField, ThemeData;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/material.dart';
+import 'package:una/src/app.dart';
+import 'package:una/src/components/otp_field.dart';
+import 'package:una/src/components/text_field.dart';
+import 'package:una/src/theme/data.dart';
+import 'package:una/src/theme/style.dart';
 
 void main() {
   // Switching styles animates every component theme through
@@ -13,13 +13,13 @@ void main() {
   // underlined (`sera`) or borderless (`maia`) one: three sides fade out
   // while the bottom crosses to another colour, so the sides momentarily
   // disagree — which `Border.paint` refuses to combine with a border radius.
-  // `FinesseBoxBorder` exists to paint exactly that state; this walks every
+  // `UnaBoxBorder` exists to paint exactly that state; this walks every
   // style pair to pin it.
   testWidgets('fields survive animated transitions between all styles', (
     tester,
   ) async {
-    Widget app(StyleTokens style) => FinesseApp(
-      builder: (context, child) => FinesseMaterial(child: child!),
+    Widget app(StyleTokens style) => UnaApp(
+      builder: (context, child) => UnaMaterial(child: child!),
       theme: ThemeData(style: style),
       home: const Scaffold(
         body: Column(

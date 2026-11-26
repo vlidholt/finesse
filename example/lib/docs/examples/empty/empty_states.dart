@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 enum _State { loading, failed, empty }
 
@@ -20,7 +20,7 @@ class _EmptyStatesExampleState extends State<EmptyStatesExample> {
   Widget build(BuildContext context) {
     return SizedBox(
       width: 380,
-      child: FinesseColumn(
+      child: UnaColumn(
         mainAxisSize: MainAxisSize.min,
         gap: GapSize.lg,
         children: [

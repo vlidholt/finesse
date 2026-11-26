@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 import '../frames.dart';
 import '../harness.dart';
@@ -14,7 +14,7 @@ class StylesScene extends StatelessWidget {
   const StylesScene({super.key});
 
   static final _styles = [
-    ('finesse', 'The default: glass, springs, soft radii', StyleTokens.finesse),
+    ('una', 'The default: glass, springs, soft radii', StyleTokens.una),
     ('nova', "shadcn/ui's compact style", StyleTokens.nova),
     ('maia', "shadcn/ui's rounded style", StyleTokens.maia),
     ('lyra', "shadcn/ui's sharp style", StyleTokens.lyra),

@@ -1,82 +1,82 @@
-import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
-import 'package:finesse/src/theme/color_scheme/base.dart';
-import 'package:finesse/src/theme/components/accordion.dart';
-import 'package:finesse/src/theme/components/action_sheet.dart';
-import 'package:finesse/src/theme/components/alert.dart';
-import 'package:finesse/src/theme/components/app_bar.dart';
-import 'package:finesse/src/theme/components/avatar.dart';
-import 'package:finesse/src/theme/components/badge.dart';
-import 'package:finesse/src/theme/components/board.dart';
-import 'package:finesse/src/theme/components/bottom_navigation_bar.dart';
-import 'package:finesse/src/theme/components/breadcrumb.dart';
-import 'package:finesse/src/theme/components/button.dart';
-import 'package:finesse/src/theme/components/button_sizes.dart';
-import 'package:finesse/src/theme/components/calendar.dart';
-import 'package:finesse/src/theme/components/card.dart';
-import 'package:finesse/src/theme/components/carousel.dart';
-import 'package:finesse/src/theme/components/chat_bubble.dart';
-import 'package:finesse/src/theme/components/chat_list.dart';
-import 'package:finesse/src/theme/components/checkbox.dart';
-import 'package:finesse/src/theme/components/chip.dart';
-import 'package:finesse/src/theme/components/collapsible.dart';
-import 'package:finesse/src/theme/components/command.dart';
-import 'package:finesse/src/theme/components/context_menu.dart';
-import 'package:finesse/src/theme/components/date_picker.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/components/default_keyboard_toolbar.dart';
-import 'package:finesse/src/theme/components/dialog.dart';
-import 'package:finesse/src/theme/components/divider.dart';
-import 'package:finesse/src/theme/components/empty.dart';
-import 'package:finesse/src/theme/components/floating_action_button.dart';
-import 'package:finesse/src/theme/components/glass.dart';
-import 'package:finesse/src/theme/components/icon_tile.dart';
-import 'package:finesse/src/theme/components/indicator_badge.dart';
-import 'package:finesse/src/theme/components/kbd.dart';
-import 'package:finesse/src/theme/components/layout.dart';
-import 'package:finesse/src/theme/components/list_section.dart';
-import 'package:finesse/src/theme/components/list_tile.dart';
-import 'package:finesse/src/theme/components/menubar.dart';
-import 'package:finesse/src/theme/components/navigation_bar.dart';
-import 'package:finesse/src/theme/components/navigation_menu.dart';
-import 'package:finesse/src/theme/components/navigation_rail.dart';
-import 'package:finesse/src/theme/components/otp_field.dart';
-import 'package:finesse/src/theme/components/pagination.dart';
-import 'package:finesse/src/theme/components/phosphor_icon.dart';
-import 'package:finesse/src/theme/components/popover.dart';
-import 'package:finesse/src/theme/components/progress_bar.dart';
-import 'package:finesse/src/theme/components/radio.dart';
-import 'package:finesse/src/theme/components/refresh_indicator.dart';
-import 'package:finesse/src/theme/components/resizable.dart';
-import 'package:finesse/src/theme/components/scroll_area.dart';
-import 'package:finesse/src/theme/components/select.dart';
-import 'package:finesse/src/theme/components/select_option.dart';
-import 'package:finesse/src/theme/components/sheet.dart';
-import 'package:finesse/src/theme/components/sidebar.dart';
-import 'package:finesse/src/theme/components/skeleton.dart';
-import 'package:finesse/src/theme/components/slider.dart';
-import 'package:finesse/src/theme/components/spinner.dart';
-import 'package:finesse/src/theme/components/stepper.dart';
-import 'package:finesse/src/theme/components/streaming_text.dart';
-import 'package:finesse/src/theme/components/switch.dart';
-import 'package:finesse/src/theme/components/table.dart';
-import 'package:finesse/src/theme/components/tabs.dart';
-import 'package:finesse/src/theme/components/text_field.dart';
-import 'package:finesse/src/theme/components/text_selection.dart';
-import 'package:finesse/src/theme/components/textarea.dart';
-import 'package:finesse/src/theme/components/time_field.dart';
-import 'package:finesse/src/theme/components/time_picker.dart';
-import 'package:finesse/src/theme/components/timeline.dart';
-import 'package:finesse/src/theme/components/toast.dart';
-import 'package:finesse/src/theme/components/toggle.dart';
-import 'package:finesse/src/theme/components/tooltip.dart';
-import 'package:finesse/src/theme/components/wheel_picker.dart';
-import 'package:finesse/src/theme/form_factor.dart';
-import 'package:finesse/src/theme/radii.dart';
-import 'package:finesse/src/theme/spacing.dart';
-import 'package:finesse/src/theme/style.dart';
-import 'package:finesse/src/theme/text_theme/theme.dart';
-import 'package:finesse/src/utils/responsive.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/liquid_glass/liquid_glass_theme.dart';
+import 'package:una/src/theme/color_scheme/base.dart';
+import 'package:una/src/theme/components/accordion.dart';
+import 'package:una/src/theme/components/action_sheet.dart';
+import 'package:una/src/theme/components/alert.dart';
+import 'package:una/src/theme/components/app_bar.dart';
+import 'package:una/src/theme/components/avatar.dart';
+import 'package:una/src/theme/components/badge.dart';
+import 'package:una/src/theme/components/board.dart';
+import 'package:una/src/theme/components/bottom_navigation_bar.dart';
+import 'package:una/src/theme/components/breadcrumb.dart';
+import 'package:una/src/theme/components/button.dart';
+import 'package:una/src/theme/components/button_sizes.dart';
+import 'package:una/src/theme/components/calendar.dart';
+import 'package:una/src/theme/components/card.dart';
+import 'package:una/src/theme/components/carousel.dart';
+import 'package:una/src/theme/components/chat_bubble.dart';
+import 'package:una/src/theme/components/chat_list.dart';
+import 'package:una/src/theme/components/checkbox.dart';
+import 'package:una/src/theme/components/chip.dart';
+import 'package:una/src/theme/components/collapsible.dart';
+import 'package:una/src/theme/components/command.dart';
+import 'package:una/src/theme/components/context_menu.dart';
+import 'package:una/src/theme/components/date_picker.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/components/default_keyboard_toolbar.dart';
+import 'package:una/src/theme/components/dialog.dart';
+import 'package:una/src/theme/components/divider.dart';
+import 'package:una/src/theme/components/empty.dart';
+import 'package:una/src/theme/components/floating_action_button.dart';
+import 'package:una/src/theme/components/glass.dart';
+import 'package:una/src/theme/components/icon_tile.dart';
+import 'package:una/src/theme/components/indicator_badge.dart';
+import 'package:una/src/theme/components/kbd.dart';
+import 'package:una/src/theme/components/layout.dart';
+import 'package:una/src/theme/components/list_section.dart';
+import 'package:una/src/theme/components/list_tile.dart';
+import 'package:una/src/theme/components/menubar.dart';
+import 'package:una/src/theme/components/navigation_bar.dart';
+import 'package:una/src/theme/components/navigation_menu.dart';
+import 'package:una/src/theme/components/navigation_rail.dart';
+import 'package:una/src/theme/components/otp_field.dart';
+import 'package:una/src/theme/components/pagination.dart';
+import 'package:una/src/theme/components/phosphor_icon.dart';
+import 'package:una/src/theme/components/popover.dart';
+import 'package:una/src/theme/components/progress_bar.dart';
+import 'package:una/src/theme/components/radio.dart';
+import 'package:una/src/theme/components/refresh_indicator.dart';
+import 'package:una/src/theme/components/resizable.dart';
+import 'package:una/src/theme/components/scroll_area.dart';
+import 'package:una/src/theme/components/select.dart';
+import 'package:una/src/theme/components/select_option.dart';
+import 'package:una/src/theme/components/sheet.dart';
+import 'package:una/src/theme/components/sidebar.dart';
+import 'package:una/src/theme/components/skeleton.dart';
+import 'package:una/src/theme/components/slider.dart';
+import 'package:una/src/theme/components/spinner.dart';
+import 'package:una/src/theme/components/stepper.dart';
+import 'package:una/src/theme/components/streaming_text.dart';
+import 'package:una/src/theme/components/switch.dart';
+import 'package:una/src/theme/components/table.dart';
+import 'package:una/src/theme/components/tabs.dart';
+import 'package:una/src/theme/components/text_field.dart';
+import 'package:una/src/theme/components/text_selection.dart';
+import 'package:una/src/theme/components/textarea.dart';
+import 'package:una/src/theme/components/time_field.dart';
+import 'package:una/src/theme/components/time_picker.dart';
+import 'package:una/src/theme/components/timeline.dart';
+import 'package:una/src/theme/components/toast.dart';
+import 'package:una/src/theme/components/toggle.dart';
+import 'package:una/src/theme/components/tooltip.dart';
+import 'package:una/src/theme/components/wheel_picker.dart';
+import 'package:una/src/theme/form_factor.dart';
+import 'package:una/src/theme/radii.dart';
+import 'package:una/src/theme/spacing.dart';
+import 'package:una/src/theme/style.dart';
+import 'package:una/src/theme/text_theme/theme.dart';
+import 'package:una/src/utils/responsive.dart';
 
 /// How strongly menus highlight their hovered row, shadcn's "Menu Accent".
 ///
@@ -352,7 +352,7 @@ abstract class BaseTheme {
 
   /// The default border and label styling of controls. Component decorations
   /// are merged over it.
-  final FinesseDecoration decoration;
+  final UnaDecoration decoration;
 
   /// The text styles. These have the style's text roles applied, so they can
   /// differ from the text theme passed in.
@@ -432,7 +432,7 @@ abstract class BaseTheme {
   /// The theme of `Accordion`.
   final AccordionTheme accordionTheme;
 
-  /// The theme of `FinesseTable`.
+  /// The theme of `UnaTable`.
   final TableTheme tableTheme;
 
   /// The theme of `ResizablePanelGroup`.
@@ -583,8 +583,8 @@ abstract class ThemeVariant {
   /// Builds the theme of `Popover`.
   PopoverTheme popoverTheme();
 
-  /// Builds the default [FinesseDecoration] of controls.
-  FinesseDecoration decorationTheme();
+  /// Builds the default [UnaDecoration] of controls.
+  UnaDecoration decorationTheme();
 
   /// Builds the text theme: [effectiveTextTheme] with the style's text roles
   /// applied to `small`, `muted`, `p`, `list` and `large`.
@@ -650,7 +650,7 @@ abstract class ThemeVariant {
   /// Builds the theme of `Accordion`.
   AccordionTheme accordionTheme();
 
-  /// Builds the theme of `FinesseTable`.
+  /// Builds the theme of `UnaTable`.
   TableTheme tableTheme();
 
   /// Builds the theme of `ResizablePanelGroup`.

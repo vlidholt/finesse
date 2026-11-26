@@ -1,8 +1,8 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
-/// Pins the finesse palette and the tokens it added to [ColorScheme].
+/// Pins the una palette and the tokens it added to [ColorScheme].
 ///
 /// The teal scheme is the first to set every optional token; every other
 /// scheme — and any scheme an app wrote by hand — leaves them unset and gets
@@ -436,7 +436,7 @@ void main() {
   });
 
   group('the tokens reach the component themes', () {
-    test('finesse outline buttons take the strong border', () {
+    test('una outline buttons take the strong border', () {
       final theme = ThemeData();
       expect(
         theme.outlineButtonTheme.decoration!.border!.top!.color,

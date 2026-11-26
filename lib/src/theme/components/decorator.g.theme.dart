@@ -9,14 +9,10 @@ part of 'decorator.dart';
 // ThemeGenGenerator
 // **************************************************************************
 
-mixin _$FinesseDecoration {
+mixin _$UnaDecoration {
   bool get canMerge => true;
 
-  static FinesseDecoration? lerp(
-    FinesseDecoration? a,
-    FinesseDecoration? b,
-    double t,
-  ) {
+  static UnaDecoration? lerp(UnaDecoration? a, UnaDecoration? b, double t) {
     if (identical(a, b)) {
       return a;
     }
@@ -29,23 +25,19 @@ mixin _$FinesseDecoration {
       return t == 0.0 ? a : null;
     }
 
-    return FinesseDecoration(
+    return UnaDecoration(
       labelStyle: TextStyle.lerp(a.labelStyle, b.labelStyle, t),
       errorLabelStyle: TextStyle.lerp(a.errorLabelStyle, b.errorLabelStyle, t),
-      border: FinesseBorder.lerp(a.border, b.border, t),
-      focusedBorder: FinesseBorder.lerp(a.focusedBorder, b.focusedBorder, t),
-      errorBorder: FinesseBorder.lerp(a.errorBorder, b.errorBorder, t),
-      secondaryBorder: FinesseBorder.lerp(
-        a.secondaryBorder,
-        b.secondaryBorder,
-        t,
-      ),
-      secondaryFocusedBorder: FinesseBorder.lerp(
+      border: UnaBorder.lerp(a.border, b.border, t),
+      focusedBorder: UnaBorder.lerp(a.focusedBorder, b.focusedBorder, t),
+      errorBorder: UnaBorder.lerp(a.errorBorder, b.errorBorder, t),
+      secondaryBorder: UnaBorder.lerp(a.secondaryBorder, b.secondaryBorder, t),
+      secondaryFocusedBorder: UnaBorder.lerp(
         a.secondaryFocusedBorder,
         b.secondaryFocusedBorder,
         t,
       ),
-      secondaryErrorBorder: FinesseBorder.lerp(
+      secondaryErrorBorder: UnaBorder.lerp(
         a.secondaryErrorBorder,
         b.secondaryErrorBorder,
         t,
@@ -82,15 +74,15 @@ mixin _$FinesseDecoration {
     );
   }
 
-  FinesseDecoration copyWith({
+  UnaDecoration copyWith({
     TextStyle? labelStyle,
     TextStyle? errorLabelStyle,
-    FinesseBorder? border,
-    FinesseBorder? focusedBorder,
-    FinesseBorder? errorBorder,
-    FinesseBorder? secondaryBorder,
-    FinesseBorder? secondaryFocusedBorder,
-    FinesseBorder? secondaryErrorBorder,
+    UnaBorder? border,
+    UnaBorder? focusedBorder,
+    UnaBorder? errorBorder,
+    UnaBorder? secondaryBorder,
+    UnaBorder? secondaryFocusedBorder,
+    UnaBorder? secondaryErrorBorder,
     TextStyle? errorStyle,
     TextStyle? descriptionStyle,
     EdgeInsetsGeometry? labelPadding,
@@ -107,9 +99,9 @@ mixin _$FinesseDecoration {
     bool? fallbackToBorder,
     bool? fallbackToLabelStyle,
   }) {
-    final _this = (this as FinesseDecoration);
+    final _this = (this as UnaDecoration);
 
-    return FinesseDecoration(
+    return UnaDecoration(
       labelStyle: labelStyle ?? _this.labelStyle,
       errorLabelStyle: errorLabelStyle ?? _this.errorLabelStyle,
       border: border ?? _this.border,
@@ -138,8 +130,8 @@ mixin _$FinesseDecoration {
     );
   }
 
-  FinesseDecoration merge(FinesseDecoration? other) {
-    final _this = (this as FinesseDecoration);
+  UnaDecoration merge(UnaDecoration? other) {
+    final _this = (this as UnaDecoration);
 
     if (other == null || identical(_this, other)) {
       return _this;
@@ -199,8 +191,8 @@ mixin _$FinesseDecoration {
       return false;
     }
 
-    final _this = (this as FinesseDecoration);
-    final _other = (other as FinesseDecoration);
+    final _this = (this as UnaDecoration);
+    final _other = (other as UnaDecoration);
 
     return _other.labelStyle == _this.labelStyle &&
         _other.errorLabelStyle == _this.errorLabelStyle &&
@@ -229,7 +221,7 @@ mixin _$FinesseDecoration {
 
   @override
   int get hashCode {
-    final _this = (this as FinesseDecoration);
+    final _this = (this as UnaDecoration);
 
     return Object.hashAll([
       runtimeType,

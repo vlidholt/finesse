@@ -1,8 +1,8 @@
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/border.dart';
-import 'package:finesse/src/utils/debug_check.dart';
-import 'package:finesse/src/utils/separated_iterable.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/border.dart';
+import 'package:una/src/utils/debug_check.dart';
+import 'package:una/src/utils/separated_iterable.dart';
 
 /// {@template Kbd}
 /// A keyboard key cap, used to document a shortcut.
@@ -70,7 +70,7 @@ class Kbd extends StatelessWidget {
   /// {@template Kbd.border}
   /// The border of the key cap.
   /// {@endtemplate}
-  final FinesseBorder? border;
+  final UnaBorder? border;
 
   /// {@template Kbd.padding}
   /// The padding inside the key cap.
@@ -103,7 +103,7 @@ class Kbd extends StatelessWidget {
         foregroundColor ??
         kbdTheme.foregroundColor ??
         theme.colorScheme.mutedForeground;
-    final effectiveBorder = (kbdTheme.border ?? const FinesseBorder()).merge(
+    final effectiveBorder = (kbdTheme.border ?? const UnaBorder()).merge(
       border,
     );
     final effectivePadding =

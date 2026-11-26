@@ -1,22 +1,22 @@
-# Working notes for `finesse`
+# Working notes for `una`
 
 Things that are true about this repo and are expensive to rediscover. Written
 for whoever (or whatever) picks the work up next.
 
 ## The fork
 
-`finesse` is a fork of `shad` 1.0.2 (a Flutter port of shadcn/ui). The shadcn
+`una` is a fork of `shad` 1.0.2 (a Flutter port of shadcn/ui). The shadcn
 lineage still explains most of the code — tokens are named after Tailwind
 classes, three of the four styles are shadcn's — but the package now has its
 own default look and its own rules.
 
 - **Naming.** No `Shad` prefix: `Button`, `Card`, `Theme`, `ThemeData`. A
   name that would clash with Flutter's *widgets* layer (or Dart core) keeps a
-  `Finesse` prefix — `FinesseApp`, `FinesseRow`, `FinesseColumn`,
-  `FinessePadding`, `FinesseForm`, `FinesseFormField`, `FinesseTable`,
-  `FinesseBorder`, `FinesseBorderSide`, `FinesseDecoration`,
-  `FinesseGestureDetector`, `FinesseRadioGroup`,
-  `FinessePageRoute`, `FinesseLocalizations`, `FinesseMaterial`. A clash with
+  `Una` prefix — `UnaApp`, `UnaRow`, `UnaColumn`,
+  `UnaPadding`, `UnaForm`, `UnaFormField`, `UnaTable`,
+  `UnaBorder`, `UnaBorderSide`, `UnaDecoration`,
+  `UnaGestureDetector`, `UnaRadioGroup`,
+  `UnaPageRoute`, `UnaLocalizations`, `UnaMaterial`. A clash with
   *Material* only (`Card`, `Switch`, `Dialog`, `Tooltip`, `Scaffold`,
   `AppBar`, `ListTile`, `Chip`) is fine: the package is Material-free, and a
   file that imports both hides one side. Before adding a public name, check
@@ -52,7 +52,7 @@ own default look and its own rules.
     `TagField`). `allowDeselection` says whether the selection may become
     empty, on pickers too (`DatePicker`, `TimePicker`, from their themes).
     **A null callback disables the control** — `Button`, `IconButton`,
-    `Toggle`, `Chip`, `ToggleGroup`, `ChipGroup`, `FinesseRadioGroup`,
+    `Toggle`, `Chip`, `ToggleGroup`, `ChipGroup`, `UnaRadioGroup`,
     `Select` (unless it has an `onTap`), `SegmentedControl`, the pickers.
   - Open state is `open`, `initiallyOpen`, `onOpenChanged`; every
     controller has `isOpen`, `open()`, `close()`, `toggle()`,
@@ -77,9 +77,9 @@ own default look and its own rules.
     the subtree.
 - **No deprecation shims.** The fork is pre-1.0; a rename is a changelog
   entry under "Changed from shad", not a `@Deprecated` typedef.
-- **The default look** is `StyleTokens.finesse` on `TealColorScheme`, measured
+- **The default look** is `StyleTokens.una` on `TealColorScheme`, measured
   from the Demo designs (four screens, desktop and mobile, light and dark)
-  that [`finesse_demo`](https://github.com/vlidholt/finesse_demo), a
+  that [`una_demo`](https://github.com/vlidholt/una_demo), a
   repository of its own, replicates. Until the split it was "Strand", in
   `example/lib/strand/`. `nova`, `maia` and `lyra` are the
   shadcn styles that remain; `neutral`, `zinc` and `stone` the base palettes.
@@ -93,20 +93,20 @@ own default look and its own rules.
 ### Form factors
 
 Every `StyleTokens` has a second set of metrics for a phone: `style.mobile`
-if it defines one (`finesse` → `finesseMobile`), otherwise derived by
+if it defines one (`una` → `unaMobile`), otherwise derived by
 `forFormFactor` (controls ≥ 44, body 15, page margins 16). The **variant**
 owns the choice: `DefaultThemeVariant(style:, formFactor:)` keeps the style it
 was given as `baseStyle` and exposes the resolved one as `style`, so every
 component theme — and a theme lerp, which carries the variant — follows.
-`FinesseApp` calls `theme.withFormFactor(...)` from the window width (below
+`UnaApp` calls `theme.withFormFactor(...)` from the window width (below
 `breakpoints.md`), cached per theme in an `Expando`. Never read the window
 width in a component to pick a size; read the theme.
 
 Layout that *rearranges* on a phone uses `FormFactorBuilder` or
 `Theme.of(context).formFactor`. Layout that only *resizes* uses the gap scale
-(`Gap.md()`, `FinesseRow(gap: GapSize.lg)`), `PageContainer` and widget
+(`Gap.md()`, `UnaRow(gap: GapSize.lg)`), `PageContainer` and widget
 defaults, all of which read `ThemeData.layoutTheme`. Demo screens hard-code a
-dimension only for a picture (see `finesse_demo`'s own `CLAUDE.md`).
+dimension only for a picture (see `una_demo`'s own `CLAUDE.md`).
 
 ### Glass
 
@@ -132,14 +132,14 @@ the same (`glass_shadow_web_test.dart` repeats it in Chrome).
 `popoverOpacity` and `tooltipOpacity` (each with a dark override) do for
 popovers, menus, a select's list, the command palette and tooltips what
 `barOpacity` does for the bars: below 1 the surface is its colour at that
-opacity over the style's glass filter. They are below 1 in `finesse` and 1
+opacity over the style's glass filter. They are below 1 in `una` and 1
 in `nova`, `maia` and `lyra`. `ThemeData.menuTranslucent` is three-state on
 top of that — null follows the style, true is shadcn's 70% finish with a
 `foreground/10` highlight, false keeps menus solid — and
 `test/src/theme/glass_contrast_test.dart` walks every combination over the
 page, black and white.
 
-Toasts are popover surfaces as well: glass in `finesse`, `popover` and
+Toasts are popover surfaces as well: glass in `una`, `popover` and
 `popoverForeground` in the shadcn styles (`ToastTheme.filter`). The
 `Toaster` stack (`RenderToastStack`) clips each toast to its slot in paint,
 with room for the shadow's reach; a plain `ClipRect` cut every toast's
@@ -173,7 +173,7 @@ shadow off.
 ### Liquid Glass
 
 On iOS and macOS (natively and in a browser, where Flutter reports the
-browser's platform) finesse draws its chrome, floating surfaces and lens
+browser's platform) una draws its chrome, floating surfaces and lens
 controls with `liquid_glass_widgets` (1.21, MIT, a hard dependency).
 `ThemeData.liquidGlass` is a `LiquidGlassTheme` (`mode`: `auto`/`always`/
 `never`, the package's `style`, `quality`, `adaptiveQuality`,
@@ -187,9 +187,9 @@ componentTheme.liquidGlass)` at build: never a window width, never cached.
   `CupertinoTheme` for its accent, so `LiquidGlassBridge` puts a
   `CupertinoTheme` (from the SDK, deprecated in favour of `cupertino_ui`,
   hence the ignore: a `cupertino_ui` theme is another class the package
-  would not see) and a `GlassTheme` derived from the finesse theme around
+  would not see) and a `GlassTheme` derived from the una theme around
   every package widget, cached per `ThemeData` in an `Expando`. Components
-  build finesse wrappers from that directory (`LiquidGlassSurface`,
+  build una wrappers from that directory (`LiquidGlassSurface`,
   `LiquidGlassBarGroup`, `LiquidGlassScrollEdge`, `LiquidGlassSwitch`/
   `Slider`/`SegmentedControl`/`TabBar`), and the config types
   (`GlassStyle`, `GlassQuality`, `GlassThemeSettings`) reach them through
@@ -213,7 +213,7 @@ componentTheme.liquidGlass)` at build: never a window width, never cached.
   opacity layer any better than a backdrop filter.
 - **The app bar has no fill and no edge on glass, and only on a phone or
   a tablet, and only with shader filters.** `appBarMaterial` (in
-  `app_bar_layout.dart`) picks one of three: `frosted` (finesse's own
+  `app_bar_layout.dart`) picks one of three: `frosted` (una's own
   bar), `liquid` or `solid`. A desktop's top bar (macOS included) is
   frosted unless `AppBarTheme.liquidGlass` is `always`. On glass with
   shader filters (Impeller) `AppBarSurface(liquid: true)` puts a
@@ -279,21 +279,21 @@ componentTheme.liquidGlass)` at build: never a window width, never cached.
   overlay (`LiquidGlassSurface(overlay: true)`, the morphing menu) takes
   `legibleOverlaySettings` — blur half the style's `glassBlur`, the
   style's saturation, a .3 whiten veil in light, edge absorption .08 —
-  and finesse's own hairline (`overlayEdgeColor`, foreground/10, /16
+  and una's own hairline (`overlayEdgeColor`, foreground/10, /16
   dark) over the glass. On Impeller the package's settings stand.
 - **A phone's menu morphs out of its trigger.** A root `ContextMenu`
   (so `DropdownMenu`) at the phone or tablet form factor, opened at its
   own anchor and taking the focus, builds `LiquidGlassMorphPopover`: the
   package's `GlassPopover` (a spring morph from the trigger's rect,
   250 wide or the screen less margins, measured height) driven by the
-  finesse `PopoverController` both ways. A desktop menu, a submenu, a
+  una `PopoverController` both ways. A desktop menu, a submenu, a
   menu opened with `openAt` and a `ContextMenuRegion`'s
-  (`liquidGlassMorph: false`) stay finesse popovers; a menu opened with
+  (`liquidGlassMorph: false`) stay una popovers; a menu opened with
   `openAt` while built as a morph rebuilds as a popover.
 - **The package's progress logs** (`[LiquidGlass] Initializing…`,
   `[LightweightGlass] ✓ Created web shader…`, printed in release builds
   too, with no switch) are filtered out by a wrapper `initialize()` puts
-  around `debugPrint`. Not from `FinesseApp`: a test binding fails any
+  around `debugPrint`. Not from `UnaApp`: a test binding fails any
   test that leaves `debugPrint` changed.
 - **The bottom bar's `action` floats beside the tabs** on the glass bar
   (`GlassTabBarExtraButton`, iOS 26's split bar), not between them. The
@@ -303,15 +303,15 @@ componentTheme.liquidGlass)` at build: never a window width, never cached.
   centred. A bar with nothing selected (a page that is none of the
   destinations) stays glass with the lens hidden (`showIndicator:
   false`), so it looks the same on every screen.
-- **Haptics stay finesse's rule**: the switch gets
+- **Haptics stay una's rule**: the switch gets
   `enableHaptics: Haptics.enabledOf(context)`. `GlassSlider` ticks on
   division changes by itself and cannot be told not to.
-- **The phone metrics are Liquid Glass's** (`finesseMobile`: app bar 44,
+- **The phone metrics are Liquid Glass's** (`unaMobile`: app bar 44,
   bottom item 52 → a 64 bar, switch 58 × 26, slider thumb 28, popover and
   dialog radius `xl4` = 24), so a phone screen is laid out the same frosted
   or liquid. `_derivedMobile` caps the app bar at 60 rather than setting
   it, or the phone style stops being a fixed point. Desktop (macOS too)
-  keeps finesse's sizes.
+  keeps una's sizes.
 - **Tests run as Android, so `auto` is frosted.** Set
   `debugDefaultTargetPlatformOverride = TargetPlatform.iOS` (and put it
   back) to test the glass; `test/src/liquid_glass/liquid_glass_test.dart`
@@ -324,7 +324,7 @@ componentTheme.liquidGlass)` at build: never a window width, never cached.
 ### Motion
 
 One vocabulary, `Motion` (`lib/src/theme/motion.dart`), lives on the style
-(`StyleTokens.motion`: `lively` for `finesse`, `calm` for the shadcn styles,
+(`StyleTokens.motion`: `lively` for `una`, `calm` for the shadcn styles,
 `none` to switch it off) and `ThemeData(motion:)` overrides it; it is not a
 `BaseTheme` field. Components read it with `Motion.of(context)` — never
 `theme.motion` — which returns the reduced form under
@@ -374,7 +374,7 @@ in a `build` is fine; any other curve has to be a constant.
   command items had the glide and lost it: the highlight follows the pointer
   and the arrow keys row by row, there or not, with no fade and no glide. It
   is the row's own fill again (a menu row is a `Button` whose `style` has
-  `transitionDuration: Duration.zero`). In `finesse` the fill is a wash of
+  `transitionDuration: Duration.zero`). In `una` the fill is a wash of
   the menu's foreground (`StyleTokens.menuHighlightOpacity`/`Dark`, .06/.09)
   under text that keeps its colour — an opaque accent fill is a bright slab
   on glass. A style without the token keeps shadcn's accent fill, and a
@@ -403,7 +403,7 @@ in a `build` is fine; any other curve has to be a constant.
   around a new `child`. A `CurvedAnimation` made there leaks a listener per
   tick, and a stateful transition built there starts over sixty times a
   second. What depends only on the route is kept with the route
-  (`FinessePageRoute._animations`, `_AnchoredPopoverRoute._animations`,
+  (`UnaPageRoute._animations`, `_AnchoredPopoverRoute._animations`,
   `DialogRoute._blurLayer`); the page is moved in paint (`_PageShift`); and
   a dialog's entrance is made once per direction, with the content
   reaching it through `_RouteChild`/`_RouteChildSlot`
@@ -427,7 +427,7 @@ in a `build` is fine; any other curve has to be a constant.
 `reference/ui/` is a clone of [shadcn-ui/ui](https://github.com/shadcn-ui/ui).
 It is gitignored — it is ~150 MB and not ours to vendor — but it is the source
 of truth for every visual decision in the `nova`, `maia` and `lyra` styles and
-in every component the `finesse` style inherits unchanged.
+in every component the `una` style inherits unchanged.
 
 **Look values up there. Do not guess at colours, paddings, radii or type.**
 Several rounds of this project's history were spent fixing values that were
@@ -477,7 +477,7 @@ themes. Understanding this order prevents most theming bugs.
   `caption`, `p`, `list` and `large`. Reading the raw input here once made a
   style change resize components but leave every font size alone.
 - `TextTheme.caption` is the fine print a size under `muted` (counts,
-  timestamps, sources; 12/16 in `finesse`): the `caption` role's size, line
+  timestamps, sources; 12/16 in `una`): the `caption` role's size, line
   height and tracking, in the muted colour, at the text theme's own regular
   weight. The role's medium weight is for the components that label things
   with it (badges, navigation items); metadata set in it stops receding.
@@ -499,9 +499,9 @@ themes. Understanding this order prevents most theming bugs.
   `ThemeData` (`expandedActionsThemeOf` in
   `lib/src/utils/expanded_actions_theme.dart`, shared by dialogs and sheets;
   `_contentThemeOf` in `tooltip.dart`; the board's `_itemThemeOf`; the
-  Demo shell's rail theme); `FinesseApp`'s fallback themes are static.
+  Demo shell's rail theme); `UnaApp`'s fallback themes are static.
   `test/src/components/derived_theme_identity_test.dart` holds it. Under an
-  `AnimatedTheme` (not `FinesseApp`, which switches themes) the board's
+  `AnimatedTheme` (not `UnaApp`, which switches themes) the board's
   item theme is still derived per lerped `ThemeData`.
 - **A theme override reaches every descendant.** The widened-buttons theme
   a narrow dialog or sheet puts around its actions widened every `Button`
@@ -543,7 +543,7 @@ generated `==` for the rest (see the comment in any of them, e.g.
 `PopoverTheme`). A new list field needs adding to that override.
 
 A `ThemeData` that is `!=` the previous one is a new theme to everything
-that reads it: under `FinesseApp`'s `CrossFadeTheme` every dependent
+that reads it: under `UnaApp`'s `CrossFadeTheme` every dependent
 rebuilds and a cross-fade starts, and under an `AnimatedTheme` a 200 ms
 lerp across ~70 component themes starts. Anything that breaks value
 equality — a method tear-off in `==`, a non-const `Widget` in a theme field
@@ -569,7 +569,7 @@ chain; add to it rather than trusting a local check.
   (`h-[18.4px]`, `rounded-[4px]`, `p-[3px]`) are not scaled. Keep that
   distinction when adding a token.
 - `uppercase` on a text role is **not** applied automatically: `TextStyle` has
-  no text-transform, and every Finesse component takes a caller's widget rather
+  no text-transform, and every Una component takes a caller's widget rather
   than a string. `role.applyCase(text)` is the escape hatch.
 - **Icon sizes inside buttons are a token, not the caller's problem.**
   `.cn-button` carries `[&_svg:not([class*='size-'])]:size-4`, so the button
@@ -586,8 +586,8 @@ chain; add to it rather than trusting a local check.
 
 ## Fonts
 
-finesse bundles **no text fonts**: `TextTheme`'s default `family` is null (the
-platform font). Nothing under `lib/` may name a `packages/finesse/` asset (CI
+una bundles **no text fonts**: `TextTheme`'s default `family` is null (the
+platform font). Nothing under `lib/` may name a `packages/una/` asset (CI
 greps for it). `OtpField` uses tabular figures, not a mono face — the
 reference's slots are not `font-mono`. The example loads every text font
 through `google_fonts`.
@@ -604,7 +604,7 @@ instances of a class that *extends `IconData`*, which Flutter made final in
 3.47, so it no longer compiles — and the analyzer does not report errors
 inside a dependency, so the first symptom is every `flutter test` failing to
 load. Ours are plain `const IconData(code, fontFamily:, fontPackage:
-'finesse')`, which also keeps icon tree-shaking working.
+'una')`, which also keeps icon tree-shaking working.
 
 - A duotone icon is two glyphs, so `PhosphorIconsDuotone.x` is a
   `PhosphorDuotoneIconData`, drawn by `PhosphorDuotoneIcon`, not an `Icon`.
@@ -621,7 +621,7 @@ load. Ours are plain `const IconData(code, fontFamily:, fontPackage:
   on an app's licence page; with more than one section, a section *without*
   a name header has its first paragraph swallowed as the name.
 - Inside this package's own tests the families are registered without the
-  `packages/finesse/` prefix, and tests load no fonts anyway, so icons are
+  `packages/una/` prefix, and tests load no fonts anyway, so icons are
   boxes there. That is expected (the stroke tests below load the regular
   font themselves).
 - To update: see `fonts/phosphor/README.md`.
@@ -674,7 +674,7 @@ weight, another font, at or above the reference — is a plain `Icon`.
   destructive is a soft `/10` tint, secondary hover is a 5% foreground mix,
   and command items highlight with `bg-muted`. Menu items still use
   `focus:bg-accent focus:text-accent-foreground` — with **every descendant**
-  (icons, shortcuts) following the foreground. (`finesse` washes the row
+  (icons, shortcuts) following the foreground. (`una` washes the row
   instead; see "A menu's highlight does not travel" under Motion.)
 - **Dark `--border` and `--input` are translucent whites** (10% and 15%). This
   matters: an opaque grey hairline disappears against a card of the same value.
@@ -718,7 +718,7 @@ weight, another font, at or above the reference — is a plain `Icon`.
   given. Before that, customising the default style silently did nothing
   on a phone.
 - **The three shadcn styles carry an app type scale** (`display`,
-  `headline`, `subtitle`, `small`) like `finesse` does. Without one,
+  `headline`, `subtitle`, `small`) like `una` does. Without one,
   `Theme.of(context).textTheme` is shadcn's *prose* scale — a 16-point `p`,
   an 18-point `large` — and a screen written against it comes out a size too
   big under that style. A style that names none of the four keeps the prose
@@ -770,7 +770,7 @@ weight, another font, at or above the reference — is a plain `Icon`.
   padding around the child** (`DecoratedBox` does not — the menubar strip
   relied on one and came out 2px short). A height constraint applied *inside*
   a `Decorator` (`lib/src/components/decorator.dart`; `InputDecorator` is
-  beside it, `FinesseDecoration` in `lib/src/theme/components/decorator.dart`)
+  beside it, `UnaDecoration` in `lib/src/theme/components/decorator.dart`)
   comes out `2 × border` too tall — that made outline
   buttons and toggles 2px taller than their borderless variants and every
   control 4px taller in the no-secondary-border variant (focus reserve).
@@ -799,7 +799,7 @@ weight, another font, at or above the reference — is a plain `Icon`.
   row; a `Tab.child` that is itself a `Flexible` is left alone (two around
   one child is an error). `test/src/components/tabs_list_test.dart`.
 - **`Border` requires colour-uniform sides to paint a radius**, and
-  `BorderSide.none` carries opaque black. `FinesseBorderSide.toBorderSide()`
+  `BorderSide.none` carries opaque black. `UnaBorderSide.toBorderSide()`
   therefore keeps its colour at zero width. Any component that draws only some
   of its sides (the OTP strip) depends on this.
 - **There is no z-index in a `Row`.** shadcn's focused OTP slot uses `z-10` to
@@ -829,7 +829,7 @@ weight, another font, at or above the reference — is a plain `Icon`.
 - **`GlobalAnchor.offset` is global**, and the portal converts it with the
   overlay's own `globalToLocal` (`buildGlobalPosition`), so a menu at a
   point opens under the pointer inside a nested navigator that does not
-  start at the window's corner. `FinesseGestureDetector` reports true
+  start at the window's corner. `UnaGestureDetector` reports true
   global positions; it used to "correct" them to be overlay-local (shad
   #319), which put every such menu, and a slider in a docked navigator, in
   the wrong place. Feed `openAt`, `showMenu` and `showPopover(anchorRect:)`
@@ -869,11 +869,11 @@ weight, another font, at or above the reference — is a plain `Icon`.
 - `Button` centres its label (`TextAlign.center` in its DefaultTextStyle).
   Anything button-based that should read as a row — menu items — must merge
   `TextAlign.start` back in below the button.
-- `FinesseBorder.merge` takes the other's `borderRadius` and `offset` only
+- `UnaBorder.merge` takes the other's `borderRadius` and `offset` only
   where the other sets them. Taking both unconditionally once made an
   override that set only the radius drop the offset, which collapsed a
   focus ring onto the element's own border; keep the two null-aware. The
-  `FinesseRoundedSuperellipseBorder` branch builds a new border, so it has
+  `UnaRoundedSuperellipseBorder` branch builds a new border, so it has
   to carry `offset` and `padding` itself (`border_merge_test.dart`).
 - `OutwardBorderPainter` inflates the rect by `offset` and strokes *inside*
   it, so `offset == width` puts the stroke flush against the element. That is
@@ -980,7 +980,7 @@ weight, another font, at or above the reference — is a plain `Icon`.
   primary focus that no key event or traversal can reach and that outlives
   its own disposal ("FocusNode used after disposed", much later). A form
   field made of several controls (OTP, radio group, time picker) hands its
-  node to none of them, so `FinesseFormFieldState.focus()` asks the node
+  node to none of them, so `UnaFormFieldState.focus()` asks the node
   only when `node.context != null` and otherwise the first focusable control
   in *element* order — a `FocusNode`'s children are in the order they were
   attached, which a rebuild shuffles
@@ -1073,7 +1073,7 @@ weight, another font, at or above the reference — is a plain `Icon`.
   delivered by the next pump, the future never completes and the test hangs
   instead of failing. `unawaited(chunks.close())`, then pump. A stand-in
   stream is a `StreamController` driven by `Timer`s that `onCancel` cancels
-  (`lib/widgets/messages_assistant.dart` in `finesse_demo`), not an `async*`
+  (`lib/widgets/messages_assistant.dart` in `una_demo`), not an `async*`
   around `Future.delayed`, whose pending delay outlives the listener.
 - A controller started between two frames moves on the *second* pump: pump
   once before a timed pump when sampling an animation. A test that reads a
@@ -1090,7 +1090,7 @@ weight, another font, at or above the reference — is a plain `Icon`.
   with an alignment", or a measurement right after an overscroll drag,
   finds that first.
 - `tester.tap` is a touch (haptics, press-as-hover) unless given
-  `kind: PointerDeviceKind.mouse`. `FinesseApp` picks the phone form factor
+  `kind: PointerDeviceKind.mouse`. `UnaApp` picks the phone form factor
   from the narrow default test window unless `formFactor:` is passed. One
   `pump(Duration(seconds: 5))` advances one frame, not five seconds of
   frames. `find.text` also matches what is typed in a text field.
@@ -1125,17 +1125,17 @@ weight, another font, at or above the reference — is a plain `Icon`.
   and the SDK's `cupertino.dart` (see "Liquid Glass"); the same check and
   test hold every other file to the rule. Flutter is moving
   Material and Cupertino out of the SDK into `material_ui`/`cupertino_ui`;
-  apart from that adapter the core does not touch them. `FinesseApp` therefore has
-  its own `ThemeMode`, `FinessePageRoute` and `Scrollbar`-based scroll
+  apart from that adapter the core does not touch them. `UnaApp` therefore has
+  its own `ThemeMode`, `UnaPageRoute` and `Scrollbar`-based scroll
   behaviour, and `DefaultStyles` sets the root icon theme and selection
   colours that a Material `Theme` used to. Material widgets in an app need
-  a `FinesseMaterial` (theme + transparent `Material` + localizations); the
+  a `UnaMaterial` (theme + transparent `Material` + localizations); the
   example wraps its whole app in one. This is why `Spinner` is a
   `CustomPainter` rather than a wrapped `CircularProgressIndicator`.
 - **The public surface is pinned.** `test/public_api_test.dart` compares
-  every name `lib/finesse.dart` exports with `test/public_api.txt`. A new
+  every name `lib/una.dart` exports with `test/public_api.txt`. A new
   public name, or one that goes away, means rerunning with
-  `FINESSE_UPDATE_PUBLIC_API=1 flutter test test/public_api_test.dart` and
+  `UNA_UPDATE_PUBLIC_API=1 flutter test test/public_api_test.dart` and
   reading the diff before committing it. A type used only in its own file
   is private; one used across `lib/` but not meant for apps is hidden in
   the barrel's `show`/`hide` clauses or marked `@internal` (`EntranceSpec`,
@@ -1143,7 +1143,7 @@ weight, another font, at or above the reference — is a plain `Icon`.
   `MouseAreaSurface`). A few are hidden rather than private because tests
   reach them through `src/` imports (`SelectState`, `PanelInfo`,
   `ResizeResult`); every `*FormFieldState` is private, and a test reaches
-  one as a `FinesseFormFieldState<F, T>`.
+  one as a `UnaFormFieldState<F, T>`.
 - `test/readme_snippet_test.dart` and `example/test/example_md_test.dart` hold
   verbatim copies of the README and `example/example.md` snippets and check
   they still match.
@@ -1180,12 +1180,12 @@ weight, another font, at or above the reference — is a plain `Icon`.
 ## Performance
 
 What a frame costs on the web is measured in the Demo app
-([`finesse_demo`](https://github.com/vlidholt/finesse_demo)), a whole app
+([`una_demo`](https://github.com/vlidholt/una_demo)), a whole app
 on the package's default look: its `test/perf_structure_test.dart` counts
 backdrop filters, save layers, builds and paints per scroll frame, at rest
 and across a theme switch, per screen at both sizes, and
 `flutter build web --release -t test_driver/perf.dart` there times them in
-a browser (`await finessePerf.scroll(1200, 2)` in the console). A change
+a browser (`await unaPerf.scroll(1200, 2)` in the console). A change
 here that could move those numbers is checked there, against a local
 checkout (its `pubspec_overrides.yaml`). The browser must be *showing*: a
 hidden pane runs animation at 1 Hz. `FrameTiming.raster` on the web ends
@@ -1211,7 +1211,7 @@ rules below were all found there.
   are the glass. Glass inside scrolling content or on a flat fill is
   `Glass(frosted: false)`; a label on a photograph is a plain scrim, not an
   isolated backdrop (that was a save layer and a filter per card). A theme
-  opts in with `StyleTokens.finesse.copyWith(cardBlur: true)` or
+  opts in with `StyleTokens.una.copyWith(cardBlur: true)` or
   `CardTheme(blur: …)`; the example's Frost preset does. The navigation
   rail is the same case: it lies beside the page on a flat fill, so it is
   translucent but not frosted by default, and `NavigationRailTheme(blur:)`
@@ -1221,13 +1221,13 @@ rules below were all found there.
   animation on the page repaints the page's own few boxes. A hand-rolled
   `SingleChildScrollView` page needs the boundary itself. A real feed is a
   lazy list.
-- **A theme is switched, not interpolated.** `FinesseApp` uses
+- **A theme is switched, not interpolated.** `UnaApp` uses
   `CrossFadeTheme` (`lib/src/theme/cross_fade_theme.dart`): one build under
   the new theme, the previous frame faded out over it as a picture, timed
   from the frame after the rebuild. `AnimatedTheme` rebuilt the app on every
   frame of the lerp. Because of that, an implicit animation must not chase a
   theme change: `AnimatedColorBuilder` and `AnimatedFill` jump when the theme
-  did (`ThemeChange`), and `FinesseMaterial` does not animate its text style.
+  did (`ThemeChange`), and `UnaMaterial` does not animate its text style.
   Theme equality is still load-bearing: an unequal theme per build is a full
   rebuild per build.
 - **Something that never stops is painted, not built**, in a layer of its own
@@ -1270,13 +1270,13 @@ rules below were all found there.
   or FAB with no callback is. A control that must stay a Tab stop with
   nothing to do (the current page of a `Pagination`, which keeps
   `aria-current`) passes a no-op callback.
-- **Rarer gestures are a `FinesseGestureDetector` around the control**
+- **Rarer gestures are a `UnaGestureDetector` around the control**
   (double tap, secondary tap, tap down, long-press phases, pan). The
   control keeps its own tap, so a second `onTap`/`onTapDown` there loses
   the arena and its `onTapDown` fires only after about 100 ms; use a
   `Listener` to hear every pointer-down. A menu row's `onTapDown` is such
   a `Listener`: the row's tap comes on pointer-up, by which time a tap
-  outside has already closed the menu. `FinesseGestureDetector` also
+  outside has already closed the menu. `UnaGestureDetector` also
   stands a press in for hover on a device with none (a finger that comes
   down hovers the detector until it lifts); select options, command
   items, the accordion and the sidebar rely on it. It is a fixed rule
@@ -1306,7 +1306,7 @@ rules below were all found there.
   `test/src/raw_components/keyboard_activation_test.dart` and its web twin.
 - `Disabled` excludes the focus as well as pointers, and keeps both of its
   wrappers in the tree either way.
-- A file importing both Material and finesse hides one `ButtonTheme`.
+- A file importing both Material and una hides one `ButtonTheme`.
 
 ## Haptics
 
@@ -1374,7 +1374,7 @@ ticks only for a finger's changes, as the board and the wheel do.
 
 ### Routes, tabs, navigation
 
-- **`FinessePageRoute`'s back gesture drives the route's own controller.**
+- **`UnaPageRoute`'s back gesture drives the route's own controller.**
   The iOS swipe is a 20-point strip, the outermost widget of the page; the
   transition is drawn differently per phase (`_phase`). Android's
   predictive back does not go through `TransitionRoute.handle*BackGesture`:
@@ -1385,7 +1385,7 @@ ticks only for a finger's changes, as the board and the wheel do.
   cannot, and `SwipeActions` leaves the first 20 points to it then.
   `backGesture: false` turns it off (on iOS in a browser it coexists with
   Safari's history swipe).
-- **`FinesseScrollBehavior` stretches on Android** (see "Testing" for what
+- **`UnaScrollBehavior` stretches on Android** (see "Testing" for what
   that does to finders).
 - **One tab list.** `TabBar<T>` (value-based, underline or segmented),
   `Tabs<T>` (a tab bar over content) and `SegmentedControl<T>` all build
@@ -1504,7 +1504,7 @@ ticks only for a finger's changes, as the board and the wheel do.
 - **The control tiles draw the real control** under `ExcludeSemantics`,
   `ExcludeFocus` and `IgnorePointer`; the tile is the one control. Tests
   tap the title. A `RadioListTile` takes only its `value`: like a `Radio`
-  it is a choice of the `FinesseRadioGroup` around it (and asserts there
+  it is a choice of the `UnaRadioGroup` around it (and asserts there
   is one). The group takes a `child` (a `ListSection` of `RadioListTile`s)
   as well as `items`, since its vertical `Wrap` hands its items an
   unbounded width.
@@ -1525,7 +1525,7 @@ ticks only for a finger's changes, as the board and the wheel do.
 
 ## Toasts, button groups, the stepper
 
-- **One `Toaster` around the navigator** (`FinesseApp` puts it inside its
+- **One `Toaster` around the navigator** (`UnaApp` puts it inside its
   `builder`, so what the builder inherits the toasts inherit).
   `Toaster.of(context).show(Toast(...))` returns an id for `update`,
   `dismiss`, `dismissAll`. The stack is laid out once and every movement —
@@ -1559,7 +1559,7 @@ ticks only for a finger's changes, as the board and the wheel do.
 
 ## The data table
 
-`FinesseTable` is the grid; `DataTable` adds sorting, filtering, paging and
+`UnaTable` is the grid; `DataTable` adds sorting, filtering, paging and
 selection over a `DataTableController<T>`. `DataTableController.remote(
 pageSize:, onPageRequested:, ...)` serves rows it does not hold: the
 callback gets a `DataTablePageRequest` (page, size, sort, query, offset) and
@@ -1775,16 +1775,16 @@ through one (`animateSize`, `ChatBubbleTheme.sizeSpring`).
 `example/` is the **component library** (docs browser) under one
 `AppShell` (`common/app_shell.dart`), with the **theme editor**, a panel
 docked beside it. It is what the Pages site
-(<https://vlidholt.github.io/finesse/>) shows. App-wide state — theme mode,
+(<https://vlidholt.github.io/una/>) shows. App-wide state — theme mode,
 text direction, the editor's configuration and whether its panel is open —
 is solidart signals behind disco providers in `common/app_state.dart`,
-provided above `FinesseApp`. The shell hosts a nested `Navigator`, so a
+provided above `UnaApp`. The shell hosts a nested `Navigator`, so a
 full-screen route a docs example pushes covers the library's bar but not
 the docked editor.
 
 **Demo**, the social-network app that replicates the designs the default
 look was measured from (it was "Strand", in `example/lib/strand/`), is its
-own repository, [`finesse_demo`](https://github.com/vlidholt/finesse_demo),
+own repository, [`una_demo`](https://github.com/vlidholt/una_demo),
 with its own Pages site, CI and `CLAUDE.md` holding the rules its screens
 follow. It depends on this package from git, so a breaking change here
 breaks it on its next `flutter pub upgrade`: run its suite against a local
@@ -1814,7 +1814,7 @@ come from it.
   `common/code_style.dart`, which the docs and the editor's exported
   snippet share), highlighted by `syntax_highlight`, whose grammar loads
   in `main()` via `CodeHighlighter.ensureInitialized()` **before** `runApp`.
-- `skills/finesse-overview/components/*.md` are generated from the docs
+- `skills/una-overview/components/*.md` are generated from the docs
   pages by `dart run scripts/generate_skills.dart`. It takes the component
   pages from `componentDocs` in `docs/registry.dart` (each found by its
   `final xDoc = ComponentDoc(` declaration), deletes pages that left the
@@ -1835,7 +1835,7 @@ come from it.
 ### The theme editor (`example/lib/common/theme_editor/`)
 
 - **The editor themes the whole app, not a preview pane.** The configuration
-  lives in `themeConfigProvider` and `FinesseApp`'s `theme`, `darkTheme`,
+  lives in `themeConfigProvider` and `UnaApp`'s `theme`, `darkTheme`,
   form factor and text scale are all built from it.
 - **The form factor follows the page's width, not the window's**
   (`AppShell.formFactorFor`), so docking the editor beside a narrow window

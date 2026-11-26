@@ -1,18 +1,18 @@
 import 'dart:math' as math;
 import 'dart:ui' show lerpDouble;
 
-import 'package:finesse/src/components/navigation_bar.dart';
-import 'package:finesse/src/liquid_glass/liquid_glass.dart';
-import 'package:finesse/src/raw_components/pressable.dart';
-import 'package:finesse/src/theme/components/layout.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/arrow_key_focus.dart';
-import 'package:finesse/src/utils/backdrop.dart';
-import 'package:finesse/src/utils/motion_color.dart';
-import 'package:finesse/src/utils/moving_indicator.dart';
-import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/navigation_bar.dart';
+import 'package:una/src/liquid_glass/liquid_glass.dart';
+import 'package:una/src/raw_components/pressable.dart';
+import 'package:una/src/theme/components/layout.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/arrow_key_focus.dart';
+import 'package:una/src/utils/backdrop.dart';
+import 'package:una/src/utils/motion_color.dart';
+import 'package:una/src/utils/moving_indicator.dart';
+import 'package:una/src/utils/spring.dart';
 
 /// The destinations of an app down the start edge of a wide screen: an
 /// icon over a small label, with a line beside the selected one.
@@ -513,7 +513,7 @@ class _RailAction extends StatelessWidget {
   }
 }
 
-/// The rail's material: Liquid Glass, or finesse's frosted backdrop.
+/// The rail's material: Liquid Glass, or una's frosted backdrop.
 class _RailSurface extends StatelessWidget {
   const _RailSurface({
     required this.liquid,

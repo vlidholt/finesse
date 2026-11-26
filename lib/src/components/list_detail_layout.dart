@@ -1,8 +1,8 @@
-import 'package:finesse/src/components/resizable.dart';
-import 'package:finesse/src/page_route.dart';
-import 'package:finesse/src/theme/form_factor.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/resizable.dart';
+import 'package:una/src/page_route.dart';
+import 'package:una/src/theme/form_factor.dart';
+import 'package:una/src/theme/theme.dart';
 
 /// A list and the detail of what is chosen in it: side by side on a
 /// desktop, and one over the other on a phone.
@@ -101,9 +101,9 @@ class _ListDetailLayoutState extends State<ListDetailLayout> {
         child: Navigator(
           key: _navigatorKey,
           pages: [
-            FinessePage<void>(key: _listPageKey, child: list),
+            UnaPage<void>(key: _listPageKey, child: list),
             if (detail != null)
-              FinessePage<void>(key: _detailPageKey, child: detail),
+              UnaPage<void>(key: _detailPageKey, child: detail),
           ],
           onDidRemovePage: (page) {
             if (page.key == _detailPageKey && widget.detail != null) {

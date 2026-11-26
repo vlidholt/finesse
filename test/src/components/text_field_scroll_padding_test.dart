@@ -1,6 +1,6 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// Where a focused field comes to rest in a scrolling page: clear of what
 /// lies over the page's ends.
@@ -15,7 +15,7 @@ void main() {
     tester.view.physicalSize = const Size(390, 844);
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         builder: (context, child) => MediaQuery(
           data: MediaQuery.of(context).copyWith(
             padding: padding,

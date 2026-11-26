@@ -1,17 +1,17 @@
-import 'package:finesse/material.dart';
-import 'package:finesse/src/app.dart';
-import 'package:finesse/src/components/resizable.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/theme/components/resizable.dart';
-import 'package:finesse/src/theme/data.dart' as f;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/material.dart';
+import 'package:una/src/app.dart';
+import 'package:una/src/components/resizable.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/theme/components/resizable.dart';
+import 'package:una/src/theme/data.dart' as f;
 
 void main() {
-  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
+  // Helper method to create a test widget wrapped in UnaApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return FinesseApp(
-      builder: (context, child) => FinesseMaterial(child: child!),
+    return UnaApp(
+      builder: (context, child) => UnaMaterial(child: child!),
       home: Scaffold(body: child),
     );
   }
@@ -429,7 +429,7 @@ void main() {
       expect(find.byIcon(PhosphorIconsRegular.dotsSixVertical), findsOneWidget);
 
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           theme: f.ThemeData(
             resizableTheme: const ResizableTheme(handleIcon: icon),
           ),
@@ -442,7 +442,7 @@ void main() {
 
       // The widget's own handle wins over the theme's.
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           theme: f.ThemeData(
             resizableTheme: const ResizableTheme(handleIcon: icon),
           ),

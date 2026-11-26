@@ -1,14 +1,14 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// A closed tooltip, popover or select must not swallow Escape: it has to
 /// reach the dialog around it. An open one closes itself and stops there.
 void main() {
   Future<void> openDialog(WidgetTester tester, Widget content) async {
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Builder(
           builder: (context) => Center(
             child: Button(

@@ -1,14 +1,14 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 import '../../frame_sampler.dart';
 
 /// The success, warning and info variants of `Alert`, and dismissal.
 void main() {
   const styles = [
-    StyleTokens.finesse,
+    StyleTokens.una,
     StyleTokens.nova,
     StyleTokens.maia,
     StyleTokens.lyra,
@@ -34,7 +34,7 @@ void main() {
     tester.view.physicalSize = const Size(600, 500);
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         theme: theme,
         darkTheme: theme,
         builder: (context, child) => MediaQuery(

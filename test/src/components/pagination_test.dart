@@ -1,12 +1,12 @@
-import 'package:finesse/material.dart';
-import 'package:finesse/src/app.dart';
-import 'package:finesse/src/components/pagination.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/material.dart';
+import 'package:una/src/app.dart';
+import 'package:una/src/components/pagination.dart';
 
 void main() {
-  Widget wrap(Widget child) => FinesseApp(
-    builder: (context, child) => FinesseMaterial(child: child!),
+  Widget wrap(Widget child) => UnaApp(
+    builder: (context, child) => UnaMaterial(child: child!),
     home: Scaffold(body: Center(child: child)),
   );
 
@@ -88,7 +88,7 @@ void main() {
   });
 
   group('Pagination', () {
-    Widget wrap(Widget child) => FinesseApp(home: Center(child: child));
+    Widget wrap(Widget child) => UnaApp(home: Center(child: child));
 
     testWidgets('navigates with the previous/next buttons', (tester) async {
       final visited = <int>[];

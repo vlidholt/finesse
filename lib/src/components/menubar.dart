@@ -1,21 +1,21 @@
 import 'package:collection/collection.dart';
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/components/context_menu.dart';
-import 'package:finesse/src/components/popover.dart';
-import 'package:finesse/src/raw_components/portal.dart';
-import 'package:finesse/src/theme/components/button.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/border.dart';
-import 'package:finesse/src/utils/entrance.dart';
-import 'package:finesse/src/utils/moving_indicator.dart';
-import 'package:finesse/src/utils/provider.dart';
-import 'package:finesse/src/utils/provider_index.dart';
-import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/button.dart';
+import 'package:una/src/components/context_menu.dart';
+import 'package:una/src/components/popover.dart';
+import 'package:una/src/raw_components/portal.dart';
+import 'package:una/src/theme/components/button.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/border.dart';
+import 'package:una/src/utils/entrance.dart';
+import 'package:una/src/utils/moving_indicator.dart';
+import 'package:una/src/utils/provider.dart';
+import 'package:una/src/utils/provider_index.dart';
+import 'package:una/src/utils/shadow.dart';
 
 /// {@template MenubarController}
 /// The controller for managing the selected item of the menubar
@@ -84,9 +84,9 @@ class Menubar extends StatefulWidget {
 
   /// {@template Menubar.border}
   /// The border of the menubar, default to
-  /// `FinesseBorder.all(color: theme.colorScheme.border, width: 1)`
+  /// `UnaBorder.all(color: theme.colorScheme.border, width: 1)`
   /// {@endtemplate}
-  final FinesseBorder? border;
+  final UnaBorder? border;
 
   /// {@template Menubar.selectOnHover}
   /// Whether hovering a trigger moves the selection *while a menu is already
@@ -139,7 +139,7 @@ class _MenubarState extends State<Menubar> {
         widget.padding ?? theme.menubarTheme.padding ?? const EdgeInsets.all(4);
     final effectiveBackgroundColor =
         widget.backgroundColor ?? theme.menubarTheme.backgroundColor;
-    final effectiveBorder = FinesseBorder.all(
+    final effectiveBorder = UnaBorder.all(
       color: theme.colorScheme.border,
       width: 1,
     ).merge(theme.menubarTheme.border).merge(widget.border);
@@ -349,7 +349,7 @@ class _MenubarItemState extends State<MenubarItem> {
     final effectiveVariant = menubarTheme.buttonVariant ?? ButtonVariant.ghost;
     final effectiveSelectedBackgroundColor =
         menubarTheme.buttonSelectedBackgroundColor ?? theme.colorScheme.accent;
-    final effectiveButtonDecoration = const FinesseDecoration(
+    final effectiveButtonDecoration = const UnaDecoration(
       disableSecondaryBorder: true,
     ).merge(menubarTheme.buttonDecoration);
     // The shape of the trigger, for the fill that marks the open menu.

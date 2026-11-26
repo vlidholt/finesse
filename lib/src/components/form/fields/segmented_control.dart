@@ -1,8 +1,8 @@
-import 'package:finesse/src/components/form/field.dart';
-import 'package:finesse/src/components/segmented_control.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/form/field.dart';
+import 'package:una/src/components/segmented_control.dart';
 
-/// A [SegmentedControl] as a field of a `FinesseForm`: it holds its value,
+/// A [SegmentedControl] as a field of a `UnaForm`: it holds its value,
 /// validates, saves and resets with the form, and shows the field's label,
 /// description and error around the control.
 ///
@@ -20,7 +20,7 @@ import 'package:flutter/widgets.dart';
 /// ```
 ///
 /// With no [initialValue] no segment is chosen until the user picks one.
-class SegmentedControlFormField<T> extends FinesseFormField<T> {
+class SegmentedControlFormField<T> extends UnaFormField<T> {
   /// Creates a segmented control form field.
   SegmentedControlFormField({
     required List<Segment<T>> segments,
@@ -59,10 +59,10 @@ class SegmentedControlFormField<T> extends FinesseFormField<T> {
        );
 
   @override
-  FinesseFormFieldState<SegmentedControlFormField<T>, T> createState() =>
+  UnaFormFieldState<SegmentedControlFormField<T>, T> createState() =>
       _SegmentedControlFormFieldState<T>();
 }
 
 /// The state of a [SegmentedControlFormField].
 class _SegmentedControlFormFieldState<T>
-    extends FinesseFormFieldState<SegmentedControlFormField<T>, T> {}
+    extends UnaFormFieldState<SegmentedControlFormField<T>, T> {}

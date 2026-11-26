@@ -1,9 +1,9 @@
 import 'dart:ui' as ui;
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 import '../../frame_sampler.dart';
 
@@ -41,7 +41,7 @@ void main() {
     addTearDown(tester.view.reset);
     final controller = PopoverController();
     addTearDown(controller.dispose);
-    final app = FinesseApp(
+    final app = UnaApp(
       theme: theme,
       darkTheme: theme,
       home: Stack(
@@ -220,7 +220,7 @@ void main() {
       }
 
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           theme: theme,
           home: Builder(
             builder: (context) => Center(

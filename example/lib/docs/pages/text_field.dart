@@ -11,7 +11,7 @@ final textFieldDoc = ComponentDoc(
   title: 'Text Field',
   description:
       'A single-line text field. `TextField` is the control; '
-      '`TextFormField` is the same field inside a `FinesseForm`.',
+      '`TextFormField` is the same field inside a `UnaForm`.',
   examples: [
     ComponentExample(
       id: 'text_field_basic',

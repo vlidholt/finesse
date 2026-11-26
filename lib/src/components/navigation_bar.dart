@@ -1,14 +1,14 @@
-import 'package:finesse/src/components/bottom_bar_surface.dart';
-import 'package:finesse/src/components/indicator_badge.dart';
-import 'package:finesse/src/liquid_glass/liquid_glass.dart';
-import 'package:finesse/src/liquid_glass/tab_bar.dart';
-import 'package:finesse/src/raw_components/pressable.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/motion_color.dart';
-import 'package:finesse/src/utils/moving_indicator.dart';
-import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/bottom_bar_surface.dart';
+import 'package:una/src/components/indicator_badge.dart';
+import 'package:una/src/liquid_glass/liquid_glass.dart';
+import 'package:una/src/liquid_glass/tab_bar.dart';
+import 'package:una/src/raw_components/pressable.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/motion_color.dart';
+import 'package:una/src/utils/moving_indicator.dart';
+import 'package:una/src/utils/spring.dart';
 
 /// One place a [NavigationBar], a [BottomNavigationBar] or a
 /// `NavigationRail` can take the user.
@@ -376,7 +376,7 @@ class NavigationBar extends StatelessWidget {
 /// )
 /// ```
 ///
-/// In a style whose bottom bar floats — Finesse's default — it is a glass
+/// In a style whose bottom bar floats — Una's default — it is a glass
 /// pill hovering above the page, as wide as its destinations; otherwise it
 /// spans the bottom edge and shares the width between them. Either way it
 /// respects the bottom safe area. Put it in a `Scaffold` so the page scrolls

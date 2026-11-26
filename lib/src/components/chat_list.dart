@@ -1,20 +1,20 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:finesse/src/components/chat_bubble.dart';
-import 'package:finesse/src/components/icon_button.dart';
-import 'package:finesse/src/components/indicator_badge.dart';
-import 'package:finesse/src/icons/phosphor_icon.dart';
-import 'package:finesse/src/icons/phosphor_icons_regular.dart';
-import 'package:finesse/src/theme/components/button.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/entrance.dart';
-import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/chat_bubble.dart';
+import 'package:una/src/components/icon_button.dart';
+import 'package:una/src/components/indicator_badge.dart';
+import 'package:una/src/icons/phosphor_icon.dart';
+import 'package:una/src/icons/phosphor_icons_regular.dart';
+import 'package:una/src/theme/components/button.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/entrance.dart';
+import 'package:una/src/utils/spring.dart';
 
 /// Which edge a conversation shorter than its viewport rests against.
 enum ChatListAlignment {

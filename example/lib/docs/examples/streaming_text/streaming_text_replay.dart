@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// Text fed in uneven chunks at uneven intervals, and shown as an even
 /// flow. Replay it; stop it part-way and what has arrived stays.

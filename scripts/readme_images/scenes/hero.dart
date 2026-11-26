@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 import '../frames.dart';
 import '../harness.dart';
@@ -189,7 +189,7 @@ class _Dashboard extends StatelessWidget {
       ],
     );
 
-    final stats = FinesseRow(
+    final stats = UnaRow(
       gap: GapSize.md,
       children: [
         const Expanded(
@@ -310,7 +310,7 @@ class _Dashboard extends StatelessWidget {
                   ),
                 ),
                 const Gap.md(),
-                FinesseRow(
+                UnaRow(
                   gap: GapSize.md,
                   children: [
                     for (final (name, progress, due, members) in const [

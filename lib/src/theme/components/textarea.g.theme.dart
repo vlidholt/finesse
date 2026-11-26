@@ -26,7 +26,7 @@ mixin _$TextareaTheme {
     }
 
     return TextareaTheme(
-      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
+      decoration: UnaDecoration.lerp(a.decoration, b.decoration, t),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       style: TextStyle.lerp(a.style, b.style, t),
       placeholderStyle: TextStyle.lerp(
@@ -60,7 +60,7 @@ mixin _$TextareaTheme {
   }
 
   TextareaTheme copyWith({
-    FinesseDecoration? decoration,
+    UnaDecoration? decoration,
     EdgeInsetsGeometry? padding,
     TextStyle? style,
     TextStyle? placeholderStyle,

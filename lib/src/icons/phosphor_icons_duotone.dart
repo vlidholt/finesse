@@ -7,8 +7,8 @@
 //
 // ignore_for_file: public_member_api_docs
 
-import 'package:finesse/src/icons/phosphor_duotone_icon.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/icons/phosphor_duotone_icon.dart';
 
 /// The duotone Phosphor icons: an outline over a translucent fill.
 ///
@@ -20,7 +20,7 @@ import 'package:flutter/widgets.dart';
 /// ```
 abstract final class PhosphorIconsDuotone {
   static const _family = 'PhosphorDuotone';
-  static const _package = 'finesse';
+  static const _package = 'una';
 
   static const acorn = PhosphorDuotoneIconData(
     IconData(0xeb9b, fontFamily: _family, fontPackage: _package),

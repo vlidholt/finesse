@@ -1,7 +1,7 @@
-import 'package:finesse/src/utils/border.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
+import 'package:una/src/utils/border.dart';
 
 part 'card.g.theme.dart';
 
@@ -57,7 +57,7 @@ class CardTheme with _$CardTheme {
 
   /// The border surrounding the card.
   /// Defaults to a border with the theme’s border color if not specified.
-  final FinesseBorder? border;
+  final UnaBorder? border;
 
   /// The list of box shadows applied to the card for elevation.
   /// Defaults to the theme’s card shadows if not specified.

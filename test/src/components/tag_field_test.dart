@@ -1,7 +1,7 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 class _Host extends StatefulWidget {
   const _Host({
@@ -60,7 +60,7 @@ Widget _app(
   double textScale = 1,
   double width = 320,
 }) {
-  return FinesseApp(
+  return UnaApp(
     theme: theme,
     home: Builder(
       builder: (context) => MediaQuery(
@@ -114,7 +114,7 @@ void main() {
   testWidgets('empty, it is exactly a text field: same height, the '
       'placeholder where a text field has it', (tester) async {
     for (final style in [
-      StyleTokens.finesse,
+      StyleTokens.una,
       StyleTokens.nova,
       StyleTokens.maia,
       StyleTokens.lyra,

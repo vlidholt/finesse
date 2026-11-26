@@ -10,7 +10,7 @@ final toastDoc = ComponentDoc(
   title: 'Toast',
   description:
       'A short message that floats over the app and leaves by itself. '
-      '`FinesseApp` installs one `Toaster` above the navigator; '
+      '`UnaApp` installs one `Toaster` above the navigator; '
       '`Toaster.of(context)` shows, replaces and dismisses `Toast`s in it. '
       'On a desktop the stack sits in the bottom end corner and a toast '
       'has a close button on hover; on a phone a toast spans the bottom of '

@@ -1,7 +1,7 @@
-import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
+import 'package:una/src/liquid_glass/liquid_glass_theme.dart';
+import 'package:una/src/theme/components/decorator.dart';
 
 part 'switch.g.theme.dart';
 
@@ -60,7 +60,7 @@ class SwitchTheme with _$SwitchTheme {
   final double? thumbStretch;
 
   /// {@macro Switch.decoration}
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// {@macro Switch.padding}
   final EdgeInsetsGeometry? padding;

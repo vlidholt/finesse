@@ -1,13 +1,13 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 void main() {
   testWidgets('tabs without content render only the list', (tester) async {
     String? changed;
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Align(
           alignment: Alignment.topLeft,
           child: Tabs<String>(
@@ -58,7 +58,7 @@ void main() {
       tester.view.physicalSize = const Size(800, 600);
       addTearDown(tester.view.reset);
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: Directionality(
             textDirection: textDirection,
             child: Padding(padding: const EdgeInsets.all(20), child: child),
@@ -249,7 +249,7 @@ void main() {
       tester.view.physicalSize = const Size(280, 600);
       addTearDown(tester.view.reset);
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -361,7 +361,7 @@ void main() {
       tester.view.physicalSize = const Size(800, 600);
       addTearDown(tester.view.reset);
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: Align(
             alignment: Alignment.topLeft,
             child: Tabs<int>(

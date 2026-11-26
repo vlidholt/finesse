@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 class TooltipDisabledExample extends StatelessWidget {
   const TooltipDisabledExample({super.key});
@@ -11,7 +11,7 @@ class TooltipDisabledExample extends StatelessWidget {
     // the same reason.
     return Tooltip(
       builder: (context) => const Text('This feature is currently unavailable'),
-      child: FinesseGestureDetector(
+      child: UnaGestureDetector(
         child: Button.outline(
           enabled: false,
           onPressed: () {},

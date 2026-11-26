@@ -74,8 +74,7 @@ Future<T?> showMenu<T>({
       point: position,
       items: items,
       constraints: constraints,
-      barrierLabel:
-          barrierLabel ?? FinesseLocalizations.of(context).dialog.dismiss,
+      barrierLabel: barrierLabel ?? UnaLocalizations.of(context).dialog.dismiss,
       // The menu plays its own exit; the route stays for as long.
       reverseTransitionDuration: Motion.of(context).fast,
       themeOf: (routeContext) {

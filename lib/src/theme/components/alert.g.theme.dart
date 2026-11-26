@@ -26,7 +26,7 @@ mixin _$AlertTheme {
     }
 
     return AlertTheme(
-      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
+      decoration: UnaDecoration.lerp(a.decoration, b.decoration, t),
       iconPadding: EdgeInsetsGeometry.lerp(a.iconPadding, b.iconPadding, t),
       iconColor: Color.lerp(a.iconColor, b.iconColor, t),
       titleStyle: TextStyle.lerp(a.titleStyle, b.titleStyle, t),
@@ -61,7 +61,7 @@ mixin _$AlertTheme {
   }
 
   AlertTheme copyWith({
-    FinesseDecoration? decoration,
+    UnaDecoration? decoration,
     EdgeInsetsGeometry? iconPadding,
     Color? iconColor,
     TextStyle? titleStyle,

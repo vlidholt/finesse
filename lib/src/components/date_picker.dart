@@ -1,18 +1,18 @@
 import 'dart:math' as math;
 
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/components/calendar.dart';
-import 'package:finesse/src/components/date_wheel_picker.dart';
-import 'package:finesse/src/components/picker.dart';
-import 'package:finesse/src/components/popover.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/theme/components/calendar.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/extensions/date_time.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:una/src/components/button.dart';
+import 'package:una/src/components/calendar.dart';
+import 'package:una/src/components/date_wheel_picker.dart';
+import 'package:una/src/components/picker.dart';
+import 'package:una/src/components/popover.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/theme/components/calendar.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/extensions/date_time.dart';
 
 /// How a [DatePicker] lets a date be chosen.
 enum DatePickerMode {
@@ -211,7 +211,7 @@ class _DatePickerState extends State<DatePicker> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final picker = theme.datePickerTheme;
-    final l = FinesseLocalizations.of(context);
+    final l = UnaLocalizations.of(context);
     final value = widget.value;
     final placeholder = widget.placeholder ?? Text(l.datePicker.selectDate);
     final closeOnSelection =
@@ -239,7 +239,7 @@ class _DatePickerState extends State<DatePicker> {
         captionLayout: widget.captionLayout,
         // The popover or the sheet is the surface: no frame of its own.
         calendarTheme: const CalendarTheme(
-          decoration: FinesseDecoration.none,
+          decoration: UnaDecoration.none,
         ).merge(widget.calendarTheme).merge(override),
       );
     }
@@ -617,7 +617,7 @@ class _DateRangePickerState extends State<DateRangePicker> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final picker = theme.datePickerTheme;
-    final l = FinesseLocalizations.of(context);
+    final l = UnaLocalizations.of(context);
     final value = widget.value;
     final hasValue = value?.start != null;
     final placeholder =
@@ -648,7 +648,7 @@ class _DateRangePickerState extends State<DateRangePicker> {
         showWeekNumbers: widget.showWeekNumbers,
         captionLayout: widget.captionLayout,
         calendarTheme: const CalendarTheme(
-          decoration: FinesseDecoration.none,
+          decoration: UnaDecoration.none,
         ).merge(widget.calendarTheme).merge(override),
       );
     }

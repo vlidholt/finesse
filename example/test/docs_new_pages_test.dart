@@ -1,7 +1,7 @@
 // Every page of the component library, built for real.
 //
 // The docs browser is pumped directly — `ComponentsScreen` inside a bare
-// `FinesseApp` on the package's default theme — rather than through the
+// `UnaApp` on the package's default theme — rather than through the
 // example's `App`, so these tests depend on nothing but the docs themselves
 // and the package: not on the theme editor or google_fonts.
 import 'dart:io';
@@ -9,10 +9,10 @@ import 'dart:io';
 import 'package:example/docs/docs.dart';
 import 'package:example/docs/registry.dart';
 import 'package:example/screens/components_screen.dart';
-import 'package:finesse/finesse.dart';
-import 'package:finesse/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/material.dart';
+import 'package:una/una.dart';
 
 /// The two windows every page has to survive: a desktop one, where the
 /// sidebar is docked and the theme is laid out for a pointer, and a phone,
@@ -67,7 +67,7 @@ Future<ComponentsScreenState> _pumpDocs(
   addTearDown(tester.view.resetDevicePixelRatio);
 
   await tester.pumpWidget(
-    FinesseApp(
+    UnaApp(
       debugShowCheckedModeBanner: false,
       themeMode: brightness == Brightness.dark
           ? ThemeMode.dark
@@ -78,8 +78,8 @@ Future<ComponentsScreenState> _pumpDocs(
         textTheme: TextTheme(family: _family),
       ),
       // The docs pages use Material's SelectionArea, as the example app does
-      // under the FinesseMaterial that wraps all of it.
-      builder: (context, child) => FinesseMaterial(child: child!),
+      // under the UnaMaterial that wraps all of it.
+      builder: (context, child) => UnaMaterial(child: child!),
       home: const ComponentsScreen(),
     ),
   );
@@ -214,7 +214,7 @@ void main() {
 
   group('prose', () {
     // What the package no longer has. A page that still mentions one of
-    // these is describing shad, not finesse.
+    // these is describing shad, not una.
     final stale = [
       RegExp(
         r'\b(eight|vega|mira|luma|sera|rhea|slate|gray|lucide|playground)\b',
@@ -330,7 +330,7 @@ void main() {
       await tester.runAsync(() async {
         for (final path in shown) {
           final source = await rootBundle.loadString(path, cache: false);
-          expect(source, contains('package:finesse/finesse.dart'));
+          expect(source, contains('package:una/una.dart'));
         }
       });
 

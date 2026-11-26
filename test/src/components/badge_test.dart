@@ -1,18 +1,18 @@
-import 'package:finesse/material.dart';
-import 'package:finesse/src/app.dart';
-import 'package:finesse/src/components/badge.dart'; // Adjust import path based on your project structure
-import 'package:finesse/src/theme/data.dart';
-import 'package:finesse/src/theme/style.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart' hide Badge, ThemeData;
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/material.dart';
+import 'package:una/src/app.dart';
+import 'package:una/src/components/badge.dart'; // Adjust import path based on your project structure
+import 'package:una/src/theme/data.dart';
+import 'package:una/src/theme/style.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
+  // Helper method to create a test widget wrapped in UnaApp and Scaffold
   Widget createTestWidget(Widget child, {ThemeData? theme}) {
-    return FinesseApp(
-      builder: (context, child) => FinesseMaterial(child: child!),
+    return UnaApp(
+      builder: (context, child) => UnaMaterial(child: child!),
       theme: theme,
       home: Scaffold(
         body: child,
@@ -268,7 +268,7 @@ void main() {
         ),
       );
 
-      // The finesse style rounds badges to its `sm` radius (6 at a base of
+      // The una style rounds badges to its `sm` radius (6 at a base of
       // 10) instead of making them pills.
       final containerFinder = find.byType(Container);
       expect(containerFinder, findsOneWidget);
@@ -297,7 +297,7 @@ void main() {
       expect(decoration?.shape, isA<StadiumBorder>());
     });
 
-    testWidgets('a finesse badge is 24 tall, a nova badge hugs its text', (
+    testWidgets('a una badge is 24 tall, a nova badge hugs its text', (
       tester,
     ) async {
       await tester.pumpWidget(

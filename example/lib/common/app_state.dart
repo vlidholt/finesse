@@ -1,13 +1,13 @@
 import 'package:disco/disco.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_solidart/flutter_solidart.dart';
+import 'package:una/una.dart';
 
 /// The app-wide state: light or dark, text direction, and the theme the
 /// editor has configured.
 ///
-/// All of it is provided above `FinesseApp` (see `App` in `main.dart`), so
+/// All of it is provided above `UnaApp` (see `App` in `main.dart`), so
 /// every route — including full-screen ones a screen pushes — can read it.
 
 final themeModeProvider = Provider((_) => Signal(ThemeMode.light));

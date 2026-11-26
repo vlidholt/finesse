@@ -1,8 +1,8 @@
 import 'dart:ui' as ui;
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// A font source that, like `google_fonts`, registers one family per weight
 /// and style.
@@ -103,7 +103,7 @@ void main() {
       }
     }
 
-    test("the finesse heading is the 700 face, not the text theme's 800", () {
+    test("the una heading is the 700 face, not the text theme's 800", () {
       final theme = ThemeData(textTheme: textTheme);
       expect(theme.textTheme.h1.fontWeight, FontWeight.w700);
       expect(theme.textTheme.h1.fontFamily, 'Fake_700');

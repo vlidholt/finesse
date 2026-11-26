@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// A summary strip of `StatTile`s: side by side where there is room, stacked
 /// where there is not. One has a trailing trend and one is tappable.
@@ -40,14 +40,14 @@ class IconTileStatsExample extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           if (constraints.maxWidth < 600) {
-            return FinesseColumn(
+            return UnaColumn(
               gap: GapSize.md,
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: tiles,
             );
           }
-          return FinesseRow(
+          return UnaRow(
             gap: GapSize.md,
             children: [for (final tile in tiles) Expanded(child: tile)],
           );

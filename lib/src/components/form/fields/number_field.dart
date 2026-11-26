@@ -1,11 +1,11 @@
-import 'package:finesse/src/components/form/field.dart';
-import 'package:finesse/src/components/number_field.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart' show NumberFormat;
+import 'package:una/src/components/form/field.dart';
+import 'package:una/src/components/number_field.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/theme.dart';
 
-/// A [NumberField] that takes part in a `FinesseForm`, with a label, a
+/// A [NumberField] that takes part in a `UnaForm`, with a label, a
 /// description and validation.
 ///
 /// ```dart
@@ -18,7 +18,7 @@ import 'package:intl/intl.dart' show NumberFormat;
 ///   validator: (value) => value == null ? 'Say how many' : null,
 /// )
 /// ```
-class NumberFormField extends FinesseFormField<num> {
+class NumberFormField extends UnaFormField<num> {
   /// Creates a number form field.
   NumberFormField({
     super.id,
@@ -71,14 +71,14 @@ class NumberFormField extends FinesseFormField<num> {
     bool readOnly = false,
 
     /// Merged over the theme's text field decoration.
-    FinesseDecoration? decoration,
+    UnaDecoration? decoration,
 
     /// What assistive technology calls the field.
     String? semanticLabel,
   }) : super(
          decorationBuilder: (context) =>
              (Theme.of(context).textFieldTheme.decoration ??
-                     const FinesseDecoration())
+                     const UnaDecoration())
                  .merge(decoration),
          builder: (state) {
            state as _NumberFormFieldState;
@@ -104,10 +104,9 @@ class NumberFormField extends FinesseFormField<num> {
        );
 
   @override
-  FinesseFormFieldState<NumberFormField, num> createState() =>
+  UnaFormFieldState<NumberFormField, num> createState() =>
       _NumberFormFieldState();
 }
 
 /// The state of a [NumberFormField].
-class _NumberFormFieldState
-    extends FinesseFormFieldState<NumberFormField, num> {}
+class _NumberFormFieldState extends UnaFormFieldState<NumberFormField, num> {}

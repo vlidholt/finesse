@@ -4,7 +4,7 @@ final fontsDoc = ComponentDoc(
   slug: 'fonts',
   title: 'Fonts',
   description:
-      'finesse bundles no fonts. Text uses the platform font until you choose '
+      'una bundles no fonts. Text uses the platform font until you choose '
       'one: from Google Fonts at runtime, or from your own assets.',
   body: (context) => const DocProse(
     children: [

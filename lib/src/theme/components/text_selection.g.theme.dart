@@ -34,7 +34,7 @@ mixin _$TextSelectionTheme {
       handleSize: lerpDouble$(a.handleSize, b.handleSize, t),
       handleStemWidth: lerpDouble$(a.handleStemWidth, b.handleStemWidth, t),
       toolbarHeight: lerpDouble$(a.toolbarHeight, b.toolbarHeight, t),
-      toolbarDecoration: FinesseDecoration.lerp(
+      toolbarDecoration: UnaDecoration.lerp(
         a.toolbarDecoration,
         b.toolbarDecoration,
         t,
@@ -81,7 +81,7 @@ mixin _$TextSelectionTheme {
     double? handleSize,
     double? handleStemWidth,
     double? toolbarHeight,
-    FinesseDecoration? toolbarDecoration,
+    UnaDecoration? toolbarDecoration,
     EdgeInsetsGeometry? toolbarItemPadding,
     TextStyle? toolbarTextStyle,
     Color? toolbarDividerColor,

@@ -28,7 +28,7 @@ mixin _$CommandTheme {
     return CommandTheme(
       liquidGlass: t < 0.5 ? a.liquidGlass : b.liquidGlass,
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
-      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
+      decoration: UnaDecoration.lerp(a.decoration, b.decoration, t),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       searchPadding: EdgeInsetsGeometry.lerp(
         a.searchPadding,
@@ -77,7 +77,7 @@ mixin _$CommandTheme {
       width: lerpDouble$(a.width, b.width, t),
       emptyPadding: EdgeInsetsGeometry.lerp(a.emptyPadding, b.emptyPadding, t),
       emptyTextStyle: TextStyle.lerp(a.emptyTextStyle, b.emptyTextStyle, t),
-      searchDecoration: FinesseDecoration.lerp(
+      searchDecoration: UnaDecoration.lerp(
         a.searchDecoration,
         b.searchDecoration,
         t,
@@ -106,7 +106,7 @@ mixin _$CommandTheme {
   CommandTheme copyWith({
     LiquidGlassMode? liquidGlass,
     Color? backgroundColor,
-    FinesseDecoration? decoration,
+    UnaDecoration? decoration,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? searchPadding,
     EdgeInsetsGeometry? optionsPadding,
@@ -123,7 +123,7 @@ mixin _$CommandTheme {
     double? width,
     EdgeInsetsGeometry? emptyPadding,
     TextStyle? emptyTextStyle,
-    FinesseDecoration? searchDecoration,
+    UnaDecoration? searchDecoration,
     double? searchHeight,
     Color? searchIconColor,
     double? searchIconSize,

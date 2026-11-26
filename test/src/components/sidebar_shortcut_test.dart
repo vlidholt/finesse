@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// [SidebarScaffold]'s keyboard shortcut, the form factor it lays out for
 /// and the name of its trigger.
@@ -33,7 +33,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         navigatorKey: navigatorKey,
         formFactor: formFactor,
         home: home,
@@ -169,7 +169,7 @@ void main() {
   testWidgets("the trigger is named in the app's language", (tester) async {
     final handle = tester.ensureSemantics();
     await pumpApp(tester, scaffold(child: const SidebarTrigger()));
-    final strings = FinesseLocalizations.of(
+    final strings = UnaLocalizations.of(
       tester.element(find.byType(SidebarTrigger)),
     );
     expect(

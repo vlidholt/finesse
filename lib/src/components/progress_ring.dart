@@ -1,11 +1,11 @@
 import 'dart:math' as math;
 
-import 'package:finesse/src/components/ring_painter.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/debug_check.dart';
-import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/ring_painter.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/debug_check.dart';
+import 'package:una/src/utils/spring.dart';
 
 /// A ring that fills as something progresses: an upload, a quota, a goal —
 /// the circular counterpart of `ProgressBar`.

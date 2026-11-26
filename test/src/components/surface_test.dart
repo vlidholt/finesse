@@ -1,14 +1,14 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 void main() {
   testWidgets('a popover surface matches a Popover', (tester) async {
     final controller = PopoverController(isOpen: true);
     addTearDown(controller.dispose);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Column(
           children: [
             const Surface(child: Text('surface')),
@@ -23,7 +23,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    FinesseDecoration decorationAbove(String text) => tester
+    UnaDecoration decorationAbove(String text) => tester
         .widget<Decorator>(
           find
               .ancestor(
@@ -47,7 +47,7 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: Builder(
             builder: (context) => Button(
               onPressed: () => showPopover<void>(
@@ -104,7 +104,7 @@ void main() {
       addTearDown(tester.view.reset);
       var contentBuilds = 0;
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: Builder(
             builder: (context) => Button(
               onPressed: () => showPopover<void>(
@@ -206,7 +206,7 @@ void main() {
           ],
         );
         await tester.pumpWidget(
-          FinesseApp(
+          UnaApp(
             home: Builder(
               builder: (context) => Center(
                 child: dialog

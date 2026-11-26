@@ -3,16 +3,16 @@
 // Scaffold, and ThemeMode was not exported) and nothing noticed.
 import 'dart:io';
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return FinesseApp(
+    return UnaApp(
       theme: ThemeData(),
       darkTheme: ThemeData(brightness: Brightness.dark),
       themeMode: ThemeMode.system,

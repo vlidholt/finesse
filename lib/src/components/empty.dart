@@ -1,8 +1,8 @@
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/debug_check.dart';
-import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/debug_check.dart';
+import 'package:una/src/utils/extensions/text_style.dart';
 
 /// {@template Empty}
 /// An empty-state placeholder.
@@ -98,7 +98,7 @@ class Empty extends StatelessWidget {
     assert(debugCheckHasTheme(context));
     final theme = Theme.of(context);
     final emptyTheme = theme.emptyTheme;
-    final localizations = FinesseLocalizations.of(context);
+    final localizations = UnaLocalizations.of(context);
 
     final effectivePadding =
         padding ??

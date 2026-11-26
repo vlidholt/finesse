@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// A rating that can be given. Tap a star, drag across them, hover with a
 /// mouse to preview, or focus it and use the arrow keys.
@@ -18,7 +18,7 @@ class _RatingBasicExampleState extends State<RatingBasicExample> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return FinesseColumn(
+    return UnaColumn(
       mainAxisSize: MainAxisSize.min,
       gap: GapSize.sm,
       children: [

@@ -1,11 +1,11 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
-import '../../finesse_harness.dart';
+import '../../una_harness.dart';
 
 void main() {
   late List<String> calls;
@@ -46,7 +46,7 @@ void main() {
         return const SizedBox();
       },
     );
-    await pumpFinesse(tester, wrap?.call(probe) ?? probe, theme: theme);
+    await pumpUna(tester, wrap?.call(probe) ?? probe, theme: theme);
     return context;
   }
 
@@ -108,7 +108,7 @@ void main() {
       late BuildContext on;
       final quiet = ThemeData(haptics: false);
       final loud = ThemeData();
-      await pumpFinesse(
+      await pumpUna(
         tester,
         Column(
           children: [
@@ -158,8 +158,7 @@ void main() {
     ) async {
       Haptics.debugEnabledInTests = true;
       _Probe.builds = 0;
-      Widget app(ThemeData theme) =>
-          FinesseApp(theme: theme, home: const _Probe());
+      Widget app(ThemeData theme) => UnaApp(theme: theme, home: const _Probe());
       await tester.pumpWidget(app(ThemeData()));
       await tester.pump(const Duration(milliseconds: 400));
       final context = tester.element(find.byType(_Probe));
@@ -212,14 +211,14 @@ void main() {
           ),
         ),
       );
-      await pumpFinesse(tester, host());
+      await pumpUna(tester, host());
       await tester.tap(find.byType(Switch));
       await settle(tester);
       expect(value, isTrue);
       expect(calls, ['lightImpact']);
 
       calls.clear();
-      await pumpFinesse(tester, host(), theme: ThemeData(haptics: false));
+      await pumpUna(tester, host(), theme: ThemeData(haptics: false));
       await tester.tap(find.byType(Switch));
       await settle(tester);
       expect(value, isFalse);
@@ -228,7 +227,7 @@ void main() {
 
     testWidgets('ContextMenuRegion: a medium impact as a long press opens '
         'the menu', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(
           child: ContextMenuRegion(
@@ -246,7 +245,7 @@ void main() {
 
     testWidgets('Checkbox: a selection tick per toggle', (tester) async {
       var value = false;
-      await pumpFinesse(
+      await pumpUna(
         tester,
         StatefulBuilder(
           builder: (context, setState) => Center(
@@ -266,7 +265,7 @@ void main() {
     testWidgets(
       'Switch and Checkbox are silent on a desktop platform',
       (tester) async {
-        await pumpFinesse(
+        await pumpUna(
           tester,
           Column(
             children: [
@@ -287,7 +286,7 @@ void main() {
       tester,
     ) async {
       var value = 50.0;
-      await pumpFinesse(
+      await pumpUna(
         tester,
         StatefulBuilder(
           builder: (context, setState) => Center(
@@ -328,7 +327,7 @@ void main() {
 
     testWidgets('Slider: a mouse drag to the end is silent', (tester) async {
       var value = 50.0;
-      await pumpFinesse(
+      await pumpUna(
         tester,
         StatefulBuilder(
           builder: (context, setState) => Center(
@@ -363,7 +362,7 @@ void main() {
       tester,
     ) async {
       var value = 'a';
-      await pumpFinesse(
+      await pumpUna(
         tester,
         StatefulBuilder(
           builder: (context, setState) => Center(

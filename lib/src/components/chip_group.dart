@@ -1,10 +1,10 @@
 import 'dart:ui' as ui;
 
-import 'package:finesse/src/components/chip.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/chip.dart';
+import 'package:una/src/theme/theme.dart';
 
 /// One chip of a [ChipGroup].
 @immutable

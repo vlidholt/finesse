@@ -42,7 +42,7 @@ const _hoverOff = {
 /// a pan — wrap the control in one of these:
 ///
 /// ```dart
-/// FinesseGestureDetector(
+/// UnaGestureDetector(
 ///   onDoubleTap: _zoom,
 ///   onSecondaryTapDown: (details) => _showMenuAt(details.globalPosition),
 ///   child: Button.outline(onPressed: _open, child: const Text('Photo')),
@@ -58,9 +58,9 @@ const _hoverOff = {
 ///
 /// [onHover] reports the mouse's hover and, on a device that has none, a
 /// press: a finger that comes down hovers the detector until it lifts.
-class FinesseGestureDetector extends StatefulWidget {
+class UnaGestureDetector extends StatefulWidget {
   /// Creates a gesture detector that also tracks the hover state.
-  const FinesseGestureDetector({
+  const UnaGestureDetector({
     super.key,
     required this.child,
     this.mouseCursor = MouseCursor.defer,
@@ -291,10 +291,10 @@ class FinesseGestureDetector extends StatefulWidget {
   final Object? groupId;
 
   @override
-  State<FinesseGestureDetector> createState() => _GestureDetectorState();
+  State<UnaGestureDetector> createState() => _GestureDetectorState();
 }
 
-class _GestureDetectorState extends State<FinesseGestureDetector> {
+class _GestureDetectorState extends State<UnaGestureDetector> {
   bool hovered = false;
 
   /// Whether a mouse pointer is currently inside this detector.

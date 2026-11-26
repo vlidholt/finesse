@@ -1,8 +1,8 @@
-import 'package:finesse/src/components/tab_list.dart';
-import 'package:finesse/src/liquid_glass/controls.dart';
-import 'package:finesse/src/liquid_glass/liquid_glass.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/tab_list.dart';
+import 'package:una/src/liquid_glass/controls.dart';
+import 'package:una/src/liquid_glass/liquid_glass.dart';
+import 'package:una/src/theme/theme.dart';
 
 /// One choice of a [SegmentedControl].
 ///
@@ -112,7 +112,7 @@ class SegmentedControl<T> extends StatelessWidget {
     final theme = Theme.of(context);
     // The glass control needs a selection and segments it can name: a label
     // is a `Text`, or the segment has a semantic label. Anything else stays
-    // finesse's own.
+    // una's own.
     String? labelOf(Segment<T> segment) => switch (segment.label) {
       null => null,
       final Text text when text.data != null => text.data,

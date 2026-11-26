@@ -2,33 +2,33 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' show lerpDouble;
 
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/components/dialog.dart';
-import 'package:finesse/src/components/icon_button.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/liquid_glass/liquid_glass.dart';
-import 'package:finesse/src/raw_components/pressable.dart';
-import 'package:finesse/src/theme/components/button.dart';
-import 'package:finesse/src/theme/components/sheet.dart';
-import 'package:finesse/src/theme/form_factor.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/theme/themes/shadows.dart';
-import 'package:finesse/src/utils/backdrop.dart';
-import 'package:finesse/src/utils/expanded_actions_theme.dart';
-import 'package:finesse/src/utils/extensions/text_style.dart';
-import 'package:finesse/src/utils/haptics.dart';
-import 'package:finesse/src/utils/position.dart';
-import 'package:finesse/src/utils/route_theme.dart';
-import 'package:finesse/src/utils/separated_iterable.dart';
-import 'package:finesse/src/utils/shadow.dart';
-import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/button.dart';
+import 'package:una/src/components/dialog.dart';
+import 'package:una/src/components/icon_button.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/liquid_glass/liquid_glass.dart';
+import 'package:una/src/raw_components/pressable.dart';
+import 'package:una/src/theme/components/button.dart';
+import 'package:una/src/theme/components/sheet.dart';
+import 'package:una/src/theme/form_factor.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/theme/themes/shadows.dart';
+import 'package:una/src/utils/backdrop.dart';
+import 'package:una/src/utils/expanded_actions_theme.dart';
+import 'package:una/src/utils/extensions/text_style.dart';
+import 'package:una/src/utils/haptics.dart';
+import 'package:una/src/utils/position.dart';
+import 'package:una/src/utils/route_theme.dart';
+import 'package:una/src/utils/separated_iterable.dart';
+import 'package:una/src/utils/shadow.dart';
+import 'package:una/src/utils/spring.dart';
 
 /// The widest a sheet from the left or right is by default: Tailwind's
 /// `max-w-sm` (24rem), which shadcn caps a side sheet at.
@@ -118,8 +118,7 @@ Future<T?> showSheet<T>({
     barrierBlurSigma:
         barrierBlurSigma ?? theme.primaryDialogTheme.barrierBlurSigma ?? 2,
     barrierDismissible: dismissible,
-    barrierLabel:
-        barrierLabel ?? FinesseLocalizations.of(context).dialog.dismiss,
+    barrierLabel: barrierLabel ?? UnaLocalizations.of(context).dialog.dismiss,
     settings: routeSettings,
     // The sheet arrives on the surface spring and leaves faster than it
     // came. With reduced motion it only fades.
@@ -1844,7 +1843,7 @@ class _SheetCloseButton extends StatelessWidget {
         hoverForegroundColor: theme.colorScheme.foreground,
         pressedForegroundColor: theme.colorScheme.foreground,
       ),
-      semanticLabel: FinesseLocalizations.of(context).dialog.close,
+      semanticLabel: UnaLocalizations.of(context).dialog.close,
       onPressed: onPressed,
     );
   }
@@ -1957,7 +1956,7 @@ class _SheetHandleState extends State<_SheetHandle> {
       handle = Semantics(
         container: true,
         button: true,
-        label: FinesseLocalizations.of(context).sheet.resize,
+        label: UnaLocalizations.of(context).sheet.resize,
         onTap: widget.onTap,
         onIncrease: widget.onIncrease,
         onDecrease: widget.onDecrease,

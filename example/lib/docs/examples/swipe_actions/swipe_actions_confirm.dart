@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// An action can take its time: here Delete asks first, and the row stays
 /// open until the answer comes. `fullSwipe: false` makes a long swipe only

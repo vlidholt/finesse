@@ -1,9 +1,9 @@
 import 'dart:ui' show PointerDeviceKind;
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 const _panel = Key('panel');
 const _endPanel = Key('end-panel');
@@ -48,7 +48,7 @@ void main() {
     tester.view.physicalSize = size;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         navigatorKey: navigatorKey,
         theme: theme,
         formFactor: FormFactor.mobile,
@@ -417,8 +417,8 @@ void main() {
 
       // The page under the drawer is replaced: its scaffold is gone.
       navigator.currentState!.pushAndRemoveUntil(
-        FinessePageRoute<void>(builder: (_) => const Text('Other')),
-        (route) => route is! FinessePageRoute,
+        UnaPageRoute<void>(builder: (_) => const Text('Other')),
+        (route) => route is! UnaPageRoute,
       );
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
@@ -455,7 +455,7 @@ void main() {
       tester.view.physicalSize = _phone;
       addTearDown(tester.view.reset);
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           formFactor: FormFactor.mobile,
           builder: (context, child) => MediaQuery(
             data: MediaQuery.of(context).copyWith(
@@ -634,7 +634,7 @@ void main() {
         navigatorKey: navigator,
       );
       navigator.currentState!.push(
-        FinessePageRoute<void>(builder: (_) => scaffold()),
+        UnaPageRoute<void>(builder: (_) => scaffold()),
       );
       await tester.pumpAndSettle();
       await tester.dragFrom(const Offset(5, 400), const Offset(250, 0));

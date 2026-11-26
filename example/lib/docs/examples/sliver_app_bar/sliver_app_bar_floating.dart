@@ -1,6 +1,6 @@
 import 'package:example/docs/phone_frame.dart';
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// A plain bar that is not pinned. It scrolls away with the page; with
 /// `floating` it comes back the moment the page is scrolled the other way,

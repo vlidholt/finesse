@@ -1,12 +1,12 @@
 import 'package:flutter/widgets.dart';
 
 /// An extension of [TextEditingController] that stores the previous value.
-class FinesseTextEditingController extends TextEditingController {
+class UnaTextEditingController extends TextEditingController {
   /// Creates a controller with the initial [text].
-  FinesseTextEditingController({super.text});
+  UnaTextEditingController({super.text});
 
   /// Creates a controller from an initial [value].
-  FinesseTextEditingController.fromValue(TextEditingValue super.value)
+  UnaTextEditingController.fromValue(TextEditingValue super.value)
     : super.fromValue();
 
   /// The value before the last change, or null before the first change.

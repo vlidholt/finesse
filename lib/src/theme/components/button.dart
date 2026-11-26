@@ -1,9 +1,9 @@
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/theme/components/button_sizes.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
+import 'package:una/src/components/button.dart';
+import 'package:una/src/theme/components/button_sizes.dart';
+import 'package:una/src/theme/components/decorator.dart';
 
 part 'button.g.theme.dart';
 
@@ -139,7 +139,7 @@ class ButtonTheme with _$ButtonTheme {
   /// into the variant's, so one that only changes the corners keeps the
   /// rest.
   /// {@endtemplate}
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// {@template Button.width}
   /// A fixed width. Null, the default, takes the size's — a text button's

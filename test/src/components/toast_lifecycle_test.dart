@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// A toast has to leave: be taken out of the tree when its exit has played,
 /// whatever the motion, and never sit there invisible in front of the page.
@@ -25,7 +25,7 @@ void main() {
       ) async {
         late BuildContext ctx;
         await tester.pumpWidget(
-          FinesseApp(
+          UnaApp(
             theme: ThemeData(motion: motion),
             home: Builder(
               builder: (context) {
@@ -56,7 +56,7 @@ void main() {
       ) async {
         late BuildContext ctx;
         await tester.pumpWidget(
-          FinesseApp(
+          UnaApp(
             theme: ThemeData(motion: motion),
             home: Builder(
               builder: (context) {
@@ -89,7 +89,7 @@ void main() {
       var taps = 0;
       late BuildContext ctx;
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: Builder(
             builder: (context) {
               ctx = context;
@@ -136,7 +136,7 @@ void main() {
       ) async {
         late BuildContext ctx;
         await tester.pumpWidget(
-          FinesseApp(
+          UnaApp(
             theme: ThemeData(motion: motion),
             home: Builder(
               builder: (context) => MediaQuery(

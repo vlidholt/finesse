@@ -1,20 +1,20 @@
-import 'package:finesse/src/theme/data.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/data.dart';
+import 'package:una/src/theme/theme.dart';
 
 /// {@template ThemeScope}
 /// Applies a [ThemeData] to a subtree, including the ambient text and icon
 /// styling that comes with it.
 ///
-/// [Theme] alone only publishes the Finesse theme: `Theme.of` picks it up,
+/// [Theme] alone only publishes the Una theme: `Theme.of` picks it up,
 /// but a plain [Text] keeps whatever [DefaultTextStyle] it inherited from
 /// further up, so a light-on-dark panel inside a light app renders dark text on
 /// a dark surface. This widget also sets the text style, icon theme and
 /// selection colours for the subtree.
 ///
 /// Material widgets in the subtree follow it too when they are wrapped in a
-/// `FinesseMaterial` from `package:finesse/material.dart`, which reads the nearest
-/// finesse theme.
+/// `UnaMaterial` from `package:una/material.dart`, which reads the nearest
+/// una theme.
 ///
 /// Reach for it when part of the UI is deliberately themed differently from the
 /// app — a dark settings panel, a themed preview pane, an embedded editor:
@@ -63,7 +63,7 @@ class ThemeScope extends StatelessWidget {
 /// Sets the icon theme and the text selection colours that a [ThemeData]
 /// implies for [child].
 ///
-/// `FinesseApp` puts one at the root and [ThemeScope] one in each re-themed
+/// `UnaApp` puts one at the root and [ThemeScope] one in each re-themed
 /// subtree.
 class DefaultStyles extends StatelessWidget {
   /// Creates the default icon and selection styles for [data].

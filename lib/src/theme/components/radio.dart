@@ -1,6 +1,6 @@
-import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
+import 'package:una/src/theme/components/decorator.dart';
 
 part 'radio.g.theme.dart';
 
@@ -41,14 +41,14 @@ class RadioTheme with _$RadioTheme {
   final double? size;
 
   /// {@macro Radio.decoration}
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// The decoration while selected, when it differs from [decoration]: the
   /// reference fills the circle with the primary (`data-checked:bg-primary
   /// data-checked:border-primary`) and draws a primary-foreground dot, so the
   /// selected radio cannot keep the unchecked outline. Null means "same as
   /// [decoration]".
-  final FinesseDecoration? checkedDecoration;
+  final UnaDecoration? checkedDecoration;
 
   /// {@macro Radio.padding}
   final EdgeInsetsGeometry? padding;
@@ -56,22 +56,22 @@ class RadioTheme with _$RadioTheme {
   /// {@macro Radio.circleSize}
   final double? circleSize;
 
-  /// {@macro FinesseRadioGroup.axis}
+  /// {@macro UnaRadioGroup.axis}
   final Axis? axis;
 
-  /// {@macro FinesseRadioGroup.spacing}
+  /// {@macro UnaRadioGroup.spacing}
   final double? spacing;
 
-  /// {@macro FinesseRadioGroup.runSpacing}
+  /// {@macro UnaRadioGroup.runSpacing}
   final double? runSpacing;
 
-  /// {@macro FinesseRadioGroup.alignment}
+  /// {@macro UnaRadioGroup.alignment}
   final WrapAlignment? alignment;
 
-  /// {@macro FinesseRadioGroup.runAlignment}
+  /// {@macro UnaRadioGroup.runAlignment}
   final WrapAlignment? runAlignment;
 
-  /// {@macro FinesseRadioGroup.crossAxisAlignment}
+  /// {@macro UnaRadioGroup.crossAxisAlignment}
   final WrapCrossAlignment? crossAxisAlignment;
 
   /// {@macro Radio.radioPadding}

@@ -1,7 +1,7 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide Divider, DividerTheme, ThemeData;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 void main() {
   group('Divider', () {
@@ -13,7 +13,7 @@ void main() {
           color: Color(0xFFF44336), // red
         );
 
-        final widget = FinesseApp(
+        final widget = UnaApp(
           theme: ThemeData(
             colorScheme: const ZincColorScheme.dark(),
             brightness: Brightness.light,
@@ -55,7 +55,7 @@ void main() {
       });
 
       testWidgets('correctly uses parameters', (tester) async {
-        const widget = FinesseApp(
+        const widget = UnaApp(
           home: Column(
             children: [
               SizedBox(width: 40),
@@ -99,7 +99,7 @@ void main() {
       });
 
       testWidgets('matches goldens', (tester) async {
-        const widget = FinesseApp(
+        const widget = UnaApp(
           home: Column(
             children: [
               SizedBox(width: 40),
@@ -126,7 +126,7 @@ void main() {
           color: Color(0xFFF44336), // red
         );
 
-        final widget = FinesseApp(
+        final widget = UnaApp(
           theme: ThemeData(
             colorScheme: const ZincColorScheme.dark(),
             brightness: Brightness.light,
@@ -170,7 +170,7 @@ void main() {
       });
 
       testWidgets('correctly uses parameters', (tester) async {
-        const widget = FinesseApp(
+        const widget = UnaApp(
           home: Row(
             children: [
               SizedBox(height: 40),
@@ -216,7 +216,7 @@ void main() {
       });
 
       testWidgets('matches goldens', (tester) async {
-        const widget = FinesseApp(
+        const widget = UnaApp(
           home: Row(
             children: [
               SizedBox(height: 40),

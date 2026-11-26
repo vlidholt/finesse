@@ -1,31 +1,31 @@
 import 'dart:math' as math;
 import 'dart:ui' show ImageFilter;
 
-import 'package:finesse/src/components/back_button.dart';
-import 'package:finesse/src/components/bar_button_scope.dart';
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/components/icon_button.dart';
-import 'package:finesse/src/components/indicator_badge.dart';
-import 'package:finesse/src/components/scaffold.dart';
-import 'package:finesse/src/components/tooltip.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/icons/phosphor_icon.dart';
-import 'package:finesse/src/icons/phosphor_icons_regular.dart';
-import 'package:finesse/src/liquid_glass/liquid_glass.dart';
-import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
-import 'package:finesse/src/theme/components/layout.dart';
-import 'package:finesse/src/theme/form_factor.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/backdrop.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/back_button.dart';
+import 'package:una/src/components/bar_button_scope.dart';
+import 'package:una/src/components/button.dart';
+import 'package:una/src/components/icon_button.dart';
+import 'package:una/src/components/indicator_badge.dart';
+import 'package:una/src/components/scaffold.dart';
+import 'package:una/src/components/tooltip.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/icons/phosphor_icon.dart';
+import 'package:una/src/icons/phosphor_icons_regular.dart';
+import 'package:una/src/liquid_glass/liquid_glass.dart';
+import 'package:una/src/liquid_glass/liquid_glass_theme.dart';
+import 'package:una/src/theme/components/layout.dart';
+import 'package:una/src/theme/form_factor.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/backdrop.dart';
 
 // The parts `AppBar` and `SliverAppBar` are both made of: the toolbar row,
 // the bar's surface, and the leading button a bar shows by itself. Internal.
 
 /// How a bar at the top of the page is drawn.
 enum AppBarMaterial {
-  /// finesse's own bar: the style's bar colour, over its glass filter where
+  /// una's own bar: the style's bar colour, over its glass filter where
   /// the colour is translucent, with a hairline under it.
   frosted,
 
@@ -47,7 +47,7 @@ enum AppBarMaterial {
 /// theme saying [mode].
 ///
 /// Liquid Glass only at the phone and tablet form factors: a desktop's top
-/// bar is finesse's own, as a Mac window's toolbar sits on its own material
+/// bar is una's own, as a Mac window's toolbar sits on its own material
 /// rather than floating free over the content, unless the bar's own theme
 /// asks for glass with [LiquidGlassMode.always].
 AppBarMaterial appBarMaterial(BuildContext context, LiquidGlassMode? mode) {
@@ -156,7 +156,7 @@ Widget? impliedLeading(BuildContext context) {
   if (scaffold != null && scaffold.hasDrawer) {
     return IconButton.ghost(
       icon: const PhosphorIcon(PhosphorIconsRegular.list),
-      semanticLabel: FinesseLocalizations.of(context).navigation.openMenu,
+      semanticLabel: UnaLocalizations.of(context).navigation.openMenu,
       onPressed: scaffold.openDrawer,
     );
   }
@@ -172,7 +172,7 @@ List<Widget> impliedActions(BuildContext context, List<Widget> actions) {
   return [
     IconButton.ghost(
       icon: const PhosphorIcon(PhosphorIconsRegular.list),
-      semanticLabel: FinesseLocalizations.of(context).navigation.openMenu,
+      semanticLabel: UnaLocalizations.of(context).navigation.openMenu,
       onPressed: scaffold.openEndDrawer,
     ),
   ];

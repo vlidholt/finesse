@@ -1,6 +1,6 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 import '../../fixture_styles.dart';
 
@@ -35,7 +35,7 @@ void main() {
     final controller = ScrollController();
     addTearDown(controller.dispose);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Align(
           alignment: Alignment.topLeft,
           child: SizedBox(
@@ -65,7 +65,7 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Align(
           alignment: Alignment.topLeft,
           child: SizedBox(

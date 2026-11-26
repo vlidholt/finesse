@@ -1,9 +1,9 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
-import '../../finesse_harness.dart';
+import '../../una_harness.dart';
 
 /// A dialog has no close button unless it asks for one; a sheet keeps its
 /// own. Either way the barrier and Escape still dismiss.
@@ -11,7 +11,7 @@ void main() {
   final closeIcon = find.byIcon(PhosphorIconsRegular.x);
 
   Future<void> open(WidgetTester tester, WidgetBuilder builder) async {
-    await pumpFinesse(
+    await pumpUna(
       tester,
       Builder(
         builder: (context) => Center(
@@ -151,7 +151,7 @@ void main() {
         showCloseButton: true,
       ),
     );
-    await pumpFinesse(
+    await pumpUna(
       tester,
       theme: theme,
       darkTheme: theme,
@@ -173,7 +173,7 @@ void main() {
   });
 
   testWidgets('a sheet keeps its close button', (tester) async {
-    await pumpFinesse(
+    await pumpUna(
       tester,
       Builder(
         builder: (context) => Center(
@@ -201,7 +201,7 @@ void main() {
     tester,
   ) async {
     var pressed = 0;
-    await pumpFinesse(
+    await pumpUna(
       tester,
       Builder(
         builder: (context) => Center(
@@ -235,7 +235,7 @@ void main() {
   });
 
   testWidgets('the command palette has no close button', (tester) async {
-    await pumpFinesse(
+    await pumpUna(
       tester,
       Builder(
         builder: (context) => Center(

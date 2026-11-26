@@ -1,13 +1,13 @@
-import 'package:finesse/src/components/checkbox.dart';
-import 'package:finesse/src/components/control_affinity.dart';
-import 'package:finesse/src/components/form/field.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/checkbox.dart';
+import 'package:una/src/components/control_affinity.dart';
+import 'package:una/src/components/form/field.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/theme.dart';
 
-/// A [Checkbox] that takes part in a `FinesseForm`, with a label, a
+/// A [Checkbox] that takes part in a `UnaForm`, with a label, a
 /// description and validation.
-class CheckboxFormField extends FinesseFormField<bool> {
+class CheckboxFormField extends UnaFormField<bool> {
   /// Creates a checkbox form field.
   CheckboxFormField({
     super.id,
@@ -28,7 +28,7 @@ class CheckboxFormField extends FinesseFormField<bool> {
     super.focusNode,
 
     /// {@macro Checkbox.decoration}
-    FinesseDecoration? decoration,
+    UnaDecoration? decoration,
 
     /// Returns an error message for the value, or null when it is valid.
     String? Function(bool)? validator,
@@ -64,7 +64,7 @@ class CheckboxFormField extends FinesseFormField<bool> {
          validator: validator == null ? null : (v) => validator(v ?? false),
          decorationBuilder: (context) =>
              (Theme.of(context).checkboxTheme.decoration ??
-                     const FinesseDecoration())
+                     const UnaDecoration())
                  .merge(decoration),
          builder: (state) {
            state as _CheckboxFormFieldState;
@@ -88,10 +88,10 @@ class CheckboxFormField extends FinesseFormField<bool> {
        );
 
   @override
-  FinesseFormFieldState<CheckboxFormField, bool> createState() =>
+  UnaFormFieldState<CheckboxFormField, bool> createState() =>
       _CheckboxFormFieldState();
 }
 
 /// The state of a [CheckboxFormField].
 class _CheckboxFormFieldState
-    extends FinesseFormFieldState<CheckboxFormField, bool> {}
+    extends UnaFormFieldState<CheckboxFormField, bool> {}

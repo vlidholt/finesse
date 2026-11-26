@@ -31,7 +31,7 @@ mixin _$OtpFieldTheme {
       width: lerpDouble$(a.width, b.width, t),
       height: lerpDouble$(a.height, b.height, t),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
-      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
+      decoration: UnaDecoration.lerp(a.decoration, b.decoration, t),
       firstBorderRadius: BorderRadius.lerp(
         a.firstBorderRadius,
         b.firstBorderRadius,
@@ -61,7 +61,7 @@ mixin _$OtpFieldTheme {
     double? width,
     double? height,
     EdgeInsetsGeometry? padding,
-    FinesseDecoration? decoration,
+    UnaDecoration? decoration,
     BorderRadius? firstBorderRadius,
     BorderRadius? lastBorderRadius,
     BorderRadius? singleBorderRadius,

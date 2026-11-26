@@ -9,7 +9,7 @@ final introductionDoc = ComponentDoc(
   body: (context) => const DocProse(
     children: [
       DocParagraph(
-        'finesse is a Flutter implementation of a complete design system. '
+        'una is a Flutter implementation of a complete design system. '
         'It began as a port of shadcn/ui and still carries its component '
         'set and three of its styles, measured from the reference CSS. On '
         'top of that it has its own default look, soft teal glass, and '
@@ -35,7 +35,7 @@ final introductionDoc = ComponentDoc(
                   'sidebar, plus app structure (`Scaffold`, `AppBar`, '
                   '`NavigationBar`) and content pieces (`ListTile`, '
                   '`Chip`, `ChatBubble`, `Timeline`).',
-              'Four styles (`finesse`, the default, and `nova`, `maia`, '
+              'Four styles (`una`, the default, and `nova`, `maia`, '
                   '`lyra`) as complete presets: geometry, typography, '
                   'shadows and translucency, switchable with one '
                   'setting.',
@@ -62,15 +62,15 @@ final introductionDoc = ComponentDoc(
             'the app as an asset, so the two can never drift apart.',
           ),
           DocParagraph(
-            'This app is itself built with finesse. Open the theme editor '
+            'This app is itself built with una. Open the theme editor '
             'with the paintbrush button in the top bar and change the '
             'style, palette, or radius: every page restyles.',
           ),
           DocParagraph(
-            'To see finesse in a whole app, try Demo, the small '
+            'To see una in a whole app, try Demo, the small '
             'professional network the default theme was designed for: '
-            '`https://vlidholt.github.io/finesse_demo/`. Its source is at '
-            '`https://github.com/vlidholt/finesse_demo`.',
+            '`https://vlidholt.github.io/una_demo/`. Its source is at '
+            '`https://github.com/vlidholt/una_demo`.',
           ),
         ],
       ),

@@ -1,10 +1,10 @@
-import 'package:finesse/src/components/list_section.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/raw_components/pressable.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/list_section.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/raw_components/pressable.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
 
 /// A row with a leading widget, a title, a subtitle and a trailing widget:
 /// a conversation, a person to follow, a shared file, a settings entry.

@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 class ToastInlineExample extends StatelessWidget {
   const ToastInlineExample({super.key});
@@ -7,7 +7,7 @@ class ToastInlineExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // A `Toast` is a widget: outside a toaster it is a picture of one.
-    return FinesseColumn(
+    return UnaColumn(
       gap: GapSize.md,
       mainAxisSize: MainAxisSize.min,
       children: [

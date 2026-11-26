@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// `LicensePage` and `showLicensePage`.
 void main() {
@@ -40,7 +40,7 @@ void main() {
     tester.view.physicalSize = size;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         title: title,
         builder: (context, child) => MediaQuery(
           data: MediaQuery.of(

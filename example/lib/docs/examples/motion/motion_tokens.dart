@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// The same controls under three motion vocabularies. Motion belongs to the
 /// theme: `ThemeData(motion: ...)` — or a `copyWith` of the theme around a

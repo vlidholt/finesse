@@ -1,6 +1,6 @@
 // ignore_for_file: avoid_print
 //
-// Regenerates skills/finesse-overview/components/*.md from the example app's
+// Regenerates skills/una-overview/components/*.md from the example app's
 // documentation pages, which are the single source of truth for component
 // descriptions and sample code (see CLAUDE.md: "the code shown is the code
 // that runs").
@@ -44,7 +44,7 @@ const guidePages = {
   'overview': 'SKILL.md',
 };
 
-const _skillDir = 'skills/finesse-overview';
+const _skillDir = 'skills/una-overview';
 const _pagesDir = 'example/lib/docs/pages';
 const _examplesDir = 'example/lib/docs/examples';
 const _registry = 'example/lib/docs/registry.dart';

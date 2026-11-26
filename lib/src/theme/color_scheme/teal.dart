@@ -1,7 +1,7 @@
-import 'package:finesse/src/theme/color_scheme/base.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/color_scheme/base.dart';
 
-/// Finesse's default palette: a deep teal on a cool grey page.
+/// Una's default palette: a deep teal on a cool grey page.
 ///
 /// It is the first scheme to set every optional token — [tint],
 /// [foregroundSubtle], [success], [warning], [borderStrong], [accentBorder]

@@ -1,11 +1,11 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 class AutocompleteAsyncExample extends StatelessWidget {
   const AutocompleteAsyncExample({super.key});
 
   static const packages = [
-    'finesse',
+    'una',
     'flutter_animate',
     'flutter_hooks',
     'flutter_svg',

@@ -73,7 +73,7 @@ mixin _$CalendarTheme {
         b.navigationButtonDisabledOpacity,
         t,
       ),
-      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
+      decoration: UnaDecoration.lerp(a.decoration, b.decoration, t),
       spacingBetweenMonths: lerpDouble$(
         a.spacingBetweenMonths,
         b.spacingBetweenMonths,
@@ -145,7 +145,7 @@ mixin _$CalendarTheme {
         b.dayButtonPadding,
         t,
       ),
-      dayButtonDecoration: FinesseDecoration.lerp(
+      dayButtonDecoration: UnaDecoration.lerp(
         a.dayButtonDecoration,
         b.dayButtonDecoration,
         t,
@@ -224,7 +224,7 @@ mixin _$CalendarTheme {
     Widget? forwardNavigationButtonIcon,
     EdgeInsetsGeometry? navigationButtonPadding,
     double? navigationButtonDisabledOpacity,
-    FinesseDecoration? decoration,
+    UnaDecoration? decoration,
     double? spacingBetweenMonths,
     double? runSpacingBetweenMonths,
     BoxConstraints? monthConstraints,
@@ -244,7 +244,7 @@ mixin _$CalendarTheme {
     double? selectorMinHeight,
     double? dayButtonOutsideMonthOpacity,
     EdgeInsetsGeometry? dayButtonPadding,
-    FinesseDecoration? dayButtonDecoration,
+    UnaDecoration? dayButtonDecoration,
     TextStyle? selectedDayButtonTextStyle,
     TextStyle? insideRangeDayButtonTextStyle,
     TextStyle? dayButtonTextStyle,

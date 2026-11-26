@@ -1,7 +1,7 @@
-import 'package:finesse/finesse.dart';
-import 'package:finesse/src/utils/extensions/date_time.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/src/utils/extensions/date_time.dart';
+import 'package:una/una.dart';
 
 /// Bugs found while documenting the API for 1.0.
 void main() {
@@ -48,8 +48,8 @@ void main() {
     tester,
   ) async {
     int? changed;
-    Widget build(int? value) => FinesseApp(
-      home: FinesseRadioGroup<int>(
+    Widget build(int? value) => UnaApp(
+      home: UnaRadioGroup<int>(
         value: value,
         onChanged: (v) => changed = v,
         items: const [
@@ -69,7 +69,7 @@ void main() {
   });
 
   testWidgets('a select shows a value written from outside', (tester) async {
-    Widget build(String? value) => FinesseApp(
+    Widget build(String? value) => UnaApp(
       home: Select<String>(
         onChanged: (_) {},
         value: value,

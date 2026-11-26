@@ -47,12 +47,12 @@ mixin _$TimeFieldTheme {
       labelStyle: TextStyle.lerp(a.labelStyle, b.labelStyle, t),
       fieldWidth: lerpDouble$(a.fieldWidth, b.fieldWidth, t),
       fieldPadding: EdgeInsetsGeometry.lerp(a.fieldPadding, b.fieldPadding, t),
-      fieldDecoration: FinesseDecoration.lerp(
+      fieldDecoration: UnaDecoration.lerp(
         a.fieldDecoration,
         b.fieldDecoration,
         t,
       ),
-      periodDecoration: FinesseDecoration.lerp(
+      periodDecoration: UnaDecoration.lerp(
         a.periodDecoration,
         b.periodDecoration,
         t,
@@ -76,8 +76,8 @@ mixin _$TimeFieldTheme {
     TextStyle? labelStyle,
     double? fieldWidth,
     EdgeInsetsGeometry? fieldPadding,
-    FinesseDecoration? fieldDecoration,
-    FinesseDecoration? periodDecoration,
+    UnaDecoration? fieldDecoration,
+    UnaDecoration? periodDecoration,
   }) {
     final _this = (this as TimeFieldTheme);
 

@@ -1,7 +1,7 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// Where the portal puts an overlay: at a point given in *global*
 /// coordinates, wherever the overlay it is drawn in begins, and never right
@@ -15,7 +15,7 @@ void main() {
 
   // An app with a panel docked beside its navigator: the navigator, and
   // the overlay its menus are drawn in, start at (200, 100).
-  Widget docked(Widget page) => FinesseApp(
+  Widget docked(Widget page) => UnaApp(
     theme: ThemeData(motion: Motion.none),
     home: Padding(
       padding: const EdgeInsets.only(left: 200, top: 100),
@@ -84,13 +84,13 @@ void main() {
       expect(at.dy, closeTo(310, 2));
     });
 
-    testWidgets('FinesseGestureDetector reports the global position, so '
+    testWidgets('UnaGestureDetector reports the global position, so '
         'what it hands showMenu lands at the pointer', (tester) async {
       final downs = <Offset>[];
       await tester.pumpWidget(
         docked(
           Builder(
-            builder: (context) => FinesseGestureDetector(
+            builder: (context) => UnaGestureDetector(
               behavior: HitTestBehavior.opaque,
               onTapDown: (details) => downs.add(details.globalPosition),
               onSecondaryTapDown: (details) {
@@ -192,7 +192,7 @@ void main() {
       for (final alignment in [Alignment.topLeft, Alignment.topRight]) {
         final controller = PopoverController(isOpen: true);
         await tester.pumpWidget(
-          FinesseApp(
+          UnaApp(
             key: ValueKey(alignment),
             theme: ThemeData(motion: Motion.none),
             home: Align(
@@ -235,7 +235,7 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           theme: ThemeData(motion: Motion.none),
           home: const ContextMenuRegion(
             constraints: BoxConstraints(minWidth: 150),
@@ -265,7 +265,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           theme: ThemeData(motion: Motion.none),
           home: const ContextMenuRegion(
             items: [MenuItem(child: Text('Copy'))],
@@ -289,7 +289,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           theme: ThemeData(motion: Motion.none),
           home: Align(
             alignment: Alignment.topLeft,
@@ -312,7 +312,7 @@ void main() {
       final controller = PopoverController(isOpen: true);
       addTearDown(controller.dispose);
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           theme: ThemeData(motion: Motion.none),
           home: Center(
             child: Popover(

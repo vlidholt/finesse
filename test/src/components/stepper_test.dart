@@ -1,10 +1,10 @@
 import 'dart:ui' show Tristate;
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 import '../../frame_sampler.dart';
 
@@ -39,7 +39,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = size;
     addTearDown(tester.view.reset);
-    final app = FinesseApp(
+    final app = UnaApp(
       theme: theme,
       darkTheme: theme,
       builder: (context, child) => MediaQuery(

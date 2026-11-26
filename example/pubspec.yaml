@@ -1,5 +1,5 @@
 name: example
-description: "The finesse docs site, component browser and theme editor."
+description: "The una docs site, component browser and theme editor."
 
 publish_to: "none"
 
@@ -12,7 +12,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  finesse:
+  una:
     path: ..
   flutter_solidart: ^2.1.0
   google_fonts: ^8.2.1

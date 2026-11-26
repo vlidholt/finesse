@@ -1,26 +1,26 @@
 import 'dart:math' as math;
 
-import 'package:finesse/src/components/decorator.dart';
-import 'package:finesse/src/components/divider.dart';
-import 'package:finesse/src/components/sheet.dart';
-import 'package:finesse/src/components/skeleton.dart';
-import 'package:finesse/src/components/tooltip.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/raw_components/focusable.dart';
-import 'package:finesse/src/raw_components/portal.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/components/sheet.dart';
-import 'package:finesse/src/theme/form_factor.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/border.dart';
-import 'package:finesse/src/utils/debug_check.dart';
-import 'package:finesse/src/utils/gesture_detector.dart';
-import 'package:finesse/src/utils/route_on_top.dart';
-import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/decorator.dart';
+import 'package:una/src/components/divider.dart';
+import 'package:una/src/components/sheet.dart';
+import 'package:una/src/components/skeleton.dart';
+import 'package:una/src/components/tooltip.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/raw_components/focusable.dart';
+import 'package:una/src/raw_components/portal.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/components/sheet.dart';
+import 'package:una/src/theme/form_factor.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/border.dart';
+import 'package:una/src/utils/debug_check.dart';
+import 'package:una/src/utils/gesture_detector.dart';
+import 'package:una/src/utils/route_on_top.dart';
+import 'package:una/src/utils/shadow.dart';
 
 /// Which edge of the layout the sidebar sits on.
 ///
@@ -971,8 +971,8 @@ class _SidebarTriggerState extends State<SidebarTrigger> {
     final scope = SidebarScope.of(context);
     return Semantics(
       button: true,
-      label: FinesseLocalizations.of(context).navigation.toggleSidebar,
-      child: FinesseGestureDetector(
+      label: UnaLocalizations.of(context).navigation.toggleSidebar,
+      child: UnaGestureDetector(
         mouseCursor: SystemMouseCursors.click,
         onHover: (value) => setState(() => hovered = value),
         onTap: () {
@@ -1034,7 +1034,7 @@ class _SidebarRailState extends State<_SidebarRail> {
         ? SystemMouseCursors.resizeLeft
         : SystemMouseCursors.resizeRight;
 
-    return FinesseGestureDetector(
+    return UnaGestureDetector(
       mouseCursor: cursor,
       // The whole strip toggles, not just the 2px line it highlights —
       // deferring to the child left everything but the hairline untappable.
@@ -1371,9 +1371,9 @@ class _SidebarMenuButtonState extends State<SidebarMenuButton> {
       builder: (context, focused, child) {
         return Decorator(
           focused: focused,
-          decoration: FinesseDecoration(
-            border: FinesseBorder.all(borderRadius: radius, width: 0),
-            secondaryFocusedBorder: FinesseBorder.all(
+          decoration: UnaDecoration(
+            border: UnaBorder.all(borderRadius: radius, width: 0),
+            secondaryFocusedBorder: UnaBorder.all(
               borderRadius: radius.add(BorderRadius.circular(ringWidth)),
               width: ringWidth,
               offset: ringWidth,
@@ -1383,7 +1383,7 @@ class _SidebarMenuButtonState extends State<SidebarMenuButton> {
           child: child,
         );
       },
-      child: FinesseGestureDetector(
+      child: UnaGestureDetector(
         mouseCursor: widget.enabled
             ? SystemMouseCursors.click
             : MouseCursor.defer,
@@ -1552,7 +1552,7 @@ class _SidebarMenuActionState extends State<SidebarMenuAction> {
     return Semantics(
       button: true,
       label: widget.semanticLabel,
-      child: FinesseGestureDetector(
+      child: UnaGestureDetector(
         mouseCursor: SystemMouseCursors.click,
         onHover: (value) => setState(() => hovered = value),
         onTap: widget.onPressed,
@@ -1689,9 +1689,9 @@ class _SidebarMenuSubButtonState extends State<SidebarMenuSubButton> {
         builder: (context, focused, child) {
           return Decorator(
             focused: focused,
-            decoration: FinesseDecoration(
-              border: FinesseBorder.all(borderRadius: radius, width: 0),
-              secondaryFocusedBorder: FinesseBorder.all(
+            decoration: UnaDecoration(
+              border: UnaBorder.all(borderRadius: radius, width: 0),
+              secondaryFocusedBorder: UnaBorder.all(
                 borderRadius: radius.add(BorderRadius.circular(ringWidth)),
                 width: ringWidth,
                 offset: ringWidth,
@@ -1701,7 +1701,7 @@ class _SidebarMenuSubButtonState extends State<SidebarMenuSubButton> {
             child: child,
           );
         },
-        child: FinesseGestureDetector(
+        child: UnaGestureDetector(
           mouseCursor: SystemMouseCursors.click,
           onHover: (value) => setState(() => hovered = value),
           onTap: widget.onPressed,

@@ -1,19 +1,19 @@
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/raw_components/pressable.dart';
-import 'package:finesse/src/theme/form_factor.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/content_switch.dart';
-import 'package:finesse/src/utils/debug_check.dart';
-import 'package:finesse/src/utils/expand_reveal.dart';
-import 'package:finesse/src/utils/motion_color.dart';
-import 'package:finesse/src/utils/pop_in.dart';
-import 'package:finesse/src/utils/spring.dart';
-import 'package:finesse/src/utils/spring_size.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/button.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/raw_components/pressable.dart';
+import 'package:una/src/theme/form_factor.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/content_switch.dart';
+import 'package:una/src/utils/debug_check.dart';
+import 'package:una/src/utils/expand_reveal.dart';
+import 'package:una/src/utils/motion_color.dart';
+import 'package:una/src/utils/pop_in.dart';
+import 'package:una/src/utils/spring.dart';
+import 'package:una/src/utils/spring_size.dart';
 
 /// What a [Step] of a [Stepper] shows itself as.
 enum StepState {
@@ -200,7 +200,7 @@ class _StepperState extends State<Stepper> with TickerProviderStateMixin {
           : null;
       // The focus has not moved — it is on Continue, or nowhere — so a
       // screen reader would not learn that the step did.
-      final strings = FinesseLocalizations.of(context).stepper;
+      final strings = UnaLocalizations.of(context).stepper;
       SemanticsService.sendAnnouncement(
         View.of(context),
         strings.position(
@@ -275,7 +275,7 @@ class _StepperState extends State<Stepper> with TickerProviderStateMixin {
     if (builder != null) return builder(context, controls);
     if (widget.onContinue == null && widget.onCancel == null) return null;
     final theme = Theme.of(context);
-    final strings = FinesseLocalizations.of(context).stepper;
+    final strings = UnaLocalizations.of(context).stepper;
     return Wrap(
       spacing: theme.stepperTheme.gap ?? 12,
       runSpacing: 8,
@@ -511,7 +511,7 @@ class _StepHeader extends StatelessWidget {
     final theme = Theme.of(context);
     final stepperTheme = theme.stepperTheme;
     final scheme = theme.colorScheme;
-    final strings = FinesseLocalizations.of(context).stepper;
+    final strings = UnaLocalizations.of(context).stepper;
     final motion = Motion.of(context);
     final size = stepperTheme.indicatorSize ?? 28;
     final gap = stepperTheme.gap ?? 12;

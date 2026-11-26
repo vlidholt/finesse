@@ -1,9 +1,9 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
-import '../../finesse_harness.dart';
+import '../../una_harness.dart';
 
 void main() {
   /// The bubble's own box.
@@ -89,7 +89,7 @@ void main() {
       tester,
     ) async {
       for (final direction in TextDirection.values) {
-        await pumpFinesse(
+        await pumpUna(
           tester,
           conversation(const [
             ChatBubble(key: Key('in'), child: Text('Hi')),
@@ -122,7 +122,7 @@ void main() {
     });
 
     testWidgets('a short message hugs its text', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         conversation(const [ChatBubble(child: Text('Hi'))]),
       );
@@ -139,7 +139,7 @@ void main() {
       tester,
     ) async {
       for (final direction in ChatBubbleDirection.values) {
-        await pumpFinesse(
+        await pumpUna(
           tester,
           conversation([
             ChatBubble(
@@ -161,7 +161,7 @@ void main() {
     });
 
     testWidgets('the width cap follows a theme override', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         conversation(const [
           ChatBubble(
@@ -185,7 +185,7 @@ void main() {
         'it is far wider than the bubble is allowed to grow',
       );
       // Narrower than the theme's 78% of 400…
-      await pumpFinesse(
+      await pumpUna(
         tester,
         conversation(const [ChatBubble(maxWidth: 180, child: message)]),
       );
@@ -195,7 +195,7 @@ void main() {
       expect(narrow.width, greaterThan(120));
 
       // …and wider than it.
-      await pumpFinesse(
+      await pumpUna(
         tester,
         conversation(const [ChatBubble(maxWidth: 380, child: message)]),
       );
@@ -205,7 +205,7 @@ void main() {
       expect(wide.height, lessThan(narrow.height));
 
       // It wins over a theme override too.
-      await pumpFinesse(
+      await pumpUna(
         tester,
         conversation(const [ChatBubble(maxWidth: 380, child: message)]),
         theme: ThemeData(
@@ -217,7 +217,7 @@ void main() {
 
     testWidgets('maxWidth is a cap, not a width', (tester) async {
       // A short message still hugs its text…
-      await pumpFinesse(
+      await pumpUna(
         tester,
         conversation(const [ChatBubble(maxWidth: 300, child: Text('Hi'))]),
       );
@@ -228,7 +228,7 @@ void main() {
 
       // …and a cap wider than the conversation cannot push the bubble out
       // of it.
-      await pumpFinesse(
+      await pumpUna(
         tester,
         conversation(const [
           ChatBubble(
@@ -248,7 +248,7 @@ void main() {
     testWidgets('lays out with unbounded width: the bubble is as wide as its '
         'message', (tester) async {
       for (final direction in ChatBubbleDirection.values) {
-        await pumpFinesse(
+        await pumpUna(
           tester,
           Align(
             alignment: Alignment.topLeft,
@@ -271,7 +271,7 @@ void main() {
     testWidgets('maxWidth still caps a bubble laid out with unbounded width', (
       tester,
     ) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Align(
           alignment: Alignment.topLeft,
@@ -295,7 +295,7 @@ void main() {
 
     testWidgets('hugs its message in a parent of fixed height', (tester) async {
       for (final direction in ChatBubbleDirection.values) {
-        await pumpFinesse(
+        await pumpUna(
           tester,
           Align(
             alignment: Alignment.topCenter,
@@ -325,7 +325,7 @@ void main() {
     testWidgets('hugs its message in a row that stretches its children', (
       tester,
     ) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Align(
           alignment: Alignment.topCenter,
@@ -350,7 +350,7 @@ void main() {
     });
 
     testWidgets('in a column it is exactly as tall as its box', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         conversation(const [
           ChatBubble(child: Text('Hi')),
@@ -372,7 +372,7 @@ void main() {
     });
 
     testWidgets('padding can be set per bubble', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         conversation(const [
           ChatBubble(
@@ -385,7 +385,7 @@ void main() {
     });
 
     testWidgets('holds content that is not text', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         conversation(const [
           ChatBubble(
@@ -405,7 +405,7 @@ void main() {
     testWidgets('an incoming bubble has its tail at the bottom start', (
       tester,
     ) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         conversation(const [ChatBubble(child: Text('Hi'))]),
       );
@@ -419,7 +419,7 @@ void main() {
     testWidgets('an outgoing bubble has its tail at the bottom end', (
       tester,
     ) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         conversation(const [
           ChatBubble(
@@ -438,7 +438,7 @@ void main() {
     testWidgets('the tails swap sides in a right-to-left conversation', (
       tester,
     ) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         conversation(const [
           ChatBubble(key: Key('in'), child: Text('Hi')),
@@ -467,7 +467,7 @@ void main() {
 
     testWidgets('showTail: false rounds every corner', (tester) async {
       for (final direction in ChatBubbleDirection.values) {
-        await pumpFinesse(
+        await pumpUna(
           tester,
           conversation([
             ChatBubble(
@@ -485,7 +485,7 @@ void main() {
     });
 
     testWidgets('radius and tail follow the theme', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         conversation(const [ChatBubble(child: Text('Hi'))]),
         theme: ThemeData(
@@ -502,7 +502,7 @@ void main() {
     testWidgets('each direction takes its fill and text colour from the '
         'theme', (tester) async {
       for (final brightness in Brightness.values) {
-        await pumpFinesse(
+        await pumpUna(
           tester,
           conversation(const [
             ChatBubble(key: Key('in'), child: Text('In')),
@@ -540,7 +540,7 @@ void main() {
 
     testWidgets('the direction changes the resolved colours', (tester) async {
       Future<(Color?, Color?)> resolve(ChatBubbleDirection direction) async {
-        await pumpFinesse(
+        await pumpUna(
           tester,
           conversation([
             ChatBubble(direction: direction, child: const Text('Hi')),
@@ -559,7 +559,7 @@ void main() {
     });
 
     testWidgets('the message is set in the bubble text style', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         conversation(const [ChatBubble(child: Text('Hi'))]),
       );
@@ -569,7 +569,7 @@ void main() {
     });
 
     testWidgets('icons inside follow the text colour', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         conversation(const [
           ChatBubble(
@@ -591,7 +591,7 @@ void main() {
       const fill = Color(0xff102030);
       const text = Color(0xffa0b0c0);
       final border = Border.all(color: const Color(0xff405060), width: 2);
-      await pumpFinesse(
+      await pumpUna(
         tester,
         conversation([
           ChatBubble(
@@ -662,7 +662,7 @@ void main() {
     ) async {
       for (final direction in ChatBubbleDirection.values) {
         text = 'Short';
-        await pumpFinesse(tester, host(direction));
+        await pumpUna(tester, host(direction));
         final before = box(tester);
         rebuild(() => text = long);
         await tester.pump();
@@ -697,7 +697,7 @@ void main() {
       tester,
     ) async {
       typing = true;
-      await pumpFinesse(tester, host(ChatBubbleDirection.incoming));
+      await pumpUna(tester, host(ChatBubbleDirection.incoming));
       final dots = box(tester);
       rebuild(() {
         typing = false;
@@ -722,7 +722,7 @@ void main() {
       tester,
     ) async {
       animate = false;
-      await pumpFinesse(tester, host(ChatBubbleDirection.incoming));
+      await pumpUna(tester, host(ChatBubbleDirection.incoming));
       final before = box(tester);
       rebuild(() => text = long);
       await tester.pump();
@@ -730,7 +730,7 @@ void main() {
 
       animate = true;
       text = 'Short';
-      await pumpFinesse(
+      await pumpUna(
         tester,
         MediaQuery(
           data: const MediaQueryData(disableAnimations: true),
@@ -745,7 +745,7 @@ void main() {
     testWidgets('a resized window is followed rigidly', (tester) async {
       text = long;
       var width = 300.0;
-      await pumpFinesse(
+      await pumpUna(
         tester,
         Align(
           alignment: Alignment.topCenter,
@@ -799,7 +799,7 @@ void main() {
     }
 
     testWidgets('is three round dots in the muted foreground', (tester) async {
-      await pumpFinesse(tester, const Center(child: TypingIndicator()));
+      await pumpUna(tester, const Center(child: TypingIndicator()));
       final theme = themeOf(tester, find.byType(TypingIndicator));
 
       expect(dots(tester), hasLength(3));
@@ -818,7 +818,7 @@ void main() {
 
     testWidgets('dotSize and colour can be set', (tester) async {
       const colour = Color(0xff336699);
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(child: TypingIndicator(dotSize: 10, color: colour)),
       );
@@ -834,7 +834,7 @@ void main() {
     testWidgets('the dots pulse one after another, never fully fading', (
       tester,
     ) async {
-      await pumpFinesse(tester, const Center(child: TypingIndicator()));
+      await pumpUna(tester, const Center(child: TypingIndicator()));
 
       // Fixed frames across one 1.2s cycle: `pumpAndSettle` would never
       // return.
@@ -877,7 +877,7 @@ void main() {
       // It runs for as long as somebody is typing; a bubble that was
       // rebuilt and painted again on each of those frames would be the
       // most expensive thing on an idle screen.
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(
           child: ChatBubble(child: TypingIndicator()),
@@ -905,13 +905,13 @@ void main() {
     });
 
     testWidgets('keeps a frame scheduled while it animates', (tester) async {
-      await pumpFinesse(tester, const Center(child: TypingIndicator()));
+      await pumpUna(tester, const Center(child: TypingIndicator()));
       await tester.pump(const Duration(milliseconds: 100));
       expect(tester.binding.hasScheduledFrame, isTrue);
     });
 
     testWidgets('stands still when animations are disabled', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const MediaQuery(
           data: MediaQueryData(disableAnimations: true),
@@ -932,8 +932,8 @@ void main() {
         data: MediaQueryData(disableAnimations: disabled),
         child: const Center(child: TypingIndicator()),
       );
-      await pumpFinesse(tester, build(disabled: true));
-      await pumpFinesse(tester, build(disabled: false));
+      await pumpUna(tester, build(disabled: true));
+      await pumpUna(tester, build(disabled: false));
       final before = [for (final dot in dots(tester)) dot.a];
       await tester.pump(const Duration(milliseconds: 200));
       expect([for (final dot in dots(tester)) dot.a], isNot(before));
@@ -941,14 +941,14 @@ void main() {
 
     testWidgets('is announced as typing', (tester) async {
       final handle = tester.ensureSemantics();
-      await pumpFinesse(tester, const Center(child: TypingIndicator()));
+      await pumpUna(tester, const Center(child: TypingIndicator()));
       expect(find.bySemanticsLabel('Typing'), findsOneWidget);
       handle.dispose();
     });
 
     testWidgets('semanticLabel replaces what is announced', (tester) async {
       final handle = tester.ensureSemantics();
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const Center(child: TypingIndicator(semanticLabel: 'Omar is typing')),
       );
@@ -964,7 +964,7 @@ void main() {
 
     testWidgets('the label is read for the bubble it sits in', (tester) async {
       final handle = tester.ensureSemantics();
-      await pumpFinesse(
+      await pumpUna(
         tester,
         conversation(const [
           ChatBubble(child: TypingIndicator(semanticLabel: 'Omar is typing')),
@@ -975,10 +975,10 @@ void main() {
     });
 
     testWidgets('stops ticking when it leaves the tree', (tester) async {
-      await pumpFinesse(tester, const Center(child: TypingIndicator()));
+      await pumpUna(tester, const Center(child: TypingIndicator()));
       await tester.pump(const Duration(milliseconds: 100));
 
-      await pumpFinesse(tester, const SizedBox.shrink());
+      await pumpUna(tester, const SizedBox.shrink());
       // A leaked ticker would fail the test on teardown; this makes the
       // intent explicit.
       expect(find.byType(TypingIndicator), findsNothing);
@@ -986,7 +986,7 @@ void main() {
     });
 
     testWidgets('sits in an incoming bubble', (tester) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         conversation(const [ChatBubble(child: TypingIndicator())]),
       );

@@ -1,8 +1,8 @@
-import 'package:finesse/src/components/form/field.dart';
-import 'package:finesse/src/components/rating.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/form/field.dart';
+import 'package:una/src/components/rating.dart';
 
-/// A [Rating] that takes part in a `FinesseForm`, with a label, a
+/// A [Rating] that takes part in a `UnaForm`, with a label, a
 /// description and validation.
 ///
 /// ```dart
@@ -14,7 +14,7 @@ import 'package:flutter/widgets.dart';
 /// ```
 ///
 /// A failed validation moves the focus to the stars.
-class RatingFormField extends FinesseFormField<double> {
+class RatingFormField extends UnaFormField<double> {
   /// Creates a rating form field.
   RatingFormField({
     super.id,
@@ -88,10 +88,10 @@ class RatingFormField extends FinesseFormField<double> {
        );
 
   @override
-  FinesseFormFieldState<RatingFormField, double> createState() =>
+  UnaFormFieldState<RatingFormField, double> createState() =>
       _RatingFormFieldState();
 }
 
 /// The state of a [RatingFormField].
 class _RatingFormFieldState
-    extends FinesseFormFieldState<RatingFormField, double> {}
+    extends UnaFormFieldState<RatingFormField, double> {}

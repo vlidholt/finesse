@@ -1,13 +1,13 @@
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/raw_components/pressable.dart';
-import 'package:finesse/src/theme/form_factor.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/haptics.dart';
-import 'package:finesse/src/utils/pop_in.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/raw_components/pressable.dart';
+import 'package:una/src/theme/form_factor.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/haptics.dart';
+import 'package:una/src/utils/pop_in.dart';
 
 /// A row of stars that shows a rating, and takes one when it is given
 /// [onChanged].
@@ -160,7 +160,7 @@ class _RatingState extends State<Rating> {
     final height = _interactive && mobile ? 44.0 : slot;
     final color = widget.color ?? scheme.tint;
     final shown = _preview ?? widget.value;
-    final l = FinesseLocalizations.of(context);
+    final l = UnaLocalizations.of(context);
 
     final stars = Row(
       mainAxisSize: MainAxisSize.min,

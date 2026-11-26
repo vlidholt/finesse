@@ -1,6 +1,6 @@
-import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
+import 'package:una/src/theme/components/decorator.dart';
 
 part 'textarea.g.theme.dart';
 
@@ -38,7 +38,7 @@ class TextareaTheme with _$TextareaTheme {
   bool get canMerge => _canMerge;
 
   /// {@macro Textarea.decoration}
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// {@macro Textarea.padding}
   final EdgeInsetsGeometry? padding;

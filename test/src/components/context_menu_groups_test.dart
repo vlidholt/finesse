@@ -1,6 +1,6 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// Every context menu used to share one tap-region group, so a tap on another
 /// menu's trigger counted as "inside" and the open menu never closed.
@@ -11,7 +11,7 @@ void main() {
     PopoverController b,
   ) async {
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [

@@ -1,7 +1,7 @@
-import 'package:finesse/src/components/form/form.dart';
-import 'package:finesse/src/components/input_decorator.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/form/form.dart';
+import 'package:una/src/components/input_decorator.dart';
+import 'package:una/src/theme/components/decorator.dart';
 
 /// A function that transforms the value of a form field into a different
 /// format.
@@ -20,15 +20,15 @@ typedef FromValueTransformer<T> = T Function(dynamic value);
 /// A customizable form field widget with built-in decoration and state
 /// management.
 ///
-/// The [FinesseFormField] extends [FormField] to provide a styled input
+/// The [UnaFormField] extends [FormField] to provide a styled input
 /// field with a label, error display, and description, integrated with
 /// `Theme` via [InputDecorator]. It supports validation, focus
 /// management, and value transformation, designed for use within a
-/// [FinesseForm].
+/// [UnaForm].
 @immutable
-class FinesseFormField<T> extends FormField<T> {
+class UnaFormField<T> extends FormField<T> {
   /// Creates a form field widget with a custom builder and optional properties.
-  FinesseFormField({
+  UnaFormField({
     super.key,
     required Widget Function(FormFieldState<T>) builder,
     super.onSaved,
@@ -51,7 +51,7 @@ class FinesseFormField<T> extends FormField<T> {
     super.forceErrorText,
   }) : super(
          builder: (state) {
-           state as FinesseFormFieldState<FinesseFormField<T>, T>;
+           state as UnaFormFieldState<UnaFormField<T>, T>;
            final hasError = state.hasError;
 
            final effectiveError = hasError
@@ -69,57 +69,57 @@ class FinesseFormField<T> extends FormField<T> {
          onReset: onReset,
        );
 
-  /// {@template FinesseFormField.id}
-  /// An optional identifier used to reference the field within a [FinesseForm].
+  /// {@template UnaFormField.id}
+  /// An optional identifier used to reference the field within a [UnaForm].
   /// Enables form data retrieval or field manipulation post-submission.
   /// {@endtemplate}
   final String? id;
 
-  /// {@template FinesseFormField.focusNode}
+  /// {@template UnaFormField.focusNode}
   /// The focus node for keyboard navigation and focus handling.
   /// If null, an internal focus node is created by the state.
   /// {@endtemplate}
   final FocusNode? focusNode;
 
-  /// {@template FinesseFormField.label}
+  /// {@template UnaFormField.label}
   /// The label widget displayed above the field.
   /// Typically a [Text] widget, providing context for the field’s purpose.
   /// {@endtemplate}
   final Widget? label;
 
-  /// {@template FinesseFormField.error}
+  /// {@template UnaFormField.error}
   /// A function that returns a custom error widget based on the error text.
   /// Called when validation fails; defaults to a [Text] widget if null.
   /// {@endtemplate}
   final Widget Function(String error)? error;
 
-  /// {@template FinesseFormField.description}
+  /// {@template UnaFormField.description}
   /// The description widget displayed below the field.
   /// Typically a [Text] widget, offering additional field information.
   /// {@endtemplate}
   final Widget? description;
 
-  /// {@template FinesseFormField.onChanged}
+  /// {@template UnaFormField.onChanged}
   /// Callback invoked when the field’s value changes.
   /// Provides the new value, complementing form state updates.
   /// {@endtemplate}
   final ValueChanged<T?>? onChanged;
 
-  /// {@template FinesseFormField.toValueTransformer}
+  /// {@template UnaFormField.toValueTransformer}
   /// A function to transform the field’s value before saving or processing.
   /// Useful for formatting or converting data; defaults to null
   /// (no transformation).
   /// {@endtemplate}
   final ToValueTransformer<T?>? toValueTransformer;
 
-  /// {@template FinesseFormField.fromValueTransformer}
+  /// {@template UnaFormField.fromValueTransformer}
   /// A function to transform a value into the field’s expected type.
   /// Useful for converting data before populating the field; defaults to null
   /// (no transformation).
   /// {@endtemplate}
   final FromValueTransformer<T?>? fromValueTransformer;
 
-  /// {@template FinesseFormField.onReset}
+  /// {@template UnaFormField.onReset}
   /// Callback invoked when the field is reset to its initial value.
   /// Allows additional reset logic; defaults to null.
   /// {@endtemplate}
@@ -127,35 +127,35 @@ class FinesseFormField<T> extends FormField<T> {
   // ignore: overridden_fields
   final VoidCallback? onReset;
 
-  /// {@template FinesseFormField.decorationBuilder}
-  /// A function that builds a custom [FinesseDecoration] for the field.
+  /// {@template UnaFormField.decorationBuilder}
+  /// A function that builds a custom [UnaDecoration] for the field.
   /// Overrides the default decoration; merged with error state if provided.
   /// {@endtemplate}
-  final FinesseDecoration? Function(BuildContext context)? decorationBuilder;
+  final UnaDecoration? Function(BuildContext context)? decorationBuilder;
 
-  /// {@template FinesseFormField.readOnly}
+  /// {@template UnaFormField.readOnly}
   /// Whether the field is read-only.
   /// Defaults to false; if true, prevents editing but allows focus.
   /// {@endtemplate}
   final bool readOnly;
 
   @override
-  FinesseFormFieldState<FinesseFormField<T>, T> createState() =>
-      FinesseFormFieldState<FinesseFormField<T>, T>();
+  UnaFormFieldState<UnaFormField<T>, T> createState() =>
+      UnaFormFieldState<UnaFormField<T>, T>();
 }
 
-/// The state class for [FinesseFormField], managing field state and form
+/// The state class for [UnaFormField], managing field state and form
 /// integration.
 ///
 /// Extends [FormFieldState] to handle value changes, focus, and form
 /// registration.
 /// Provides methods for focusing, ensuring visibility, and updating the parent
 /// form.
-class FinesseFormFieldState<F extends FinesseFormField<T>, T>
+class UnaFormFieldState<F extends UnaFormField<T>, T>
     extends FormFieldState<T> {
   final String _internalId = UniqueKey().toString();
   FocusNode? _focusNode;
-  FinesseFormState? _parentForm;
+  UnaFormState? _parentForm;
 
   /// The effective focus node, either provided or internally managed.
   ///
@@ -164,8 +164,8 @@ class FinesseFormFieldState<F extends FinesseFormField<T>, T>
   FocusNode get focusNode => widget.focusNode ?? _focusNode!;
 
   /// The decoration applied to the field, reflecting error state.
-  FinesseDecoration get decoration =>
-      (widget.decorationBuilder?.call(context) ?? const FinesseDecoration())
+  UnaDecoration get decoration =>
+      (widget.decorationBuilder?.call(context) ?? const UnaDecoration())
           .copyWith(hasError: hasError);
 
   String? _forceErrorText;
@@ -210,7 +210,7 @@ class FinesseFormFieldState<F extends FinesseFormField<T>, T>
   bool get enabled => widget.enabled && (_parentForm?.enabled ?? true);
 
   /// Whether validation is skipped: the field is disabled and its form was
-  /// built with [FinesseForm.skipDisabled].
+  /// built with [UnaForm.skipDisabled].
   bool get _skipsValidation =>
       !enabled && (_parentForm?.widget.skipDisabled ?? false);
 
@@ -230,13 +230,13 @@ class FinesseFormFieldState<F extends FinesseFormField<T>, T>
     if (widget.focusNode == null) {
       _focusNode = FocusNode(canRequestFocus: !widget.readOnly);
     }
-    // Register this field when there is a parent FinesseForm
-    _parentForm = FinesseForm.maybeOf(context);
+    // Register this field when there is a parent UnaForm
+    _parentForm = UnaForm.maybeOf(context);
     _parentForm?.registerField(effectiveId, this);
   }
 
   @override
-  void didUpdateWidget(covariant FinesseFormField<T> oldWidget) {
+  void didUpdateWidget(covariant UnaFormField<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.id != oldWidget.id) {
       if (oldWidget.id != null) {
@@ -285,7 +285,7 @@ class FinesseFormFieldState<F extends FinesseFormField<T>, T>
   ///
   /// A field that hands [focusNode] to a widget is focused through it. One
   /// made of several controls that attaches the node to none of them (an OTP
-  /// field, a radio group, a time picker, or a custom [FinesseFormField]
+  /// field, a radio group, a time picker, or a custom [UnaFormField]
   /// whose builder ignores it) gets the focus on its first focusable
   /// control instead; with no such control the focus stays where it is.
   void focus() {

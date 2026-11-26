@@ -1,23 +1,23 @@
-import 'package:finesse/src/theme/color_scheme/base.dart';
-import 'package:finesse/src/theme/components/calendar.dart';
-import 'package:finesse/src/theme/components/checkbox.dart';
-import 'package:finesse/src/theme/components/context_menu.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/components/otp_field.dart';
-import 'package:finesse/src/theme/components/radio.dart';
-import 'package:finesse/src/theme/components/select.dart';
-import 'package:finesse/src/theme/components/switch.dart';
-import 'package:finesse/src/theme/components/tabs.dart';
-import 'package:finesse/src/theme/components/time_field.dart';
-import 'package:finesse/src/theme/form_factor.dart';
-import 'package:finesse/src/theme/spacing.dart';
-import 'package:finesse/src/theme/style.dart';
-import 'package:finesse/src/theme/text_theme/text_styles_default.dart';
-import 'package:finesse/src/theme/text_theme/theme.dart';
-import 'package:finesse/src/theme/themes/base.dart';
-import 'package:finesse/src/theme/themes/default_theme_variant.dart';
-import 'package:finesse/src/utils/border.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/color_scheme/base.dart';
+import 'package:una/src/theme/components/calendar.dart';
+import 'package:una/src/theme/components/checkbox.dart';
+import 'package:una/src/theme/components/context_menu.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/components/otp_field.dart';
+import 'package:una/src/theme/components/radio.dart';
+import 'package:una/src/theme/components/select.dart';
+import 'package:una/src/theme/components/switch.dart';
+import 'package:una/src/theme/components/tabs.dart';
+import 'package:una/src/theme/components/time_field.dart';
+import 'package:una/src/theme/form_factor.dart';
+import 'package:una/src/theme/spacing.dart';
+import 'package:una/src/theme/style.dart';
+import 'package:una/src/theme/text_theme/text_styles_default.dart';
+import 'package:una/src/theme/text_theme/theme.dart';
+import 'package:una/src/theme/themes/base.dart';
+import 'package:una/src/theme/themes/default_theme_variant.dart';
+import 'package:una/src/utils/border.dart';
 
 /// [DefaultThemeVariant] without the outward focus ring.
 ///
@@ -83,24 +83,24 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
       borderWidth >= 2 ? null : spacing.all((2 - borderWidth) / 4);
 
   @override
-  FinesseBorder get fieldBorder => super.fieldBorder.copyWith(
+  UnaBorder get fieldBorder => super.fieldBorder.copyWith(
     padding: focusReserve(1),
   );
 
   @override
-  FinesseBorder get textareaBorder => super.textareaBorder.copyWith(
+  UnaBorder get textareaBorder => super.textareaBorder.copyWith(
     padding: focusReserve(1),
   );
 
   @override
-  FinesseDecoration decorationTheme() {
+  UnaDecoration decorationTheme() {
     // No outward ring in this variant: a transparent 2px border reserves the
     // space and is recoloured with the ring colour on focus. The inherited
     // secondary (outward) borders never paint, because the decorator checks
     // the theme-wide `disableSecondaryBorder` flag this variant is built for.
     return super.decorationTheme().copyWith(
-      border: FinesseBorder.all(width: 2, color: const Color(0x00000000)),
-      focusedBorder: FinesseBorder.all(
+      border: UnaBorder.all(width: 2, color: const Color(0x00000000)),
+      focusedBorder: UnaBorder.all(
         color: colorScheme.ring,
         borderRadius: radius,
         width: 2,
@@ -111,8 +111,8 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
   @override
   SelectTheme selectTheme() => super.selectTheme().merge(
     SelectTheme(
-      decoration: FinesseDecoration(
-        border: FinesseBorder.all(
+      decoration: UnaDecoration(
+        border: UnaBorder.all(
           borderRadius: controlRadius,
           color: colorScheme.input,
           padding: focusReserve(1),
@@ -128,13 +128,13 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
     final radius = BorderRadius.all(Radius.circular(height));
     return super.switchTheme().merge(
       SwitchTheme(
-        decoration: FinesseDecoration(
-          border: FinesseBorder.all(
+        decoration: UnaDecoration(
+          border: UnaBorder.all(
             borderRadius: radius,
             width: 0,
             padding: focusReserve(0),
           ),
-          focusedBorder: FinesseBorder.all(borderRadius: radius, width: 2),
+          focusedBorder: UnaBorder.all(borderRadius: radius, width: 2),
         ),
       ),
     );
@@ -145,15 +145,15 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
     final checkboxRadius = BorderRadius.all(
       Radius.circular(style.checkboxRadius),
     );
-    FinesseDecoration decorationWith(Color borderColor) => FinesseDecoration(
+    UnaDecoration decorationWith(Color borderColor) => UnaDecoration(
       shadows: style.controlShadow,
-      border: FinesseBorder.all(
+      border: UnaBorder.all(
         color: borderColor,
         borderRadius: checkboxRadius,
         padding: focusReserve(1),
         width: 1,
       ),
-      focusedBorder: FinesseBorder.all(width: 2),
+      focusedBorder: UnaBorder.all(width: 2),
     );
     return super.checkboxTheme().merge(
       CheckboxTheme(
@@ -169,10 +169,10 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
     final circleRadius = BorderRadius.all(
       Radius.circular(base.circleSize ?? 8),
     );
-    FinesseDecoration adapt(FinesseDecoration? decoration) =>
-        (decoration ?? const FinesseDecoration()).copyWith(
+    UnaDecoration adapt(UnaDecoration? decoration) =>
+        (decoration ?? const UnaDecoration()).copyWith(
           border: decoration?.border?.copyWith(padding: focusReserve(1)),
-          focusedBorder: FinesseBorder.all(
+          focusedBorder: UnaBorder.all(
             borderRadius: circleRadius.add(circleRadius / 2),
             width: 2,
           ),
@@ -200,12 +200,12 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
             : base.tabPadding
                   ?.subtract(EdgeInsets.symmetric(vertical: reserve))
                   .clamp(EdgeInsets.zero, EdgeInsetsGeometry.infinity),
-        tabDecoration: FinesseDecoration(
-          border: FinesseBorder.all(
+        tabDecoration: UnaDecoration(
+          border: UnaBorder.all(
             borderRadius: const BorderRadius.all(Radius.circular(4)),
             width: 0,
           ),
-          focusedBorder: FinesseBorder.all(
+          focusedBorder: UnaBorder.all(
             borderRadius: const BorderRadius.all(Radius.circular(4)),
           ),
         ),
@@ -216,8 +216,8 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
   @override
   ContextMenuTheme contextMenuTheme() => super.contextMenuTheme().merge(
     ContextMenuTheme(
-      itemDecoration: FinesseDecoration(
-        border: FinesseBorder.all(borderRadius: itemRadius, width: 0),
+      itemDecoration: UnaDecoration(
+        border: UnaBorder.all(borderRadius: itemRadius, width: 0),
         focusedBorder: decorationTheme().border,
       ),
     ),
@@ -238,13 +238,13 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
       gap: 2,
       fieldWidth: 50,
       periodHeight: 44,
-      periodDecoration: FinesseDecoration(
-        border: FinesseBorder.all(
+      periodDecoration: UnaDecoration(
+        border: UnaBorder.all(
           width: 2,
           color: colorScheme.border,
           borderRadius: radius,
         ),
-        focusedBorder: FinesseBorder.all(
+        focusedBorder: UnaBorder.all(
           width: 2,
           color: colorScheme.ring,
           borderRadius: radius,
@@ -262,7 +262,7 @@ class DefaultThemeNoSecondaryBorderVariant extends DefaultThemeVariant {
     // the box once the reserve and a tall text role (mira) use up the room.
     return base.merge(
       OtpFieldTheme(
-        decoration: (base.decoration ?? const FinesseDecoration()).copyWith(
+        decoration: (base.decoration ?? const UnaDecoration()).copyWith(
           border: base.decoration?.border?.copyWith(
             padding: focusReserve(1),
           ),

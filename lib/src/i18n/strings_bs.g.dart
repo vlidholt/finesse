@@ -11,13 +11,13 @@ import 'package:slang/generated.dart';
 import 'strings.g.dart';
 
 // Path: <root>
-class FinesseLocalizationsDataBs extends FinesseLocalizationsData with BaseTranslations<FinesseLocale, FinesseLocalizationsData> {
+class UnaLocalizationsDataBs extends UnaLocalizationsData with BaseTranslations<UnaLocale, UnaLocalizationsData> {
 	/// You can call this constructor and build your own translation instance of this locale.
-	/// Constructing via the enum [FinesseLocale.build] is preferred.
-	FinesseLocalizationsDataBs({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<FinesseLocale, FinesseLocalizationsData>? meta})
+	/// Constructing via the enum [UnaLocale.build] is preferred.
+	UnaLocalizationsDataBs({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<UnaLocale, UnaLocalizationsData>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
 		  _meta = meta ?? TranslationMetadata(
-		    locale: FinesseLocale.bs,
+		    locale: UnaLocale.bs,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
@@ -27,30 +27,30 @@ class FinesseLocalizationsDataBs extends FinesseLocalizationsData with BaseTrans
 	}
 
 	/// Metadata for the translations of <bs>.
-	final TranslationMetadata<FinesseLocale, FinesseLocalizationsData> _meta;
-	@override TranslationMetadata<FinesseLocale, FinesseLocalizationsData> get $meta => _meta;
+	final TranslationMetadata<UnaLocale, UnaLocalizationsData> _meta;
+	@override TranslationMetadata<UnaLocale, UnaLocalizationsData> get $meta => _meta;
 
 	/// Access flat map
 	@override dynamic operator[](String key) => _meta.getTranslation(key) ?? super[key];
 
-	late final FinesseLocalizationsDataBs _root = this; // ignore: unused_field
+	late final UnaLocalizationsDataBs _root = this; // ignore: unused_field
 
 	@override 
-	FinesseLocalizationsDataBs $copyWith({TranslationMetadata<FinesseLocale, FinesseLocalizationsData>? meta}) => FinesseLocalizationsDataBs(meta: meta ?? this.$meta);
+	UnaLocalizationsDataBs $copyWith({TranslationMetadata<UnaLocale, UnaLocalizationsData>? meta}) => UnaLocalizationsDataBs(meta: meta ?? this.$meta);
 
 	// Translations
-	@override late final _FinesseLocalizationsData$timePicker$bs timePicker = _FinesseLocalizationsData$timePicker$bs._(_root);
-	@override late final _FinesseLocalizationsData$datePicker$bs datePicker = _FinesseLocalizationsData$datePicker$bs._(_root);
-	@override late final _FinesseLocalizationsData$input$bs input = _FinesseLocalizationsData$input$bs._(_root);
-	@override late final _FinesseLocalizationsData$keyboardToolbar$bs keyboardToolbar = _FinesseLocalizationsData$keyboardToolbar$bs._(_root);
-	@override late final _FinesseLocalizationsData$dialog$bs dialog = _FinesseLocalizationsData$dialog$bs._(_root);
+	@override late final _UnaLocalizationsData$timePicker$bs timePicker = _UnaLocalizationsData$timePicker$bs._(_root);
+	@override late final _UnaLocalizationsData$datePicker$bs datePicker = _UnaLocalizationsData$datePicker$bs._(_root);
+	@override late final _UnaLocalizationsData$input$bs input = _UnaLocalizationsData$input$bs._(_root);
+	@override late final _UnaLocalizationsData$keyboardToolbar$bs keyboardToolbar = _UnaLocalizationsData$keyboardToolbar$bs._(_root);
+	@override late final _UnaLocalizationsData$dialog$bs dialog = _UnaLocalizationsData$dialog$bs._(_root);
 }
 
 // Path: timePicker
-class _FinesseLocalizationsData$timePicker$bs extends FinesseLocalizationsData$timePicker$en {
-	_FinesseLocalizationsData$timePicker$bs._(FinesseLocalizationsDataBs root) : this._root = root, super.internal(root);
+class _UnaLocalizationsData$timePicker$bs extends UnaLocalizationsData$timePicker$en {
+	_UnaLocalizationsData$timePicker$bs._(UnaLocalizationsDataBs root) : this._root = root, super.internal(root);
 
-	final FinesseLocalizationsDataBs _root; // ignore: unused_field
+	final UnaLocalizationsDataBs _root; // ignore: unused_field
 
 	// Translations
 	@override String get hours => 'Sati';
@@ -61,20 +61,20 @@ class _FinesseLocalizationsData$timePicker$bs extends FinesseLocalizationsData$t
 }
 
 // Path: datePicker
-class _FinesseLocalizationsData$datePicker$bs extends FinesseLocalizationsData$datePicker$en {
-	_FinesseLocalizationsData$datePicker$bs._(FinesseLocalizationsDataBs root) : this._root = root, super.internal(root);
+class _UnaLocalizationsData$datePicker$bs extends UnaLocalizationsData$datePicker$en {
+	_UnaLocalizationsData$datePicker$bs._(UnaLocalizationsDataBs root) : this._root = root, super.internal(root);
 
-	final FinesseLocalizationsDataBs _root; // ignore: unused_field
+	final UnaLocalizationsDataBs _root; // ignore: unused_field
 
 	// Translations
 	@override String get selectDate => 'Odaberite datum';
 }
 
 // Path: input
-class _FinesseLocalizationsData$input$bs extends FinesseLocalizationsData$input$en {
-	_FinesseLocalizationsData$input$bs._(FinesseLocalizationsDataBs root) : this._root = root, super.internal(root);
+class _UnaLocalizationsData$input$bs extends UnaLocalizationsData$input$en {
+	_UnaLocalizationsData$input$bs._(UnaLocalizationsDataBs root) : this._root = root, super.internal(root);
 
-	final FinesseLocalizationsDataBs _root; // ignore: unused_field
+	final UnaLocalizationsDataBs _root; // ignore: unused_field
 
 	// Translations
 	@override String get cut => 'Izreži';
@@ -84,20 +84,20 @@ class _FinesseLocalizationsData$input$bs extends FinesseLocalizationsData$input$
 }
 
 // Path: keyboardToolbar
-class _FinesseLocalizationsData$keyboardToolbar$bs extends FinesseLocalizationsData$keyboardToolbar$en {
-	_FinesseLocalizationsData$keyboardToolbar$bs._(FinesseLocalizationsDataBs root) : this._root = root, super.internal(root);
+class _UnaLocalizationsData$keyboardToolbar$bs extends UnaLocalizationsData$keyboardToolbar$en {
+	_UnaLocalizationsData$keyboardToolbar$bs._(UnaLocalizationsDataBs root) : this._root = root, super.internal(root);
 
-	final FinesseLocalizationsDataBs _root; // ignore: unused_field
+	final UnaLocalizationsDataBs _root; // ignore: unused_field
 
 	// Translations
 	@override String get done => 'Gotovo';
 }
 
 // Path: dialog
-class _FinesseLocalizationsData$dialog$bs extends FinesseLocalizationsData$dialog$en {
-	_FinesseLocalizationsData$dialog$bs._(FinesseLocalizationsDataBs root) : this._root = root, super.internal(root);
+class _UnaLocalizationsData$dialog$bs extends UnaLocalizationsData$dialog$en {
+	_UnaLocalizationsData$dialog$bs._(UnaLocalizationsDataBs root) : this._root = root, super.internal(root);
 
-	final FinesseLocalizationsDataBs _root; // ignore: unused_field
+	final UnaLocalizationsDataBs _root; // ignore: unused_field
 
 	// Translations
 	@override String get close => 'Zatvori';
@@ -109,7 +109,7 @@ class _FinesseLocalizationsData$dialog$bs extends FinesseLocalizationsData$dialo
 ///
 /// The Dart AOT compiler has issues with very large switch statements,
 /// so the map is split into smaller functions (512 entries each).
-extension on FinesseLocalizationsDataBs {
+extension on UnaLocalizationsDataBs {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
 			'timePicker.hours' => 'Sati',

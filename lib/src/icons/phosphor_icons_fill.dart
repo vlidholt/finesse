@@ -16,7 +16,7 @@ import 'package:flutter/widgets.dart';
 /// ```
 abstract final class PhosphorIconsFill {
   static const _family = 'PhosphorFill';
-  static const _package = 'finesse';
+  static const _package = 'una';
 
   static const IconData acorn = IconData(
     0xeb9a,

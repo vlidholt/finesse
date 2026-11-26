@@ -1,17 +1,17 @@
-import 'package:finesse/material.dart';
-import 'package:finesse/src/app.dart';
-import 'package:finesse/src/components/context_menu.dart';
-import 'package:finesse/src/components/popover.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/material.dart';
+import 'package:una/src/app.dart';
+import 'package:una/src/components/context_menu.dart';
+import 'package:una/src/components/popover.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
+  // Helper method to create a test widget wrapped in UnaApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return FinesseApp(
-      builder: (context, child) => FinesseMaterial(child: child!),
+    return UnaApp(
+      builder: (context, child) => UnaMaterial(child: child!),
       home: Scaffold(body: child),
     );
   }
@@ -21,8 +21,8 @@ void main() {
       PopoverController? controller,
       bool? tapEnabled,
     }) {
-      return FinesseApp(
-        builder: (context, child) => FinesseMaterial(child: child!),
+      return UnaApp(
+        builder: (context, child) => UnaMaterial(child: child!),
         home: Scaffold(
           body: ContextMenuRegion(
             controller: controller,

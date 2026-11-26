@@ -1,11 +1,11 @@
-# finesse example
+# una example
 
-A minimal app: a themed `FinesseApp` with a card, a text field, a select
+A minimal app: a themed `UnaApp` with a card, a text field, a select
 and a button that shows a toast.
 
 ```dart
 import 'package:flutter/widgets.dart';
-import 'package:finesse/finesse.dart';
+import 'package:una/una.dart';
 
 void main() => runApp(const App());
 
@@ -14,10 +14,10 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FinesseApp(
+    return UnaApp(
       theme: ThemeData(
         colorScheme: const ZincColorScheme.light(),
-        // One of the four styles: finesse (the default), or shadcn/ui's
+        // One of the four styles: una (the default), or shadcn/ui's
         // nova, maia or lyra.
         style: StyleTokens.nova,
       ),
@@ -72,7 +72,7 @@ class SignUpCard extends StatelessWidget {
 
 ## Fonts
 
-finesse bundles no fonts, so the example above renders in the platform font.
+una bundles no fonts, so the example above renders in the platform font.
 To match shadcn/ui's Inter, add `google_fonts` and set:
 
 ```dart
@@ -81,6 +81,6 @@ ThemeData(textTheme: TextTheme.fromGoogleFont(GoogleFonts.inter))
 
 ## More
 
-The rest of this directory is the [live docs site](https://vlidholt.github.io/finesse/):
+The rest of this directory is the [live docs site](https://vlidholt.github.io/una/):
 every component with live previews, the exact source of each, and a theme
 editor. See `README.md` here for running it locally.

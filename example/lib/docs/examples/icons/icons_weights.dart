@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// One icon in each of the six weights. Five are `IconData` for a plain
 /// `Icon`; duotone is two glyphs and has its own widget.

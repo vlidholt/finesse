@@ -1,7 +1,7 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 import '../../frame_sampler.dart';
 
@@ -15,7 +15,7 @@ import '../../frame_sampler.dart';
 /// cannot come back unseen.
 void main() {
   group('TableTheme row colours', () {
-    test('finesse: a faint hover, an accent-tinted selection', () {
+    test('una: a faint hover, an accent-tinted selection', () {
       final light = ThemeData();
       final dark = ThemeData(brightness: Brightness.dark);
 
@@ -99,7 +99,7 @@ void main() {
       final sampler = FrameSampler();
       await tester.pumpWidget(
         sampler.wrap(
-          FinesseApp(
+          UnaApp(
             theme: theme,
             darkTheme: theme,
             home: Builder(
@@ -125,8 +125,8 @@ void main() {
     }
 
     for (final (name, theme) in [
-      ('finesse light', ThemeData()),
-      ('finesse dark', ThemeData(brightness: Brightness.dark)),
+      ('una light', ThemeData()),
+      ('una dark', ThemeData(brightness: Brightness.dark)),
       (
         'nova light',
         ThemeData(
@@ -146,30 +146,30 @@ void main() {
         final sampler = await pump(
           tester,
           theme,
-          FinesseTable.list(
+          UnaTable.list(
             header: const [
-              FinesseTableCell.header(child: Text('A')),
-              FinesseTableCell.header(child: Text('B')),
+              UnaTableCell.header(child: Text('A')),
+              UnaTableCell.header(child: Text('B')),
             ],
             footer: const [
-              FinesseTableCell.footer(child: Text('T')),
-              FinesseTableCell.footer(child: Text('9')),
+              UnaTableCell.footer(child: Text('T')),
+              UnaTableCell.footer(child: Text('9')),
             ],
             // Row 2 (the second body row) is selected.
             rowSelected: (row) => row == 2,
             columnSpanExtent: (_) => const FixedTableSpanExtent(250),
             children: const [
               [
-                FinesseTableCell(child: Text('a')),
-                FinesseTableCell(child: Text('1')),
+                UnaTableCell(child: Text('a')),
+                UnaTableCell(child: Text('1')),
               ],
               [
-                FinesseTableCell(child: Text('b')),
-                FinesseTableCell(child: Text('2')),
+                UnaTableCell(child: Text('b')),
+                UnaTableCell(child: Text('2')),
               ],
               [
-                FinesseTableCell(child: Text('c')),
-                FinesseTableCell(child: Text('3')),
+                UnaTableCell(child: Text('c')),
+                UnaTableCell(child: Text('3')),
               ],
             ],
           ),

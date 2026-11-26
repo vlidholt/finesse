@@ -1,17 +1,17 @@
 import 'dart:ui' as ui;
 
-import 'package:finesse/src/components/form/field.dart';
-import 'package:finesse/src/components/text_field.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/clipboard/clipboard_service.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/form/field.dart';
+import 'package:una/src/components/text_field.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/clipboard/clipboard_service.dart';
 
-/// A [TextField] that takes part in a `FinesseForm`, with a label, a
+/// A [TextField] that takes part in a `UnaForm`, with a label, a
 /// description and validation.
-class TextFormField extends FinesseFormField<String> {
+class TextFormField extends UnaFormField<String> {
   /// Creates a text input form field.
   TextFormField({
     super.id,
@@ -34,7 +34,7 @@ class TextFormField extends FinesseFormField<String> {
     super.focusNode,
 
     /// {@macro TextField.decoration}
-    FinesseDecoration? decoration,
+    UnaDecoration? decoration,
 
     /// {@macro TextField.placeholder}
     Widget? placeholder,
@@ -93,7 +93,7 @@ class TextFormField extends FinesseFormField<String> {
     /// {@macro TextField.expands}
     bool expands = false,
 
-    /// {@macro FinesseFormField.readOnly}
+    /// {@macro UnaFormField.readOnly}
     super.readOnly,
 
     /// {@macro TextField.showCursor}
@@ -272,7 +272,7 @@ class TextFormField extends FinesseFormField<String> {
          onChanged: onChanged == null ? null : (v) => onChanged(v ?? ''),
          decorationBuilder: (context) =>
              (Theme.of(context).textFieldTheme.decoration ??
-                     const FinesseDecoration())
+                     const UnaDecoration())
                  .merge(decoration),
          builder: (state) {
            state as _TextFormFieldState;
@@ -392,7 +392,7 @@ class TextFormField extends FinesseFormField<String> {
     void Function(String)? onChanged,
     VoidCallback? onReset,
     FocusNode? focusNode,
-    FinesseDecoration? decoration,
+    UnaDecoration? decoration,
     Widget? placeholder,
     TextInputAction? textInputAction,
     bool autofocus = false,
@@ -448,12 +448,12 @@ class TextFormField extends FinesseFormField<String> {
   final TextEditingController? controller;
 
   @override
-  FinesseFormFieldState<TextFormField, String> createState() =>
+  UnaFormFieldState<TextFormField, String> createState() =>
       _TextFormFieldState();
 }
 
 /// The state of a [TextFormField].
-class _TextFormFieldState extends FinesseFormFieldState<TextFormField, String> {
+class _TextFormFieldState extends UnaFormFieldState<TextFormField, String> {
   TextEditingController? _controller;
 
   /// The controller in use: [TextFormField.controller] when given,

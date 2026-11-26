@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:finesse/finesse.dart';
-import 'package:finesse/material.dart';
 import 'package:flutter/cupertino.dart' show CupertinoLocalizations;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart'
@@ -9,10 +7,12 @@ import 'package:flutter/material.dart'
 import 'package:flutter/material.dart' as m;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/material.dart';
+import 'package:una/una.dart';
 
-/// finesse's core does not depend on Material or Cupertino, which Flutter is
+/// una's core does not depend on Material or Cupertino, which Flutter is
 /// moving out of the SDK into the `material_ui` and `cupertino_ui` packages.
-/// Interop is opt-in through `package:finesse/material.dart`.
+/// Interop is opt-in through `package:una/material.dart`.
 void main() {
   final dark = ThemeData(
     brightness: Brightness.dark,
@@ -56,14 +56,14 @@ void main() {
     expect(offenders, isEmpty);
   });
 
-  group('FinesseApp without FinesseMaterial', () {
-    testWidgets('sets the icon and selection styles from the finesse theme', (
+  group('UnaApp without UnaMaterial', () {
+    testWidgets('sets the icon and selection styles from the una theme', (
       tester,
     ) async {
       late IconThemeData icons;
       late DefaultSelectionStyle selection;
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           themeMode: ThemeMode.dark,
           darkTheme: dark,
           home: Builder(
@@ -81,10 +81,10 @@ void main() {
       expect(selection.selectionColor, dark.colorScheme.selection);
     });
 
-    testWidgets('pushes pages with a FinessePageRoute', (tester) async {
+    testWidgets('pushes pages with a UnaPageRoute', (tester) async {
       final navigator = GlobalKey<NavigatorState>();
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           navigatorKey: navigator,
           routes: {
             '/': (_) => const Text('home'),
@@ -97,7 +97,7 @@ void main() {
       expect(find.text('next'), findsOneWidget);
       expect(
         ModalRoute.of(tester.element(find.text('next'))),
-        isA<FinessePageRoute<Object?>>(),
+        isA<UnaPageRoute<Object?>>(),
       );
     });
 
@@ -107,7 +107,7 @@ void main() {
       debugDefaultTargetPlatformOverride = TargetPlatform.linux;
       addTearDown(() => debugDefaultTargetPlatformOverride = null);
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: ListView(
             children: [for (var i = 0; i < 50; i++) Text('$i')],
           ),
@@ -118,16 +118,16 @@ void main() {
     });
   });
 
-  group('FinesseMaterial', () {
-    testWidgets('derives the Material theme from the finesse theme', (
+  group('UnaMaterial', () {
+    testWidgets('derives the Material theme from the una theme', (
       tester,
     ) async {
       late m.ThemeData material;
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           themeMode: ThemeMode.dark,
           darkTheme: dark,
-          builder: (context, child) => FinesseMaterial(child: child!),
+          builder: (context, child) => UnaMaterial(child: child!),
           home: Builder(
             builder: (context) {
               material = m.Theme.of(context);
@@ -144,8 +144,8 @@ void main() {
     testWidgets('themeBuilder changes the derived theme', (tester) async {
       late m.ThemeData material;
       await tester.pumpWidget(
-        FinesseApp(
-          builder: (context, child) => FinesseMaterial(
+        UnaApp(
+          builder: (context, child) => UnaMaterial(
             themeBuilder: (context, theme) =>
                 theme.copyWith(splashFactory: NoSplash.splashFactory),
             child: child!,
@@ -165,8 +165,8 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        FinesseApp(
-          builder: (context, child) => FinesseMaterial(child: child!),
+        UnaApp(
+          builder: (context, child) => UnaMaterial(child: child!),
           home: const Column(
             children: [m.TextField(), m.Slider(value: .5, onChanged: null)],
           ),
@@ -181,10 +181,10 @@ void main() {
     testWidgets('keeps the text direction set above it', (tester) async {
       late TextDirection direction;
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           builder: (context, child) => Directionality(
             textDirection: TextDirection.rtl,
-            child: FinesseMaterial(child: child!),
+            child: UnaMaterial(child: child!),
           ),
           home: Builder(
             builder: (context) {
@@ -201,12 +201,12 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           localizationsDelegates: const [
             GlobalMaterialLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          builder: (context, child) => FinesseMaterial(child: child!),
+          builder: (context, child) => UnaMaterial(child: child!),
           home: const SizedBox.shrink(),
         ),
       );

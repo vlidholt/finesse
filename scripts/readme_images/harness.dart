@@ -1,14 +1,14 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 
-import 'package:finesse/finesse.dart';
-// `DefaultStyles` is what `FinesseApp` puts under a theme (the root icon
-// theme and selection colours). A panel with a theme of its own needs it too.
-import 'package:finesse/src/theme/theme_scope.dart' show DefaultStyles;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+// `DefaultStyles` is what `UnaApp` puts under a theme (the root icon
+// theme and selection colours). A panel with a theme of its own needs it too.
+import 'package:una/src/theme/theme_scope.dart' show DefaultStyles;
+import 'package:una/una.dart';
 
 /// Where the images are written, relative to the package root.
 const outputDirectory = 'doc/images';
@@ -42,7 +42,7 @@ Future<void> loadFonts() async {
     'PhosphorDuotone': 'Phosphor-Duotone',
   };
   for (final MapEntry(key: family, value: file) in phosphor.entries) {
-    await load('packages/finesse/$family', 'fonts/phosphor/$file.ttf');
+    await load('packages/una/$family', 'fonts/phosphor/$file.ttf');
   }
 }
 
@@ -88,7 +88,7 @@ Future<void> shoot(
 
   final key = GlobalKey();
   await tester.pumpWidget(
-    FinesseApp(
+    UnaApp(
       formFactor: FormFactor.desktop,
       theme: imageTheme(),
       home: RepaintBoundary(key: key, child: scene),
@@ -140,7 +140,7 @@ Future<void> shoot(
 
 /// A part of an image under a theme of its own.
 ///
-/// It gives its subtree what `FinesseApp` gives an app: the theme at
+/// It gives its subtree what `UnaApp` gives an app: the theme at
 /// [formFactor], the default text and icon styles, the page background and
 /// an overlay of its own, so a menu opened inside is drawn inside and under
 /// this theme. With a [size] it also tells its subtree that is the screen,

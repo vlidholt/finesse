@@ -1,17 +1,17 @@
-import 'package:finesse/src/components/button_group.dart';
-import 'package:finesse/src/components/decorator.dart';
-import 'package:finesse/src/components/disabled.dart';
-import 'package:finesse/src/raw_components/pressable.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/components/toggle.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/debug_check.dart';
-import 'package:finesse/src/utils/motion_color.dart';
-import 'package:finesse/src/utils/moving_indicator.dart';
-import 'package:finesse/src/utils/provider.dart';
-import 'package:finesse/src/utils/text_scaled_height.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/button_group.dart';
+import 'package:una/src/components/decorator.dart';
+import 'package:una/src/components/disabled.dart';
+import 'package:una/src/raw_components/pressable.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/components/toggle.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/debug_check.dart';
+import 'package:una/src/utils/motion_color.dart';
+import 'package:una/src/utils/moving_indicator.dart';
+import 'package:una/src/utils/provider.dart';
+import 'package:una/src/utils/text_scaled_height.dart';
 
 /// Variants available for the [Toggle] widget.
 enum ToggleVariant {
@@ -153,7 +153,7 @@ class Toggle extends StatelessWidget {
     final height = toggleTheme.height ?? 40.0;
     final width = toggleTheme.width;
     final gap = toggleTheme.gap ?? 8.0;
-    var decoration = toggleTheme.decoration ?? const FinesseDecoration();
+    var decoration = toggleTheme.decoration ?? const UnaDecoration();
     // In a `ButtonGroup` — a toggle group with no gap is one — the corners
     // and the edge towards a neighbour are the group's to decide.
     final joined = ButtonGroupScope.maybeOf(context);

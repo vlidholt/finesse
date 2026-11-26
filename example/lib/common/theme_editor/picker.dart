@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// One option in a [ThemePicker].
 @immutable
@@ -75,7 +75,7 @@ class _SettingBox extends StatelessWidget {
     final theme = Theme.of(context);
     return Opacity(
       opacity: enabled ? 1 : .5,
-      child: FinesseGestureDetector(
+      child: UnaGestureDetector(
         mouseCursor: enabled && onTap != null
             ? SystemMouseCursors.click
             : SystemMouseCursors.basic,
@@ -197,8 +197,8 @@ class _ThemePickerState<T> extends State<ThemePicker<T>> {
       controller: controller,
       padding: const EdgeInsets.all(4),
       anchor: const AnchorAuto(offset: Offset(0, 4)),
-      decoration: FinesseDecoration(
-        border: FinesseBorder.all(
+      decoration: UnaDecoration(
+        border: UnaBorder.all(
           color: theme.colorScheme.foreground.withValues(alpha: .1),
           borderRadius: theme.radii.lg,
           width: 1,
@@ -334,7 +334,7 @@ class _PickerItemState extends State<_PickerItem> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return FinesseGestureDetector(
+    return UnaGestureDetector(
       mouseCursor: SystemMouseCursors.click,
       behavior: HitTestBehavior.opaque,
       onTap: widget.onTap,
@@ -473,7 +473,7 @@ class ThemeSlider extends StatelessWidget {
                   ),
                 ),
                 if (onReset != null)
-                  FinesseGestureDetector(
+                  UnaGestureDetector(
                     mouseCursor: SystemMouseCursors.click,
                     behavior: HitTestBehavior.opaque,
                     onTap: onReset,

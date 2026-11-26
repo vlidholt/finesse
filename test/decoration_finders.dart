@@ -1,10 +1,10 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// Looks through the [ShadowDecoration] that carries a component's outer
 /// shadows to the [BoxDecoration] underneath.
 ///
-/// Finesse paints outer shadows on a wrapper rather than on the decoration
+/// Una paints outer shadows on a wrapper rather than on the decoration
 /// itself, so that they can be clipped to the element's own outline the way
 /// CSS clips a `box-shadow`. A test reaching for a fill, border or radius
 /// wants the wrapped decoration; one reaching for shadows wants

@@ -1,7 +1,7 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
-/// The same controls frosted and liquid. On iOS and macOS finesse draws
+/// The same controls frosted and liquid. On iOS and macOS una draws
 /// them with Liquid Glass by itself (`LiquidGlassMode.auto`); `always`
 /// shows it here on any platform and `never` switches it off. A switch,
 /// a slider and a segmented control are flat at rest and turn into a lens

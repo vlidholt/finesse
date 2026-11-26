@@ -1,9 +1,9 @@
-import 'package:finesse/finesse.dart';
-import 'package:finesse/material.dart';
 import 'package:flutter/material.dart'
     hide Dialog, Theme, ThemeData, showDialog;
 import 'package:flutter/material.dart' as m;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/material.dart';
+import 'package:una/una.dart';
 
 void main() {
   final darkTheme = ThemeData(
@@ -12,10 +12,10 @@ void main() {
   );
 
   group('ThemeScope', () {
-    testWidgets('publishes the Finesse theme to its subtree', (tester) async {
+    testWidgets('publishes the Una theme to its subtree', (tester) async {
       late ThemeData seen;
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: ThemeScope(
             data: darkTheme,
             child: Builder(
@@ -35,7 +35,7 @@ void main() {
       // to inherit the app's DefaultTextStyle and render black-on-black.
       late TextStyle style;
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           theme: ThemeData(
             brightness: Brightness.light,
             colorScheme: const NeutralColorScheme.light(),
@@ -57,7 +57,7 @@ void main() {
     testWidgets('icons follow the scoped theme', (tester) async {
       late IconThemeData icons;
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: ThemeScope(
             data: darkTheme,
             child: Builder(
@@ -75,7 +75,7 @@ void main() {
     testWidgets('sets the selection colours', (tester) async {
       late DefaultSelectionStyle selection;
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: ThemeScope(
             data: darkTheme,
             child: Builder(
@@ -91,15 +91,15 @@ void main() {
       expect(selection.selectionColor, darkTheme.colorScheme.selection);
     });
 
-    testWidgets('a FinesseMaterial inside follows the scoped theme', (
+    testWidgets('a UnaMaterial inside follows the scoped theme', (
       tester,
     ) async {
       late m.ThemeData material;
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: ThemeScope(
             data: darkTheme,
-            child: FinesseMaterial(
+            child: UnaMaterial(
               child: Builder(
                 builder: (context) {
                   material = m.Theme.of(context);
@@ -124,7 +124,7 @@ void main() {
       late ThemeData insideDialog;
 
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           theme: ThemeData(
             brightness: Brightness.light,
             colorScheme: const NeutralColorScheme.light(),

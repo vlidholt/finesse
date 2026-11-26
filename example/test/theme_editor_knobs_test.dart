@@ -1,8 +1,8 @@
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/theme_editor/presets.dart';
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 import 'support.dart';
 
@@ -55,7 +55,7 @@ void main() {
       }
       expect(
         themed(base, formFactor: FormFactor.mobile).style,
-        StyleTokens.finesseMobile,
+        StyleTokens.unaMobile,
       );
     },
   );
@@ -111,7 +111,7 @@ void main() {
 
   group('Card Opacity', () {
     test('sets the card fill\'s opacity in both brightnesses', () {
-      // Finesse's own cards are 88% in light and 82% in dark.
+      // Una's own cards are 88% in light and 82% in dark.
       expect(themed(base).cardTheme.backgroundColor!.a, closeTo(.88, .005));
       expect(
         themed(base, brightness: Brightness.dark).cardTheme.backgroundColor!.a,
@@ -158,21 +158,21 @@ void main() {
     });
 
     test('states only what differs from the style', () {
-      // 88% is already Finesse's light value: only the dark one moves.
+      // 88% is already Una's light value: only the dark one moves.
       final overrides = StyleOverrides.resolve(
         base.copyWith(cardOpacity: () => .88),
-        StyleTokens.finesse,
+        StyleTokens.una,
       );
       expect(overrides.cardOpacity, isNull);
       expect(overrides.cardOpacityDark, .88);
       expect(overrides.code, ['cardOpacityDark: 0.88']);
-      expect(StyleOverrides.resolve(base, StyleTokens.finesse).isEmpty, isTrue);
+      expect(StyleOverrides.resolve(base, StyleTokens.una).isEmpty, isTrue);
     });
   });
 
   group('Card Blur', () {
     test('turns the backdrop blur behind a translucent card on and off', () {
-      // Finesse's cards are translucent and do not blur: a card lies on
+      // Una's cards are translucent and do not blur: a card lies on
       // the flat page, where a backdrop filter per card shows nothing.
       expect(base.effectiveCardBlur, isFalse);
       everywhere(base, (theme, where) {
@@ -256,7 +256,7 @@ void main() {
   group('Blur Strength', () {
     test('sets the blur behind glass and bars, and behind cards that '
         'blur', () {
-      expect(base.effectiveGlassBlur, StyleTokens.finesse.glassBlur);
+      expect(base.effectiveGlassBlur, StyleTokens.una.glassBlur);
       everywhere(base.copyWith(glassBlur: () => 6), (theme, where) {
         expect(theme.style.glassBlur, 6, reason: where);
         expect(theme.glassTheme.blur, 6, reason: where);
@@ -310,7 +310,7 @@ void main() {
         theme.layoutTheme.pagePadding!.resolve(TextDirection.ltr);
 
     test('scales each form factor\'s own margins', () {
-      // Finesse: 24 on a desktop, 16 on a phone.
+      // Una: 24 on a desktop, 16 on a phone.
       expect(pagePadding(themed(base)), const EdgeInsets.all(24));
       expect(
         pagePadding(themed(base, formFactor: FormFactor.mobile)),
@@ -359,7 +359,7 @@ void main() {
 
   group('Card Padding', () {
     test('scales each form factor\'s own card padding', () {
-      // Finesse: 20 on a desktop, 16 on a phone.
+      // Una: 20 on a desktop, 16 on a phone.
       expect(themed(base).cardTheme.padding, const EdgeInsets.all(20));
       expect(
         themed(base, formFactor: FormFactor.mobile).cardTheme.padding,
@@ -412,7 +412,7 @@ void main() {
       expect(
         identical(
           base.copyWith(bottomBarFloating: () => true).styleTokens,
-          StyleTokens.finesse,
+          StyleTokens.una,
         ),
         isTrue,
       );
@@ -441,7 +441,7 @@ void main() {
 
   group('Form Factor', () {
     test('pins the theme\'s form factor, or leaves it to the width', () {
-      // Auto builds a theme with no opinion: `FinesseApp` lays it out.
+      // Auto builds a theme with no opinion: `UnaApp` lays it out.
       expect(base.build().formFactor, FormFactor.desktop);
       expect(
         base.copyWith(formFactor: EditorFormFactor.mobile).build().formFactor,
@@ -454,7 +454,7 @@ void main() {
 
       // The phone theme has the phone metrics.
       final phone = base.copyWith(formFactor: EditorFormFactor.mobile).build();
-      expect(phone.style, StyleTokens.finesseMobile);
+      expect(phone.style, StyleTokens.unaMobile);
       expect(phone.buttonSizesTheme.regular!.height, 44);
     });
 
@@ -498,7 +498,7 @@ void main() {
       expect(theme.buttonSizesTheme.regular!.height, 44);
       expect(
         theme.style.body.fontSize,
-        StyleTokens.finesseMobile.body.fontSize,
+        StyleTokens.unaMobile.body.fontSize,
       );
     });
   });

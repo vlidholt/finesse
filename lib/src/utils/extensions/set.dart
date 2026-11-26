@@ -1,5 +1,5 @@
-import 'package:finesse/src/utils/extensions/list.dart';
-import 'package:finesse/src/utils/extensions/map.dart';
+import 'package:una/src/utils/extensions/list.dart';
+import 'package:una/src/utils/extensions/map.dart';
 
 /// Deep copy extension for Set.
 extension SetDeepCopyExtension on Set<dynamic> {

@@ -1,22 +1,22 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:finesse/src/components/surface.dart';
-import 'package:finesse/src/raw_components/portal.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/components/layout.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/theme/themes/shadows.dart';
-import 'package:finesse/src/utils/anchor_stage.dart';
-import 'package:finesse/src/utils/backdrop.dart';
-import 'package:finesse/src/utils/border.dart';
-import 'package:finesse/src/utils/dismiss_shortcut.dart';
-import 'package:finesse/src/utils/entrance.dart';
-import 'package:finesse/src/utils/mouse_area.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/surface.dart';
+import 'package:una/src/raw_components/portal.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/components/layout.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/theme/themes/shadows.dart';
+import 'package:una/src/utils/anchor_stage.dart';
+import 'package:una/src/utils/backdrop.dart';
+import 'package:una/src/utils/border.dart';
+import 'package:una/src/utils/dismiss_shortcut.dart';
+import 'package:una/src/utils/entrance.dart';
+import 'package:una/src/utils/mouse_area.dart';
 
 /// Opens and closes an overlay anchored to a widget: a [Popover], a
 /// `Tooltip`, a `HoverCard`, a `ContextMenu`, a `DropdownMenu`.
@@ -240,7 +240,7 @@ class Popover extends StatefulWidget {
   /// {@template Popover.decoration}
   /// The decoration of the [builder].
   /// {@endtemplate}
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// {@template Popover.filter}
   /// The filter of the [builder]. If `null`, falls back to `PopoverTheme`.
@@ -584,12 +584,12 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
 
     final effectiveShadows = widget.shadows ?? theme.popoverTheme.shadows;
     var effectiveDecoration =
-        (theme.popoverTheme.decoration ?? const FinesseDecoration())
+        (theme.popoverTheme.decoration ?? const UnaDecoration())
             .merge(widget.decoration)
             .copyWith(shadows: effectiveShadows);
     // remove the top padding of the popover
     effectiveDecoration = effectiveDecoration.copyWith(
-      secondaryBorder: FinesseBorder(
+      secondaryBorder: UnaBorder(
         padding: theme.decoration.secondaryBorder?.padding
             ?.resolve(Directionality.of(context))
             .copyWith(top: 0),
@@ -741,7 +741,7 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
 /// first one's box. Its surface joins every group listed here, so a tap on
 /// it is not a tap outside the popovers around it.
 ///
-/// Internal: it is not exported from `package:finesse/finesse.dart`.
+/// Internal: it is not exported from `package:una/una.dart`.
 class PopoverTapGroups extends InheritedWidget {
   /// Publishes [groups] to [child].
   const PopoverTapGroups({
@@ -795,7 +795,7 @@ Future<T?> showPopover<T>({
   SurfaceKind kind = SurfaceKind.popover,
   bool surface = true,
   EdgeInsetsGeometry? padding,
-  FinesseDecoration? decoration,
+  UnaDecoration? decoration,
   double gap = 4,
   bool? showArrow,
   bool barrierDismissible = true,

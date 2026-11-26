@@ -1,10 +1,10 @@
-import 'package:finesse/src/components/time_field.dart';
-import 'package:finesse/src/components/time_wheel_picker.dart';
-import 'package:finesse/src/components/wheel_picker.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/utils/extensions/date_time.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart' hide TextDirection;
+import 'package:una/src/components/time_field.dart';
+import 'package:una/src/components/time_wheel_picker.dart';
+import 'package:una/src/components/wheel_picker.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/utils/extensions/date_time.dart';
 
 /// The locale to format dates in at [context]: the app's, or American
 /// English when the app has not loaded that locale's date symbols — a date
@@ -181,7 +181,7 @@ class _DateWheelPickerState extends State<DateWheelPicker> {
 
   @override
   Widget build(BuildContext context) {
-    final l = FinesseLocalizations.of(context);
+    final l = UnaLocalizations.of(context);
     final language = _dateLanguage(context);
 
     if (mode == DateWheelMode.dateAndTime) {
@@ -270,7 +270,7 @@ class _DateWheelPickerState extends State<DateWheelPicker> {
   }
 
   Widget _buildDateAndTime(BuildContext context, String language) {
-    final l = FinesseLocalizations.of(context);
+    final l = UnaLocalizations.of(context);
     final first = _firstDay;
     final last = _lastDay;
     final dayName = DateFormat('EEE d MMM', language);

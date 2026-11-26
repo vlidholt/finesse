@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 ///
 /// These are the CSS values as written; the clipping CSS does on top of them —
 /// an outer shadow is never visible through the element it belongs to — is
-/// `ShadowDecoration`'s job, and every Finesse component paints its shadows
+/// `ShadowDecoration`'s job, and every Una component paints its shadows
 /// through one. Handing these to a plain [BoxDecoration] instead gives
 /// Flutter's own behaviour, which paints the whole blurred shape behind the
 /// box and so washes a transparent or translucent fill grey.

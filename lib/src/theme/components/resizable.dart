@@ -1,6 +1,6 @@
-import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
+import 'package:una/src/theme/components/decorator.dart';
 
 part 'resizable.g.theme.dart';
 
@@ -62,7 +62,7 @@ class ResizableTheme with _$ResizableTheme {
   final bool? resetOnDoubleTap;
 
   /// {@macro ResizablePanelGroup.handleDecoration}
-  final FinesseDecoration? handleDecoration;
+  final UnaDecoration? handleDecoration;
 
   /// {@macro ResizablePanelGroup.handlePadding}
   final EdgeInsetsGeometry? handlePadding;

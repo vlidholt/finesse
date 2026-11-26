@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 class Shipment {
   const Shipment(this.id, this.city, this.weight);
@@ -98,7 +98,7 @@ class _DataTableRemoteExampleState extends State<DataTableRemoteExample> {
 
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 640),
-      child: FinesseColumn(
+      child: UnaColumn(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         gap: GapSize.md,

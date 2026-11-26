@@ -6,7 +6,7 @@ final liquidGlassDoc = ComponentDoc(
   slug: 'liquid_glass',
   title: 'Liquid Glass',
   description:
-      "On iOS and macOS finesse draws its bars, its floating surfaces and its "
+      "On iOS and macOS una draws its bars, its floating surfaces and its "
       "lens controls with Apple's Liquid Glass, through the "
       '`liquid_glass_widgets` package, and its own frosted glass everywhere '
       'else. Nothing in your code changes: the same widgets switch material.',
@@ -14,7 +14,7 @@ final liquidGlassDoc = ComponentDoc(
     children: [
       const DocParagraph(
         'Liquid Glass bends and lights what is behind it instead of only '
-        'blurring it. finesse uses it where Apple does: for the layer that '
+        'blurring it. una uses it where Apple does: for the layer that '
         'floats over the content. Cards, list rows, fields and the buttons '
         'in your content stay as they are on every platform.',
       ),
@@ -54,8 +54,8 @@ final liquidGlassDoc = ComponentDoc(
             'On a phone or a tablet a `DropdownMenu` morphs out of the button '
             'that opens it on a spring, and gathers back into it when it '
             'closes: the package\'s own menu, opened and closed by the '
-            'finesse `PopoverController`. A desktop menu, a right-click or '
-            'long-press menu and a submenu are finesse popovers on glass.',
+            'una `PopoverController`. A desktop menu, a right-click or '
+            'long-press menu and a submenu are una popovers on glass.',
           ),
           DocParagraph(
             'Each of those has a `liquidGlass` field on its component theme '
@@ -88,7 +88,7 @@ final liquidGlassDoc = ComponentDoc(
             '`WidgetsFlutterBinding.ensureInitialized()`. Without it the '
             'first glass surfaces come in a frame or two late, and the '
             'package\'s progress messages reach the console. If the '
-            'shaders fail to load, finesse draws its frosted glass instead '
+            'shaders fail to load, una draws its frosted glass instead '
             'for the life of the app.',
           ),
           DocParagraph(
@@ -105,12 +105,12 @@ final liquidGlassDoc = ComponentDoc(
         title: 'Sizes',
         children: [
           DocParagraph(
-            'The phone metrics of the `finesse` style are Liquid Glass\'s: '
+            'The phone metrics of the `una` style are Liquid Glass\'s: '
             'a 44-point app bar, a 64-point tab bar, a 58 × 26 switch, '
             'popovers and dialogs with 24-point corners. A screen is laid '
             'out the same whether it is frosted or liquid, so switching '
             'material moves nothing. Desktop sizes, macOS included, are '
-            'finesse\'s own.',
+            'una\'s own.',
           ),
         ],
       ),
@@ -124,11 +124,11 @@ final liquidGlassDoc = ComponentDoc(
             'of the same glass by itself: blur, rim and highlights without '
             'refraction, and a uniform blur where the top edge would be '
             'graduated. There a phone\'s top bar is solid instead: the bar '
-            'colour with its hairline, no blur and no capsules. finesse '
+            'colour with its hairline, no blur and no capsules. una '
             'gives menus, popovers and '
             'dialogs a stronger blur, a lighter body and a hairline edge, '
             'so they read over a white page and a busy one. When the system '
-            'asks for more contrast, finesse '
+            'asks for more contrast, una '
             'draws its frosted glass instead '
             '(`LiquidGlassTheme.respectSystemAccessibility`).',
           ),

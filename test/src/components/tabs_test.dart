@@ -1,27 +1,27 @@
-import 'package:finesse/material.dart';
-import 'package:finesse/src/app.dart';
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/components/card.dart';
-import 'package:finesse/src/components/form/fields/text_field.dart';
-import 'package:finesse/src/components/tabs.dart';
-import 'package:finesse/src/theme/color_scheme/zinc.dart';
-import 'package:finesse/src/theme/components/tabs.dart';
-import 'package:finesse/src/theme/data.dart';
 import 'package:flutter/material.dart'
     hide Card, Tab, TextFormField, Theme, ThemeData;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/material.dart';
+import 'package:una/src/app.dart';
+import 'package:una/src/components/button.dart';
+import 'package:una/src/components/card.dart';
+import 'package:una/src/components/form/fields/text_field.dart';
+import 'package:una/src/components/tabs.dart';
+import 'package:una/src/theme/color_scheme/zinc.dart';
+import 'package:una/src/theme/components/tabs.dart';
+import 'package:una/src/theme/data.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
+  // Helper method to create a test widget wrapped in UnaApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return FinesseApp(
+    return UnaApp(
       theme: ThemeData(
         tabsTheme: const TabsTheme(
           tabBarConstraints: BoxConstraints(maxWidth: 400),
           contentConstraints: BoxConstraints(maxWidth: 400),
         ),
       ),
-      builder: (context, child) => FinesseMaterial(child: child!),
+      builder: (context, child) => UnaMaterial(child: child!),
       home: Scaffold(body: child),
     );
   }
@@ -29,8 +29,8 @@ void main() {
   Widget createColorTestWidget({
     ({Color selected, Color unselected})? themeForegroundColor,
   }) {
-    return FinesseApp(
-      builder: (context, child) => FinesseMaterial(child: child!),
+    return UnaApp(
+      builder: (context, child) => UnaMaterial(child: child!),
       theme: ThemeData(
         colorScheme: const ZincColorScheme.light(),
         brightness: Brightness.light,

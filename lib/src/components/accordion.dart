@@ -1,17 +1,17 @@
 import 'dart:math' as math;
 
-import 'package:finesse/src/components/divider.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/raw_components/focusable.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/activation_keys.dart';
-import 'package:finesse/src/utils/expand_reveal.dart';
-import 'package:finesse/src/utils/extensions/text_style.dart';
-import 'package:finesse/src/utils/gesture_detector.dart';
-import 'package:finesse/src/utils/provider.dart';
-import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/divider.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/raw_components/focusable.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/activation_keys.dart';
+import 'package:una/src/utils/expand_reveal.dart';
+import 'package:una/src/utils/extensions/text_style.dart';
+import 'package:una/src/utils/gesture_detector.dart';
+import 'package:una/src/utils/provider.dart';
+import 'package:una/src/utils/spring.dart';
 
 /// {@template AccordionController}
 /// A controller for managing the state of a [Accordion] widget.
@@ -400,7 +400,7 @@ class _AccordionItemState<T> extends State<AccordionItem<T>>
         final header = Semantics(
           button: true,
           expanded: expanded,
-          child: FinesseGestureDetector(
+          child: UnaGestureDetector(
             mouseCursor: SystemMouseCursors.click,
             onHover: (value) => hovered.value = value,
             behavior: HitTestBehavior.opaque,

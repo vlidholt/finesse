@@ -19,7 +19,7 @@ final radioGroupDoc = ComponentDoc(
       description:
           'Give `value` and `onChanged` to hold the selection yourself, '
           'or `initialValue` to let the group keep it. '
-          '`FinesseRadioGroup.maybeOf` lets a widget of your own act as '
+          '`UnaRadioGroup.maybeOf` lets a widget of your own act as '
           'an option.',
       builder: (_) => const RadioGroupControlledExample(),
     ),

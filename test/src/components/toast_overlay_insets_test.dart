@@ -1,6 +1,6 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// The toaster and the screens under it: a `Scaffold` says what it has put
 /// at the bottom of the screen, and the toasts sit above it.
@@ -24,7 +24,7 @@ void main() {
     tester.view.physicalSize = size;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         navigatorKey: navigator,
         theme: theme,
         darkTheme: theme,
@@ -226,7 +226,7 @@ void main() {
     }
 
     navigator.currentState!.push(
-      FinessePageRoute<void>(
+      UnaPageRoute<void>(
         builder: (context) => const Scaffold(body: SizedBox.expand()),
       ),
     );

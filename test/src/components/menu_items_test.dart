@@ -1,9 +1,9 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// The row kinds a menu takes beside `MenuItem`: checkbox and radio
 /// rows, labels, dividers and shortcuts — and the column every row of a
@@ -33,7 +33,7 @@ void main() {
     final controller = PopoverController();
     addTearDown(controller.dispose);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         theme: theme,
         formFactor: formFactor,
         builder: (context, child) => MediaQuery(
@@ -710,7 +710,7 @@ void main() {
       SingleActivator activator,
       TargetPlatform platform,
     ) async {
-      await tester.pumpWidget(const FinesseApp(home: SizedBox()));
+      await tester.pumpWidget(const UnaApp(home: SizedBox()));
       return MenuShortcut.describe(
         tester.element(find.byType(SizedBox).last),
         activator,
@@ -1088,7 +1088,7 @@ void main() {
       final node = FocusNode();
       addTearDown(node.dispose);
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: Align(
             alignment: Alignment.topLeft,
             child: Menubar(

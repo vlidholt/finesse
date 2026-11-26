@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// A value that follows its target on a spring. Tap the track while the dot
 /// is still moving: it turns around from where it is, at the speed it has,

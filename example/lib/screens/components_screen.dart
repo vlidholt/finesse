@@ -1,8 +1,8 @@
 import 'package:example/common/page_switch.dart';
 import 'package:example/docs/docs.dart';
 import 'package:example/docs/registry.dart';
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// The documentation browser: a [Sidebar] of every doc page next to the
 /// selected page.

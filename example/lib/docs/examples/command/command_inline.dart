@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 class CommandInlineExample extends StatelessWidget {
   const CommandInlineExample({super.key});
@@ -10,7 +10,7 @@ class CommandInlineExample extends StatelessWidget {
       constraints: const BoxConstraints(maxWidth: 450),
       child: Command(
         autofocus: false,
-        decoration: const FinesseDecoration(shadows: Shadows.md),
+        decoration: const UnaDecoration(shadows: Shadows.md),
         placeholder: const Text('Type a command or search…'),
         groups: [
           CommandGroup(

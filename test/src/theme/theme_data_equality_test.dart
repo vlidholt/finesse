@@ -1,10 +1,10 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// Locks the value-equality chain behind [ThemeData].
 ///
-/// [FinesseApp] wraps its child in a [AnimatedTheme], an
+/// [UnaApp] wraps its child in a [AnimatedTheme], an
 /// [ImplicitlyAnimatedWidget] that starts a 200ms transition whenever the new
 /// theme is not `==` the old one. Every field of [ThemeData] therefore has
 /// to be a proper value type, or an app that constructs its theme inline
@@ -24,8 +24,8 @@ void main() {
       expect(a.hashCode, equals(b.hashCode));
     });
 
-    test('decoration is a value type (FinesseBorder ==)', () {
-      // Regression: FinesseBorder had no operator==, so FinesseDecoration.==
+    test('decoration is a value type (UnaBorder ==)', () {
+      // Regression: UnaBorder had no operator==, so UnaDecoration.==
       // fell back to identity and every ThemeData was unequal.
       expect(buildTheme().decoration, equals(buildTheme().decoration));
     });
@@ -77,26 +77,26 @@ void main() {
     });
   });
 
-  group('FinesseBorder / FinesseBorderSide equality', () {
+  group('UnaBorder / UnaBorderSide equality', () {
     test('identical border sides are equal and hash alike', () {
       // Regression: `==` and `hashCode` referenced the `merge` METHOD tear-off
       // instead of the `canMerge` field, so every instance hashed uniquely.
-      const a = FinesseBorderSide(color: Color(0xFF00FF00), width: 2);
-      const b = FinesseBorderSide(color: Color(0xFF00FF00), width: 2);
+      const a = UnaBorderSide(color: Color(0xFF00FF00), width: 2);
+      const b = UnaBorderSide(color: Color(0xFF00FF00), width: 2);
 
       expect(a, equals(b));
       expect(a.hashCode, equals(b.hashCode));
     });
 
     test('border sides differing only in canMerge are not equal', () {
-      const a = FinesseBorderSide(color: Color(0xFF00FF00), canMerge: false);
-      const b = FinesseBorderSide(color: Color(0xFF00FF00));
+      const a = UnaBorderSide(color: Color(0xFF00FF00), canMerge: false);
+      const b = UnaBorderSide(color: Color(0xFF00FF00));
       expect(a, isNot(equals(b)));
     });
 
     test('identical borders are equal and hash alike', () {
-      final a = FinesseBorder.all(color: const Color(0xFF0000FF), width: 1);
-      final b = FinesseBorder.all(color: const Color(0xFF0000FF), width: 1);
+      final a = UnaBorder.all(color: const Color(0xFF0000FF), width: 1);
+      final b = UnaBorder.all(color: const Color(0xFF0000FF), width: 1);
 
       expect(a, equals(b));
       expect(a.hashCode, equals(b.hashCode));
@@ -104,31 +104,31 @@ void main() {
 
     test('borders differing in a single field are not equal', () {
       expect(
-        FinesseBorder.all(width: 1),
-        isNot(equals(FinesseBorder.all(width: 2))),
+        UnaBorder.all(width: 1),
+        isNot(equals(UnaBorder.all(width: 2))),
       );
     });
 
     test('copyWith preserves canMerge', () {
-      expect(FinesseBorder.none.copyWith(offset: 2).canMerge, isFalse);
+      expect(UnaBorder.none.copyWith(offset: 2).canMerge, isFalse);
     });
 
     test('== is symmetric against the superellipse subclass', () {
-      const base = FinesseBorder(offset: 2);
-      const sub = FinesseRoundedSuperellipseBorder(canMerge: false);
+      const base = UnaBorder(offset: 2);
+      const sub = UnaRoundedSuperellipseBorder(canMerge: false);
 
       expect(base == sub, isFalse);
       expect(sub == base, isFalse);
     });
 
     test('superellipse borders compare all fields', () {
-      const a = FinesseRoundedSuperellipseBorder(
+      const a = UnaRoundedSuperellipseBorder(
         borderRadius: BorderRadius.all(Radius.circular(4)),
       );
-      const b = FinesseRoundedSuperellipseBorder(
+      const b = UnaRoundedSuperellipseBorder(
         borderRadius: BorderRadius.all(Radius.circular(4)),
       );
-      const c = FinesseRoundedSuperellipseBorder(
+      const c = UnaRoundedSuperellipseBorder(
         borderRadius: BorderRadius.all(Radius.circular(8)),
       );
 
@@ -224,7 +224,7 @@ void main() {
   testWidgets('an inline theme does not re-animate on every rebuild', (
     tester,
   ) async {
-    // The end-to-end symptom: FinesseApp rebuilding with an equal-but-new
+    // The end-to-end symptom: UnaApp rebuilding with an equal-but-new
     // ThemeData used to restart a 200ms lerp across all component themes,
     // republishing a new theme every frame.
     final rebuild = ValueNotifier(0);
@@ -235,7 +235,7 @@ void main() {
       ValueListenableBuilder<int>(
         valueListenable: rebuild,
         builder: (context, value, _) {
-          return FinesseApp(
+          return UnaApp(
             theme: ThemeData(
               colorScheme: const NeutralColorScheme.light(),
               brightness: Brightness.light,
@@ -345,9 +345,9 @@ void main() {
     });
   });
 
-  group('the default theme and the finesse component themes', () {
+  group('the default theme and the una component themes', () {
     // The eleven themes the fork added, read off a theme.
-    List<Object?> finesseThemes(ThemeData t) => [
+    List<Object?> unaThemes(ThemeData t) => [
       t.glassTheme,
       t.appBarTheme,
       t.floatingActionButtonTheme,
@@ -370,7 +370,7 @@ void main() {
     ];
 
     test('two separately built default themes are equal', () {
-      // What `FinesseApp()` with no theme, or `theme: ThemeData()` written
+      // What `UnaApp()` with no theme, or `theme: ThemeData()` written
       // inline, hands `AnimatedTheme` on every build.
       final a = ThemeData();
       final b = ThemeData();
@@ -410,8 +410,8 @@ void main() {
 
     test('each new component theme is a value type', () {
       for (final brightness in Brightness.values) {
-        final a = finesseThemes(ThemeData(brightness: brightness));
-        final b = finesseThemes(ThemeData(brightness: brightness));
+        final a = unaThemes(ThemeData(brightness: brightness));
+        final b = unaThemes(ThemeData(brightness: brightness));
         for (var i = 0; i < a.length; i++) {
           expect(a[i], equals(b[i]), reason: '${a[i].runtimeType}');
           expect(
@@ -424,8 +424,8 @@ void main() {
     });
 
     test('each new component theme tells a real difference apart', () {
-      final light = finesseThemes(ThemeData());
-      final dark = finesseThemes(ThemeData(brightness: Brightness.dark));
+      final light = unaThemes(ThemeData());
+      final dark = unaThemes(ThemeData(brightness: Brightness.dark));
       for (var i = 0; i < light.length; i++) {
         // The layout theme is all metrics, so brightness does not move it.
         if (light[i] is LayoutTheme) {
@@ -464,7 +464,7 @@ void main() {
       expect(
         base,
         ThemeData(
-          style: StyleTokens.finesse,
+          style: StyleTokens.una,
           colorScheme: const TealColorScheme.light(),
           formFactor: FormFactor.desktop,
           brightness: Brightness.light,
@@ -496,12 +496,12 @@ void main() {
     });
 
     test('StyleTokens compare by value, mobile counterpart included', () {
-      expect(StyleTokens.finesse.copyWith(), StyleTokens.finesse);
+      expect(StyleTokens.una.copyWith(), StyleTokens.una);
       expect(
-        StyleTokens.finesse.copyWith().hashCode,
-        StyleTokens.finesse.hashCode,
+        StyleTokens.una.copyWith().hashCode,
+        StyleTokens.una.hashCode,
       );
-      expect(StyleTokens.finesse, isNot(StyleTokens.finesseMobile));
+      expect(StyleTokens.una, isNot(StyleTokens.unaMobile));
       // Two derived mobile styles are separate instances and equal.
       final a = StyleTokens.nova.forFormFactor(FormFactor.mobile);
       final b = StyleTokens.nova.forFormFactor(FormFactor.mobile);
@@ -509,12 +509,12 @@ void main() {
       expect(a.hashCode, b.hashCode);
       // A style that differs only in its mobile counterpart is different.
       expect(
-        StyleTokens.nova.copyWith(mobile: StyleTokens.finesseMobile),
+        StyleTokens.nova.copyWith(mobile: StyleTokens.unaMobile),
         isNot(StyleTokens.nova),
       );
     });
 
-    testWidgets('a default FinesseApp does not re-animate on a rebuild', (
+    testWidgets('a default UnaApp does not re-animate on a rebuild', (
       tester,
     ) async {
       final rebuild = ValueNotifier(0);
@@ -525,7 +525,7 @@ void main() {
         ValueListenableBuilder<int>(
           valueListenable: rebuild,
           builder: (context, value, _) {
-            return FinesseApp(
+            return UnaApp(
               // No theme: the app builds its default one on every build.
               home: Builder(
                 builder: (context) {

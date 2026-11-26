@@ -1,6 +1,6 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// A popover opened from inside another one is drawn in the overlay,
 /// outside the first one's box. A tap on it is still not a tap outside the
@@ -21,7 +21,7 @@ void main() {
     addTearDown(controller.dispose);
     String? chosen;
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Align(
           alignment: const Alignment(0, -.8),
           child: Popover(
@@ -71,7 +71,7 @@ void main() {
     addTearDown(outer.dispose);
     addTearDown(inner.dispose);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Align(
           alignment: const Alignment(0, -.8),
           child: Popover(
@@ -143,7 +143,7 @@ void main() {
       child: Text('Trigger $i'),
     );
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Align(alignment: const Alignment(0, -.9), child: level(0)),
       ),
     );
@@ -167,7 +167,7 @@ void main() {
     addTearDown(controller.dispose);
     var pressed = 0;
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Align(
           alignment: const Alignment(0, -.8),
           child: Popover(
@@ -209,7 +209,7 @@ void main() {
       final controller = PopoverController();
       addTearDown(controller.dispose);
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           theme: ThemeData(motion: Motion.none),
           home: Align(
             alignment: Alignment.topLeft,

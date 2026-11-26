@@ -1,9 +1,9 @@
-import 'package:finesse/src/components/chip.dart';
-import 'package:finesse/src/components/chip_group.dart';
-import 'package:finesse/src/components/form/field.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/chip.dart';
+import 'package:una/src/components/chip_group.dart';
+import 'package:una/src/components/form/field.dart';
 
-/// A [ChipGroup] that takes part in a `FinesseForm`, with a label, a
+/// A [ChipGroup] that takes part in a `UnaForm`, with a label, a
 /// description and validation. Its value is the chosen value, or null. For
 /// a set of values, use [ChipGroupMultipleFormField].
 ///
@@ -20,7 +20,7 @@ import 'package:flutter/widgets.dart';
 /// ```
 ///
 /// A failed validation moves the focus to the group's first chip.
-class ChipGroupFormField<T> extends FinesseFormField<T> {
+class ChipGroupFormField<T> extends UnaFormField<T> {
   /// Creates a chip group form field that holds one value.
   ChipGroupFormField({
     super.id,
@@ -79,15 +79,15 @@ class ChipGroupFormField<T> extends FinesseFormField<T> {
        );
 
   @override
-  FinesseFormFieldState<ChipGroupFormField<T>, T> createState() =>
+  UnaFormFieldState<ChipGroupFormField<T>, T> createState() =>
       _ChipGroupFormFieldState<T>();
 }
 
 /// The state of a [ChipGroupFormField].
 class _ChipGroupFormFieldState<T>
-    extends FinesseFormFieldState<ChipGroupFormField<T>, T> {}
+    extends UnaFormFieldState<ChipGroupFormField<T>, T> {}
 
-/// A [ChipGroup.multiple] that takes part in a `FinesseForm`, with a
+/// A [ChipGroup.multiple] that takes part in a `UnaForm`, with a
 /// label, a description and validation. Its value is the set of chosen
 /// values.
 ///
@@ -105,7 +105,7 @@ class _ChipGroupFormFieldState<T>
 /// ```
 ///
 /// A failed validation moves the focus to the group's first chip.
-class ChipGroupMultipleFormField<T> extends FinesseFormField<Set<T>> {
+class ChipGroupMultipleFormField<T> extends UnaFormField<Set<T>> {
   /// Creates a chip group form field that holds a set of values.
   ChipGroupMultipleFormField({
     super.id,
@@ -178,10 +178,10 @@ class ChipGroupMultipleFormField<T> extends FinesseFormField<Set<T>> {
        );
 
   @override
-  FinesseFormFieldState<ChipGroupMultipleFormField<T>, Set<T>> createState() =>
+  UnaFormFieldState<ChipGroupMultipleFormField<T>, Set<T>> createState() =>
       _ChipGroupMultipleFormFieldState<T>();
 }
 
 /// The state of a [ChipGroupMultipleFormField].
 class _ChipGroupMultipleFormFieldState<T>
-    extends FinesseFormFieldState<ChipGroupMultipleFormField<T>, Set<T>> {}
+    extends UnaFormFieldState<ChipGroupMultipleFormField<T>, Set<T>> {}

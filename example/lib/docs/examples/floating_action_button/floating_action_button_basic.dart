@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// The three variants, each with a label and without. Without a label the
 /// button needs a `semanticLabel`.
@@ -8,12 +8,12 @@ class FloatingActionButtonBasicExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FinesseColumn(
+    return UnaColumn(
       mainAxisSize: MainAxisSize.min,
       gap: GapSize.lg,
       children: [
         for (final variant in FloatingActionButtonVariant.values)
-          FinesseRow(
+          UnaRow(
             mainAxisSize: MainAxisSize.min,
             gap: GapSize.lg,
             children: [

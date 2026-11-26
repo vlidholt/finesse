@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// A post's photographs: one at a time, swiped with a finger, stepped with
 /// the arrow buttons that appear under a mouse, or with the arrow keys once

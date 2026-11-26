@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// A gauge is a ring that stops short of a full turn, and a ring with no
 /// value spins: progress of unknown length at any size.
@@ -11,7 +11,7 @@ class ProgressRingGaugeExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return FinesseRow(
+    return UnaRow(
       gap: GapSize.xl,
       mainAxisSize: MainAxisSize.min,
       children: [

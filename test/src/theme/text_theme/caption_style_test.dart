@@ -1,6 +1,6 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 // `TextTheme.caption` is the app-facing fine-print style: the size, line
 // height and tracking of the style's `caption` role, at the regular weight
@@ -44,7 +44,7 @@ void main() {
 
     test('follows a customised caption role', () {
       final theme = ThemeData(
-        style: StyleTokens.finesse.copyWith(
+        style: StyleTokens.una.copyWith(
           caption: const TextRole(
             fontSize: 16,
             fontWeight: FontWeight.w700,

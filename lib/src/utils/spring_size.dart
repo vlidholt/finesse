@@ -1,9 +1,9 @@
 import 'dart:math' as math;
 
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/utils/spring.dart';
 
 /// Follows the size of its child on a spring: when the child grows or
 /// shrinks, this box takes a moment to catch up, and everything around it

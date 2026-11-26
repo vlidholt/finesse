@@ -1,10 +1,10 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 Widget _app(Widget child, {ThemeData? theme, double textScale = 1}) {
-  return FinesseApp(
+  return UnaApp(
     theme: theme,
     home: Builder(
       builder: (context) => MediaQuery(
@@ -106,7 +106,7 @@ void main() {
 
     testWidgets('does not make the field taller, in any style, at any '
         'text scale', (tester) async {
-      for (final style in [StyleTokens.finesse, StyleTokens.nova]) {
+      for (final style in [StyleTokens.una, StyleTokens.nova]) {
         for (final formFactor in FormFactor.values) {
           for (final scale in [1.0, 2.0]) {
             final theme = ThemeData(style: style).withFormFactor(formFactor);
@@ -235,10 +235,10 @@ void main() {
     testWidgets('TextFormField.password validates like any field', (
       tester,
     ) async {
-      final formKey = GlobalKey<FinesseFormState>();
+      final formKey = GlobalKey<UnaFormState>();
       await tester.pumpWidget(
         _app(
-          FinesseForm(
+          UnaForm(
             key: formKey,
             child: TextFormField.password(
               id: 'password',
@@ -330,7 +330,7 @@ void main() {
 
       await tester.pumpWidget(
         _app(
-          FinesseForm(
+          UnaForm(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [

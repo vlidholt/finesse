@@ -1,10 +1,10 @@
-import 'package:finesse/src/theme/form_factor.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/radii.dart';
-import 'package:finesse/src/theme/text_role.dart';
-import 'package:finesse/src/theme/themes/shadows.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/form_factor.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/radii.dart';
+import 'package:una/src/theme/text_role.dart';
+import 'package:una/src/theme/themes/shadows.dart';
 
 /// A wash of colour a style paints behind a control or an outline button.
 ///
@@ -50,8 +50,8 @@ enum SurfaceFill {
 
 /// The metrics that distinguish one shadcn/ui *style* from another.
 ///
-/// shadcn ships eight named styles, of which finesse keeps three — [nova],
-/// [maia] and [lyra] — beside its own [finesse]. They are not colour
+/// shadcn ships eight named styles, of which una keeps three — [nova],
+/// [maia] and [lyra] — beside its own [una]. They are not colour
 /// variations — they are full geometry sets. Comparing `registry/styles/style-*.css` shows the same
 /// components rebuilt at different sizes: a `mira` button is 28px tall with 8px
 /// of horizontal padding while a `sera` button is 40px tall with 24px, and
@@ -84,7 +84,7 @@ enum SurfaceFill {
 ///
 /// The field defaults here are shadcn's `vega`, so a custom style only has to
 /// state what it changes. That is separate from the *theme's* default style,
-/// which is [finesse].
+/// which is [una].
 @immutable
 class StyleTokens {
   /// Creates a style. Only [name] is required; every other field defaults to
@@ -235,7 +235,7 @@ class StyleTokens {
     this.kbdHeight = 20,
     this.kbdPaddingX = 4,
     this.progressHeight = 6,
-    // Finesse additions.
+    // Una additions.
     this.radius = 8,
     this.radiusScale = const RadiusScale(),
     this.iconButtonRadius,
@@ -1181,7 +1181,7 @@ class StyleTokens {
 
   // --- The shipped styles -------------------------------------------------
 
-  static const _finesseCardShadow = [
+  static const _unaCardShadow = [
     BoxShadow(color: Color(0x0d193c4a), offset: Offset(0, 1), blurRadius: 2),
     BoxShadow(
       color: Color(0x2e193c4a),
@@ -1191,7 +1191,7 @@ class StyleTokens {
     ),
   ];
 
-  static const _finesseCardShadowDark = [
+  static const _unaCardShadowDark = [
     BoxShadow(color: Color(0x4d000000), offset: Offset(0, 1), blurRadius: 2),
     BoxShadow(
       color: Color(0xb3000000),
@@ -1201,7 +1201,7 @@ class StyleTokens {
     ),
   ];
 
-  static const _finesseFloatingShadow = [
+  static const _unaFloatingShadow = [
     BoxShadow(color: Color(0x0f000000), offset: Offset(0, 1), blurRadius: 2),
     BoxShadow(
       color: Color(0x47000000),
@@ -1213,7 +1213,7 @@ class StyleTokens {
 
   // A black shadow is nearly lost on a dark page, so the dark one is deeper
   // and reaches further: enough to read as a pool under a floating bar.
-  static const _finesseFloatingShadowDark = [
+  static const _unaFloatingShadowDark = [
     BoxShadow(color: Color(0x4d000000), offset: Offset(0, 1), blurRadius: 2),
     BoxShadow(
       color: Color(0xbf000000),
@@ -1223,18 +1223,18 @@ class StyleTokens {
     ),
   ];
 
-  static const _finesseTabShadow = [
+  static const _unaTabShadow = [
     BoxShadow(color: Color(0x14000000), offset: Offset(0, 1), blurRadius: 2),
   ];
 
-  /// Finesse's default style: soft teal glass.
+  /// Una's default style: soft teal glass.
   ///
   /// Controls round to 10, cards to 18; cards and outline buttons are
   /// translucent, and bars, popovers, menus and tooltips are glass over a
   /// blurred backdrop. Cards do not blur theirs ([cardBlur]). Its [mobile]
-  /// counterpart is [finesseMobile].
-  static const finesse = StyleTokens(
-    name: 'finesse',
+  /// counterpart is [unaMobile].
+  static const una = StyleTokens(
+    name: 'una',
     radius: 10,
     radiusScale: RadiusScale(
       sm: .6,
@@ -1300,13 +1300,13 @@ class StyleTokens {
       height: 20 / 15,
     ),
     small: TextRole(fontSize: 13, height: 18 / 13),
-    cardShadow: _finesseCardShadow,
-    cardShadowDark: _finesseCardShadowDark,
-    popoverShadow: _finesseFloatingShadow,
-    dialogShadow: _finesseFloatingShadow,
-    sheetShadow: _finesseFloatingShadow,
-    floatingShadow: _finesseFloatingShadow,
-    floatingShadowDark: _finesseFloatingShadowDark,
+    cardShadow: _unaCardShadow,
+    cardShadowDark: _unaCardShadowDark,
+    popoverShadow: _unaFloatingShadow,
+    dialogShadow: _unaFloatingShadow,
+    sheetShadow: _unaFloatingShadow,
+    floatingShadow: _unaFloatingShadow,
+    floatingShadowDark: _unaFloatingShadowDark,
     outlineButtonFill: SurfaceFill.glass,
     outlineButtonFillDark: SurfaceFill.glass,
     outlineButtonHoverFillDark: SurfaceFill.muted,
@@ -1377,7 +1377,7 @@ class StyleTokens {
     tabSelectedFill: SurfaceFill.card,
     tabUnselectedMuted: true,
     tabsGap: 2,
-    tabSelectedShadow: _finesseTabShadow,
+    tabSelectedShadow: _unaTabShadow,
     tabPaddingX: 14,
     tabPaddingY: 4,
     tabHeight: 32,
@@ -1412,13 +1412,13 @@ class StyleTokens {
     pagePaddingY: 24,
     avatarSize: 40,
     motion: Motion.lively,
-    mobile: finesseMobile,
+    mobile: unaMobile,
   );
 
-  /// [finesse] on a touch-sized screen: 44-point controls, 15-point body
+  /// [una] on a touch-sized screen: 44-point controls, 15-point body
   /// text, tighter page margins and rounder cards.
-  static const finesseMobile = StyleTokens(
-    name: 'finesse',
+  static const unaMobile = StyleTokens(
+    name: 'una',
     radius: 10,
     radiusScale: RadiusScale(
       sm: .6,
@@ -1487,13 +1487,13 @@ class StyleTokens {
       height: 20 / 15,
     ),
     small: TextRole(fontSize: 13, height: 18 / 13),
-    cardShadow: _finesseCardShadow,
-    cardShadowDark: _finesseCardShadowDark,
-    popoverShadow: _finesseFloatingShadow,
-    dialogShadow: _finesseFloatingShadow,
-    sheetShadow: _finesseFloatingShadow,
-    floatingShadow: _finesseFloatingShadow,
-    floatingShadowDark: _finesseFloatingShadowDark,
+    cardShadow: _unaCardShadow,
+    cardShadowDark: _unaCardShadowDark,
+    popoverShadow: _unaFloatingShadow,
+    dialogShadow: _unaFloatingShadow,
+    sheetShadow: _unaFloatingShadow,
+    floatingShadow: _unaFloatingShadow,
+    floatingShadowDark: _unaFloatingShadowDark,
     outlineButtonFill: SurfaceFill.glass,
     outlineButtonFillDark: SurfaceFill.glass,
     outlineButtonHoverFillDark: SurfaceFill.muted,
@@ -1565,7 +1565,7 @@ class StyleTokens {
     tabSelectedFill: SurfaceFill.card,
     tabUnselectedMuted: true,
     tabsGap: 2,
-    tabSelectedShadow: _finesseTabShadow,
+    tabSelectedShadow: _unaTabShadow,
     tabPaddingX: 14,
     tabPaddingY: 4,
     tabHeight: 36,
@@ -1829,9 +1829,9 @@ class StyleTokens {
   );
 
   /// Every built-in style, the default first.
-  static const all = <StyleTokens>[finesse, nova, maia, lyra];
+  static const all = <StyleTokens>[una, nova, maia, lyra];
 
-  /// Returns the built-in style called [name], such as `finesse` or `nova`.
+  /// Returns the built-in style called [name], such as `una` or `nova`.
   ///
   /// Throws an [ArgumentError] for an unknown name.
   static StyleTokens fromName(String name) => all.firstWhere(
@@ -1872,7 +1872,7 @@ class StyleTokens {
       chipHeight: atLeast(chipHeight, 36),
       checkboxSize: atLeast(checkboxSize, 20),
       radioSize: atLeast(radioSize, 20),
-      // At most 60: a style whose bar is already a phone's (finesse's
+      // At most 60: a style whose bar is already a phone's (una's
       // 44, Liquid Glass's) keeps it, so a phone style is a fixed point.
       appBarHeight: appBarHeight < 60 ? appBarHeight : 60,
       fabSize: atLeast(fabSize, 56),
@@ -1897,7 +1897,7 @@ class StyleTokens {
   ///
   /// The replacement reaches the phone metrics too: [mobile] takes each new
   /// value whose field it had in common with this style, so
-  /// `StyleTokens.finesse.copyWith(glassBlur: 12)` changes the blur on both
+  /// `StyleTokens.una.copyWith(glassBlur: 12)` changes the blur on both
   /// form factors. A field the phone sets differently on purpose (button
   /// height, body text size, page margins) keeps its phone value; change
   /// those with `mobile: style.mobile!.copyWith(...)`, which is used as

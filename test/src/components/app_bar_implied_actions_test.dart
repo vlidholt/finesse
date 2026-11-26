@@ -1,10 +1,10 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 void main() {
   Future<void> pump(WidgetTester tester, Widget home) async {
-    await tester.pumpWidget(FinesseApp(home: home));
+    await tester.pumpWidget(UnaApp(home: home));
     await tester.pump();
   }
 

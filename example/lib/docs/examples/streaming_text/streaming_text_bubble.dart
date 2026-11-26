@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// In a `ChatBubble`: three dots while nothing has arrived, then the text,
 /// the bubble growing with it — wider, then a line at a time — with its

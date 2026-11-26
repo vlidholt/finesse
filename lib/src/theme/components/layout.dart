@@ -28,7 +28,7 @@ enum GapSize {
 }
 
 /// The theme's layout metrics: page margins and the gap scale that
-/// `Gap`, `FinesseRow`, `FinesseColumn` and `PageContainer` read.
+/// `Gap`, `UnaRow`, `UnaColumn` and `PageContainer` read.
 @themeGen
 @immutable
 class LayoutTheme with _$LayoutTheme {

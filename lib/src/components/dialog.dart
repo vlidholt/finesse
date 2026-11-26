@@ -2,25 +2,25 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:boxy/flex.dart';
-import 'package:finesse/src/components/icon_button.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/liquid_glass/liquid_glass.dart';
-import 'package:finesse/src/theme/components/button.dart';
-import 'package:finesse/src/theme/components/dialog.dart';
-import 'package:finesse/src/theme/form_factor.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/theme/themes/shadows.dart';
-import 'package:finesse/src/utils/backdrop.dart';
-import 'package:finesse/src/utils/entrance.dart';
-import 'package:finesse/src/utils/expanded_actions_theme.dart';
-import 'package:finesse/src/utils/extensions/text_style.dart';
-import 'package:finesse/src/utils/position.dart';
-import 'package:finesse/src/utils/route_theme.dart';
-import 'package:finesse/src/utils/separated_iterable.dart';
-import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/icon_button.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/liquid_glass/liquid_glass.dart';
+import 'package:una/src/theme/components/button.dart';
+import 'package:una/src/theme/components/dialog.dart';
+import 'package:una/src/theme/form_factor.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/theme/themes/shadows.dart';
+import 'package:una/src/utils/backdrop.dart';
+import 'package:una/src/utils/entrance.dart';
+import 'package:una/src/utils/expanded_actions_theme.dart';
+import 'package:una/src/utils/extensions/text_style.dart';
+import 'package:una/src/utils/position.dart';
+import 'package:una/src/utils/route_theme.dart';
+import 'package:una/src/utils/separated_iterable.dart';
+import 'package:una/src/utils/shadow.dart';
 
 /// {@template DialogRoute}
 /// A custom dialog route that allows specifying a `reverseTransitionDuration`.
@@ -464,8 +464,7 @@ Future<T?> showDialog<T>({
           ambientTheme.primaryDialogTheme.barrierBlurSigma ??
           2,
       barrierDismissible: barrierDismissible,
-      barrierLabel:
-          barrierLabel ?? FinesseLocalizations.of(context).dialog.dismiss,
+      barrierLabel: barrierLabel ?? UnaLocalizations.of(context).dialog.dismiss,
       anchorPoint: anchorPoint,
       settings: routeSettings,
       opaque: opaque,
@@ -698,7 +697,7 @@ class Dialog extends StatelessWidget {
                   hoverForegroundColor: theme.colorScheme.foreground,
                   pressedForegroundColor: theme.colorScheme.foreground,
                 ),
-                semanticLabel: FinesseLocalizations.of(context).dialog.close,
+                semanticLabel: UnaLocalizations.of(context).dialog.close,
                 onPressed:
                     onDismissed ?? () => Navigator.of(context).maybePop(),
               ));

@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// Given the controller of the page view it describes, the pill follows
 /// the pages under the finger. Twelve pages are more than the seven dots
@@ -41,7 +41,7 @@ class _PageIndicatorPageViewExampleState
     final theme = Theme.of(context);
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 360),
-      child: FinesseColumn(
+      child: UnaColumn(
         gap: GapSize.md,
         mainAxisSize: MainAxisSize.min,
         children: [

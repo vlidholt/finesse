@@ -1,20 +1,20 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:finesse/src/components/autocomplete.dart';
-import 'package:finesse/src/components/chip.dart';
-import 'package:finesse/src/components/decorator.dart';
-import 'package:finesse/src/components/popover.dart';
-import 'package:finesse/src/components/text_field.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/entrance.dart';
-import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/autocomplete.dart';
+import 'package:una/src/components/chip.dart';
+import 'package:una/src/components/decorator.dart';
+import 'package:una/src/components/popover.dart';
+import 'package:una/src/components/text_field.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/entrance.dart';
+import 'package:una/src/utils/extensions/text_style.dart';
 
 /// A field that holds a list of tags: typed text becomes a tag on Enter or
 /// on a separator, and each tag can be removed again.
@@ -119,7 +119,7 @@ class TagField<T extends Object> extends StatefulWidget {
   final FocusNode? focusNode;
 
   /// Merged over the theme's text field decoration.
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// What assistive technology calls the field.
   final String? semanticLabel;
@@ -236,7 +236,7 @@ class _TagFieldState<T extends Object> extends State<TagField<T>> {
     _fresh.addAll(added);
     widget.onChanged!(next);
     _announce(
-      FinesseLocalizations.of(
+      UnaLocalizations.of(
         context,
       ).tagField.added(tag: added.map(_display).join(', ')),
     );
@@ -264,7 +264,7 @@ class _TagFieldState<T extends Object> extends State<TagField<T>> {
     });
     widget.onChanged!(next);
     _announce(
-      FinesseLocalizations.of(
+      UnaLocalizations.of(
         context,
       ).tagField.removed(tag: _display(removed)),
     );
@@ -437,8 +437,9 @@ class _TagFieldState<T extends Object> extends State<TagField<T>> {
     final tagPadding = EdgeInsets.symmetric(
       horizontal: chipPadding.left * .8,
     );
-    final decoration = (fieldTheme.decoration ?? const FinesseDecoration())
-        .merge(widget.decoration);
+    final decoration = (fieldTheme.decoration ?? const UnaDecoration()).merge(
+      widget.decoration,
+    );
     final hasTags = widget.values.isNotEmpty;
 
     final input = Focus(
@@ -453,7 +454,7 @@ class _TagFieldState<T extends Object> extends State<TagField<T>> {
         enabled: _enabled,
         readOnly: _full,
         // The outline is the whole field's, drawn around the tags too.
-        decoration: FinesseDecoration.none,
+        decoration: UnaDecoration.none,
         padding: EdgeInsets.zero,
         constraints: BoxConstraints(minHeight: tagHeight),
         placeholder: hasTags ? null : widget.placeholder,
@@ -520,7 +521,7 @@ class _TagFieldState<T extends Object> extends State<TagField<T>> {
                       // The marked tag is the one Backspace removes next.
                       selected: _marked == index,
                       onDeleted: () => _remove(index),
-                      deleteSemanticLabel: FinesseLocalizations.of(
+                      deleteSemanticLabel: UnaLocalizations.of(
                         context,
                       ).tagField.remove(tag: _display(tag)),
                       enabled: _enabled,

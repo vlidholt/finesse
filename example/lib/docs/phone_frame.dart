@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// A phone-sized screen for a docs example to put a `Scaffold` in.
 ///
@@ -62,7 +62,7 @@ class PhoneFrame extends StatelessWidget {
                   screen: child,
                   child: HeroControllerScope.none(
                     child: Navigator(
-                      onGenerateRoute: (settings) => FinessePageRoute<void>(
+                      onGenerateRoute: (settings) => UnaPageRoute<void>(
                         settings: settings,
                         builder: (_) => const _ScreenSlot(),
                       ),

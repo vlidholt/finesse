@@ -1,8 +1,8 @@
 import 'package:example/docs/registry.dart';
 import 'package:example/screens/components_screen.dart';
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 import 'support.dart';
 
@@ -40,7 +40,7 @@ void main() {
     // Lands on the Introduction page, sidebar at the top.
     expect(find.text('Getting started'), findsWidgets);
     expect(
-      find.textContaining('finesse is a Flutter implementation'),
+      find.textContaining('una is a Flutter implementation'),
       findsOneWidget,
     );
     final state = docs(tester);

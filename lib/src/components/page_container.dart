@@ -1,6 +1,6 @@
-import 'package:finesse/src/theme/form_factor.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/form_factor.dart';
+import 'package:una/src/theme/theme.dart';
 
 /// Centres page content, caps its width and gives it the theme's page
 /// margins.
@@ -10,7 +10,7 @@ import 'package:flutter/widgets.dart';
 ///   appBar: const AppBar(title: Text('Jobs')),
 ///   body: PageContainer(
 ///     scrollable: true,
-///     child: FinesseColumn(gap: GapSize.lg, children: sections),
+///     child: UnaColumn(gap: GapSize.lg, children: sections),
 ///   ),
 /// )
 /// ```

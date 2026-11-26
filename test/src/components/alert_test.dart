@@ -1,19 +1,19 @@
-import 'package:finesse/material.dart';
-import 'package:finesse/src/app.dart';
-import 'package:finesse/src/components/alert.dart';
-import 'package:finesse/src/components/decorator.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/theme/data.dart';
-import 'package:finesse/src/theme/style.dart';
 import 'package:flutter/material.dart' hide ThemeData;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/material.dart';
+import 'package:una/src/app.dart';
+import 'package:una/src/components/alert.dart';
+import 'package:una/src/components/decorator.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/theme/data.dart';
+import 'package:una/src/theme/style.dart';
 
 import '../../fixture_styles.dart';
 
 void main() {
   Widget createTestWidget(Widget child) {
-    return FinesseApp(
-      builder: (context, child) => FinesseMaterial(child: child!),
+    return UnaApp(
+      builder: (context, child) => UnaMaterial(child: child!),
       home: Scaffold(
         body: child,
       ),
@@ -61,7 +61,7 @@ void main() {
         testWidgets('sera draws its accent bar on the start edge '
             '(${direction.name}, ${variant.name})', (tester) async {
           await tester.pumpWidget(
-            FinesseApp(
+            UnaApp(
               theme: ThemeData(style: FixtureStyles.sera),
               home: Directionality(
                 textDirection: direction,

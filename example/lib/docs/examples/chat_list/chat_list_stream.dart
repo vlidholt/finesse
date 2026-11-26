@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// A reply streamed into the newest bubble. The list follows it down while
 /// you are at the end; scroll up while it writes and the view holds still,

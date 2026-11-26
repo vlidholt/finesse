@@ -1,6 +1,6 @@
 import 'package:example/docs/phone_frame.dart';
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// An `Alert` as the scaffold's `banner`. Its close button folds it away,
 /// and `onDismissed` takes it out of the scaffold once it has.

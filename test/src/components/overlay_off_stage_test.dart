@@ -1,6 +1,6 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// An overlay must not stay on screen when its anchor is no longer shown.
 ///
@@ -140,7 +140,7 @@ void main() {
         // an `Offstage` changes nothing but paint.
         final anchored = Center(child: subject.build(controller));
         Widget app({required bool shown}) =>
-            FinesseApp(home: hide(shown, anchored));
+            UnaApp(home: hide(shown, anchored));
 
         await tester.pumpWidget(app(shown: true));
         subject.set(controller, open: true);
@@ -182,7 +182,7 @@ void main() {
     addTearDown(controller.dispose);
     addTearDown(pages.dispose);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: PageView(
           controller: pages,
           children: [
@@ -224,7 +224,7 @@ void main() {
     addTearDown(controller.dispose);
     addTearDown(scroll.dispose);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: ListView(
           controller: scroll,
           children: [

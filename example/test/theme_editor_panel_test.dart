@@ -2,15 +2,15 @@ import 'package:example/common/theme_editor/customizer_panel.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/theme_editor/picker.dart';
 import 'package:example/common/theme_editor/presets.dart';
-import 'package:finesse/finesse.dart';
-import 'package:finesse/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/material.dart';
+import 'package:una/una.dart';
 
 import 'support.dart';
 
-/// The panel on its own: pumped in a bare [FinesseApp] with a host that
+/// The panel on its own: pumped in a bare [UnaApp] with a host that
 /// holds the configuration, so nothing here depends on the docs pages
 /// or the docs browser compiling.
 void main() {
@@ -61,8 +61,8 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
-      FinesseApp(
-        builder: (context, child) => FinesseMaterial(child: child!),
+      UnaApp(
+        builder: (context, child) => UnaMaterial(child: child!),
         home: StatefulBuilder(
           builder: (context, setState) {
             final panel = ThemeCustomizerPanel(
@@ -159,7 +159,7 @@ void main() {
       // The defaults, as the rows show them.
       expect(find.text('Teal'), findsOneWidget);
       expect(find.text('Geist'), findsOneWidget);
-      expect(find.text('Finesse'), findsOneWidget);
+      expect(find.text('Una'), findsOneWidget);
       expect(find.text('Auto'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
@@ -634,7 +634,7 @@ void main() {
       expect(config.effectiveCardBlur, isFalse);
       await tapInPanel(tester, find.text('Card Blur'));
       expect(config.cardBlur, isTrue);
-      expect(config.build().cardTheme.blur, StyleTokens.finesse.glassBlur);
+      expect(config.build().cardTheme.blur, StyleTokens.una.glassBlur);
       await tapInPanel(tester, find.text('Card Blur'));
       expect(config.cardBlur, isNull);
       expect(config, const ThemeEditorConfig());
@@ -705,7 +705,7 @@ void main() {
       await settle(tester);
 
       expect(clipboard, [ThemePreset.frost.config.toAppSnippet()]);
-      expect(clipboard.single, contains('StyleTokens.finesse.copyWith('));
+      expect(clipboard.single, contains('StyleTokens.una.copyWith('));
       expect(find.text('Theme copied to clipboard'), findsOneWidget);
       // Let the toast go.
       await tester.pump(const Duration(seconds: 6));

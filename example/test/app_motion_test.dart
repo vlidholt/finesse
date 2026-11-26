@@ -1,8 +1,8 @@
 import 'package:example/common/page_switch.dart';
 import 'package:example/common/theme_editor/customizer_panel.dart';
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 import 'support.dart';
 
@@ -53,7 +53,7 @@ void main() {
 
   group('PageSwitch', () {
     Widget host(int value, {Axis axis = Axis.horizontal, bool reduce = false}) {
-      return FinesseApp(
+      return UnaApp(
         home: Builder(
           builder: (context) => MediaQuery(
             data: MediaQuery.of(context).copyWith(disableAnimations: reduce),

@@ -1,11 +1,11 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// The unnamed constructor of a widget with variants takes `variant:`, and a
 /// named constructor is a shortcut for one value of it.
 void main() {
-  Widget app(Widget child) => FinesseApp(home: Center(child: child));
+  Widget app(Widget child) => UnaApp(home: Center(child: child));
 
   test('a named constructor is the unnamed one with its variant', () {
     expect(const Divider().variant, DividerVariant.horizontal);
@@ -43,11 +43,11 @@ void main() {
       const Dialog.alert().variant,
     );
     expect(
-      const FinesseTableCell(
+      const UnaTableCell(
         variant: TableCellVariant.header,
         child: label,
       ).variant,
-      const FinesseTableCell.header(child: label).variant,
+      const UnaTableCell.header(child: label).variant,
     );
   });
 

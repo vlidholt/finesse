@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// `Haptics` is where every control asks for its tick. On a phone these
 /// buttons can be felt; on a desktop and on the web they do nothing.
@@ -26,7 +26,7 @@ class _BuildingBlocksHapticsExampleState
         ? ambient
         : _quiet[ambient] ??= ambient.copyWith(haptics: false);
 
-    return FinesseColumn(
+    return UnaColumn(
       mainAxisSize: MainAxisSize.min,
       gap: GapSize.lg,
       children: [

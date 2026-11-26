@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 class AlertDismissibleExample extends StatefulWidget {
   const AlertDismissibleExample({super.key});
@@ -16,7 +16,7 @@ class _AlertDismissibleExampleState extends State<AlertDismissibleExample> {
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 520),
-      child: FinesseColumn(
+      child: UnaColumn(
         gap: GapSize.md,
         mainAxisSize: MainAxisSize.min,
         children: [

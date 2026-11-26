@@ -1,10 +1,10 @@
-import 'package:finesse/src/icons/phosphor_font_anchor.dart';
-import 'package:finesse/src/theme/data.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/icons/phosphor_font_anchor.dart';
+import 'package:una/src/theme/data.dart';
 
 /// Provides a [ThemeData] to its descendants.
 ///
-/// `FinesseApp` inserts one. Use [Theme.merge] to override part of the theme
+/// `UnaApp` inserts one. Use [Theme.merge] to override part of the theme
 /// for a subtree.
 class Theme extends StatelessWidget {
   /// Creates a widget that applies [data] to [child].
@@ -31,7 +31,7 @@ class Theme extends StatelessWidget {
         '''
         Theme.of() called with a context that does not contain a Theme.\n
         No Theme ancestor could be found starting from the context that was passed to Theme.of(). 
-        This can happen because you do not have a FinesseApp widget (which introduces a Theme), 
+        This can happen because you do not have a UnaApp widget (which introduces a Theme), 
         or it can happen if the context you use comes from a widget above this widget.\n
         The context used was: $context''',
       );
@@ -68,22 +68,22 @@ class Theme extends StatelessWidget {
   }) {
     if (listen) {
       return context
-          .dependOnInheritedWidgetOfExactType<FinesseInheritedTheme>()
+          .dependOnInheritedWidgetOfExactType<UnaInheritedTheme>()
           ?.theme
           .data;
     }
     final provider = context
-        .getElementForInheritedWidgetOfExactType<FinesseInheritedTheme>()
+        .getElementForInheritedWidgetOfExactType<UnaInheritedTheme>()
         ?.widget;
 
-    return (provider as FinesseInheritedTheme?)?.theme.data;
+    return (provider as UnaInheritedTheme?)?.theme.data;
   }
 
   @override
   Widget build(BuildContext context) {
-    return FinesseInheritedTheme(
+    return UnaInheritedTheme(
       theme: this,
-      // Every finesse app has a theme, which makes this the place to keep
+      // Every una app has a theme, which makes this the place to keep
       // the icon fonts it does not use from being bundled whole.
       child: PhosphorFontAnchor.all(child: child),
     );
@@ -93,9 +93,9 @@ class Theme extends StatelessWidget {
 /// The inherited widget that [Theme] inserts.
 ///
 /// It lets [InheritedTheme.capture] carry the theme into routes and overlays.
-class FinesseInheritedTheme extends InheritedTheme {
+class UnaInheritedTheme extends InheritedTheme {
   /// Creates an inherited theme for [theme].
-  const FinesseInheritedTheme({
+  const UnaInheritedTheme({
     super.key,
     required this.theme,
     required super.child,
@@ -110,7 +110,7 @@ class FinesseInheritedTheme extends InheritedTheme {
   }
 
   @override
-  bool updateShouldNotify(FinesseInheritedTheme oldWidget) =>
+  bool updateShouldNotify(UnaInheritedTheme oldWidget) =>
       theme.data != oldWidget.theme.data;
 }
 

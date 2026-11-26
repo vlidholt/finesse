@@ -6,7 +6,7 @@ import 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart';
 part 'table.g.theme.dart';
 
 /// {@template TableTheme}
-/// Theme for the `FinesseTable` widget.
+/// Theme for the `UnaTable` widget.
 /// {@endtemplate}
 @themeGen
 @immutable
@@ -37,28 +37,28 @@ class TableTheme with _$TableTheme {
   @override
   bool get canMerge => _canMerge;
 
-  /// {@macro FinesseTable.diagonalDragBehavior}
+  /// {@macro UnaTable.diagonalDragBehavior}
   final DiagonalDragBehavior? diagonalDragBehavior;
 
-  /// {@macro FinesseTable.dragStartBehavior}
+  /// {@macro UnaTable.dragStartBehavior}
   final DragStartBehavior? dragStartBehavior;
 
-  /// {@macro FinesseTable.keyboardDismissBehavior}
+  /// {@macro UnaTable.keyboardDismissBehavior}
   final ScrollViewKeyboardDismissBehavior? keyboardDismissBehavior;
 
-  /// {@macro FinesseTable.columnBuilder}
+  /// {@macro UnaTable.columnBuilder}
   final TableSpanBuilder? columnBuilder;
 
-  /// {@macro FinesseTable.rowBuilder}
+  /// {@macro UnaTable.rowBuilder}
   final TableSpanBuilder? rowBuilder;
 
-  /// {@macro FinesseTableCell.alignment}
+  /// {@macro UnaTableCell.alignment}
   final Alignment? cellAlignment;
 
-  /// {@macro FinesseTableCell.height}
+  /// {@macro UnaTableCell.height}
   final double? cellHeight;
 
-  /// {@macro FinesseTableCell.padding}
+  /// {@macro UnaTableCell.padding}
   final EdgeInsetsGeometry? cellPadding;
 
   /// Text style of header cells. Defaults to the text theme's `muted` at
@@ -76,7 +76,7 @@ class TableTheme with _$TableTheme {
   /// scheme's `muted` colour, shadcn's `hover:bg-muted/50`.
   final Color? rowHoverColor;
 
-  /// The fill of a selected row; see `FinesseTable.rowSelected`. Defaults
+  /// The fill of a selected row; see `UnaTable.rowSelected`. Defaults
   /// to the scheme's `muted` colour, `data-[state=selected]:bg-muted`.
   final Color? rowSelectedColor;
 

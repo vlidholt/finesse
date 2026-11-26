@@ -1,22 +1,22 @@
 import 'dart:math' as math;
 
-import 'package:finesse/src/components/control_affinity.dart';
-import 'package:finesse/src/components/decorator.dart';
-import 'package:finesse/src/components/disabled.dart';
-import 'package:finesse/src/liquid_glass/controls.dart';
-import 'package:finesse/src/liquid_glass/liquid_glass.dart';
-import 'package:finesse/src/raw_components/focusable.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/activation_keys.dart';
-import 'package:finesse/src/utils/border.dart';
-import 'package:finesse/src/utils/debug_check.dart';
-import 'package:finesse/src/utils/extensions/text_style.dart';
-import 'package:finesse/src/utils/haptics.dart';
-import 'package:finesse/src/utils/motion_color.dart';
-import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/control_affinity.dart';
+import 'package:una/src/components/decorator.dart';
+import 'package:una/src/components/disabled.dart';
+import 'package:una/src/liquid_glass/controls.dart';
+import 'package:una/src/liquid_glass/liquid_glass.dart';
+import 'package:una/src/raw_components/focusable.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/activation_keys.dart';
+import 'package:una/src/utils/border.dart';
+import 'package:una/src/utils/debug_check.dart';
+import 'package:una/src/utils/extensions/text_style.dart';
+import 'package:una/src/utils/haptics.dart';
+import 'package:una/src/utils/motion_color.dart';
+import 'package:una/src/utils/spring.dart';
 
 /// {@template Switch}
 /// A customizable switch widget, styled according to the Shadcn UI design
@@ -134,9 +134,9 @@ class Switch extends StatefulWidget {
   /// Custom decoration for the switch track.
   ///
   /// Allows styling the appearance of the track, such as border or background.
-  /// Uses [FinesseDecoration].
+  /// Uses [UnaDecoration].
   /// {@endtemplate}
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// {@template Switch.controlAffinity}
   /// Whether the switch comes before the label or after it.
@@ -247,7 +247,7 @@ class _SwitchState extends State<Switch> with SingleTickerProviderStateMixin {
         (Motion.of(context).reduced ? 0 : .25);
 
     final baseDecoration =
-        (theme.switchTheme.decoration ?? const FinesseDecoration()).merge(
+        (theme.switchTheme.decoration ?? const UnaDecoration()).merge(
           widget.decoration,
         );
 
@@ -347,7 +347,7 @@ class _SwitchState extends State<Switch> with SingleTickerProviderStateMixin {
     required double thumbSize,
     required double transitionStep,
     required double stretch,
-    required FinesseDecoration baseDecoration,
+    required UnaDecoration baseDecoration,
   }) {
     final effectiveThumbColor = thumbColor;
     final effectiveUncheckedTrackColor = uncheckedTrackColor;
@@ -431,9 +431,9 @@ class _SwitchState extends State<Switch> with SingleTickerProviderStateMixin {
                             );
                           },
                           child: Decorator(
-                            decoration: FinesseDecoration(
+                            decoration: UnaDecoration(
                               color: effectiveThumbColor,
-                              border: FinesseBorder.all(
+                              border: UnaBorder.all(
                                 borderRadius: BorderRadius.circular(
                                   effectiveThumbSize / 2,
                                 ),

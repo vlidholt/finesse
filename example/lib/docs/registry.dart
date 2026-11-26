@@ -46,13 +46,13 @@ import 'package:example/docs/pages/installation.dart';
 import 'package:example/docs/pages/introduction.dart';
 import 'package:example/docs/pages/kbd.dart';
 import 'package:example/docs/pages/keyboard_toolbar.dart';
-import 'package:example/docs/pages/list_detail_layout.dart';
 import 'package:example/docs/pages/layout.dart';
 import 'package:example/docs/pages/license_page.dart';
+import 'package:example/docs/pages/liquid_glass.dart';
+import 'package:example/docs/pages/list_detail_layout.dart';
 import 'package:example/docs/pages/list_section.dart';
 import 'package:example/docs/pages/list_tile.dart';
 import 'package:example/docs/pages/menubar.dart';
-import 'package:example/docs/pages/liquid_glass.dart';
 import 'package:example/docs/pages/motion.dart';
 import 'package:example/docs/pages/navigation_bar.dart';
 import 'package:example/docs/pages/navigation_menu.dart';
@@ -100,8 +100,8 @@ import 'package:example/docs/pages/tabs.dart';
 import 'package:example/docs/pages/tag_field.dart';
 import 'package:example/docs/pages/text_field.dart';
 import 'package:example/docs/pages/textarea.dart';
-import 'package:example/docs/pages/time_field.dart';
 import 'package:example/docs/pages/theming.dart';
+import 'package:example/docs/pages/time_field.dart';
 import 'package:example/docs/pages/time_picker.dart';
 import 'package:example/docs/pages/timeline.dart';
 import 'package:example/docs/pages/toast.dart';
@@ -109,8 +109,8 @@ import 'package:example/docs/pages/toggle.dart';
 import 'package:example/docs/pages/toggle_group.dart';
 import 'package:example/docs/pages/toolbar.dart';
 import 'package:example/docs/pages/tooltip.dart';
-import 'package:example/docs/pages/wheel_picker.dart';
 import 'package:example/docs/pages/typography.dart';
+import 'package:example/docs/pages/wheel_picker.dart';
 
 /// Every documented page, in the order the sidebar shows them.
 final docGroups = <DocGroup>[

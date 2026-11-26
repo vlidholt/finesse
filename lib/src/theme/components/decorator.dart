@@ -1,11 +1,11 @@
-import 'package:finesse/src/utils/border.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
+import 'package:una/src/utils/border.dart';
 
 part 'decorator.g.theme.dart';
 
-/// {@template FinesseDecoration}
+/// {@template UnaDecoration}
 /// The border, fill and label styling of a control, applied by `Decorator`.
 ///
 /// A control has a primary border drawn on its edge and an optional secondary
@@ -15,9 +15,9 @@ part 'decorator.g.theme.dart';
 /// {@endtemplate}
 @themeGen
 @immutable
-class FinesseDecoration with _$FinesseDecoration {
-  /// {@macro FinesseDecoration}
-  const FinesseDecoration({
+class UnaDecoration with _$UnaDecoration {
+  /// {@macro UnaDecoration}
+  const UnaDecoration({
     bool canMerge = true,
     this.border,
     this.focusedBorder,
@@ -52,14 +52,14 @@ class FinesseDecoration with _$FinesseDecoration {
 
   /// A decoration with no borders that replaces, rather than merges into, the
   /// decoration it is merged with.
-  static const FinesseDecoration none = FinesseDecoration(
+  static const UnaDecoration none = UnaDecoration(
     canMerge: false,
-    border: FinesseBorder.none,
-    focusedBorder: FinesseBorder.none,
-    errorBorder: FinesseBorder.none,
-    secondaryBorder: FinesseBorder.none,
-    secondaryFocusedBorder: FinesseBorder.none,
-    secondaryErrorBorder: FinesseBorder.none,
+    border: UnaBorder.none,
+    focusedBorder: UnaBorder.none,
+    errorBorder: UnaBorder.none,
+    secondaryBorder: UnaBorder.none,
+    secondaryFocusedBorder: UnaBorder.none,
+    secondaryErrorBorder: UnaBorder.none,
   );
 
   /// The text style of a field's label.
@@ -70,22 +70,22 @@ class FinesseDecoration with _$FinesseDecoration {
   final TextStyle? errorLabelStyle;
 
   /// The border drawn on the control's edge.
-  final FinesseBorder? border;
+  final UnaBorder? border;
 
   /// The border drawn on the control's edge while it has focus.
-  final FinesseBorder? focusedBorder;
+  final UnaBorder? focusedBorder;
 
   /// The border drawn on the control's edge while [hasError] is true.
-  final FinesseBorder? errorBorder;
+  final UnaBorder? errorBorder;
 
   /// The border drawn outside the control, such as shadcn's `ring-*`.
-  final FinesseBorder? secondaryBorder;
+  final UnaBorder? secondaryBorder;
 
   /// The outer border while the control has focus. This is the focus ring.
-  final FinesseBorder? secondaryFocusedBorder;
+  final UnaBorder? secondaryFocusedBorder;
 
   /// The outer border while [hasError] is true.
-  final FinesseBorder? secondaryErrorBorder;
+  final UnaBorder? secondaryErrorBorder;
 
   /// The text style of a field's error message.
   final TextStyle? errorStyle;
@@ -142,15 +142,15 @@ class FinesseDecoration with _$FinesseDecoration {
   final bool? fallbackToLabelStyle;
 
   /// Linearly interpolates between [a] and [b] by [t].
-  static FinesseDecoration? lerp(
-    FinesseDecoration? a,
-    FinesseDecoration? b,
+  static UnaDecoration? lerp(
+    UnaDecoration? a,
+    UnaDecoration? b,
     double t,
-  ) => _$FinesseDecoration.lerp(a, b, t);
+  ) => _$UnaDecoration.lerp(a, b, t);
 
   @override
   String toString() {
-    return '''FinesseDecoration(border: $border, focusedBorder: $focusedBorder, errorBorder: $errorBorder, secondaryBorder: $secondaryBorder, secondaryFocusedBorder: $secondaryFocusedBorder, secondaryErrorBorder: $secondaryErrorBorder, labelStyle: $labelStyle, errorLabelStyle: $errorLabelStyle, errorStyle: $errorStyle, descriptionStyle: $descriptionStyle, labelPadding: $labelPadding, descriptionPadding: $descriptionPadding, errorPadding: $errorPadding, fallbackToBorder: $fallbackToBorder, color: $color, image: $image, shadows: $shadows, gradient: $gradient, backgroundBlendMode: $backgroundBlendMode, shape: $shape, hasError: $hasError, fallbackToLabelStyle: $fallbackToLabelStyle, disableSecondaryBorder: $disableSecondaryBorder)''';
+    return '''UnaDecoration(border: $border, focusedBorder: $focusedBorder, errorBorder: $errorBorder, secondaryBorder: $secondaryBorder, secondaryFocusedBorder: $secondaryFocusedBorder, secondaryErrorBorder: $secondaryErrorBorder, labelStyle: $labelStyle, errorLabelStyle: $errorLabelStyle, errorStyle: $errorStyle, descriptionStyle: $descriptionStyle, labelPadding: $labelPadding, descriptionPadding: $descriptionPadding, errorPadding: $errorPadding, fallbackToBorder: $fallbackToBorder, color: $color, image: $image, shadows: $shadows, gradient: $gradient, backgroundBlendMode: $backgroundBlendMode, shape: $shape, hasError: $hasError, fallbackToLabelStyle: $fallbackToLabelStyle, disableSecondaryBorder: $disableSecondaryBorder)''';
   }
 
   // The generated `==` compares lists by identity, so a theme built with a
@@ -159,7 +159,7 @@ class FinesseDecoration with _$FinesseDecoration {
   // generated `==` compare everything else against a copy that shares them.
   @override
   bool operator ==(Object other) =>
-      other is FinesseDecoration &&
+      other is UnaDecoration &&
       listEquals(shadows, other.shadows) &&
       super == other.copyWith(shadows: shadows);
 

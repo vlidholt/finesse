@@ -33,7 +33,7 @@ mixin _$MenubarTheme {
       ),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
-      border: FinesseBorder.lerp(a.border, b.border, t),
+      border: UnaBorder.lerp(a.border, b.border, t),
       constraints: BoxConstraints.lerp(a.constraints, b.constraints, t),
       contextMenuPadding: EdgeInsetsGeometry.lerp(
         a.contextMenuPadding,
@@ -41,7 +41,7 @@ mixin _$MenubarTheme {
         t,
       ),
       shadows: t < 0.5 ? a.shadows : b.shadows,
-      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
+      decoration: UnaDecoration.lerp(a.decoration, b.decoration, t),
       filter: t < 0.5 ? a.filter : b.filter,
       anchor: t < 0.5 ? a.anchor : b.anchor,
       buttonVariant: t < 0.5 ? a.buttonVariant : b.buttonVariant,
@@ -98,7 +98,7 @@ mixin _$MenubarTheme {
       buttonHoverTextDecoration: t < 0.5
           ? a.buttonHoverTextDecoration
           : b.buttonHoverTextDecoration,
-      buttonDecoration: FinesseDecoration.lerp(
+      buttonDecoration: UnaDecoration.lerp(
         a.buttonDecoration,
         b.buttonDecoration,
         t,
@@ -119,11 +119,11 @@ mixin _$MenubarTheme {
     BorderRadiusGeometry? borderRadius,
     EdgeInsetsGeometry? padding,
     Color? backgroundColor,
-    FinesseBorder? border,
+    UnaBorder? border,
     BoxConstraints? constraints,
     EdgeInsetsGeometry? contextMenuPadding,
     List<BoxShadow>? shadows,
-    FinesseDecoration? decoration,
+    UnaDecoration? decoration,
     ImageFilter? filter,
     AnchorBase? anchor,
     ButtonVariant? buttonVariant,
@@ -144,7 +144,7 @@ mixin _$MenubarTheme {
     Gradient? buttonGradient,
     TextDecoration? buttonTextDecoration,
     TextDecoration? buttonHoverTextDecoration,
-    FinesseDecoration? buttonDecoration,
+    UnaDecoration? buttonDecoration,
     double? buttonGap,
     MainAxisAlignment? buttonMainAxisAlignment,
     CrossAxisAlignment? buttonCrossAxisAlignment,

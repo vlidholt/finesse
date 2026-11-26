@@ -1,6 +1,6 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 void main() {
   testWidgets('a trailing header action does not toggle the item', (
@@ -8,7 +8,7 @@ void main() {
   ) async {
     var resets = 0;
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Accordion<int>(
           children: [
             AccordionItem(

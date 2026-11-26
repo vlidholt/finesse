@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// On iOS and Android a field shows these on its own. This example asks for
 /// them by name, so they can be tried on a desktop too: long-press or
@@ -14,7 +14,7 @@ class TextFieldTouchSelectionExample extends StatelessWidget {
       child: TextField(
         initialValue: 'Long-press a word to select it',
         // The handles at the ends of a selection.
-        selectionControls: finesseTextSelectionControls,
+        selectionControls: unaTextSelectionControls,
         // The horizontal toolbar over it, in place of the desktop menu.
         useBrowserContextMenu: false,
         contextMenuBuilder: (context, editableTextState) {

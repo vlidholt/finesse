@@ -3,37 +3,37 @@ import 'package:example/docs/docs.dart';
 final installationDoc = ComponentDoc(
   slug: 'installation',
   title: 'Installation',
-  description: 'Add the package, wrap your app in FinesseApp, start building.',
+  description: 'Add the package, wrap your app in UnaApp, start building.',
   body: (context) => const DocProse(
     children: [
       DocSection(
         title: 'Install the package',
         children: [
           DocParagraph(
-            'Add `finesse` to your project from the command line:',
+            'Add `una` to your project from the command line:',
           ),
-          CodeBlock(code: 'flutter pub add finesse'),
+          CodeBlock(code: 'flutter pub add una'),
           DocParagraph(
             'Everything ships through one import: components, theme, '
             'Phosphor icons, and motion.',
           ),
-          CodeBlock(code: "import 'package:finesse/finesse.dart';"),
+          CodeBlock(code: "import 'package:una/una.dart';"),
         ],
       ),
       DocSection(
-        title: 'Set up FinesseApp',
+        title: 'Set up UnaApp',
         children: [
           DocParagraph(
-            '`FinesseApp` takes the place of `MaterialApp`. It installs the '
+            '`UnaApp` takes the place of `MaterialApp`. It installs the '
             'theme, localizations, navigation, and the overlay layer the '
             'floating components use. With no arguments it uses the teal '
-            'color scheme and the finesse style, and lays itself out for '
+            'color scheme and the una style, and lays itself out for '
             'a desktop or a phone from the window width.',
           ),
           CodeBlock(
             code: '''
 import 'package:flutter/widgets.dart';
-import 'package:finesse/finesse.dart';
+import 'package:una/una.dart';
 
 void main() {
   runApp(const MyApp());
@@ -44,14 +44,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const FinesseApp(
+    return const UnaApp(
       home: HomePage(),
     );
   }
 }''',
           ),
           DocParagraph(
-            'Apps that use the `Router` API use `FinesseApp.router` with the '
+            'Apps that use the `Router` API use `UnaApp.router` with the '
             'usual `routerConfig` or delegate parameters.',
           ),
         ],
@@ -66,7 +66,7 @@ class MyApp extends StatelessWidget {
           ),
           CodeBlock(
             code: '''
-FinesseApp(
+UnaApp(
   themeMode: ThemeMode.system,
   theme: ThemeData(),
   darkTheme: ThemeData(
@@ -107,7 +107,7 @@ class HomePage extends StatelessWidget {
       appBar: const AppBar(title: Text('Home')),
       body: PageContainer(
         scrollable: true,
-        child: FinesseColumn(
+        child: UnaColumn(
           gap: GapSize.lg,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: const [

@@ -1,12 +1,12 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
-import '../../finesse_harness.dart';
 import '../../fixture_styles.dart';
 import '../../frame_sampler.dart';
+import '../../una_harness.dart';
 
 /// Hover, press, release and leave must each take a control straight to its
 /// new look. These tests read the screen frame by frame, because the bug they
@@ -15,8 +15,8 @@ import '../../frame_sampler.dart';
 /// translucent wash still painted a dark grey halfway there.
 void main() {
   final themes = <String, ThemeData>{
-    'finesse light': ThemeData(),
-    'finesse dark': ThemeData(brightness: Brightness.dark),
+    'una light': ThemeData(),
+    'una dark': ThemeData(brightness: Brightness.dark),
     'nova light': ThemeData(
       style: StyleTokens.nova,
       colorScheme: const NeutralColorScheme.light(),
@@ -38,7 +38,7 @@ void main() {
     final sampler = FrameSampler();
     await tester.pumpWidget(
       sampler.wrap(
-        FinesseApp(
+        UnaApp(
           theme: theme,
           darkTheme: theme,
           home: Builder(

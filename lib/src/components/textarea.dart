@@ -1,12 +1,12 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
-import 'package:finesse/src/components/text_field.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/clipboard/clipboard_service.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/text_field.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/clipboard/clipboard_service.dart';
 
 /// A customizable multiline textarea widget with
 /// adjustable height and optional resizing grip.
@@ -156,7 +156,7 @@ class Textarea extends StatefulWidget {
   /// Optional visual decoration for the textarea.
   /// Merged with the theme’s default decoration if provided.
   /// {@endtemplate}
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// {@template Textarea.undoController}
   /// Optional controller for undo/redo functionality inside the text field.
@@ -552,7 +552,7 @@ class _TextareaState extends State<Textarea> {
     final lineCount = _calculateLineCount(effectiveTextStyle);
 
     final effectiveDecoration =
-        (theme.textareaTheme.decoration ?? const FinesseDecoration()).merge(
+        (theme.textareaTheme.decoration ?? const UnaDecoration()).merge(
           widget.decoration,
         );
 

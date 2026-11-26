@@ -26,7 +26,7 @@ mixin _$SelectTheme {
     }
 
     return SelectTheme(
-      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
+      decoration: UnaDecoration.lerp(a.decoration, b.decoration, t),
       placeholderStyle: TextStyle.lerp(
         a.placeholderStyle,
         b.placeholderStyle,
@@ -56,7 +56,7 @@ mixin _$SelectTheme {
       ),
       clearSearchOnClose: t < 0.5 ? a.clearSearchOnClose : b.clearSearchOnClose,
       filter: t < 0.5 ? a.filter : b.filter,
-      popoverDecoration: FinesseDecoration.lerp(
+      popoverDecoration: UnaDecoration.lerp(
         a.popoverDecoration,
         b.popoverDecoration,
         t,
@@ -66,7 +66,7 @@ mixin _$SelectTheme {
   }
 
   SelectTheme copyWith({
-    FinesseDecoration? decoration,
+    UnaDecoration? decoration,
     TextStyle? placeholderStyle,
     double? minWidth,
     double? maxWidth,
@@ -80,7 +80,7 @@ mixin _$SelectTheme {
     EdgeInsetsGeometry? searchPadding,
     bool? clearSearchOnClose,
     ImageFilter? filter,
-    FinesseDecoration? popoverDecoration,
+    UnaDecoration? popoverDecoration,
     List<BoxShadow>? shadows,
   }) {
     final _this = (this as SelectTheme);

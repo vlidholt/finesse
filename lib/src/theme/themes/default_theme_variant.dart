@@ -1,95 +1,95 @@
 import 'dart:math' as math;
 import 'dart:ui' show ImageFilter;
 
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/components/select.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/raw_components/portal.dart';
-import 'package:finesse/src/theme/color_scheme/base.dart';
-import 'package:finesse/src/theme/components/accordion.dart';
-import 'package:finesse/src/theme/components/action_sheet.dart';
-import 'package:finesse/src/theme/components/alert.dart';
-import 'package:finesse/src/theme/components/app_bar.dart';
-import 'package:finesse/src/theme/components/avatar.dart';
-import 'package:finesse/src/theme/components/badge.dart';
-import 'package:finesse/src/theme/components/board.dart';
-import 'package:finesse/src/theme/components/bottom_navigation_bar.dart';
-import 'package:finesse/src/theme/components/breadcrumb.dart';
-import 'package:finesse/src/theme/components/button.dart';
-import 'package:finesse/src/theme/components/button_sizes.dart';
-import 'package:finesse/src/theme/components/calendar.dart';
-import 'package:finesse/src/theme/components/card.dart';
-import 'package:finesse/src/theme/components/carousel.dart';
-import 'package:finesse/src/theme/components/chat_bubble.dart';
-import 'package:finesse/src/theme/components/chat_list.dart';
-import 'package:finesse/src/theme/components/checkbox.dart';
-import 'package:finesse/src/theme/components/chip.dart';
-import 'package:finesse/src/theme/components/collapsible.dart';
-import 'package:finesse/src/theme/components/command.dart';
-import 'package:finesse/src/theme/components/context_menu.dart';
-import 'package:finesse/src/theme/components/date_picker.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/components/default_keyboard_toolbar.dart';
-import 'package:finesse/src/theme/components/dialog.dart';
-import 'package:finesse/src/theme/components/divider.dart';
-import 'package:finesse/src/theme/components/empty.dart';
-import 'package:finesse/src/theme/components/floating_action_button.dart';
-import 'package:finesse/src/theme/components/glass.dart';
-import 'package:finesse/src/theme/components/icon_tile.dart';
-import 'package:finesse/src/theme/components/indicator_badge.dart';
-import 'package:finesse/src/theme/components/kbd.dart';
-import 'package:finesse/src/theme/components/layout.dart';
-import 'package:finesse/src/theme/components/list_section.dart';
-import 'package:finesse/src/theme/components/list_tile.dart';
-import 'package:finesse/src/theme/components/menubar.dart';
-import 'package:finesse/src/theme/components/navigation_bar.dart';
-import 'package:finesse/src/theme/components/navigation_menu.dart';
-import 'package:finesse/src/theme/components/navigation_rail.dart';
-import 'package:finesse/src/theme/components/otp_field.dart';
-import 'package:finesse/src/theme/components/pagination.dart';
-import 'package:finesse/src/theme/components/phosphor_icon.dart';
-import 'package:finesse/src/theme/components/popover.dart';
-import 'package:finesse/src/theme/components/progress_bar.dart';
-import 'package:finesse/src/theme/components/radio.dart';
-import 'package:finesse/src/theme/components/refresh_indicator.dart';
-import 'package:finesse/src/theme/components/resizable.dart';
-import 'package:finesse/src/theme/components/scroll_area.dart';
-import 'package:finesse/src/theme/components/select.dart';
-import 'package:finesse/src/theme/components/select_option.dart';
-import 'package:finesse/src/theme/components/sheet.dart';
-import 'package:finesse/src/theme/components/sidebar.dart';
-import 'package:finesse/src/theme/components/skeleton.dart';
-import 'package:finesse/src/theme/components/slider.dart';
-import 'package:finesse/src/theme/components/spinner.dart';
-import 'package:finesse/src/theme/components/stepper.dart';
-import 'package:finesse/src/theme/components/streaming_text.dart';
-import 'package:finesse/src/theme/components/switch.dart';
-import 'package:finesse/src/theme/components/table.dart';
-import 'package:finesse/src/theme/components/tabs.dart';
-import 'package:finesse/src/theme/components/text_field.dart';
-import 'package:finesse/src/theme/components/text_selection.dart';
-import 'package:finesse/src/theme/components/textarea.dart';
-import 'package:finesse/src/theme/components/time_field.dart';
-import 'package:finesse/src/theme/components/time_picker.dart';
-import 'package:finesse/src/theme/components/timeline.dart';
-import 'package:finesse/src/theme/components/toast.dart';
-import 'package:finesse/src/theme/components/toggle.dart';
-import 'package:finesse/src/theme/components/tooltip.dart';
-import 'package:finesse/src/theme/components/wheel_picker.dart';
-import 'package:finesse/src/theme/form_factor.dart';
-import 'package:finesse/src/theme/radii.dart';
-import 'package:finesse/src/theme/spacing.dart';
-import 'package:finesse/src/theme/style.dart';
-import 'package:finesse/src/theme/text_role.dart';
-import 'package:finesse/src/theme/text_theme/text_styles_default.dart';
-import 'package:finesse/src/theme/text_theme/theme.dart';
-import 'package:finesse/src/theme/themes/base.dart';
-import 'package:finesse/src/theme/themes/shadows.dart';
-import 'package:finesse/src/utils/backdrop.dart';
-import 'package:finesse/src/utils/border.dart';
-import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/button.dart';
+import 'package:una/src/components/select.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/raw_components/portal.dart';
+import 'package:una/src/theme/color_scheme/base.dart';
+import 'package:una/src/theme/components/accordion.dart';
+import 'package:una/src/theme/components/action_sheet.dart';
+import 'package:una/src/theme/components/alert.dart';
+import 'package:una/src/theme/components/app_bar.dart';
+import 'package:una/src/theme/components/avatar.dart';
+import 'package:una/src/theme/components/badge.dart';
+import 'package:una/src/theme/components/board.dart';
+import 'package:una/src/theme/components/bottom_navigation_bar.dart';
+import 'package:una/src/theme/components/breadcrumb.dart';
+import 'package:una/src/theme/components/button.dart';
+import 'package:una/src/theme/components/button_sizes.dart';
+import 'package:una/src/theme/components/calendar.dart';
+import 'package:una/src/theme/components/card.dart';
+import 'package:una/src/theme/components/carousel.dart';
+import 'package:una/src/theme/components/chat_bubble.dart';
+import 'package:una/src/theme/components/chat_list.dart';
+import 'package:una/src/theme/components/checkbox.dart';
+import 'package:una/src/theme/components/chip.dart';
+import 'package:una/src/theme/components/collapsible.dart';
+import 'package:una/src/theme/components/command.dart';
+import 'package:una/src/theme/components/context_menu.dart';
+import 'package:una/src/theme/components/date_picker.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/components/default_keyboard_toolbar.dart';
+import 'package:una/src/theme/components/dialog.dart';
+import 'package:una/src/theme/components/divider.dart';
+import 'package:una/src/theme/components/empty.dart';
+import 'package:una/src/theme/components/floating_action_button.dart';
+import 'package:una/src/theme/components/glass.dart';
+import 'package:una/src/theme/components/icon_tile.dart';
+import 'package:una/src/theme/components/indicator_badge.dart';
+import 'package:una/src/theme/components/kbd.dart';
+import 'package:una/src/theme/components/layout.dart';
+import 'package:una/src/theme/components/list_section.dart';
+import 'package:una/src/theme/components/list_tile.dart';
+import 'package:una/src/theme/components/menubar.dart';
+import 'package:una/src/theme/components/navigation_bar.dart';
+import 'package:una/src/theme/components/navigation_menu.dart';
+import 'package:una/src/theme/components/navigation_rail.dart';
+import 'package:una/src/theme/components/otp_field.dart';
+import 'package:una/src/theme/components/pagination.dart';
+import 'package:una/src/theme/components/phosphor_icon.dart';
+import 'package:una/src/theme/components/popover.dart';
+import 'package:una/src/theme/components/progress_bar.dart';
+import 'package:una/src/theme/components/radio.dart';
+import 'package:una/src/theme/components/refresh_indicator.dart';
+import 'package:una/src/theme/components/resizable.dart';
+import 'package:una/src/theme/components/scroll_area.dart';
+import 'package:una/src/theme/components/select.dart';
+import 'package:una/src/theme/components/select_option.dart';
+import 'package:una/src/theme/components/sheet.dart';
+import 'package:una/src/theme/components/sidebar.dart';
+import 'package:una/src/theme/components/skeleton.dart';
+import 'package:una/src/theme/components/slider.dart';
+import 'package:una/src/theme/components/spinner.dart';
+import 'package:una/src/theme/components/stepper.dart';
+import 'package:una/src/theme/components/streaming_text.dart';
+import 'package:una/src/theme/components/switch.dart';
+import 'package:una/src/theme/components/table.dart';
+import 'package:una/src/theme/components/tabs.dart';
+import 'package:una/src/theme/components/text_field.dart';
+import 'package:una/src/theme/components/text_selection.dart';
+import 'package:una/src/theme/components/textarea.dart';
+import 'package:una/src/theme/components/time_field.dart';
+import 'package:una/src/theme/components/time_picker.dart';
+import 'package:una/src/theme/components/timeline.dart';
+import 'package:una/src/theme/components/toast.dart';
+import 'package:una/src/theme/components/toggle.dart';
+import 'package:una/src/theme/components/tooltip.dart';
+import 'package:una/src/theme/components/wheel_picker.dart';
+import 'package:una/src/theme/form_factor.dart';
+import 'package:una/src/theme/radii.dart';
+import 'package:una/src/theme/spacing.dart';
+import 'package:una/src/theme/style.dart';
+import 'package:una/src/theme/text_role.dart';
+import 'package:una/src/theme/text_theme/text_styles_default.dart';
+import 'package:una/src/theme/text_theme/theme.dart';
+import 'package:una/src/theme/themes/base.dart';
+import 'package:una/src/theme/themes/shadows.dart';
+import 'package:una/src/utils/backdrop.dart';
+import 'package:una/src/utils/border.dart';
+import 'package:una/src/utils/extensions/text_style.dart';
 
 /// The default [ThemeVariant]: shadcn/ui's v4 components, rendered in one
 /// of its styles.
@@ -99,7 +99,7 @@ import 'package:flutter/widgets.dart';
 class DefaultThemeVariant extends ThemeVariant {
   /// Creates the variant.
   ///
-  /// [style] defaults to [StyleTokens.finesse], [formFactor] to
+  /// [style] defaults to [StyleTokens.una], [formFactor] to
   /// [FormFactor.desktop] and [spacing] to the 4px step. A null
   /// [menuColorScheme] makes menus follow [colorScheme], and a null
   /// [menuTranslucent] makes them follow the style. [menuAccent] defaults
@@ -108,7 +108,7 @@ class DefaultThemeVariant extends ThemeVariant {
     required this.colorScheme,
     required this.radius,
     required this.effectiveTextTheme,
-    StyleTokens style = StyleTokens.finesse,
+    StyleTokens style = StyleTokens.una,
     this.formFactor = FormFactor.desktop,
     this.spacing = const Spacing(),
     this.menuColorScheme,
@@ -156,7 +156,7 @@ class DefaultThemeVariant extends ThemeVariant {
   /// Whether menu surfaces are translucent.
   ///
   /// Null, the default, leaves it to the style: menus are glass when its
-  /// [StyleTokens.popoverOpacity] is below 1, as in `finesse`, and solid
+  /// [StyleTokens.popoverOpacity] is below 1, as in `una`, and solid
   /// otherwise. True is shadcn's "Translucent" finish whatever the style —
   /// the popover colour at 70% over a backdrop blur, with row highlights as
   /// a `foreground/10` wash so they read through the glass. False keeps
@@ -245,14 +245,14 @@ class DefaultThemeVariant extends ThemeVariant {
   /// *rounded* corner grows by the ring width so the two stay concentric,
   /// while square corners stay square (adding to them would round the ring
   /// on the square styles).
-  FinesseBorder ringFor(BorderRadius elementRadius) {
+  UnaBorder ringFor(BorderRadius elementRadius) {
     Radius inflate(Radius corner) => corner == Radius.zero
         ? Radius.zero
         : Radius.elliptical(
             corner.x + style.ringWidth,
             corner.y + style.ringWidth,
           );
-    return FinesseBorder.all(
+    return UnaBorder.all(
       width: style.ringWidth,
       color: colorScheme.ring.withValues(alpha: style.ringOpacity),
       borderRadius: BorderRadius.only(
@@ -415,7 +415,7 @@ class DefaultThemeVariant extends ThemeVariant {
   ///
   /// `focus:bg-accent` in a style that says nothing else, and the menu
   /// palette's primary with a bold [menuAccent]. A style with a
-  /// [StyleTokens.menuHighlightOpacity] — `finesse`, whose menus are glass
+  /// [StyleTokens.menuHighlightOpacity] — `una`, whose menus are glass
   /// — and shadcn's translucent finish wash the row with the menu's
   /// foreground instead, so the highlight sits *in* the glass rather than
   /// on it as an opaque, near-white slab.
@@ -481,9 +481,9 @@ class DefaultThemeVariant extends ThemeVariant {
   ///
   /// Same treatment as [fieldBorder] but on [StyleTokens.textareaRadius],
   /// which stays moderate even in the pill-shaped styles.
-  FinesseBorder get textareaBorder => style.underlinedFields
+  UnaBorder get textareaBorder => style.underlinedFields
       ? fieldBorder
-      : FinesseBorder.all(
+      : UnaBorder.all(
           width: 1,
           color: fieldBorderColor,
           borderRadius: radii.resolve(style.textareaRadius),
@@ -491,12 +491,12 @@ class DefaultThemeVariant extends ThemeVariant {
 
   /// The border a single-line field draws: `border-input` on the control
   /// radius, or a bottom rule only in the underlined styles.
-  FinesseBorder get fieldBorder => style.underlinedFields
-      ? FinesseBorder(
-          bottom: FinesseBorderSide(width: 1, color: colorScheme.input),
+  UnaBorder get fieldBorder => style.underlinedFields
+      ? UnaBorder(
+          bottom: UnaBorderSide(width: 1, color: colorScheme.input),
           borderRadius: BorderRadius.zero,
         )
-      : FinesseBorder.all(
+      : UnaBorder.all(
           width: 1,
           color: fieldBorderColor,
           borderRadius: controlRadius,
@@ -557,8 +557,8 @@ class DefaultThemeVariant extends ThemeVariant {
       hoverBackgroundColor: _wash(colorScheme.primary, .8),
       foregroundColor: colorScheme.primaryForeground,
       hoverForegroundColor: colorScheme.primaryForeground,
-      decoration: FinesseDecoration(
-        border: FinesseBorder.all(
+      decoration: UnaDecoration(
+        border: UnaBorder.all(
           borderRadius: controlRadius,
           width: 0,
           padding: focusReserve(0),
@@ -586,8 +586,8 @@ class DefaultThemeVariant extends ThemeVariant {
       ),
       foregroundColor: colorScheme.secondaryForeground,
       hoverForegroundColor: colorScheme.secondaryForeground,
-      decoration: FinesseDecoration(
-        border: FinesseBorder.all(
+      decoration: UnaDecoration(
+        border: UnaBorder.all(
           borderRadius: controlRadius,
           width: 0,
           padding: focusReserve(0),
@@ -609,14 +609,14 @@ class DefaultThemeVariant extends ThemeVariant {
       hoverBackgroundColor: _wash(colorScheme.destructive, _isDark ? .3 : .2),
       foregroundColor: colorScheme.destructive,
       hoverForegroundColor: colorScheme.destructive,
-      decoration: FinesseDecoration(
-        border: FinesseBorder.all(
+      decoration: UnaDecoration(
+        border: UnaBorder.all(
           borderRadius: controlRadius,
           width: 0,
           padding: focusReserve(0),
         ),
         // `focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40`.
-        secondaryFocusedBorder: FinesseBorder.all(
+        secondaryFocusedBorder: UnaBorder.all(
           width: style.ringWidth,
           color: _wash(colorScheme.destructive, _isDark ? .4 : .2),
           borderRadius: controlRadius.add(
@@ -657,8 +657,8 @@ class DefaultThemeVariant extends ThemeVariant {
       foregroundColor: colorScheme.foreground,
       hoverForegroundColor: colorScheme.foreground,
       shadows: style.controlShadow,
-      decoration: FinesseDecoration(
-        border: FinesseBorder.all(
+      decoration: UnaDecoration(
+        border: UnaBorder.all(
           borderRadius: controlRadius,
           color: style.outlineButtonStrongBorder
               ? colorScheme.borderStrong
@@ -686,8 +686,8 @@ class DefaultThemeVariant extends ThemeVariant {
           : colorScheme.muted,
       foregroundColor: colorScheme.foreground,
       hoverForegroundColor: colorScheme.foreground,
-      decoration: FinesseDecoration(
-        border: FinesseBorder.all(
+      decoration: UnaDecoration(
+        border: UnaBorder.all(
           borderRadius: controlRadius,
           width: 0,
           padding: focusReserve(0),
@@ -934,8 +934,8 @@ class DefaultThemeVariant extends ThemeVariant {
       // The inverted surface: `bg-foreground text-background`, with no
       // border and no shadow, at the tooltip's own radius (`rounded-md`,
       // tighter than the popover's in most styles).
-      decoration: FinesseDecoration(
-        border: FinesseBorder.all(
+      decoration: UnaDecoration(
+        border: UnaBorder.all(
           borderRadius: radii.resolve(style.tooltipRadius),
           width: 0,
         ),
@@ -977,10 +977,10 @@ class DefaultThemeVariant extends ThemeVariant {
       shadows: style.popoverShadow,
       textStyle: style.body.apply(effectiveTextTheme.muted),
       padding: EdgeInsets.all(scaled(style.popoverPadding)),
-      decoration: FinesseDecoration(
+      decoration: UnaDecoration(
         color: popoverSurfaceColor,
         shadows: style.popoverShadow,
-        border: FinesseBorder.all(
+        border: UnaBorder.all(
           borderRadius: popoverRadius,
           color: surfaceBorderColor,
           width: 1,
@@ -1004,9 +1004,9 @@ class DefaultThemeVariant extends ThemeVariant {
   }
 
   @override
-  FinesseDecoration decorationTheme() {
-    return FinesseDecoration(
-      secondaryBorder: FinesseBorder.all(
+  UnaDecoration decorationTheme() {
+    return UnaDecoration(
+      secondaryBorder: UnaBorder.all(
         width: 0,
       ),
       // shadcn/ui's focus ring is `focus-visible:ring-[3px] ring-ring/50`:
@@ -1080,7 +1080,7 @@ class DefaultThemeVariant extends ThemeVariant {
       padding: EdgeInsets.symmetric(
         horizontal: scaled(style.selectPaddingX),
       ),
-      decoration: FinesseDecoration(
+      decoration: UnaDecoration(
         color: fieldFillColor,
         shadows: style.controlShadow,
         // The same border treatment as a text field — `sera` underlines its
@@ -1101,10 +1101,10 @@ class DefaultThemeVariant extends ThemeVariant {
       searchPadding: EdgeInsets.all(scaled(style.popoverPadding) * .75),
       // The options list is a menu surface, so it draws from the menu palette
       // rather than inheriting the page popover's decoration.
-      popoverDecoration: FinesseDecoration(
+      popoverDecoration: UnaDecoration(
         color: menuSurfaceColor,
         shadows: style.popoverShadow,
-        border: FinesseBorder.all(
+        border: UnaBorder.all(
           borderRadius: popoverRadius,
           color: menuSurfaceBorderColor,
           width: 1,
@@ -1148,7 +1148,7 @@ class DefaultThemeVariant extends ThemeVariant {
       blur: style.cardBlur ? style.glassBlur : 0,
       saturation: style.cardBlur ? style.glassSaturation : 1,
       padding: EdgeInsets.all(scaled(style.cardPadding)),
-      border: FinesseBorder.all(color: cardBorderColor, width: 1),
+      border: UnaBorder.all(color: cardBorderColor, width: 1),
       borderRadius: cardRadius,
       shadows: _isDark
           ? style.cardShadowDark ?? style.cardShadow
@@ -1217,15 +1217,15 @@ class DefaultThemeVariant extends ThemeVariant {
           : colorScheme.input,
       checkedTrackColor: colorScheme.primary,
       padding: spacing.directional(start: 2),
-      decoration: FinesseDecoration(
-        border: FinesseBorder.all(
+      decoration: UnaDecoration(
+        border: UnaBorder.all(
           borderRadius: radius.add(radius / 2),
           width: 0,
         ),
-        // FinesseBorder.merge takes `other`'s radius and offset
+        // UnaBorder.merge takes `other`'s radius and offset
         // unconditionally, so an override has to restate both or they fall
         // back to null.
-        secondaryFocusedBorder: FinesseBorder.all(
+        secondaryFocusedBorder: UnaBorder.all(
           borderRadius: radius
               .add(radius / 2)
               .add(
@@ -1249,9 +1249,9 @@ class DefaultThemeVariant extends ThemeVariant {
       uncheckedColor: uncheckedControlFill,
       padding: spacing.directional(start: 2),
       checkboxPadding: spacing.only(top: 0.25),
-      decoration: FinesseDecoration(
+      decoration: UnaDecoration(
         shadows: style.controlShadow,
-        border: FinesseBorder.all(
+        border: UnaBorder.all(
           color: controlBorderColor,
           borderRadius: checkboxRadius,
           width: 1,
@@ -1259,9 +1259,9 @@ class DefaultThemeVariant extends ThemeVariant {
       ),
       // `data-checked:border-primary`: the outline follows the fill, so a
       // checked box has no pale halo around it.
-      checkedDecoration: FinesseDecoration(
+      checkedDecoration: UnaDecoration(
         shadows: style.controlShadow,
-        border: FinesseBorder.all(
+        border: UnaBorder.all(
           color: colorScheme.primary,
           borderRadius: checkboxRadius,
           width: 1,
@@ -1276,7 +1276,7 @@ class DefaultThemeVariant extends ThemeVariant {
       style: style.field.apply(effectiveTextTheme.muted),
       placeholderStyle: style.field.apply(effectiveTextTheme.muted),
       inputPadding: EdgeInsets.zero,
-      decoration: FinesseDecoration(
+      decoration: UnaDecoration(
         color: fieldFillColor,
         shadows: style.controlShadow,
         border: fieldBorder,
@@ -1308,8 +1308,8 @@ class DefaultThemeVariant extends ThemeVariant {
       // A touch target wherever it shows; a menu row's height when that is
       // taller.
       toolbarHeight: math.max(menuItemHeight, 40),
-      toolbarDecoration: FinesseDecoration(
-        border: FinesseBorder.all(
+      toolbarDecoration: UnaDecoration(
+        border: UnaBorder.all(
           borderRadius: popoverRadius,
           color: menuSurfaceBorderColor,
           width: 1,
@@ -1341,7 +1341,7 @@ class DefaultThemeVariant extends ThemeVariant {
   @override
   RadioTheme radioTheme() {
     // The radio itself is a circle, so its ring is fully rounded too.
-    final focusRing = FinesseBorder.all(
+    final focusRing = UnaBorder.all(
       borderRadius: const BorderRadius.all(Radius.circular(9999)),
       width: style.ringWidth,
       color: colorScheme.ring.withValues(alpha: style.ringOpacity),
@@ -1360,19 +1360,19 @@ class DefaultThemeVariant extends ThemeVariant {
       ),
       color: outlined ? colorScheme.foreground : colorScheme.primaryForeground,
       padding: spacing.directional(start: 2),
-      decoration: FinesseDecoration(
+      decoration: UnaDecoration(
         shape: BoxShape.circle,
         color: uncheckedControlFill,
-        border: FinesseBorder.all(
+        border: UnaBorder.all(
           color: controlBorderColor,
           width: 1,
         ),
         secondaryFocusedBorder: focusRing,
       ),
-      checkedDecoration: FinesseDecoration(
+      checkedDecoration: UnaDecoration(
         shape: BoxShape.circle,
         color: outlined ? null : colorScheme.primary,
-        border: FinesseBorder.all(
+        border: UnaBorder.all(
           color: outlined
               ? colorScheme.foreground
               : style.controlBorderless
@@ -1431,7 +1431,7 @@ class DefaultThemeVariant extends ThemeVariant {
       // glass, so is the toast.
       backgroundColor: popoverSurfaceColor,
       filter: popoverFilter,
-      border: FinesseBorder.all(color: surfaceBorderColor, width: 1),
+      border: UnaBorder.all(color: surfaceBorderColor, width: 1),
       // Sonner's `--border-radius: var(--radius)`.
       borderRadius: _capped(radii.resolve(RadiusToken.lg)),
       // shadcn gives a toast the sheet's shadow. On a dark page that shadow
@@ -1468,27 +1468,27 @@ class DefaultThemeVariant extends ThemeVariant {
   /// alert's own radius (`rounded-lg`, a step below the card's in most
   /// styles). `sera` runs a 2px accent bar down the left edge
   /// (`after:-left-px after:w-0.5`), drawn here as a thicker left side in
-  /// [accent]; non-uniform side colours are safe because [FinesseBoxBorder]
+  /// [accent]; non-uniform side colours are safe because [UnaBoxBorder]
   /// paints them.
-  FinesseDecoration _alertDecoration({required Color accent}) {
+  UnaDecoration _alertDecoration({required Color accent}) {
     final radius = radii.resolve(style.alertRadius);
     final padding = EdgeInsets.symmetric(
       horizontal: scaled(style.alertPaddingX),
       vertical: scaled(style.alertPaddingY),
     );
-    final side = FinesseBorderSide(color: colorScheme.border, width: 1);
-    return FinesseDecoration(
+    final side = UnaBorderSide(color: colorScheme.border, width: 1);
+    return UnaDecoration(
       color: colorScheme.card,
       border: style.alertAccentBar
-          ? FinesseBorder(
+          ? UnaBorder(
               borderRadius: radius,
               padding: padding,
               top: side,
               right: side,
               bottom: side,
-              left: FinesseBorderSide(color: accent, width: scaled(2)),
+              left: UnaBorderSide(color: accent, width: scaled(2)),
             )
-          : FinesseBorder.all(
+          : UnaBorder.all(
               color: colorScheme.border,
               borderRadius: radius,
               padding: padding,
@@ -1779,7 +1779,7 @@ class DefaultThemeVariant extends ThemeVariant {
       cellAlignment: Alignment.centerLeft,
       cellHeight: 48,
       // Horizontal only: shadcn's `p-2` sits on a cell that grows with its
-      // content, while FinesseTable rows have a fixed height, so vertical
+      // content, while UnaTable rows have a fixed height, so vertical
       // padding there just squeezes the content out.
       cellPadding: EdgeInsets.symmetric(
         horizontal: scaled(style.tableCellPadding),
@@ -1815,9 +1815,9 @@ class DefaultThemeVariant extends ThemeVariant {
       dividerSize: 8,
       dividerColor: colorScheme.border,
       resetOnDoubleTap: true,
-      handleDecoration: FinesseDecoration(
+      handleDecoration: UnaDecoration(
         color: colorScheme.border,
-        border: FinesseBorder.all(
+        border: UnaBorder.all(
           borderRadius: const BorderRadius.all(Radius.circular(4)),
           width: 0,
         ),
@@ -1864,16 +1864,16 @@ class DefaultThemeVariant extends ThemeVariant {
       padding: EdgeInsets.all(style.tabsListPadding),
       // The strip is `bg-muted rounded-lg p-[3px]`; each tab sits one radius
       // step inside it (`rounded-md`).
-      decoration: FinesseDecoration(
+      decoration: UnaDecoration(
         color: _fill(style.tabsListFill, colorScheme) ?? colorScheme.muted,
-        border: FinesseBorder.all(
+        border: UnaBorder.all(
           borderRadius: listRadius,
           width: 0,
           color: colorScheme.ring,
         ),
       ),
-      tabDecoration: FinesseDecoration(
-        border: FinesseBorder.all(borderRadius: tabRadius, width: 0),
+      tabDecoration: UnaDecoration(
+        border: UnaBorder.all(borderRadius: tabRadius, width: 0),
       ),
       gap: 8,
       tabsGap: scaled(style.tabsGap),
@@ -2486,15 +2486,15 @@ class DefaultThemeVariant extends ThemeVariant {
     showDelay: const Duration(milliseconds: 100),
     height: menuItemHeight,
     buttonVariant: ButtonVariant.ghost,
-    itemDecoration: FinesseDecoration(
-      border: FinesseBorder.all(borderRadius: itemRadius, width: 0),
-      secondaryBorder: FinesseBorder.none,
-      secondaryFocusedBorder: FinesseBorder.none,
+    itemDecoration: UnaDecoration(
+      border: UnaBorder.all(borderRadius: itemRadius, width: 0),
+      secondaryBorder: UnaBorder.none,
+      secondaryFocusedBorder: UnaBorder.none,
     ),
-    decoration: FinesseDecoration(
+    decoration: UnaDecoration(
       color: menuSurfaceColor,
       shadows: style.popoverShadow,
-      border: FinesseBorder.all(
+      border: UnaBorder.all(
         borderRadius: popoverRadius,
         color: menuSurfaceBorderColor,
         width: 1,
@@ -2555,10 +2555,10 @@ class DefaultThemeVariant extends ThemeVariant {
 
   @override
   CalendarTheme calendarTheme() => CalendarTheme(
-    dayButtonDecoration: FinesseDecoration(
+    dayButtonDecoration: UnaDecoration(
       // Day cells sit on a tight grid, so the ring is kept to 2px rather than
       // the global 3px to avoid neighbouring cells colliding.
-      secondaryFocusedBorder: FinesseBorder.all(
+      secondaryFocusedBorder: UnaBorder.all(
         width: 2,
         offset: 2,
         borderRadius: _calendarCellRadius.add(
@@ -2581,8 +2581,8 @@ class DefaultThemeVariant extends ThemeVariant {
     navigationButtonIconSize: scaled(style.iconButtonIconSize),
     navigationButtonPadding: EdgeInsets.zero,
     navigationButtonDisabledOpacity: .5,
-    decoration: FinesseDecoration(
-      border: FinesseBorder.all(
+    decoration: UnaDecoration(
+      border: UnaBorder.all(
         borderRadius: radius,
         padding: EdgeInsets.all(scaled(style.calendarPadding)),
         color: colorScheme.border,
@@ -2656,7 +2656,7 @@ class DefaultThemeVariant extends ThemeVariant {
   @override
   WheelPickerTheme wheelPickerTheme() {
     // The lens is a piece of this system's glass laid on the surface the
-    // wheel is in: where menus are washed (`finesse`) it is the same wash
+    // wheel is in: where menus are washed (`una`) it is the same wash
     // of the foreground under a hairline, and in a style with solid menus
     // it is the muted fill.
     final wash = _isDark
@@ -2716,7 +2716,7 @@ class DefaultThemeVariant extends ThemeVariant {
       ),
       periodHeight: scaled(style.inputHeight),
       periodMinWidth: 65,
-      fieldDecoration: FinesseDecoration(
+      fieldDecoration: UnaDecoration(
         color: fieldFillColor,
         shadows: style.controlShadow,
         border: fieldBorder,
@@ -2754,11 +2754,11 @@ class DefaultThemeVariant extends ThemeVariant {
       ),
       singleBorderRadius: controlRadius,
       middleBorderRadius: BorderRadius.zero,
-      decoration: FinesseDecoration(
-        focusedBorder: FinesseBorder.all(color: colorScheme.ring, width: 1),
+      decoration: UnaDecoration(
+        focusedBorder: UnaBorder.all(color: colorScheme.ring, width: 1),
         // Same ring as every other field; the slot supplies the radius, since
         // only the ends of the strip are rounded.
-        secondaryFocusedBorder: FinesseBorder.all(
+        secondaryFocusedBorder: UnaBorder.all(
           width: style.ringWidth,
           color: colorScheme.ring.withValues(alpha: style.ringOpacity),
           offset: style.ringWidth,
@@ -2767,13 +2767,13 @@ class DefaultThemeVariant extends ThemeVariant {
         // vertical edges, so only the right one is drawn per slot. An
         // underlined style draws the bottom edge alone.
         border: style.underlinedFields
-            ? FinesseBorder(
-                bottom: FinesseBorderSide(color: colorScheme.input, width: 1),
+            ? UnaBorder(
+                bottom: UnaBorderSide(color: colorScheme.input, width: 1),
               )
-            : FinesseBorder(
-                top: FinesseBorderSide(color: colorScheme.input, width: 1),
-                bottom: FinesseBorderSide(color: colorScheme.input, width: 1),
-                right: FinesseBorderSide(color: colorScheme.input, width: 1),
+            : UnaBorder(
+                top: UnaBorderSide(color: colorScheme.input, width: 1),
+                bottom: UnaBorderSide(color: colorScheme.input, width: 1),
+                right: UnaBorderSide(color: colorScheme.input, width: 1),
               ),
       ),
     );
@@ -2788,7 +2788,7 @@ class DefaultThemeVariant extends ThemeVariant {
     return MenubarTheme(
       borderRadius: controlRadius,
       padding: EdgeInsets.all(style.menubarPadding),
-      border: FinesseBorder.all(color: colorScheme.border, width: 1),
+      border: UnaBorder.all(color: colorScheme.border, width: 1),
       anchor: const Anchor(
         offset: Offset(-4, 8),
         childAlignment: AlignmentDirectional.bottomStart,
@@ -2801,8 +2801,8 @@ class DefaultThemeVariant extends ThemeVariant {
       buttonHoverForegroundColor: colorScheme.foreground,
       buttonHoverBackgroundColor: colorScheme.muted,
       buttonSelectedBackgroundColor: colorScheme.muted,
-      buttonDecoration: FinesseDecoration(
-        border: FinesseBorder.all(borderRadius: itemRadius, width: 0),
+      buttonDecoration: UnaDecoration(
+        border: UnaBorder.all(borderRadius: itemRadius, width: 0),
         disableSecondaryBorder: true,
       ),
     );
@@ -2880,7 +2880,7 @@ class DefaultThemeVariant extends ThemeVariant {
       style: style.field.apply(effectiveTextTheme.muted),
       placeholderStyle: style.field.apply(effectiveTextTheme.muted),
       inputPadding: EdgeInsets.zero,
-      decoration: FinesseDecoration(
+      decoration: UnaDecoration(
         color: fieldFillColor,
         border: textareaBorder,
         // A textarea is rounder or squarer than a control, so its ring has to
@@ -2948,7 +2948,7 @@ class DefaultThemeVariant extends ThemeVariant {
       backgroundColor: colorScheme.muted,
       foregroundColor: colorScheme.mutedForeground,
       // No outline: shadcn's kbd is a plain `bg-muted rounded-sm` chip.
-      border: FinesseBorder.all(width: 0, borderRadius: itemRadius),
+      border: UnaBorder.all(width: 0, borderRadius: itemRadius),
       padding: EdgeInsets.symmetric(horizontal: scaled(style.kbdPaddingX)),
       // `font-sans text-xs font-medium` — a key cap is not code.
       textStyle: style.caption.apply(effectiveTextTheme.muted),
@@ -2990,8 +2990,8 @@ class DefaultThemeVariant extends ThemeVariant {
       hoverForegroundColor: colorScheme.foreground,
       selectedForegroundColor: colorScheme.foreground,
       padding: EdgeInsets.symmetric(horizontal: scaled(style.buttonPaddingX)),
-      decoration: FinesseDecoration(
-        border: FinesseBorder.all(
+      decoration: UnaDecoration(
+        border: UnaBorder.all(
           borderRadius: controlRadius,
           color: borderWidth == 0 ? null : colorScheme.input,
           width: borderWidth,
@@ -3143,17 +3143,17 @@ class DefaultThemeVariant extends ThemeVariant {
       style.commandSearchBorderOpacity,
     );
     final searchRadius = radii.resolve(style.commandSearchRadius);
-    final searchDecoration = FinesseDecoration(
+    final searchDecoration = UnaDecoration(
       color: _fill(
         _isDark ? style.commandSearchFillDark : style.commandSearchFill,
         colorScheme,
       ),
       border: style.commandSearchUnderline
-          ? FinesseBorder(
+          ? UnaBorder(
               borderRadius: searchRadius,
-              bottom: FinesseBorderSide(color: colorScheme.input, width: 1),
+              bottom: UnaBorderSide(color: colorScheme.input, width: 1),
             )
-          : FinesseBorder.all(
+          : UnaBorder.all(
               borderRadius: searchRadius,
               color: searchBorderColor,
               width: 1,
@@ -3165,8 +3165,8 @@ class DefaultThemeVariant extends ThemeVariant {
       surfaceFilter: popoverFilter,
       // `.cn-command` carries the surface hairline; shadow comes from the
       // inline demo's `shadow-md`, not from the base style block.
-      decoration: FinesseDecoration(
-        border: FinesseBorder.all(
+      decoration: UnaDecoration(
+        border: UnaBorder.all(
           borderRadius: commandRadius,
           color: surfaceBorderColor,
           width: 1,

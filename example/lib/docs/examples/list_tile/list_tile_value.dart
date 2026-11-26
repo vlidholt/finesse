@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// What a row can say beyond its title: its current value, a chevron for a
 /// row that leads somewhere, a destructive action, and a row switched off.

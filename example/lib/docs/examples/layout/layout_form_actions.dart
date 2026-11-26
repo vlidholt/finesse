@@ -1,7 +1,7 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
-/// Stacked primary and secondary actions with `FinesseColumn` spacing.
+/// Stacked primary and secondary actions with `UnaColumn` spacing.
 /// the footer pattern used in dialogs and forms.
 class LayoutFormActionsExample extends StatelessWidget {
   const LayoutFormActionsExample({super.key});
@@ -13,7 +13,7 @@ class LayoutFormActionsExample extends StatelessWidget {
       child: Card(
         title: const Text('Schedule payout'),
         description: const Text('Confirm the transfer details below.'),
-        child: FinesseColumn(
+        child: UnaColumn(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           spacing: 3,

@@ -1,18 +1,18 @@
-import 'package:finesse/material.dart';
-import 'package:finesse/src/app.dart';
-import 'package:finesse/src/components/breadcrumb.dart';
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/theme/components/breadcrumb.dart';
-import 'package:finesse/src/theme/data.dart';
 import 'package:flutter/material.dart' hide ThemeData;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/material.dart';
+import 'package:una/src/app.dart';
+import 'package:una/src/components/breadcrumb.dart';
+import 'package:una/src/components/button.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/theme/components/breadcrumb.dart';
+import 'package:una/src/theme/data.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
+  // Helper method to create a test widget wrapped in UnaApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return FinesseApp(
-      builder: (context, child) => FinesseMaterial(child: child!),
+    return UnaApp(
+      builder: (context, child) => UnaMaterial(child: child!),
       home: Scaffold(
         body: child,
       ),
@@ -25,8 +25,8 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          FinesseApp(
-            builder: (context, child) => FinesseMaterial(child: child!),
+          UnaApp(
+            builder: (context, child) => UnaMaterial(child: child!),
             home: const Breadcrumb(
               children: [
                 Text('Home'),
@@ -55,8 +55,8 @@ void main() {
     testWidgets('renders with custom separator', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          FinesseApp(
-            builder: (context, child) => FinesseMaterial(child: child!),
+          UnaApp(
+            builder: (context, child) => UnaMaterial(child: child!),
             home: const Breadcrumb(
               separator: Icon(Icons.arrow_forward_ios),
               children: [
@@ -81,8 +81,8 @@ void main() {
 
       await tester.pumpWidget(
         createTestWidget(
-          FinesseApp(
-            builder: (context, child) => FinesseMaterial(child: child!),
+          UnaApp(
+            builder: (context, child) => UnaMaterial(child: child!),
             home: Breadcrumb(
               children: [
                 BreadcrumbLink(
@@ -113,8 +113,8 @@ void main() {
     testWidgets('renders ellipsis correctly', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          FinesseApp(
-            builder: (context, child) => FinesseMaterial(child: child!),
+          UnaApp(
+            builder: (context, child) => UnaMaterial(child: child!),
             home: const Breadcrumb(
               children: [
                 Text('Home'),
@@ -136,8 +136,8 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          FinesseApp(
-            builder: (context, child) => FinesseMaterial(child: child!),
+          UnaApp(
+            builder: (context, child) => UnaMaterial(child: child!),
             home: const Directionality(
               textDirection: TextDirection.rtl,
               child: Breadcrumb(
@@ -165,8 +165,8 @@ void main() {
 
       await tester.pumpWidget(
         createTestWidget(
-          FinesseApp(
-            builder: (context, child) => FinesseMaterial(child: child!),
+          UnaApp(
+            builder: (context, child) => UnaMaterial(child: child!),
             home: BreadcrumbLink(
               onPressed: () => wasTapped = true,
               child: const Text('Clickable'),
@@ -186,8 +186,8 @@ void main() {
     testWidgets('handles hover correctly', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          FinesseApp(
-            builder: (context, child) => FinesseMaterial(child: child!),
+          UnaApp(
+            builder: (context, child) => UnaMaterial(child: child!),
             home: BreadcrumbLink(
               onPressed: () {},
               child: const Text('Hoverable'),
@@ -238,8 +238,8 @@ void main() {
   group('BreadcrumbDropdown', () {
     testWidgets('renders child widget', (tester) async {
       await tester.pumpWidget(
-        FinesseApp(
-          builder: (context, child) => FinesseMaterial(child: child!),
+        UnaApp(
+          builder: (context, child) => UnaMaterial(child: child!),
           home: const Scaffold(
             body: BreadcrumbDropdown(
               items: [
@@ -256,8 +256,8 @@ void main() {
 
     testWidgets('displays chevron down icon', (tester) async {
       await tester.pumpWidget(
-        FinesseApp(
-          builder: (context, child) => FinesseMaterial(child: child!),
+        UnaApp(
+          builder: (context, child) => UnaMaterial(child: child!),
           home: const Scaffold(
             body: BreadcrumbDropdown(
               items: [
@@ -274,8 +274,8 @@ void main() {
 
     testWidgets('shows popover when clicked', (tester) async {
       await tester.pumpWidget(
-        FinesseApp(
-          builder: (context, child) => FinesseMaterial(child: child!),
+        UnaApp(
+          builder: (context, child) => UnaMaterial(child: child!),
           home: const Scaffold(
             body: BreadcrumbDropdown(
               items: [
@@ -303,8 +303,8 @@ void main() {
 
     testWidgets('hides popover when clicked again', (tester) async {
       await tester.pumpWidget(
-        FinesseApp(
-          builder: (context, child) => FinesseMaterial(child: child!),
+        UnaApp(
+          builder: (context, child) => UnaMaterial(child: child!),
           home: const Scaffold(
             body: BreadcrumbDropdown(
               items: [
@@ -329,8 +329,8 @@ void main() {
 
     testWidgets('displays multiple dropdown items', (tester) async {
       await tester.pumpWidget(
-        FinesseApp(
-          builder: (context, child) => FinesseMaterial(child: child!),
+        UnaApp(
+          builder: (context, child) => UnaMaterial(child: child!),
           home: const Scaffold(
             body: BreadcrumbDropdown(
               items: [
@@ -356,8 +356,8 @@ void main() {
       const testSpacing = 10.0;
 
       await tester.pumpWidget(
-        FinesseApp(
-          builder: (context, child) => FinesseMaterial(child: child!),
+        UnaApp(
+          builder: (context, child) => UnaMaterial(child: child!),
           theme: ThemeData(
             brightness: Brightness.light,
             breadcrumbTheme: const BreadcrumbTheme(
@@ -381,8 +381,8 @@ void main() {
 
     testWidgets('controller is disposed properly', (tester) async {
       await tester.pumpWidget(
-        FinesseApp(
-          builder: (context, child) => FinesseMaterial(child: child!),
+        UnaApp(
+          builder: (context, child) => UnaMaterial(child: child!),
           home: const Scaffold(
             body: BreadcrumbDropdown(
               items: [
@@ -405,8 +405,8 @@ void main() {
   group('BreadcrumbDropMenuItem', () {
     testWidgets('renders child widget', (tester) async {
       await tester.pumpWidget(
-        FinesseApp(
-          builder: (context, child) => FinesseMaterial(child: child!),
+        UnaApp(
+          builder: (context, child) => UnaMaterial(child: child!),
           home: const Scaffold(
             body: BreadcrumbDropMenuItem(
               child: Text('Menu Item'),
@@ -422,8 +422,8 @@ void main() {
       var wasPressed = false;
 
       await tester.pumpWidget(
-        FinesseApp(
-          builder: (context, child) => FinesseMaterial(child: child!),
+        UnaApp(
+          builder: (context, child) => UnaMaterial(child: child!),
           home: Scaffold(
             body: BreadcrumbDropMenuItem(
               onPressed: () => wasPressed = true,
@@ -441,8 +441,8 @@ void main() {
 
     testWidgets('does not call onPressed when null', (tester) async {
       await tester.pumpWidget(
-        FinesseApp(
-          builder: (context, child) => FinesseMaterial(child: child!),
+        UnaApp(
+          builder: (context, child) => UnaMaterial(child: child!),
           home: const Scaffold(
             body: BreadcrumbDropMenuItem(
               child: Text('Non-clickable Item'),
@@ -460,8 +460,8 @@ void main() {
 
     testWidgets('applies default padding', (tester) async {
       await tester.pumpWidget(
-        FinesseApp(
-          builder: (context, child) => FinesseMaterial(child: child!),
+        UnaApp(
+          builder: (context, child) => UnaMaterial(child: child!),
           home: const Scaffold(
             body: BreadcrumbDropMenuItem(
               child: Text('Item'),
@@ -481,8 +481,8 @@ void main() {
       const customPadding = EdgeInsets.all(12);
 
       await tester.pumpWidget(
-        FinesseApp(
-          builder: (context, child) => FinesseMaterial(child: child!),
+        UnaApp(
+          builder: (context, child) => UnaMaterial(child: child!),
           home: const Scaffold(
             body: BreadcrumbDropMenuItem(
               itemPadding: customPadding,
@@ -498,8 +498,8 @@ void main() {
 
     testWidgets('uses ghost button variant', (tester) async {
       await tester.pumpWidget(
-        FinesseApp(
-          builder: (context, child) => FinesseMaterial(child: child!),
+        UnaApp(
+          builder: (context, child) => UnaMaterial(child: child!),
           home: const Scaffold(
             body: BreadcrumbDropMenuItem(
               child: Text('Item'),
@@ -514,8 +514,8 @@ void main() {
 
     testWidgets('renders complex child widget', (tester) async {
       await tester.pumpWidget(
-        FinesseApp(
-          builder: (context, child) => FinesseMaterial(child: child!),
+        UnaApp(
+          builder: (context, child) => UnaMaterial(child: child!),
           home: const Scaffold(
             body: BreadcrumbDropMenuItem(
               child: Row(
@@ -540,8 +540,8 @@ void main() {
       var selectedItem = '';
 
       await tester.pumpWidget(
-        FinesseApp(
-          builder: (context, child) => FinesseMaterial(child: child!),
+        UnaApp(
+          builder: (context, child) => UnaMaterial(child: child!),
           home: Scaffold(
             body: BreadcrumbDropdown(
               items: [
@@ -573,8 +573,8 @@ void main() {
 
     testWidgets('works with empty children list', (tester) async {
       await tester.pumpWidget(
-        FinesseApp(
-          builder: (context, child) => FinesseMaterial(child: child!),
+        UnaApp(
+          builder: (context, child) => UnaMaterial(child: child!),
           home: const Scaffold(
             body: BreadcrumbDropdown(
               items: [],

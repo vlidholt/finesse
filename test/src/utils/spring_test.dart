@@ -1,12 +1,12 @@
-import 'package:finesse/finesse.dart';
-import 'package:finesse/src/utils/entrance.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/src/utils/entrance.dart';
+import 'package:una/una.dart';
 
 const _frame = Duration(milliseconds: 16);
 
 Widget _app(Widget child, {bool reduceMotion = false, Motion? motion}) {
-  return FinesseApp(
+  return UnaApp(
     theme: motion == null ? null : ThemeData(motion: motion),
     home: Builder(
       builder: (context) => MediaQuery(

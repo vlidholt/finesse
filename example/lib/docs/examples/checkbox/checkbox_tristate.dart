@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// A box that stands for several others. With `tristate` its value may be
 /// null — mixed, drawn as a dash — while only some of them are checked. A
@@ -23,7 +23,7 @@ class _CheckboxTristateExampleState extends State<CheckboxTristateExample> {
 
   @override
   Widget build(BuildContext context) {
-    return FinesseColumn(
+    return UnaColumn(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       gap: GapSize.sm,

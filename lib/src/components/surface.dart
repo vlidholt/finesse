@@ -1,15 +1,15 @@
 import 'dart:ui';
 
-import 'package:finesse/src/components/decorator.dart';
-import 'package:finesse/src/liquid_glass/liquid_glass.dart';
-import 'package:finesse/src/raw_components/portal.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/arrow_surface.dart';
-import 'package:finesse/src/utils/backdrop.dart';
-import 'package:finesse/src/utils/border.dart';
-import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/decorator.dart';
+import 'package:una/src/liquid_glass/liquid_glass.dart';
+import 'package:una/src/raw_components/portal.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/arrow_surface.dart';
+import 'package:una/src/utils/backdrop.dart';
+import 'package:una/src/utils/border.dart';
+import 'package:una/src/utils/shadow.dart';
 
 /// Which component's surface a [Surface] paints.
 enum SurfaceKind {
@@ -26,7 +26,7 @@ enum SurfaceKind {
 /// {@template Surface}
 /// The surface of a popover or menu, around any [child].
 ///
-/// Use it for floating UI that finesse does not provide as a component — a
+/// Use it for floating UI that una does not provide as a component — a
 /// cell editor, a find bar, a palette of swatches — so it gets the same outline
 /// (shadcn's `ring-foreground/10`, not `--border`), radius, padding,
 /// colours and shadow as a `Popover`. The shadow is painted the way CSS
@@ -60,7 +60,7 @@ class Surface extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
 
   /// Merged over the surface's decoration.
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// Overrides the surface's shadows.
   final List<BoxShadow>? shadows;
@@ -82,10 +82,9 @@ class Surface extends StatelessWidget {
     final menuTheme = theme.contextMenuTheme;
     final isMenu = kind == SurfaceKind.menu;
 
-    var effectiveDecoration =
-        (popoverTheme.decoration ?? const FinesseDecoration())
-            .merge(isMenu ? menuTheme.decoration : null)
-            .merge(decoration);
+    var effectiveDecoration = (popoverTheme.decoration ?? const UnaDecoration())
+        .merge(isMenu ? menuTheme.decoration : null)
+        .merge(decoration);
     effectiveDecoration = effectiveDecoration.copyWith(
       shadows:
           shadows ??
@@ -171,10 +170,10 @@ class SurfaceArrow {
 /// [decoration] with nothing left that a surface drawn separately — an
 /// arrow's outline, Liquid Glass — paints instead: no fill, no shadow, and
 /// a border of the same widths in no colour, so the content keeps its place.
-FinesseDecoration glassFreeDecoration(FinesseDecoration decoration) {
-  FinesseBorderSide? cleared(FinesseBorderSide? side) => side == null
+UnaDecoration glassFreeDecoration(UnaDecoration decoration) {
+  UnaBorderSide? cleared(UnaBorderSide? side) => side == null
       ? null
-      : FinesseBorderSide(
+      : UnaBorderSide(
           canMerge: side.canMerge,
           color: const Color(0x00000000),
           width: side.width,
@@ -185,7 +184,7 @@ FinesseDecoration glassFreeDecoration(FinesseDecoration decoration) {
   return decoration.copyWith(
     color: const Color(0x00000000),
     shadows: const [],
-    border: border == null || border is FinesseRoundedSuperellipseBorder
+    border: border == null || border is UnaRoundedSuperellipseBorder
         ? border
         : border.copyWith(
             top: cleared(border.top),
@@ -214,10 +213,10 @@ class SurfacePainter extends StatelessWidget {
   });
 
   /// The key of the empty box that marks where the arrow is, for tests.
-  static const arrowKey = ValueKey<String>('finesse_surface_arrow');
+  static const arrowKey = ValueKey<String>('una_surface_arrow');
 
   /// The decoration of the surface: fill, border, radius and shadows.
-  final FinesseDecoration decoration;
+  final UnaDecoration decoration;
 
   /// The space between the edge of the surface and [child].
   final EdgeInsetsGeometry padding;

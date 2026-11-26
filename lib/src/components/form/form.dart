@@ -1,40 +1,40 @@
-import 'package:finesse/src/components/form/field.dart';
-import 'package:finesse/src/utils/extensions/map.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/form/field.dart';
+import 'package:una/src/utils/extensions/map.dart';
 
-/// Used to configure the auto validation of [FormField] and [FinesseForm]
+/// Used to configure the auto validation of [FormField] and [UnaForm]
 /// widgets.
-enum FinesseAutovalidateMode {
+enum UnaAutovalidateMode {
   /// No auto validation will occur.
   disabled,
 
-  /// Used to auto-validate [FinesseForm] and [FormField] even without user
+  /// Used to auto-validate [UnaForm] and [FormField] even without user
   /// interaction.
   always,
 
-  /// Used to auto-validate [FinesseForm] and [FormField] only after each user
+  /// Used to auto-validate [UnaForm] and [FormField] only after each user
   /// interaction.
   onUserInteraction,
 
-  /// Used to auto-validate [FinesseForm] and [FormField] every time after the
+  /// Used to auto-validate [UnaForm] and [FormField] every time after the
   /// first validation.
   alwaysAfterFirstValidation,
 }
 
 /// A typedef representing a map of form field states with dynamic values.
 typedef FormFields =
-    Map<String, FinesseFormFieldState<FinesseFormField<dynamic>, dynamic>>;
+    Map<String, UnaFormFieldState<UnaFormField<dynamic>, dynamic>>;
 
 /// A stateful widget that manages a form with validation and field management.
-class FinesseForm extends StatefulWidget {
+class UnaForm extends StatefulWidget {
   /// Creates a form around [child].
-  const FinesseForm({
+  const UnaForm({
     super.key,
     required this.child,
     this.onChanged,
     this.canPop,
     this.onPopInvokedWithResult,
-    this.autovalidateMode = FinesseAutovalidateMode.alwaysAfterFirstValidation,
+    this.autovalidateMode = UnaAutovalidateMode.alwaysAfterFirstValidation,
     this.initialValue = const {},
     this.enabled = true,
     this.skipDisabled = false,
@@ -52,7 +52,7 @@ class FinesseForm extends StatefulWidget {
   final PopInvokedWithResultCallback<Object?>? onPopInvokedWithResult;
 
   /// The auto validation mode for the form
-  final FinesseAutovalidateMode autovalidateMode;
+  final UnaAutovalidateMode autovalidateMode;
 
   /// The widget tree contained within the form
   final Widget child;
@@ -72,26 +72,26 @@ class FinesseForm extends StatefulWidget {
   final bool clearValueOnUnregister;
 
   /// The separator to use for nested maps in the resulting form
-  /// [FinesseFormState.value].
+  /// [UnaFormState.value].
   ///
   /// Defaults to '.', but can be customized to any string (e.g., '/', ':').
   /// Pass `null` to disable dot notation support.
   final String? fieldIdSeparator;
 
   @override
-  State<FinesseForm> createState() => FinesseFormState();
+  State<UnaForm> createState() => UnaFormState();
 
-  /// Returns the nearest [FinesseFormState] from the widget tree
+  /// Returns the nearest [UnaFormState] from the widget tree
   /// Throws assertion error if not found
-  static FinesseFormState of(BuildContext context) {
+  static UnaFormState of(BuildContext context) {
     final state = maybeOf(context);
-    assert(state != null, 'No FinesseFormState found in context');
+    assert(state != null, 'No UnaFormState found in context');
     return state!;
   }
 
-  /// Returns the nearest [FinesseFormState] from the widget tree or null if not
+  /// Returns the nearest [UnaFormState] from the widget tree or null if not
   /// found
-  static FinesseFormState? maybeOf(BuildContext context) {
+  static UnaFormState? maybeOf(BuildContext context) {
     return (context
                 .getElementForInheritedWidgetOfExactType<_FormScope>()
                 ?.widget
@@ -100,8 +100,8 @@ class FinesseForm extends StatefulWidget {
   }
 }
 
-/// The state class for [FinesseForm] managing form fields and validation
-class FinesseFormState extends State<FinesseForm> {
+/// The state class for [UnaForm] managing form fields and validation
+class UnaFormState extends State<UnaForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final FormFields _fields = {};
   final Map<String, dynamic> _value = {};
@@ -110,8 +110,8 @@ class FinesseFormState extends State<FinesseForm> {
 
   /// The validation mode passed to the inner [Form].
   ///
-  /// It starts from [FinesseForm.autovalidateMode]. With
-  /// [FinesseAutovalidateMode.alwaysAfterFirstValidation] it switches to
+  /// It starts from [UnaForm.autovalidateMode]. With
+  /// [UnaAutovalidateMode.alwaysAfterFirstValidation] it switches to
   /// [AutovalidateMode.always] on the first [validate], and back on [reset].
   late final ValueNotifier<AutovalidateMode> autovalidateMode;
 
@@ -157,11 +157,11 @@ class FinesseFormState extends State<FinesseForm> {
   void initState() {
     super.initState();
     final mode = switch (widget.autovalidateMode) {
-      FinesseAutovalidateMode.always => AutovalidateMode.always,
-      FinesseAutovalidateMode.onUserInteraction =>
+      UnaAutovalidateMode.always => AutovalidateMode.always,
+      UnaAutovalidateMode.onUserInteraction =>
         AutovalidateMode.onUserInteraction,
-      FinesseAutovalidateMode.alwaysAfterFirstValidation ||
-      FinesseAutovalidateMode.disabled => AutovalidateMode.disabled,
+      UnaAutovalidateMode.alwaysAfterFirstValidation ||
+      UnaAutovalidateMode.disabled => AutovalidateMode.disabled,
     };
     autovalidateMode = ValueNotifier(mode);
   }
@@ -175,7 +175,7 @@ class FinesseFormState extends State<FinesseForm> {
   /// Registers a form field with the specified id
   void registerField(
     String id,
-    FinesseFormFieldState<FinesseFormField<dynamic>, dynamic> field,
+    UnaFormFieldState<UnaFormField<dynamic>, dynamic> field,
   ) {
     _fields[id] = field;
 
@@ -284,7 +284,7 @@ class FinesseFormState extends State<FinesseForm> {
   /// Unregisters a form field
   void unregisterField(
     String id,
-    FinesseFormFieldState<FinesseFormField<dynamic>, dynamic> field,
+    UnaFormFieldState<UnaFormField<dynamic>, dynamic> field,
   ) {
     _fields.remove(id);
     _toValueTransformers.remove(id);
@@ -301,7 +301,7 @@ class FinesseFormState extends State<FinesseForm> {
     bool autoScrollWhenFocusOnInvalid = false,
   }) {
     if (widget.autovalidateMode ==
-        FinesseAutovalidateMode.alwaysAfterFirstValidation) {
+        UnaAutovalidateMode.alwaysAfterFirstValidation) {
       autovalidateMode.value = AutovalidateMode.always;
     }
     final hasError = !_formKey.currentState!.validate();
@@ -336,11 +336,11 @@ class FinesseFormState extends State<FinesseForm> {
   /// Resets the form to its initial state
   void reset() {
     autovalidateMode.value = switch (widget.autovalidateMode) {
-      FinesseAutovalidateMode.always => AutovalidateMode.always,
-      FinesseAutovalidateMode.onUserInteraction =>
+      UnaAutovalidateMode.always => AutovalidateMode.always,
+      UnaAutovalidateMode.onUserInteraction =>
         AutovalidateMode.onUserInteraction,
-      FinesseAutovalidateMode.alwaysAfterFirstValidation ||
-      FinesseAutovalidateMode.disabled => AutovalidateMode.disabled,
+      UnaAutovalidateMode.alwaysAfterFirstValidation ||
+      UnaAutovalidateMode.disabled => AutovalidateMode.disabled,
     };
     _value.clear();
     _formKey.currentState?.reset();
@@ -376,18 +376,18 @@ class FinesseFormState extends State<FinesseForm> {
   }
 }
 
-/// An inherited widget that provides access to the [FinesseFormState]
+/// An inherited widget that provides access to the [UnaFormState]
 class _FormScope extends InheritedWidget {
   /// Creates a scope that gives [child] access to `formState`.
   const _FormScope({
     required super.child,
-    required FinesseFormState formState,
+    required UnaFormState formState,
   }) : _formState = formState;
 
-  final FinesseFormState _formState;
+  final UnaFormState _formState;
 
-  /// The FinesseForm widget associated with this scope
-  FinesseForm get form => _formState.widget;
+  /// The UnaForm widget associated with this scope
+  UnaForm get form => _formState.widget;
 
   @override
   bool updateShouldNotify(_FormScope oldWidget) =>

@@ -1,12 +1,12 @@
-import 'package:finesse/src/components/form/field.dart';
-import 'package:finesse/src/components/slider.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/form/field.dart';
+import 'package:una/src/components/slider.dart';
 
-/// A [Slider] that takes part in a `FinesseForm`, with a label, a
+/// A [Slider] that takes part in a `UnaForm`, with a label, a
 /// description and validation.
 ///
 /// A failed validation moves the focus to the slider's thumb.
-class SliderFormField extends FinesseFormField<double> {
+class SliderFormField extends UnaFormField<double> {
   /// Creates a slider form field.
   SliderFormField({
     super.id,
@@ -89,10 +89,10 @@ class SliderFormField extends FinesseFormField<double> {
        );
 
   @override
-  FinesseFormFieldState<SliderFormField, double> createState() =>
+  UnaFormFieldState<SliderFormField, double> createState() =>
       _SliderFormFieldState();
 }
 
 /// The state of a [SliderFormField].
 class _SliderFormFieldState
-    extends FinesseFormFieldState<SliderFormField, double> {}
+    extends UnaFormFieldState<SliderFormField, double> {}

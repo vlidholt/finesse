@@ -1,8 +1,8 @@
-import 'package:finesse/src/components/form/field.dart';
-import 'package:finesse/src/components/toggle.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/form/field.dart';
+import 'package:una/src/components/toggle.dart';
 
-/// A [ToggleGroup] that takes part in a `FinesseForm`, with a label, a
+/// A [ToggleGroup] that takes part in a `UnaForm`, with a label, a
 /// description and validation. Its value is the selected value, or null.
 /// For a set of values, use [ToggleGroupMultipleFormField].
 ///
@@ -18,7 +18,7 @@ import 'package:flutter/widgets.dart';
 ///   ],
 /// )
 /// ```
-class ToggleGroupFormField<T> extends FinesseFormField<T> {
+class ToggleGroupFormField<T> extends UnaFormField<T> {
   /// Creates a toggle group form field that holds one value.
   ToggleGroupFormField({
     super.id,
@@ -75,15 +75,15 @@ class ToggleGroupFormField<T> extends FinesseFormField<T> {
        );
 
   @override
-  FinesseFormFieldState<ToggleGroupFormField<T>, T> createState() =>
+  UnaFormFieldState<ToggleGroupFormField<T>, T> createState() =>
       _ToggleGroupFormFieldState<T>();
 }
 
 /// The state of a [ToggleGroupFormField].
 class _ToggleGroupFormFieldState<T>
-    extends FinesseFormFieldState<ToggleGroupFormField<T>, T> {}
+    extends UnaFormFieldState<ToggleGroupFormField<T>, T> {}
 
-/// A [ToggleGroup.multiple] that takes part in a `FinesseForm`, with a
+/// A [ToggleGroup.multiple] that takes part in a `UnaForm`, with a
 /// label, a description and validation. Its value is the set of selected
 /// values.
 ///
@@ -99,7 +99,7 @@ class _ToggleGroupFormFieldState<T>
 ///   ],
 /// )
 /// ```
-class ToggleGroupMultipleFormField<T> extends FinesseFormField<Set<T>> {
+class ToggleGroupMultipleFormField<T> extends UnaFormField<Set<T>> {
   /// Creates a toggle group form field that holds a set of values.
   ToggleGroupMultipleFormField({
     super.id,
@@ -168,10 +168,10 @@ class ToggleGroupMultipleFormField<T> extends FinesseFormField<Set<T>> {
        );
 
   @override
-  FinesseFormFieldState<ToggleGroupMultipleFormField<T>, Set<T>>
-  createState() => _ToggleGroupMultipleFormFieldState<T>();
+  UnaFormFieldState<ToggleGroupMultipleFormField<T>, Set<T>> createState() =>
+      _ToggleGroupMultipleFormFieldState<T>();
 }
 
 /// The state of a [ToggleGroupMultipleFormField].
 class _ToggleGroupMultipleFormFieldState<T>
-    extends FinesseFormFieldState<ToggleGroupMultipleFormField<T>, Set<T>> {}
+    extends UnaFormFieldState<ToggleGroupMultipleFormField<T>, Set<T>> {}

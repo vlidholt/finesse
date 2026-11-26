@@ -28,8 +28,8 @@ mixin _$RadioTheme {
     return RadioTheme(
       color: Color.lerp(a.color, b.color, t),
       size: lerpDouble$(a.size, b.size, t),
-      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
-      checkedDecoration: FinesseDecoration.lerp(
+      decoration: UnaDecoration.lerp(a.decoration, b.decoration, t),
+      checkedDecoration: UnaDecoration.lerp(
         a.checkedDecoration,
         b.checkedDecoration,
         t,
@@ -49,8 +49,8 @@ mixin _$RadioTheme {
   RadioTheme copyWith({
     Color? color,
     double? size,
-    FinesseDecoration? decoration,
-    FinesseDecoration? checkedDecoration,
+    UnaDecoration? decoration,
+    UnaDecoration? checkedDecoration,
     EdgeInsetsGeometry? padding,
     double? circleSize,
     Axis? axis,

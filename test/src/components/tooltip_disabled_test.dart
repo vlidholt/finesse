@@ -1,14 +1,14 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 void main() {
   testWidgets('a disabled button still shows its tooltip on hover', (
     tester,
   ) async {
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Center(
           child: Tooltip(
             builder: (_) => const Text('why it is disabled'),

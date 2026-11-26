@@ -725,7 +725,7 @@ class _BoardItemState<T extends Object> extends State<_BoardItem<T>> {
     final config = board.widget;
     final column = widget.column;
     final id = widget.id;
-    final strings = FinesseLocalizations.of(context).board;
+    final strings = UnaLocalizations.of(context).board;
     final draggable = config.enabled;
 
     // Every wrapper below is there whether or not the board is enabled and

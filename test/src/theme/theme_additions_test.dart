@@ -1,16 +1,16 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
-import '../../finesse_harness.dart';
 import '../../fixture_styles.dart';
+import '../../una_harness.dart';
 
 /// What the theme gained when the Demo screens were folded back in:
 /// `textTheme.muted`'s colour, seven style tokens, `ThemeData.baseStyle`,
 /// `ThemeData.buttonDecoration` and the variant's wider equality.
 void main() {
   const styles = [
-    StyleTokens.finesse,
+    StyleTokens.una,
     StyleTokens.nova,
     StyleTokens.maia,
     StyleTokens.lyra,
@@ -203,7 +203,7 @@ void main() {
         'muted text', (tester) async {
       for (final brightness in Brightness.values) {
         late TextStyle seen;
-        await pumpFinesse(
+        await pumpUna(
           tester,
           Builder(
             builder: (context) {
@@ -227,7 +227,7 @@ void main() {
   });
 
   group('the new style tokens', () {
-    test('default to the shadcn values and are set by finesse', () {
+    test('default to the shadcn values and are set by una', () {
       const defaults = StyleTokens.nova;
       expect(defaults.secondaryButtonFill, SurfaceFill.secondary);
       expect(defaults.secondaryBadgeFill, SurfaceFill.secondary);
@@ -246,7 +246,7 @@ void main() {
         expect(style.timelineLineGap, defaults.timelineLineGap);
       }
 
-      for (final style in [StyleTokens.finesse, StyleTokens.finesseMobile]) {
+      for (final style in [StyleTokens.una, StyleTokens.unaMobile]) {
         expect(
           style.secondaryButtonFill,
           SurfaceFill.muted,
@@ -287,7 +287,7 @@ void main() {
         final label = '${brightness.name}, ${formFactor.name}';
 
         test('secondaryButtonFill reaches secondaryButtonTheme ($label)', () {
-          final finesse = ThemeData(
+          final una = ThemeData(
             brightness: brightness,
             formFactor: formFactor,
           );
@@ -298,14 +298,14 @@ void main() {
           );
           // The quiet round icon buttons: `--fill`.
           expect(
-            finesse.secondaryButtonTheme.backgroundColor,
-            finesse.colorScheme.muted,
+            una.secondaryButtonTheme.backgroundColor,
+            una.colorScheme.muted,
           );
           expect(
-            finesse.secondaryButtonTheme.hoverBackgroundColor,
+            una.secondaryButtonTheme.hoverBackgroundColor,
             Color.lerp(
-              finesse.colorScheme.muted,
-              finesse.colorScheme.foreground,
+              una.colorScheme.muted,
+              una.colorScheme.foreground,
               .05,
             ),
           );
@@ -325,7 +325,7 @@ void main() {
 
         test('secondaryBadgeFill and secondaryBadgeSubtle reach '
             'secondaryBadgeTheme ($label)', () {
-          final finesse = ThemeData(
+          final una = ThemeData(
             brightness: brightness,
             formFactor: formFactor,
           );
@@ -336,12 +336,12 @@ void main() {
           );
           // The grey tag: `--fill` under `--ink-2`.
           expect(
-            finesse.secondaryBadgeTheme.backgroundColor,
-            finesse.colorScheme.muted,
+            una.secondaryBadgeTheme.backgroundColor,
+            una.colorScheme.muted,
           );
           expect(
-            finesse.secondaryBadgeTheme.foregroundColor,
-            finesse.colorScheme.foregroundSubtle,
+            una.secondaryBadgeTheme.foregroundColor,
+            una.colorScheme.foregroundSubtle,
           );
           expect(
             nova.secondaryBadgeTheme.backgroundColor,
@@ -355,7 +355,7 @@ void main() {
 
         test('progressTrackFill and progressTinted reach progressBarTheme '
             '($label)', () {
-          final finesse = ThemeData(
+          final una = ThemeData(
             brightness: brightness,
             formFactor: formFactor,
           );
@@ -365,10 +365,10 @@ void main() {
             formFactor: formFactor,
           );
           // Track `--fill-2`, fill `--accent`.
-          expect(finesse.progressBarTheme.color, finesse.colorScheme.tint);
+          expect(una.progressBarTheme.color, una.colorScheme.tint);
           expect(
-            finesse.progressBarTheme.trackColor,
-            finesse.colorScheme.secondary,
+            una.progressBarTheme.trackColor,
+            una.colorScheme.secondary,
           );
           expect(nova.progressBarTheme.color, nova.colorScheme.primary);
           expect(
@@ -378,7 +378,7 @@ void main() {
         });
 
         test('dividerMargin reaches dividerTheme ($label)', () {
-          final finesse = ThemeData(
+          final una = ThemeData(
             brightness: brightness,
             formFactor: formFactor,
           );
@@ -387,8 +387,8 @@ void main() {
             brightness: brightness,
             formFactor: formFactor,
           );
-          expect(finesse.dividerTheme.horizontalMargin, EdgeInsets.zero);
-          expect(finesse.dividerTheme.verticalMargin, EdgeInsets.zero);
+          expect(una.dividerTheme.horizontalMargin, EdgeInsets.zero);
+          expect(una.dividerTheme.verticalMargin, EdgeInsets.zero);
           expect(
             nova.dividerTheme.horizontalMargin,
             const EdgeInsets.symmetric(vertical: 16),
@@ -400,7 +400,7 @@ void main() {
         });
 
         test('timelineLineGap reaches timelineTheme ($label)', () {
-          final finesse = ThemeData(
+          final una = ThemeData(
             brightness: brightness,
             formFactor: formFactor,
           );
@@ -409,7 +409,7 @@ void main() {
             brightness: brightness,
             formFactor: formFactor,
           );
-          expect(finesse.timelineTheme.lineGap, 8);
+          expect(una.timelineTheme.lineGap, 8);
           expect(nova.timelineTheme.lineGap, 6);
         });
       }
@@ -472,13 +472,13 @@ void main() {
         const EdgeInsets.symmetric(vertical: 24),
       );
       expect(nova.timelineTheme.lineGap, 9);
-      final finesse = ThemeData(spacing: spacing);
-      expect(finesse.dividerTheme.horizontalMargin, EdgeInsets.zero);
-      expect(finesse.timelineTheme.lineGap, 12);
+      final una = ThemeData(spacing: spacing);
+      expect(una.dividerTheme.horizontalMargin, EdgeInsets.zero);
+      expect(una.timelineTheme.lineGap, 12);
     });
 
     test('the other variant derives the same five themes', () {
-      for (final style in [StyleTokens.finesse, StyleTokens.nova]) {
+      for (final style in [StyleTokens.una, StyleTokens.nova]) {
         final a = ThemeData(style: style);
         final b = ThemeData(style: style, disableSecondaryBorder: true);
         expect(
@@ -497,15 +497,15 @@ void main() {
       }
     });
 
-    testWidgets('a finesse Divider takes no room beyond its line; a nova one '
+    testWidgets('a una Divider takes no room beyond its line; a nova one '
         'keeps 16 either side', (tester) async {
       Widget rule() => const Center(
         child: SizedBox(width: 200, child: Divider()),
       );
-      await pumpFinesse(tester, rule());
+      await pumpUna(tester, rule());
       expect(tester.getSize(find.byType(Divider)).height, 1);
 
-      await pumpFinesse(
+      await pumpUna(
         tester,
         rule(),
         theme: ThemeData(style: StyleTokens.nova),
@@ -515,9 +515,9 @@ void main() {
       Widget upright() => const Center(
         child: SizedBox(height: 100, child: Divider.vertical()),
       );
-      await pumpFinesse(tester, upright());
+      await pumpUna(tester, upright());
       expect(tester.getSize(find.byType(Divider)).width, 1);
-      await pumpFinesse(
+      await pumpUna(
         tester,
         upright(),
         theme: ThemeData(style: StyleTokens.nova),
@@ -527,8 +527,8 @@ void main() {
 
     testWidgets('the tokens reach the widgets: secondary button and badge '
         'fills, the progress bar', (tester) async {
-      for (final style in [StyleTokens.finesse, StyleTokens.nova]) {
-        await pumpFinesse(
+      for (final style in [StyleTokens.una, StyleTokens.nova]) {
+        await pumpUna(
           tester,
           Center(
             child: Column(
@@ -545,7 +545,7 @@ void main() {
         );
         expect(tester.takeException(), isNull, reason: style.name);
         final theme = themeOf(tester, find.byKey(const Key('column')));
-        final finesse = style == StyleTokens.finesse;
+        final una = style == StyleTokens.una;
         final scheme = theme.colorScheme;
 
         bool paintsFill(Finder of, Color color) => find
@@ -574,7 +574,7 @@ void main() {
         expect(
           paintsFill(
             find.byType(Button),
-            finesse ? scheme.muted : scheme.secondary,
+            una ? scheme.muted : scheme.secondary,
           ),
           isTrue,
           reason: '${style.name} secondary button',
@@ -582,14 +582,14 @@ void main() {
         expect(
           paintsFill(
             find.byType(Badge),
-            finesse ? scheme.muted : scheme.secondary,
+            una ? scheme.muted : scheme.secondary,
           ),
           isTrue,
           reason: '${style.name} secondary badge',
         );
         expect(
           DefaultTextStyle.of(tester.element(find.text('Tag'))).style.color,
-          finesse ? scheme.foregroundSubtle : scheme.secondaryForeground,
+          una ? scheme.foregroundSubtle : scheme.secondaryForeground,
           reason: '${style.name} secondary badge text',
         );
         // The progress bar: its track is a filled box, its fill a widget
@@ -597,7 +597,7 @@ void main() {
         expect(
           paintsFill(
             find.byType(ProgressBar),
-            finesse ? scheme.secondary : scheme.muted,
+            una ? scheme.secondary : scheme.muted,
           ),
           isTrue,
           reason: '${style.name} progress track',
@@ -616,7 +616,7 @@ void main() {
                       .decoration
                   as BoxDecoration)
               .color,
-          finesse ? scheme.tint : scheme.primary,
+          una ? scheme.tint : scheme.primary,
           reason: '${style.name} progress fill',
         );
       }
@@ -650,7 +650,7 @@ void main() {
       }
       expect(
         ThemeData(formFactor: FormFactor.mobile).style,
-        StyleTokens.finesseMobile,
+        StyleTokens.unaMobile,
       );
     });
 
@@ -731,10 +731,10 @@ void main() {
       expect(copy.style, StyleTokens.nova.forFormFactor(FormFactor.mobile));
     });
 
-    testWidgets('a FinesseApp on a phone reports the style it was given', (
+    testWidgets('a UnaApp on a phone reports the style it was given', (
       tester,
     ) async {
-      await pumpFinesse(
+      await pumpUna(
         tester,
         const SizedBox.expand(key: Key('page')),
         theme: ThemeData(style: StyleTokens.maia),
@@ -871,7 +871,7 @@ void main() {
     ) async {
       useTraditionalHighlights();
       late ThemeData theme;
-      await pumpFinesse(
+      await pumpUna(
         tester,
         Center(
           child: Builder(
@@ -912,7 +912,7 @@ void main() {
 
     testWidgets('IconButton builds its shape through it', (tester) async {
       for (final disableSecondaryBorder in [false, true]) {
-        await pumpFinesse(
+        await pumpUna(
           tester,
           Center(
             child: IconButton.secondary(
@@ -923,7 +923,7 @@ void main() {
           theme: ThemeData(disableSecondaryBorder: disableSecondaryBorder),
         );
         final theme = themeOf(tester, find.byType(IconButton));
-        // finesse rounds its icon buttons through a style token.
+        // una rounds its icon buttons through a style token.
         final token = theme.style.iconButtonRadius;
         expect(token, isNotNull);
         final expected = theme.buttonDecoration(
@@ -955,7 +955,7 @@ void main() {
 
   group('DefaultThemeVariant equality', () {
     DefaultThemeVariant variant({
-      StyleTokens style = StyleTokens.finesse,
+      StyleTokens style = StyleTokens.una,
       FormFactor formFactor = FormFactor.desktop,
       ColorScheme? menuColorScheme,
       bool menuTranslucent = false,
@@ -1000,10 +1000,10 @@ void main() {
 
     test('the base style tells two variants apart even when their resolved '
         'styles agree', () {
-      // A phone variant of finesse and a desktop variant handed finesse's
+      // A phone variant of una and a desktop variant handed una's
       // phone metrics resolve to the same `style`…
       final phone = variant(formFactor: FormFactor.mobile);
-      final baked = variant(style: StyleTokens.finesseMobile);
+      final baked = variant(style: StyleTokens.unaMobile);
       expect(baked.style, phone.style);
       // …but are not the same variant: one goes back to 36-point buttons on
       // a desktop and the other does not.
@@ -1012,7 +1012,7 @@ void main() {
 
       // And the same base style on the same form factor is what matters.
       final mobileOfMobile = variant(
-        style: StyleTokens.finesseMobile,
+        style: StyleTokens.unaMobile,
         formFactor: FormFactor.mobile,
       );
       expect(mobileOfMobile.style, phone.style);
@@ -1022,7 +1022,7 @@ void main() {
     test('a different style tells two variants apart', () {
       expect(variant(style: StyleTokens.nova), isNot(variant()));
       expect(
-        variant(style: StyleTokens.finesse.copyWith(dividerMargin: 4)),
+        variant(style: StyleTokens.una.copyWith(dividerMargin: 4)),
         isNot(variant()),
       );
     });

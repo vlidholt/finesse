@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// Dots for the steps of a flow. The pill glides to the new page; a tap on
 /// a dot, or the arrow keys while the dots have the focus, picks a page.
@@ -18,7 +18,7 @@ class _PageIndicatorBasicExampleState extends State<PageIndicatorBasicExample> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return FinesseColumn(
+    return UnaColumn(
       gap: GapSize.lg,
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -28,7 +28,7 @@ class _PageIndicatorBasicExampleState extends State<PageIndicatorBasicExample> {
           index: step,
           onSelected: (index) => setState(() => step = index),
         ),
-        FinesseRow(
+        UnaRow(
           gap: GapSize.sm,
           mainAxisSize: MainAxisSize.min,
           children: [

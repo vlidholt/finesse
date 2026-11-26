@@ -1,12 +1,12 @@
-# finesse docs site
+# una docs site
 
-The source of <https://vlidholt.github.io/finesse/>: the component browser
+The source of <https://vlidholt.github.io/una/>: the component browser
 with the docs for every component, and a theme editor that restyles it live.
 
 For a minimal app, see [example.md](example.md). For a whole one, see
-[Demo](https://github.com/vlidholt/finesse_demo), a small professional
-network built with `finesse`'s default look (live at
-<https://vlidholt.github.io/finesse_demo/>).
+[Demo](https://github.com/vlidholt/una_demo), a small professional
+network built with `una`'s default look (live at
+<https://vlidholt.github.io/una_demo/>).
 
 ## Running it
 

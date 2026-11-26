@@ -1,8 +1,8 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 import 'phosphor_subset_font.dart';
 
@@ -162,7 +162,7 @@ void main() {
       tester,
       const PhosphorIcon(PhosphorIconsRegular.minus, size: 12, color: black),
       theme: ThemeData(
-        style: StyleTokens.finesse.copyWith(iconOpticalStrength: 0),
+        style: StyleTokens.una.copyWith(iconOpticalStrength: 0),
       ),
     );
     expect(off, closeTo(.75, .02));

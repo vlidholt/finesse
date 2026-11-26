@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// Every child is forced to `size` and clipped to a circle, so anything
 /// works: initials, reaction icons, a "+5" for the rest. `overlap` sets how

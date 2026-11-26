@@ -4,11 +4,11 @@ library;
 import 'dart:async';
 import 'dart:io';
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 import 'overlay_frames_pinned.dart';
 
@@ -108,7 +108,7 @@ Widget _app(
   bool reduceMotion = false,
   StyleTokens? style,
 }) {
-  return FinesseApp(
+  return UnaApp(
     theme: style == null ? null : ThemeData(style: style),
     formFactor: FormFactor.desktop,
     home: Builder(

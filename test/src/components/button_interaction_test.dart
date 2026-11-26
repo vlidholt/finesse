@@ -1,12 +1,12 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 import '../../decoration_finders.dart';
 
 void main() {
-  Widget wrap(Widget child) => FinesseApp(home: Center(child: child));
+  Widget wrap(Widget child) => UnaApp(home: Center(child: child));
 
   group('hover is retained across a click', () {
     testWidgets('a mouse click does not clear the hover state', (tester) async {

@@ -1,5 +1,3 @@
-import 'package:finesse/finesse.dart' hide Scaffold;
-import 'package:finesse/material.dart';
 import 'package:flutter/material.dart'
     hide
         Badge,
@@ -12,6 +10,8 @@ import 'package:flutter/material.dart'
         TextField,
         ThemeData;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/material.dart';
+import 'package:una/una.dart' hide Scaffold;
 
 /// Every outward shadow has to go through [ShadowDecoration] so it is
 /// clipped to the element it belongs to. A shadow left on a plain
@@ -62,8 +62,8 @@ void main() {
       addTearDown(tester.view.reset);
 
       await tester.pumpWidget(
-        FinesseApp(
-          builder: (context, child) => FinesseMaterial(child: child!),
+        UnaApp(
+          builder: (context, child) => UnaMaterial(child: child!),
           theme: ThemeData(
             colorScheme: const NeutralColorScheme.light(),
             style: style,

@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// Things that appear in answer to something. `Entrance` brings its child in
 /// with a fade, a little growth and a few pixels of travel, and takes it out

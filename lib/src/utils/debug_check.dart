@@ -1,5 +1,5 @@
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/theme.dart';
 
 /// Asserts that [context] has a [Theme] ancestor.
 ///
@@ -7,11 +7,8 @@ import 'package:flutter/widgets.dart';
 /// true, so call it inside an `assert`.
 bool debugCheckHasTheme(BuildContext context) {
   assert(() {
-    if (context.widget is! FinesseInheritedTheme &&
-        context
-                .getElementForInheritedWidgetOfExactType<
-                  FinesseInheritedTheme
-                >() ==
+    if (context.widget is! UnaInheritedTheme &&
+        context.getElementForInheritedWidgetOfExactType<UnaInheritedTheme>() ==
             null) {
       throw FlutterError.fromParts(<DiagnosticsNode>[
         ErrorSummary('No Theme widget ancestor found.'),
@@ -27,7 +24,7 @@ bool debugCheckHasTheme(BuildContext context) {
         ErrorHint(
           'No Theme ancestor could be found starting from the context '
           'that was passed to Theme.of(). This can happen because the '
-          'app is not wrapped with the Finesse widget.',
+          'app is not wrapped with the Una widget.',
         ),
       ]);
     }

@@ -1,7 +1,7 @@
 import 'package:example/docs/phone_frame.dart';
-import 'package:finesse/finesse.dart';
 import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// `extended: !scrolledDown`. The label gives the content room while it is
 /// being read and comes back when the reader turns round.

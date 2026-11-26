@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// A row of cards with the next one peeking in: `viewportFraction` below 1
 /// shows the neighbours, and a controller lets a page indicator beside the
@@ -32,7 +32,7 @@ class _CarouselCardsExampleState extends State<CarouselCardsExample> {
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 460),
-      child: FinesseColumn(
+      child: UnaColumn(
         gap: GapSize.md,
         mainAxisSize: MainAxisSize.min,
         children: [

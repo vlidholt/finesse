@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// Without a child the badge is laid out on its own: an unread count at the
 /// end of a row, or a short label in place of a number.

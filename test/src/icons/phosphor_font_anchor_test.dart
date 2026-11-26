@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:finesse/finesse.dart';
-import 'package:finesse/src/icons/phosphor_font_anchor.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/src/icons/phosphor_font_anchor.dart';
+import 'package:una/una.dart';
 
 void main() {
   testWidgets('a theme keeps one glyph of every bundled icon font in use', (

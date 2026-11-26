@@ -1,8 +1,8 @@
-import 'package:finesse/src/components/form/field.dart';
-import 'package:finesse/src/components/slider.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/form/field.dart';
+import 'package:una/src/components/slider.dart';
 
-/// A [RangeSlider] that takes part in a `FinesseForm`, with a label, a
+/// A [RangeSlider] that takes part in a `UnaForm`, with a label, a
 /// description and validation. Its value is one number per thumb, in
 /// ascending order.
 ///
@@ -18,7 +18,7 @@ import 'package:flutter/widgets.dart';
 /// ```
 ///
 /// A failed validation moves the focus to the slider's first thumb.
-class RangeSliderFormField extends FinesseFormField<List<double>> {
+class RangeSliderFormField extends UnaFormField<List<double>> {
   /// Creates a range slider form field.
   RangeSliderFormField({
     super.id,
@@ -101,10 +101,10 @@ class RangeSliderFormField extends FinesseFormField<List<double>> {
        );
 
   @override
-  FinesseFormFieldState<RangeSliderFormField, List<double>> createState() =>
+  UnaFormFieldState<RangeSliderFormField, List<double>> createState() =>
       _RangeSliderFormFieldState();
 }
 
 /// The state of a [RangeSliderFormField].
 class _RangeSliderFormFieldState
-    extends FinesseFormFieldState<RangeSliderFormField, List<double>> {}
+    extends UnaFormFieldState<RangeSliderFormField, List<double>> {}

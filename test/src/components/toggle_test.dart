@@ -1,12 +1,12 @@
 import 'dart:ui' show Tristate;
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 void main() {
   group('Toggle', () {
-    Widget wrap(Widget child) => FinesseApp(home: Center(child: child));
+    Widget wrap(Widget child) => UnaApp(home: Center(child: child));
 
     testWidgets('calls onChanged with the flipped value', (tester) async {
       final changes = <bool>[];

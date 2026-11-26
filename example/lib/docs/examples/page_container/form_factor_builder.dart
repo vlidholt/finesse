@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// A screen that is *arranged* differently on a phone: the list alone, where
 /// a desktop shows the list beside the conversation.
@@ -52,7 +52,7 @@ class _FormFactorBuilderExampleState extends State<FormFactorBuilderExample> {
         ),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          // In an app the form factor comes from `FinesseApp`; here the
+          // In an app the form factor comes from `UnaApp`; here the
           // frame's theme is switched by hand.
           child: Theme(
             data: theme.withFormFactor(formFactor),

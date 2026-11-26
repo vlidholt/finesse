@@ -1,8 +1,8 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// `ThemeData.menuAccent` is a *menu* option.
 ///
@@ -32,7 +32,7 @@ void main() {
     'stone': (StoneColorScheme.light(), StoneColorScheme.dark()),
   };
   const styles = [
-    StyleTokens.finesse,
+    StyleTokens.una,
     StyleTokens.nova,
     StyleTokens.maia,
     StyleTokens.lyra,
@@ -434,7 +434,7 @@ void main() {
 
     Future<Uint8List> paint(ThemeData theme) async {
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           theme: theme,
           home: RepaintBoundary(
             key: boundary,

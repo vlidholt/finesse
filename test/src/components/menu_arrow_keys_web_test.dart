@@ -2,10 +2,10 @@
 @TestOn('browser')
 library;
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 void main() {
   // The web's default shortcuts scroll with the arrow keys rather than move
@@ -20,7 +20,7 @@ void main() {
     addTearDown(menu.dispose);
     addTearDown(select.dispose);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -83,7 +83,7 @@ void main() {
   ) async {
     late BuildContext page;
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Builder(
           builder: (context) {
             page = context;

@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// A toolbar under a message, as a `Scaffold`'s bottom bar: icon actions,
 /// and the one labelled button at the end.
@@ -68,7 +68,7 @@ class _ToolbarBasicExampleState extends State<ToolbarBasicExample> {
             ),
             body: PageContainer(
               scrollable: true,
-              child: FinesseColumn(
+              child: UnaColumn(
                 gap: GapSize.md,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [

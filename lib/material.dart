@@ -1,15 +1,15 @@
-/// Material and Cupertino interop for finesse.
+/// Material and Cupertino interop for una.
 ///
-/// `package:finesse/finesse.dart` does not depend on Material or Cupertino. Import
+/// `package:una/una.dart` does not depend on Material or Cupertino. Import
 /// this library as well when an app puts Material or Cupertino widgets next
-/// to finesse's, and wrap them in a [FinesseMaterial]:
+/// to una's, and wrap them in a [UnaMaterial]:
 ///
 /// ```dart
-/// import 'package:finesse/material.dart';
-/// import 'package:finesse/finesse.dart';
+/// import 'package:una/material.dart';
+/// import 'package:una/una.dart';
 ///
-/// FinesseApp(
-///   builder: (context, child) => FinesseMaterial(child: child!),
+/// UnaApp(
+///   builder: (context, child) => UnaMaterial(child: child!),
 ///   home: const HomePage(),
 /// )
 /// ```
@@ -19,32 +19,32 @@
 /// `cupertino_ui` packages.
 library;
 
-// Flutter deprecated the SDK's Material and Cupertino libraries in 3.47 in
-// favour of the `material_ui` and `cupertino_ui` packages. This library wraps
-// the SDK ones on purpose, as its comment above says.
-// ignore_for_file: deprecated_member_use
-
-import 'package:finesse/src/theme/data.dart';
-import 'package:finesse/src/theme/text_theme/theme.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/cupertino.dart' show CupertinoLocalizations;
 import 'package:flutter/material.dart'
     hide ColorScheme, TextTheme, Theme, ThemeData;
 import 'package:flutter/material.dart' as m;
 import 'package:flutter_localizations/flutter_localizations.dart'
     show GlobalCupertinoLocalizations, GlobalMaterialLocalizations;
+// Flutter deprecated the SDK's Material and Cupertino libraries in 3.47 in
+// favour of the `material_ui` and `cupertino_ui` packages. This library wraps
+// the SDK ones on purpose, as its comment above says.
+// ignore_for_file: deprecated_member_use
+
+import 'package:una/src/theme/data.dart';
+import 'package:una/src/theme/text_theme/theme.dart';
+import 'package:una/src/theme/theme.dart';
 
 /// Derives the Material [ThemeData] a [ThemeData] implies: its colours,
 /// font, divider, text selection, icon and scrollbar themes.
 ///
-/// [FinesseMaterial] installs it. Call it yourself to theme a `MaterialApp`
-/// built by `FinesseApp.custom`:
+/// [UnaMaterial] installs it. Call it yourself to theme a `MaterialApp`
+/// built by `UnaApp.custom`:
 ///
 /// ```dart
-/// FinesseApp.custom(
+/// UnaApp.custom(
 ///   appBuilder: (context) => MaterialApp(
 ///     theme: materialThemeFrom(Theme.of(context)),
-///     builder: (context, child) => FinesseAppBuilder(child: child!),
+///     builder: (context, child) => UnaAppBuilder(child: child!),
 ///   ),
 /// )
 /// ```
@@ -90,8 +90,8 @@ m.ThemeData materialThemeFrom(ThemeData themeData) {
   return theme.copyWith(textTheme: _withFontBuilder(theme.textTheme, builder));
 }
 
-/// {@template FinesseMaterial}
-/// Lets Material and Cupertino widgets in [child] follow the nearest finesse
+/// {@template UnaMaterial}
+/// Lets Material and Cupertino widgets in [child] follow the nearest una
 /// theme.
 ///
 /// It installs the Material [Theme] that [materialThemeFrom] derives
@@ -100,25 +100,25 @@ m.ThemeData materialThemeFrom(ThemeData themeData) {
 /// provides them. Widgets such as `TextField`, `Slider` and `InkWell` need
 /// all three.
 ///
-/// Put one around the whole app through `FinesseApp.builder`, or around a
+/// Put one around the whole app through `UnaApp.builder`, or around a
 /// subtree. Inside a `ThemeScope` it follows that scope's theme.
 /// {@endtemplate}
-class FinesseMaterial extends StatelessWidget {
-  /// {@macro FinesseMaterial}
-  const FinesseMaterial({super.key, required this.child, this.themeBuilder});
+class UnaMaterial extends StatelessWidget {
+  /// {@macro UnaMaterial}
+  const UnaMaterial({super.key, required this.child, this.themeBuilder});
 
   /// The widget below this widget in the tree.
   final Widget child;
 
-  /// Changes the Material [ThemeData] derived from the finesse theme. It
+  /// Changes the Material [ThemeData] derived from the una theme. It
   /// receives the derived theme and returns the theme to use.
   final m.ThemeData Function(BuildContext context, m.ThemeData theme)?
   themeBuilder;
 
-  /// The Material theme derived from each finesse theme. Deriving one
+  /// The Material theme derived from each una theme. Deriving one
   /// builds a whole Material `ThemeData`, and this widget is rebuilt
   /// whenever what is above it is — on every frame of a window resize when
-  /// it sits in `FinesseApp.builder`.
+  /// it sits in `UnaApp.builder`.
   static final _derived = Expando<m.ThemeData>();
 
   @override
@@ -130,14 +130,14 @@ class FinesseMaterial extends StatelessWidget {
     Widget result = m.Theme(
       data: theme,
       // A transparent Material, which widgets such as Slider and InkWell
-      // look for, keeping the text style that finesse set.
+      // look for, keeping the text style that una set.
       child: Material(
         type: MaterialType.transparency,
         textStyle: DefaultTextStyle.of(context).style,
         // A Material animates a change of its text style, which here is
         // the default text style of everything under it: for the 200 ms
         // after a change of theme every `Text` in the subtree would be
-        // rebuilt on every frame. finesse changes theme as a whole (see
+        // rebuilt on every frame. una changes theme as a whole (see
         // `CrossFadeTheme`); the style follows at once.
         animationDuration: Duration.zero,
         child: child,

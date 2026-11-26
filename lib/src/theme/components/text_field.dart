@@ -1,6 +1,6 @@
-import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
+import 'package:una/src/theme/components/decorator.dart';
 
 part 'text_field.g.theme.dart';
 
@@ -42,7 +42,7 @@ class TextFieldTheme with _$TextFieldTheme {
   bool get canMerge => _canMerge;
 
   /// {@macro TextField.decoration}
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// {@macro TextField.padding}
   final EdgeInsetsGeometry? padding;
@@ -105,7 +105,7 @@ class TextFieldTheme with _$TextFieldTheme {
   /// The system's menu is not themed, but pasting from it does not raise
   /// iOS's "allow paste" dialog, which a paste from any menu drawn by the
   /// app does. It needs a `MediaQuery` whose
-  /// `supportsShowingSystemContextMenu` is true, which `FinesseApp` gives.
+  /// `supportsShowingSystemContextMenu` is true, which `UnaApp` gives.
   final bool? useSystemContextMenu;
 
   /// Linearly interpolates between [a] and [b] by [t].

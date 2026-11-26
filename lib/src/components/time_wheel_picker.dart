@@ -1,8 +1,8 @@
-import 'package:finesse/src/components/time_field.dart';
-import 'package:finesse/src/components/wheel_picker.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/time_field.dart';
+import 'package:una/src/components/wheel_picker.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/theme/theme.dart';
 
 /// A time chosen on wheels: hours, minutes and, optionally, seconds, with a
 /// day period beside them on the 12-hour clock.
@@ -95,7 +95,7 @@ class TimeWheelPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l = FinesseLocalizations.of(context);
+    final l = UnaLocalizations.of(context);
     final twentyFour = use24HourFormat ?? uses24HourFormat(context);
     String two(int n) => n.toString().padLeft(2, '0');
 

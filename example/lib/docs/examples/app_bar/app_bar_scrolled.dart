@@ -1,6 +1,6 @@
 import 'package:example/docs/phone_frame.dart';
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// With `AppBarSurfaceBehavior.whenScrolled` the bar is bare while the page
 /// is at its top. Scroll: its fill, hairline and blur fade in as content
@@ -20,7 +20,7 @@ class AppBarScrolledExample extends StatelessWidget {
         ),
         body: PageContainer(
           scrollable: true,
-          child: FinesseColumn(
+          child: UnaColumn(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             gap: GapSize.md,
             children: [

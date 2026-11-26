@@ -1,7 +1,7 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 void main() {
   List<CommandGroup> groups({
@@ -37,7 +37,7 @@ void main() {
     ),
   ];
 
-  Widget wrap(Widget child) => FinesseApp(home: Center(child: child));
+  Widget wrap(Widget child) => UnaApp(home: Center(child: child));
 
   /// Matches a rendered item label only.
   ///
@@ -264,7 +264,7 @@ void main() {
   group('showCommandDialog', () {
     Future<void> open(WidgetTester tester, {ThemeData? theme}) async {
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           theme: theme,
           home: Builder(
             builder: (context) => Center(
@@ -288,7 +288,7 @@ void main() {
         'while filtering', (tester) async {
       await open(tester);
 
-      final screen = tester.getSize(find.byType(FinesseApp));
+      final screen = tester.getSize(find.byType(UnaApp));
       final openRect = tester.getRect(find.byType(Command));
       // `.cn-command-dialog top-1/3 translate-y-0`.
       expect(openRect.top, screen.height / 3);
@@ -320,7 +320,7 @@ void main() {
     testWidgets('the search box is the input-group style, not a full-width '
         'underline', (tester) async {
       // The reference values below are `.cn-command-*` in shadcn's nova on
-      // an opaque `--input`; finesse fills the search box with `muted`.
+      // an opaque `--input`; una fills the search box with `muted`.
       await open(
         tester,
         theme: ThemeData(

@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// The one toast system: a `Toaster` that stacks `Toast`s.
 void main() {
@@ -33,7 +33,7 @@ void main() {
     tester.view.physicalSize = size;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         theme: effectiveTheme,
         darkTheme: effectiveTheme,
         builder: (context, child) => MediaQuery(
@@ -327,7 +327,7 @@ void main() {
           isA<FlutterError>().having(
             (error) => error.message,
             'message',
-            contains('FinesseAppBuilder'),
+            contains('UnaAppBuilder'),
           ),
         ),
       );
@@ -1172,7 +1172,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: Center(
             child: Toast(
               variant: ToastVariant.warning,

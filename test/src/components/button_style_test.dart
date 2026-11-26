@@ -1,10 +1,10 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 import '../../decoration_finders.dart';
-import '../../finesse_harness.dart';
+import '../../una_harness.dart';
 
 /// `Button.style`, `IconButton.style` and `Toggle.style`: one object, merged
 /// over the variant's theme, in place of a constructor parameter per colour
@@ -16,7 +16,7 @@ void main() {
     ThemeData? theme,
   }) async {
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         theme: theme,
         darkTheme: theme,
         formFactor: FormFactor.desktop,
@@ -450,12 +450,12 @@ void main() {
   });
 
   group('rare gestures go around the button', () {
-    testWidgets('a FinesseGestureDetector adds a double tap and a secondary '
+    testWidgets('a UnaGestureDetector adds a double tap and a secondary '
         'tap without taking the press', (tester) async {
       final events = <String>[];
       await pump(
         tester,
-        FinesseGestureDetector(
+        UnaGestureDetector(
           onDoubleTap: () => events.add('double'),
           onSecondaryTapDown: (_) => events.add('secondary'),
           child: Button.outline(

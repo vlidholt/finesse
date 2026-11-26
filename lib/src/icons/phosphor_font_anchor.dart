@@ -1,11 +1,11 @@
-import 'package:finesse/src/icons/phosphor_duotone_icon.dart';
-import 'package:finesse/src/icons/phosphor_icons_bold.dart';
-import 'package:finesse/src/icons/phosphor_icons_duotone.dart';
-import 'package:finesse/src/icons/phosphor_icons_fill.dart';
-import 'package:finesse/src/icons/phosphor_icons_light.dart';
-import 'package:finesse/src/icons/phosphor_icons_regular.dart';
-import 'package:finesse/src/icons/phosphor_icons_thin.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/icons/phosphor_duotone_icon.dart';
+import 'package:una/src/icons/phosphor_icons_bold.dart';
+import 'package:una/src/icons/phosphor_icons_duotone.dart';
+import 'package:una/src/icons/phosphor_icons_fill.dart';
+import 'package:una/src/icons/phosphor_icons_light.dart';
+import 'package:una/src/icons/phosphor_icons_regular.dart';
+import 'package:una/src/icons/phosphor_icons_thin.dart';
 
 /// Keeps one glyph of every bundled icon font in use, so that a release
 /// build can shrink each font to the glyphs the app draws.
@@ -13,7 +13,7 @@ import 'package:flutter/widgets.dart';
 /// Flutter's icon tree-shaking subsets a font to the code points of the
 /// `IconData` constants left in the compiled app. A font with **no**
 /// constant left is not shrunk to nothing: it is skipped, and bundled
-/// whole. finesse ships six Phosphor fonts of about half a megabyte each,
+/// whole. una ships six Phosphor fonts of about half a megabyte each,
 /// and an app that draws only regular icons therefore shipped the other
 /// five complete — 2.6 MB of fonts it never uses, all of which a web build
 /// downloads before its first frame.

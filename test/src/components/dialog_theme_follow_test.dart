@@ -1,6 +1,6 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// An open dialog or sheet follows the app theme: switching light/dark while
 /// it is open restyles it too. It used to keep the theme it was opened with.
@@ -13,7 +13,7 @@ void main() {
     await tester.pumpWidget(
       ValueListenableBuilder(
         valueListenable: mode,
-        builder: (context, themeMode, _) => FinesseApp(
+        builder: (context, themeMode, _) => UnaApp(
           themeMode: themeMode,
           theme: ThemeData(
             brightness: Brightness.light,
@@ -60,7 +60,7 @@ void main() {
   ) async {
     Brightness? seen;
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         theme: ThemeData(
           brightness: Brightness.light,
           colorScheme: const ZincColorScheme.light(),

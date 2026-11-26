@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// One widget, two arrangements: side by side in the desktop frame, and
 /// the detail pushed over the list in the phone frame.

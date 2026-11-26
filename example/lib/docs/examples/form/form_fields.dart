@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 enum NotifyAbout {
   all('All new messages'),
@@ -20,7 +20,7 @@ class FormFieldsExample extends StatefulWidget {
 }
 
 class _FormFieldsExampleState extends State<FormFieldsExample> {
-  final formKey = GlobalKey<FinesseFormState>();
+  final formKey = GlobalKey<UnaFormState>();
 
   static const verifiedEmails = [
     'm@example.com',
@@ -30,7 +30,7 @@ class _FormFieldsExampleState extends State<FormFieldsExample> {
 
   @override
   Widget build(BuildContext context) {
-    return FinesseForm(
+    return UnaForm(
       key: formKey,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 350),

@@ -1,6 +1,6 @@
 import 'package:example/docs/phone_frame.dart';
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// A `TabBar` in the bar's `bottom` and a `TabBarView` as the body, on one
 /// `TabsController`: tap a tab or swipe the page, and the other follows.

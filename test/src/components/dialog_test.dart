@@ -1,19 +1,19 @@
 import 'dart:async';
 
-import 'package:finesse/material.dart';
-import 'package:finesse/src/app.dart';
-import 'package:finesse/src/components/dialog.dart';
-import 'package:finesse/src/theme/data.dart';
-import 'package:finesse/src/theme/motion.dart';
 import 'package:flutter/material.dart' hide Dialog, ThemeData, showDialog;
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/material.dart';
+import 'package:una/src/app.dart';
+import 'package:una/src/components/dialog.dart';
+import 'package:una/src/theme/data.dart';
+import 'package:una/src/theme/motion.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
+  // Helper method to create a test widget wrapped in UnaApp and Scaffold
   Widget createTestWidget(Widget child) {
-    return FinesseApp(
-      builder: (context, child) => FinesseMaterial(child: child!),
+    return UnaApp(
+      builder: (context, child) => UnaMaterial(child: child!),
       home: Scaffold(body: child),
     );
   }
@@ -144,7 +144,7 @@ void main() {
 
     testWidgets('closed part-way in, it turns to its exit', (tester) async {
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           theme: ThemeData(
             motion: Motion.lively.copyWith(
               snappy: const MotionSpring(
@@ -153,7 +153,7 @@ void main() {
               normal: const Duration(milliseconds: 100),
             ),
           ),
-          builder: (context, child) => FinesseMaterial(child: child!),
+          builder: (context, child) => UnaMaterial(child: child!),
           home: Scaffold(
             body: Builder(
               builder: (context) => Center(
@@ -193,7 +193,7 @@ void main() {
     ) async {
       final navigator = GlobalKey<NavigatorState>();
       await tester.pumpWidget(
-        FinesseApp(navigatorKey: navigator, home: const SizedBox.expand()),
+        UnaApp(navigatorKey: navigator, home: const SizedBox.expand()),
       );
       unawaited(
         showDialog<void>(

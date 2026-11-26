@@ -1,10 +1,10 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 void main() {
   group('Empty', () {
-    Widget wrap(Widget child) => FinesseApp(home: Center(child: child));
+    Widget wrap(Widget child) => UnaApp(home: Center(child: child));
 
     testWidgets('falls back to a localized title', (tester) async {
       await tester.pumpWidget(wrap(const Empty()));

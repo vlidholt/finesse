@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// A settings page: sections of rows on a card, each with a heading and a
 /// line of explanation, hairlines starting at the rows' text.
@@ -34,7 +34,7 @@ class _ListSectionSettingsExampleState
     final overline = Theme.of(context).style.overline;
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 420),
-      child: FinesseColumn(
+      child: UnaColumn(
         gap: GapSize.lg,
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -66,7 +66,7 @@ class _ListSectionSettingsExampleState
               ),
             ],
           ),
-          FinesseRadioGroup<_Audience>(
+          UnaRadioGroup<_Audience>(
             value: audience,
             onChanged: (value) => setState(() => audience = value),
             child: ListSection(

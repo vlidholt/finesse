@@ -1,7 +1,7 @@
-import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
+import 'package:una/src/theme/components/decorator.dart';
 
 part 'text_selection.g.theme.dart';
 
@@ -9,7 +9,7 @@ part 'text_selection.g.theme.dart';
 /// ends of a selection, the toolbar over it and the magnifier shown while a
 /// handle or the caret is dragged.
 ///
-/// It is read by `FinesseTextSelectionControls`, `TextSelectionToolbar` and
+/// It is read by `UnaTextSelectionControls`, `TextSelectionToolbar` and
 /// `TextMagnifier`, and so by every `TextField`, `Textarea` and
 /// `SelectionArea`.
 @themeGen
@@ -54,7 +54,7 @@ class TextSelectionTheme with _$TextSelectionTheme {
   final double? toolbarHeight;
 
   /// Merged over the menu surface the selection toolbar is drawn on.
-  final FinesseDecoration? toolbarDecoration;
+  final UnaDecoration? toolbarDecoration;
 
   /// The padding around the label of a toolbar button.
   final EdgeInsetsGeometry? toolbarItemPadding;

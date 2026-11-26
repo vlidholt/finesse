@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// `isInTopRoute` and `isShownOnTop`: what an event handler asks before it
 /// acts on an event that is not its own focus's.
@@ -11,9 +11,9 @@ void main() {
       'pushed on the root navigator', (tester) async {
     late BuildContext page;
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Navigator(
-          onGenerateRoute: (_) => FinessePageRoute<void>(
+          onGenerateRoute: (_) => UnaPageRoute<void>(
             builder: (context) {
               page = context;
               return const SizedBox.expand();
@@ -46,7 +46,7 @@ void main() {
   ) async {
     final contexts = <int, BuildContext>{};
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: IndexedStack(
           children: [
             for (final i in [0, 1])

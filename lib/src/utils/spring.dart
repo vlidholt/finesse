@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
-import 'package:finesse/src/theme/motion.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/motion.dart';
 
 /// Drives one number with [MotionSpring]s.
 ///

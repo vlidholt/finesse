@@ -1,11 +1,11 @@
 import 'dart:math' as math;
 
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/utils/shadow.dart';
-import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/utils/shadow.dart';
+import 'package:una/src/utils/spring.dart';
 
 /// Paints one selection indicator that travels between the
 /// [MovingIndicatorTarget]s below it.

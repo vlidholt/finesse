@@ -1,6 +1,6 @@
 import 'package:example/docs/phone_frame.dart';
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// A composer in the `footer`. Focus the field: the stand-in keyboard comes
 /// up, the page ends where it begins, and the footer rides above it. The
@@ -82,7 +82,7 @@ class _ScaffoldFooterExampleState extends State<ScaffoldFooterExample> {
                     controller: _draft,
                     focusNode: _focus,
                     placeholder: const Text('Write a message…'),
-                    decoration: FinesseDecoration.none,
+                    decoration: UnaDecoration.none,
                     onSubmitted: (_) => _send(),
                   ),
                 ),

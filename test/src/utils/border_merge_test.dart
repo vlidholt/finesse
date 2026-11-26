@@ -1,21 +1,21 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
-/// `FinesseBorder.merge` takes from the other border only what it sets.
+/// `UnaBorder.merge` takes from the other border only what it sets.
 void main() {
   const radius = BorderRadius.all(Radius.circular(6));
-  const side = FinesseBorderSide(color: Color(0xff0000ff), width: 2);
+  const side = UnaBorderSide(color: Color(0xff0000ff), width: 2);
 
   test('an override that sets only the radius keeps the offset', () {
-    const ring = FinesseBorder(
+    const ring = UnaBorder(
       top: side,
       right: side,
       bottom: side,
       left: side,
       offset: 2,
     );
-    final merged = ring.merge(const FinesseBorder(borderRadius: radius));
+    final merged = ring.merge(const UnaBorder(borderRadius: radius));
     expect(merged.offset, 2);
     expect(merged.borderRadius, radius);
   });
@@ -23,50 +23,50 @@ void main() {
   test(
     'a superellipse border keeps its offset and padding through a merge',
     () {
-      const ring = FinesseRoundedSuperellipseBorder(
+      const ring = UnaRoundedSuperellipseBorder(
         side: side,
         offset: 2,
         padding: EdgeInsets.all(1),
       );
       final merged = ring.merge(
-        const FinesseRoundedSuperellipseBorder(borderRadius: radius),
+        const UnaRoundedSuperellipseBorder(borderRadius: radius),
       );
-      expect(merged, isA<FinesseRoundedSuperellipseBorder>());
+      expect(merged, isA<UnaRoundedSuperellipseBorder>());
       expect(merged.offset, 2);
       expect(merged.padding, const EdgeInsets.all(1));
       expect(merged.borderRadius, radius);
-      expect((merged as FinesseRoundedSuperellipseBorder).side, side);
+      expect((merged as UnaRoundedSuperellipseBorder).side, side);
 
       // And it takes the other's where the other sets them.
       final moved = ring.merge(
-        const FinesseRoundedSuperellipseBorder(offset: 4),
+        const UnaRoundedSuperellipseBorder(offset: 4),
       );
       expect(moved.offset, 4);
     },
   );
 
   test('a plain override keeps the superellipse shape', () {
-    const ring = FinesseRoundedSuperellipseBorder(side: side, offset: 2);
-    final merged = ring.merge(const FinesseBorder(borderRadius: radius));
-    expect(merged, isA<FinesseRoundedSuperellipseBorder>());
-    expect((merged as FinesseRoundedSuperellipseBorder).side, side);
+    const ring = UnaRoundedSuperellipseBorder(side: side, offset: 2);
+    final merged = ring.merge(const UnaBorder(borderRadius: radius));
+    expect(merged, isA<UnaRoundedSuperellipseBorder>());
+    expect((merged as UnaRoundedSuperellipseBorder).side, side);
     expect(merged.borderRadius, radius);
     expect(merged.offset, 2);
 
-    const wider = FinesseBorderSide(width: 3);
+    const wider = UnaBorderSide(width: 3);
     final recoloured = ring.merge(
-      const FinesseBorder(top: wider, right: wider, bottom: wider, left: wider),
+      const UnaBorder(top: wider, right: wider, bottom: wider, left: wider),
     );
     expect(
-      (recoloured as FinesseRoundedSuperellipseBorder).side,
+      (recoloured as UnaRoundedSuperellipseBorder).side,
       side.merge(wider),
     );
   });
 
   test('the offset is part of the equality of a superellipse border', () {
     expect(
-      const FinesseRoundedSuperellipseBorder(offset: 1),
-      isNot(const FinesseRoundedSuperellipseBorder(offset: 2)),
+      const UnaRoundedSuperellipseBorder(offset: 1),
+      isNot(const UnaRoundedSuperellipseBorder(offset: 2)),
     );
   });
 }

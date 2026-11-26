@@ -1,4 +1,4 @@
-/// The Phosphor icon set, bundled with finesse.
+/// The Phosphor icon set, bundled with una.
 ///
 /// Six weights, each a class of `IconData` constants named after the icon:
 /// `PhosphorIconsRegular`, `PhosphorIconsBold`, `PhosphorIconsFill`,

@@ -1,12 +1,12 @@
-import 'package:finesse/src/components/card.dart';
-import 'package:finesse/src/theme/components/card.dart';
-import 'package:finesse/src/theme/components/list_section.dart';
-import 'package:finesse/src/theme/data.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/border.dart';
-import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/card.dart';
+import 'package:una/src/theme/components/card.dart';
+import 'package:una/src/theme/components/list_section.dart';
+import 'package:una/src/theme/data.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/border.dart';
+import 'package:una/src/utils/shadow.dart';
 
 /// How a [ListSection] presents its rows.
 enum ListSectionVariant {
@@ -318,7 +318,7 @@ class SliverListSection extends StatelessWidget {
     if (look.isCard && count > 0) {
       final border =
           (theme.cardTheme.border ??
-                  FinesseBorder.all(color: theme.colorScheme.border, width: 1))
+                  UnaBorder.all(color: theme.colorScheme.border, width: 1))
               .toBorder();
       // The card is one decoration behind every row, built or not. It is
       // painted with the list, so it costs a rounded rectangle a frame.

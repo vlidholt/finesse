@@ -1,6 +1,6 @@
-import 'package:finesse/src/utils/border.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
+import 'package:una/src/utils/border.dart';
 
 part 'kbd.g.theme.dart';
 
@@ -36,7 +36,7 @@ class KbdTheme with _$KbdTheme {
   final Color? foregroundColor;
 
   /// {@macro Kbd.border}
-  final FinesseBorder? border;
+  final UnaBorder? border;
 
   /// {@macro Kbd.padding}
   final EdgeInsetsGeometry? padding;

@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// An inbox: swipe a message towards the start to archive or delete it,
 /// towards the end to mark it unread. A full swipe runs the outer action.

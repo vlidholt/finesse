@@ -1,11 +1,11 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// An icon is a widget, in a component and in its theme. A theme's icon is
 /// drawn at the size and in the colour the built-in one is.
 void main() {
-  Widget app(Widget child, {ThemeData? theme}) => FinesseApp(
+  Widget app(Widget child, {ThemeData? theme}) => UnaApp(
     theme: theme,
     darkTheme: theme,
     home: Center(child: child),

@@ -1,11 +1,11 @@
-import 'package:finesse/finesse.dart';
-import 'package:finesse/src/utils/entrance.dart';
-import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/src/utils/entrance.dart';
+import 'package:una/src/utils/moving_indicator.dart';
+import 'package:una/una.dart';
 
 import '../../decoration_finders.dart';
 
@@ -26,7 +26,7 @@ Widget _app(
   Motion? motion,
   StyleTokens style = StyleTokens.nova,
 }) {
-  return FinesseApp(
+  return UnaApp(
     theme: ThemeData(style: style, motion: motion ?? _motion),
     home: Builder(
       builder: (context) => MediaQuery(
@@ -489,7 +489,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 600));
     });
 
-    for (final style in [StyleTokens.nova, StyleTokens.finesse]) {
+    for (final style in [StyleTokens.nova, StyleTokens.una]) {
       testWidgets("${style.name}: a row's highlight is its own fill — there at "
           'once, gone at once, and nothing travels between the rows', (
         tester,
@@ -561,7 +561,7 @@ void main() {
     testWidgets('with a bold accent a row is filled and its text recoloured '
         'on the same frame, so it is never white on white', (tester) async {
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           theme: ThemeData(
             style: StyleTokens.nova,
             motion: _motion,

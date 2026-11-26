@@ -38,7 +38,7 @@ theme.formFactor;            // desktop or mobile''',
           ),
           CodeBlock(
             code: '''
-FinesseApp(
+UnaApp(
   theme: ThemeData(
     colorScheme: const ZincColorScheme.light(),
   ),
@@ -179,7 +179,7 @@ ThemeData(
             'palette (pass the dark counterpart for the "Inverted" look) '
             'and `menuAccent` picks how strongly rows highlight. Whether '
             'menus are glass is the style\'s choice — they are in '
-            '`finesse`, whose `popoverOpacity` is below 1, and solid in the '
+            '`una`, whose `popoverOpacity` is below 1, and solid in the '
             'shadcn styles — unless `menuTranslucent` says otherwise: '
             '`true` gives any style the blurred 70% finish, `false` keeps '
             'menus solid.',

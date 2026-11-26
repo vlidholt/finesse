@@ -1,17 +1,17 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:finesse/src/components/ring_painter.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/debug_check.dart';
-import 'package:finesse/src/utils/haptics.dart';
-import 'package:finesse/src/utils/pop_in.dart';
-import 'package:finesse/src/utils/shadow.dart';
-import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/ring_painter.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/debug_check.dart';
+import 'package:una/src/utils/haptics.dart';
+import 'package:una/src/utils/pop_in.dart';
+import 'package:una/src/utils/shadow.dart';
+import 'package:una/src/utils/spring.dart';
 
 /// Pull a list down past its top to refresh it.
 ///
@@ -214,7 +214,7 @@ class RefreshIndicatorState extends State<RefreshIndicator>
           FlutterErrorDetails(
             exception: error,
             stack: stack,
-            library: 'finesse',
+            library: 'una',
             context: ErrorDescription('while refreshing'),
           ),
         );
@@ -475,7 +475,7 @@ class RefreshIndicatorState extends State<RefreshIndicator>
           liveRegion: refreshing,
           label: refreshing
               ? widget.semanticLabel ??
-                    FinesseLocalizations.of(context).refreshIndicator.refreshing
+                    UnaLocalizations.of(context).refreshIndicator.refreshing
               : null,
           child: circle,
         ),

@@ -1,14 +1,14 @@
-import 'package:finesse/material.dart';
-import 'package:finesse/src/app.dart';
-import 'package:finesse/src/components/kbd.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/material.dart' hide Theme;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/material.dart';
+import 'package:una/src/app.dart';
+import 'package:una/src/components/kbd.dart';
+import 'package:una/src/theme/theme.dart';
 
 void main() {
   Widget createTestWidget(Widget child) {
-    return FinesseApp(
-      builder: (context, child) => FinesseMaterial(child: child!),
+    return UnaApp(
+      builder: (context, child) => UnaMaterial(child: child!),
       home: Scaffold(body: child),
     );
   }
@@ -77,7 +77,7 @@ void main() {
   });
 
   group('Kbd', () {
-    Widget wrap(Widget child) => FinesseApp(home: Center(child: child));
+    Widget wrap(Widget child) => UnaApp(home: Center(child: child));
 
     testWidgets('renders a single cap', (tester) async {
       await tester.pumpWidget(wrap(const Kbd('K')));

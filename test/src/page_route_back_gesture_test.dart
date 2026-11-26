@@ -1,15 +1,15 @@
 import 'dart:async';
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// Going back with a gesture: the swipe from the start edge that iOS has,
-/// Android's predictive back, and [FinessePage], which gives both to a
+/// Android's predictive back, and [UnaPage], which gives both to a
 /// declared page.
 const _frame = Duration(milliseconds: 16);
 const _size = Size(390, 844);
@@ -25,7 +25,7 @@ Widget _app({
   TextDirection textDirection = TextDirection.ltr,
   FormFactor formFactor = FormFactor.mobile,
 }) {
-  return FinesseApp(
+  return UnaApp(
     navigatorKey: _navigator,
     theme: ThemeData(motion: motion),
     formFactor: formFactor,
@@ -44,7 +44,7 @@ Future<void> _push(
   Widget child = const SizedBox.expand(key: _page),
 }) async {
   _navigator.currentState!.push(
-    FinessePageRoute<void>(
+    UnaPageRoute<void>(
       fullscreenDialog: fullscreenDialog,
       backGesture: backGesture,
       builder: (context) => child,
@@ -615,18 +615,18 @@ void main() {
       _phone(tester);
       final nested = GlobalKey<NavigatorState>();
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           navigatorKey: _navigator,
           home: Navigator(
             key: nested,
-            onGenerateRoute: (_) => FinessePageRoute<void>(
+            onGenerateRoute: (_) => UnaPageRoute<void>(
               builder: (_) => const SizedBox.expand(key: _home),
             ),
           ),
         ),
       );
       nested.currentState!.push(
-        FinessePageRoute<void>(
+        UnaPageRoute<void>(
           builder: (_) => const SizedBox.expand(key: _page),
         ),
       );
@@ -658,14 +658,14 @@ void main() {
       _phone(tester);
       final tabs = [GlobalKey<NavigatorState>(), GlobalKey<NavigatorState>()];
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: IndexedStack(
             index: 1,
             children: [
               for (final tab in tabs)
                 Navigator(
                   key: tab,
-                  onGenerateRoute: (_) => FinessePageRoute<void>(
+                  onGenerateRoute: (_) => UnaPageRoute<void>(
                     builder: (_) => const SizedBox.expand(),
                   ),
                 ),
@@ -675,7 +675,7 @@ void main() {
       );
       for (final (i, tab) in tabs.indexed) {
         tab.currentState!.push(
-          FinessePageRoute<void>(
+          UnaPageRoute<void>(
             builder: (_) => SizedBox.expand(key: Key('page $i')),
           ),
         );
@@ -696,7 +696,7 @@ void main() {
     });
   });
 
-  group('FinessePage', () {
+  group('UnaPage', () {
     testWidgets('shows a declared page through the same route, follows the '
         'page list and reports a swipe back', (tester) async {
       debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
@@ -705,7 +705,7 @@ void main() {
       var label = 'one';
       late StateSetter rebuild;
       await tester.pumpWidget(
-        FinesseApp.custom(
+        UnaApp.custom(
           appBuilder: (context) => Directionality(
             textDirection: TextDirection.ltr,
             child: MediaQuery(
@@ -717,12 +717,12 @@ void main() {
                     rebuild = setState;
                     return Navigator(
                       pages: [
-                        const FinessePage<void>(
+                        const UnaPage<void>(
                           key: ValueKey('home'),
                           child: SizedBox.expand(key: _home),
                         ),
                         if (open)
-                          FinessePage<void>(
+                          UnaPage<void>(
                             key: const ValueKey('detail'),
                             name: 'detail',
                             child: SizedBox.expand(
@@ -752,7 +752,7 @@ void main() {
       expect(arriving.opacity, lessThan(1));
       await tester.pumpAndSettle();
       final route = ModalRoute.of(tester.element(find.byKey(_page)))!;
-      expect(route, isA<FinessePageRoute<void>>());
+      expect(route, isA<UnaPageRoute<void>>());
       expect(route.settings.name, 'detail');
 
       // The page is replaced in place: same route, new content.
@@ -779,19 +779,19 @@ void main() {
           },
         ),
       );
-      const page = FinessePage<int>(
+      const page = UnaPage<int>(
         fullscreenDialog: true,
         maintainState: false,
         backGesture: false,
         child: SizedBox(),
       );
-      final route = page.createRoute(context) as FinessePageRoute<int>;
+      final route = page.createRoute(context) as UnaPageRoute<int>;
       expect(route.fullscreenDialog, isTrue);
       expect(route.maintainState, isFalse);
       expect(route.backGesture, isFalse);
       expect(route.settings, same(page));
-      const plain = FinessePage<int>(child: SizedBox());
-      final other = plain.createRoute(context) as FinessePageRoute<int>;
+      const plain = UnaPage<int>(child: SizedBox());
+      final other = plain.createRoute(context) as UnaPageRoute<int>;
       expect(other.fullscreenDialog, isFalse);
       expect(other.maintainState, isTrue);
       expect(other.backGesture, isNull);
@@ -803,7 +803,7 @@ void main() {
     for (final platform in TargetPlatform.values) {
       debugDefaultTargetPlatformOverride = platform;
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: ListView(children: const [SizedBox(height: 2000)]),
         ),
       );

@@ -1,14 +1,14 @@
-import 'package:finesse/src/components/form/field.dart';
-import 'package:finesse/src/components/otp_field.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/form/field.dart';
+import 'package:una/src/components/otp_field.dart';
 
-/// An [OtpField] that takes part in a `FinesseForm`, with a label, a
+/// An [OtpField] that takes part in a `UnaForm`, with a label, a
 /// description and validation.
 ///
 /// The form field holds the value: it starts from `initialValue`, and
 /// `reset()` or `didChange` on its state changes what the slots show.
-class OtpFormField extends FinesseFormField<String> {
+class OtpFormField extends UnaFormField<String> {
   /// Creates a one-time password form field with [maxLength] characters.
   OtpFormField({
     super.id,
@@ -89,9 +89,8 @@ class OtpFormField extends FinesseFormField<String> {
        );
 
   @override
-  FinesseFormFieldState<OtpFormField, String> createState() =>
-      _OtpFormFieldState();
+  UnaFormFieldState<OtpFormField, String> createState() => _OtpFormFieldState();
 }
 
 /// The state of a [OtpFormField].
-class _OtpFormFieldState extends FinesseFormFieldState<OtpFormField, String> {}
+class _OtpFormFieldState extends UnaFormFieldState<OtpFormField, String> {}

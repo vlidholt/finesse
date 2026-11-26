@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// The same translucent box and the same shadow, twice. A `BoxDecoration`
 /// paints the shadow behind the whole box, where it shows through the fill
@@ -20,7 +20,7 @@ class BuildingBlocksShadowDecorationExample extends StatelessWidget {
     ];
 
     Widget sample(String label, Decoration decoration) {
-      return FinesseColumn(
+      return UnaColumn(
         mainAxisSize: MainAxisSize.min,
         gap: GapSize.md,
         children: [

@@ -1,23 +1,23 @@
 import 'dart:ui' show ImageFilter;
 
-import 'package:finesse/src/components/decorator.dart';
-import 'package:finesse/src/components/dialog.dart';
-import 'package:finesse/src/components/surface.dart' show glassFreeDecoration;
-import 'package:finesse/src/components/text_field.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/liquid_glass/liquid_glass.dart';
-import 'package:finesse/src/raw_components/roving_focus.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/components/dialog.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/theme/themes/shadows.dart';
-import 'package:finesse/src/utils/backdrop.dart';
-import 'package:finesse/src/utils/border.dart';
-import 'package:finesse/src/utils/debug_check.dart';
-import 'package:finesse/src/utils/gesture_detector.dart';
-import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/decorator.dart';
+import 'package:una/src/components/dialog.dart';
+import 'package:una/src/components/surface.dart' show glassFreeDecoration;
+import 'package:una/src/components/text_field.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/liquid_glass/liquid_glass.dart';
+import 'package:una/src/raw_components/roving_focus.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/components/dialog.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/theme/themes/shadows.dart';
+import 'package:una/src/utils/backdrop.dart';
+import 'package:una/src/utils/border.dart';
+import 'package:una/src/utils/debug_check.dart';
+import 'package:una/src/utils/gesture_detector.dart';
+import 'package:una/src/utils/shadow.dart';
 
 /// A single selectable row in a [Command].
 ///
@@ -182,13 +182,13 @@ class Command extends StatefulWidget {
   /// {@template Command.decoration}
   /// The decoration of the palette.
   /// {@endtemplate}
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// {@template Command.surfaceFilter}
   /// A filter applied to what is behind the palette, such as the blur of a
   /// glass surface. Defaults to the theme's, which is null in a style with
   /// solid surfaces. Not used when [decoration] is
-  /// [FinesseDecoration.none]: the palette then has no surface of its own.
+  /// [UnaDecoration.none]: the palette then has no surface of its own.
   /// {@endtemplate}
   final ImageFilter? surfaceFilter;
 
@@ -395,7 +395,7 @@ class _CommandState extends State<Command> {
         commandTheme.backgroundColor ??
         theme.colorScheme.popover;
     final effectiveDecoration =
-        (commandTheme.decoration ?? const FinesseDecoration()).merge(
+        (commandTheme.decoration ?? const UnaDecoration()).merge(
           widget.decoration,
         );
     final effectiveHeight = widget.height ?? commandTheme.height;
@@ -465,7 +465,7 @@ class _CommandState extends State<Command> {
                     commandTheme.emptyPadding ??
                     const EdgeInsets.symmetric(vertical: 24),
                 child: Text(
-                  FinesseLocalizations.of(context).command.noResults,
+                  UnaLocalizations.of(context).command.noResults,
                   textAlign: TextAlign.center,
                   style:
                       commandTheme.emptyTextStyle ??
@@ -504,7 +504,7 @@ class _CommandState extends State<Command> {
         ) ??
         theme.radius;
 
-    final ownsSurface = widget.decoration != FinesseDecoration.none;
+    final ownsSurface = widget.decoration != UnaDecoration.none;
 
     // `.cn-command-input-group`: a soft box around the search field — an
     // `--input` wash and outline, no focus ring — rather than the old
@@ -512,9 +512,9 @@ class _CommandState extends State<Command> {
     final effectiveSearchHeight = commandTheme.searchHeight ?? 32.0;
     final effectiveSearchDecoration =
         commandTheme.searchDecoration ??
-        FinesseDecoration(
+        UnaDecoration(
           color: theme.colorScheme.input.withValues(alpha: .3),
-          border: FinesseBorder.all(
+          border: UnaBorder.all(
             borderRadius: const BorderRadius.all(Radius.circular(10)),
             color: theme.colorScheme.input.withValues(alpha: .3),
             width: 1,
@@ -652,7 +652,7 @@ class _CommandItemView extends StatelessWidget {
       enabled: item.enabled,
       label: item.label,
       child: ExcludeSemantics(
-        child: FinesseGestureDetector(
+        child: UnaGestureDetector(
           mouseCursor: item.enabled
               ? SystemMouseCursors.click
               : SystemMouseCursors.forbidden,
@@ -755,7 +755,7 @@ Future<T?> showCommandDialog<T>({
             emptyBuilder: emptyBuilder,
             width: width ?? double.infinity,
             height: height,
-            decoration: FinesseDecoration.none,
+            decoration: UnaDecoration.none,
             backgroundColor: const Color(0x00000000),
             itemBorderRadius: commandTheme.dialogItemBorderRadius,
             onEscape: () => Navigator.of(context).maybePop(),

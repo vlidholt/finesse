@@ -58,7 +58,7 @@ final layoutDoc = ComponentDoc(
         title: 'Using the scale',
         children: [
           DocParagraph(
-            '`FinesseRow` and `FinesseColumn` take a `gap` and put it '
+            '`UnaRow` and `UnaColumn` take a `gap` and put it '
             'between every child. In a plain `Row` or `Column`, where '
             'only some children need space between them, use a `Gap`: '
             '`Gap.xs()` to `Gap.xl()`, or `Gap.size(size)` for a step '
@@ -67,7 +67,7 @@ final layoutDoc = ComponentDoc(
           ),
           CodeBlock(
             code: '''
-FinesseColumn(
+UnaColumn(
   gap: GapSize.lg, // 16 on a desktop, 12 on a phone
   children: [
     const ProfileCard(),
@@ -147,7 +147,7 @@ Scaffold(
   appBar: const AppBar(title: Text('Jobs')),
   body: PageContainer(
     scrollable: true,
-    child: FinesseColumn(gap: GapSize.lg, children: sections),
+    child: UnaColumn(gap: GapSize.lg, children: sections),
   ),
 )''',
           ),
@@ -159,7 +159,7 @@ Scaffold(
           DocParagraph(
             'The second scale is numeric. `ThemeData.spacing` is one '
             'step, 4 logical pixels by default, and `spacing: 3`, '
-            '`Gap(2)` and `FinessePadding.all(4)` are multiples of it. '
+            '`Gap(2)` and `UnaPadding.all(4)` are multiples of it. '
             'Steps do not follow the form factor. They rescale together '
             'when the step changes, and the named gaps scale with them. '
             'Use steps for the inside of a component, where a design '
@@ -184,7 +184,7 @@ ThemeData(
           id: 'layout_spacing',
           title: 'Row and column spacing',
           description:
-              'Set `spacing` on `FinesseRow` or `FinesseColumn` to insert '
+              'Set `spacing` on `UnaRow` or `UnaColumn` to insert '
               'the same number of steps between every child.',
           builder: (_) => const LayoutSpacingExample(),
         ),
@@ -206,7 +206,7 @@ ThemeData(
           id: 'layout_padding',
           title: 'Padding',
           description:
-              '`FinessePadding` takes steps, not pixels: '
+              '`UnaPadding` takes steps, not pixels: '
               '`symmetric(horizontal: 6, vertical: 4)` is 24 by 16 at the '
               'default step.',
           builder: (_) => const LayoutPaddingExample(),
@@ -218,7 +218,7 @@ ThemeData(
           id: 'layout_card_sections',
           title: 'Card sections',
           description:
-              'Use `FinesseColumn` with `crossAxisAlignment: stretch` '
+              'Use `UnaColumn` with `crossAxisAlignment: stretch` '
               'inside a card. Put `Divider` between groups.',
           builder: (_) => const LayoutCardSectionsExample(),
         ),
@@ -229,7 +229,7 @@ ThemeData(
           id: 'layout_form_actions',
           title: 'Form actions',
           description:
-              'Stack fields and buttons in a `FinesseColumn`. Put the '
+              'Stack fields and buttons in a `UnaColumn`. Put the '
               'primary action above the outline cancel.',
           builder: (_) => const LayoutFormActionsExample(),
         ),

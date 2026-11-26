@@ -1,34 +1,34 @@
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/components/icon_button.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/theme/components/button.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/data.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/border.dart';
-import 'package:finesse/src/utils/debug_check.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+import 'package:una/src/components/button.dart';
+import 'package:una/src/components/icon_button.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/theme/components/button.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/data.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/border.dart';
+import 'package:una/src/utils/debug_check.dart';
 
 const _transparent = Color(0x00000000);
 
 /// Reserves the same inset as [ButtonVariant.outline] without showing a
 /// border, so page numbers do not shift when the selection moves.
-FinesseDecoration _inactivePageButtonDecoration(ThemeData theme) {
+UnaDecoration _inactivePageButtonDecoration(ThemeData theme) {
   final outlineBorder = theme.outlineButtonTheme.decoration?.border;
   if (outlineBorder == null) {
-    return FinesseDecoration(
-      border: FinesseBorder.all(width: 1, color: _transparent),
+    return UnaDecoration(
+      border: UnaBorder.all(width: 1, color: _transparent),
     );
   }
 
-  FinesseBorderSide transparentize(FinesseBorderSide? side) {
-    final effective = side ?? const FinesseBorderSide(width: 1);
+  UnaBorderSide transparentize(UnaBorderSide? side) {
+    final effective = side ?? const UnaBorderSide(width: 1);
     return effective.copyWith(color: _transparent);
   }
 
-  return FinesseDecoration(
+  return UnaDecoration(
     border: outlineBorder.copyWith(
       top: transparentize(outlineBorder.top),
       right: transparentize(outlineBorder.right),
@@ -181,7 +181,7 @@ class Pagination extends StatelessWidget {
     assert(debugCheckHasTheme(context));
     final theme = Theme.of(context);
     final paginationTheme = theme.paginationTheme;
-    final localizations = FinesseLocalizations.of(context);
+    final localizations = UnaLocalizations.of(context);
     final numberFormat = NumberFormat.decimalPattern(
       Localizations.localeOf(context).toLanguageTag(),
     );
@@ -349,7 +349,7 @@ class PaginationCompact extends StatelessWidget {
   Widget build(BuildContext context) {
     assert(debugCheckHasTheme(context));
     final theme = Theme.of(context);
-    final localizations = FinesseLocalizations.of(context);
+    final localizations = UnaLocalizations.of(context);
     final numberFormat = NumberFormat.decimalPattern(
       Localizations.localeOf(context).toLanguageTag(),
     );

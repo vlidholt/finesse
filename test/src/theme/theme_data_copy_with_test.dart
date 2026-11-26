@@ -1,6 +1,6 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// `copyWith` re-derives the component themes from the theme's inputs, so a
 /// copy is indistinguishable from a theme built with those inputs directly.
@@ -60,7 +60,7 @@ void main() {
     );
     expect(base.formFactor, FormFactor.desktop);
     expect(copy.formFactor, FormFactor.mobile);
-    expect(copy.style, StyleTokens.finesseMobile);
+    expect(copy.style, StyleTokens.unaMobile);
     expect(copy.buttonSizesTheme.regular!.height, 44);
     expect(copy.textFieldTheme.constraints!.minHeight, 46);
     expect(copy.chipTheme.height, 36);
@@ -73,34 +73,34 @@ void main() {
   });
 
   test('copyWith(style:) re-derives from the new style', () {
-    final finesse = ThemeData();
-    final copy = finesse.copyWith(style: StyleTokens.nova);
+    final una = ThemeData();
+    final copy = una.copyWith(style: StyleTokens.nova);
     final direct = ThemeData(style: StyleTokens.nova);
 
     expect(copy.style, StyleTokens.nova);
     expect(copy.variant.baseStyle, StyleTokens.nova);
     // 36 -> nova's h-8.
-    expect(finesse.buttonSizesTheme.regular!.height, 36);
+    expect(una.buttonSizesTheme.regular!.height, 36);
     expect(copy.buttonSizesTheme.regular!.height, 32);
     // The card goes opaque. Neither style blurs behind its cards.
-    expect(finesse.cardTheme.backgroundColor!.a, lessThan(1));
-    expect(finesse.cardTheme.blur, 0);
+    expect(una.cardTheme.backgroundColor!.a, lessThan(1));
+    expect(una.cardTheme.blur, 0);
     expect(copy.cardTheme.blur, 0);
     expect(copy.cardTheme.backgroundColor, copy.colorScheme.card);
     // A style that does, loses it with the style.
     final glass = ThemeData(
-      style: StyleTokens.finesse.copyWith(cardBlur: true),
+      style: StyleTokens.una.copyWith(cardBlur: true),
     );
-    expect(glass.cardTheme.blur, StyleTokens.finesse.glassBlur);
+    expect(glass.cardTheme.blur, StyleTokens.una.glassBlur);
     expect(glass.copyWith(style: StyleTokens.nova).cardTheme.blur, 0);
     // The published type scale becomes nova's: paragraphs are 14 in both,
-    // but `large` drops from finesse's 15-point subtitle to nova's 14, and
-    // `h4` from finesse's semibold title to nova's medium one.
-    expect(finesse.textTheme.p.fontSize, 14);
+    // but `large` drops from una's 15-point subtitle to nova's 14, and
+    // `h4` from una's semibold title to nova's medium one.
+    expect(una.textTheme.p.fontSize, 14);
     expect(copy.textTheme.p.fontSize, 14);
-    expect(finesse.textTheme.large.fontSize, 15);
+    expect(una.textTheme.large.fontSize, 15);
     expect(copy.textTheme.large.fontSize, 14);
-    expect(finesse.textTheme.h4.fontWeight, FontWeight.w600);
+    expect(una.textTheme.h4.fontWeight, FontWeight.w600);
     expect(copy.textTheme.h4.fontWeight, FontWeight.w500);
     expect(copy.textTheme, direct.textTheme);
     expect(copy, direct);
@@ -108,11 +108,11 @@ void main() {
 
   test("copyWith(style:) takes the style's own radius and scale when the "
       'theme stated none', () {
-    final finesse = ThemeData();
-    expect(finesse.radius, const BorderRadius.all(Radius.circular(10)));
-    expect(finesse.radii.scale, StyleTokens.finesse.radiusScale);
+    final una = ThemeData();
+    expect(una.radius, const BorderRadius.all(Radius.circular(10)));
+    expect(una.radii.scale, StyleTokens.una.radiusScale);
 
-    final nova = finesse.copyWith(style: StyleTokens.nova);
+    final nova = una.copyWith(style: StyleTokens.nova);
     expect(nova.radius, const BorderRadius.all(Radius.circular(8)));
     expect(nova.radii.scale, const RadiusScale());
     // lg on the Tailwind scale: 8 * 1.25.
@@ -157,7 +157,7 @@ void main() {
     expect(copy.disabledOpacity, .3);
   });
 
-  test('copyWith(colorScheme:) recolours the finesse component themes', () {
+  test('copyWith(colorScheme:) recolours the una component themes', () {
     final copy = ThemeData().copyWith(
       colorScheme: const TealColorScheme.dark(),
     );

@@ -1,7 +1,7 @@
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/extensions/text_style.dart';
 
 /// Lays out a form field: a [label] above [child], then a [description] and an
 /// [error] below it.
@@ -32,7 +32,7 @@ class InputDecorator extends StatelessWidget {
   final Widget? description;
 
   /// Overrides for the label, description and error styles and paddings.
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   @override
   Widget build(BuildContext context) {

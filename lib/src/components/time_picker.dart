@@ -1,12 +1,12 @@
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/components/picker.dart';
-import 'package:finesse/src/components/popover.dart';
-import 'package:finesse/src/components/time_field.dart';
-import 'package:finesse/src/components/time_wheel_picker.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/button.dart';
+import 'package:una/src/components/picker.dart';
+import 'package:una/src/components/popover.dart';
+import 'package:una/src/components/time_field.dart';
+import 'package:una/src/components/time_wheel_picker.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/theme/theme.dart';
 
 /// A field that shows a time and opens a way to change it: a [TimeField]
 /// in a popover on a desktop, wheels in a bottom sheet on a phone.
@@ -169,7 +169,7 @@ class _TimePickerState extends State<TimePicker> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final picker = theme.timePickerTheme;
-    final l = FinesseLocalizations.of(context);
+    final l = UnaLocalizations.of(context);
     final value = widget.value;
 
     return PickerHost(
@@ -244,7 +244,7 @@ String formatTimeOfDay(
   final twentyFour = use24HourFormat ?? uses24HourFormat(context);
   final seconds = showSeconds ? ':${two(time.second)}' : '';
   if (twentyFour) return '${two(time.hour)}:${two(time.minute)}$seconds';
-  final l = FinesseLocalizations.of(context);
+  final l = UnaLocalizations.of(context);
   final period = time.period == DayPeriod.am
       ? l.timePicker.am
       : l.timePicker.pm;

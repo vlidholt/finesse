@@ -1,13 +1,13 @@
-# Contributing to finesse
+# Contributing to una
 
 Thank you for your interest in contributing. This guide covers project setup, the test suite, coding conventions, and the pull request process.
 
 ## Ways to contribute
 
-- Report bugs and reproduce or triage [existing issues](https://github.com/vlidholt/finesse/issues).
+- Report bugs and reproduce or triage [existing issues](https://github.com/vlidholt/una/issues).
 - Add or improve tests.
 - Add a missing component, or improve an existing one.
-- Improve the documentation in the example app or in `skills/finesse-overview/`.
+- Improve the documentation in the example app or in `skills/una-overview/`.
 
 We communicate through GitHub issues and pull requests.
 
@@ -17,7 +17,7 @@ The repository has two separate Dart/Flutter projects:
 
 | Path | What it is |
 | --- | --- |
-| `/` | The `finesse` package. |
+| `/` | The `una` package. |
 | `example/` | The docs site and component browser, also deployed to GitHub Pages. |
 
 Install dependencies for each project you plan to touch:
@@ -71,9 +71,9 @@ dart run slang
 The component must exist on [ui.shadcn.com](https://ui.shadcn.com/docs/components).
 
 1. Look up its markup, states, and measurements in the shadcn/ui reference (see `CLAUDE.md` for where each value lives). Read values from the reference; do not guess colors, padding, radii, or type.
-2. Create `lib/src/components/<name>.dart`. Name the widget class `Finesse<Name>`, for example `Avatar` or `Dialog`.
+2. Create `lib/src/components/<name>.dart`. Name the widget class `Una<Name>`, for example `Avatar` or `Dialog`.
 3. Create its theme at `lib/src/theme/components/<name>.dart`, following the pattern of an existing component theme.
-4. Export both files from `lib/finesse.dart`.
+4. Export both files from `lib/una.dart`.
 5. Add the component's default values to `lib/src/theme/themes/default_theme_variant.dart`. `DefaultThemeNoSecondaryBorderVariant` subclasses it and overrides only the focus treatment, so touch the subclass only when the change is about focus geometry.
 6. Add the theme to `test/src/theme/theme_data_equality_test.dart`.
 7. Add a documentation page: an example under `example/lib/docs/examples/<slug>/`, a `ComponentDoc` in `example/lib/docs/pages/<slug>.dart`, and an entry in `example/lib/docs/registry.dart`.
@@ -118,7 +118,7 @@ class Alert extends StatelessWidget {
 
 - Run `dart format lib test example/lib example/test` before committing. CI fails on unformatted files.
 - `flutter analyze` must report no issues. The package follows `very_good_analysis`; see `analysis_options.yaml` for project-specific overrides.
-- Nothing under `lib/` may import `material.dart`, `cupertino.dart`, or the package's own barrel (`package:finesse/finesse.dart`). `lib/src/app.dart` and `lib/src/theme/theme_scope.dart` are the only exceptions (Material and Cupertino interop). CI enforces this.
+- Nothing under `lib/` may import `material.dart`, `cupertino.dart`, or the package's own barrel (`package:una/una.dart`). `lib/src/app.dart` and `lib/src/theme/theme_scope.dart` are the only exceptions (Material and Cupertino interop). CI enforces this.
 - Add or update a doc comment (`///`) on every public member you add or change.
 - Do not add comments that only restate what the code does. Add a comment when the code cannot explain its own intent, a trade-off, or a constraint.
 

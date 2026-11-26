@@ -1,21 +1,21 @@
-import 'package:finesse/src/components/control_affinity.dart';
-import 'package:finesse/src/components/decorator.dart';
-import 'package:finesse/src/components/disabled.dart';
-import 'package:finesse/src/raw_components/focusable.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/activation_keys.dart';
-import 'package:finesse/src/utils/debug_check.dart';
-import 'package:finesse/src/utils/motion_color.dart';
-import 'package:finesse/src/utils/pop_in.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/control_affinity.dart';
+import 'package:una/src/components/decorator.dart';
+import 'package:una/src/components/disabled.dart';
+import 'package:una/src/raw_components/focusable.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/activation_keys.dart';
+import 'package:una/src/utils/debug_check.dart';
+import 'package:una/src/utils/motion_color.dart';
+import 'package:una/src/utils/pop_in.dart';
 
-/// What a radio reads from the [FinesseRadioGroup] around it: the selected
+/// What a radio reads from the [UnaRadioGroup] around it: the selected
 /// value, whether the group is enabled, and how to select another value.
 ///
 /// `Radio` uses it; so can a row or a card of your own that should act as
-/// one of the group's options (see [FinesseRadioGroup.maybeOf]).
+/// one of the group's options (see [UnaRadioGroup.maybeOf]).
 @immutable
 class RadioGroupScope<T> {
   const RadioGroupScope._({
@@ -37,7 +37,7 @@ class RadioGroupScope<T> {
 /// A set of [Radio]s of which one is selected.
 ///
 /// ```dart
-/// FinesseRadioGroup<String>(
+/// UnaRadioGroup<String>(
 ///   value: _plan,
 ///   onChanged: (plan) => setState(() => _plan = plan),
 ///   items: const [
@@ -56,7 +56,7 @@ class RadioGroupScope<T> {
 /// wherever they belong in it:
 ///
 /// ```dart
-/// FinesseRadioGroup<Plan>(
+/// UnaRadioGroup<Plan>(
 ///   value: _plan,
 ///   onChanged: (plan) => setState(() => _plan = plan),
 ///   child: ListSection(
@@ -67,10 +67,10 @@ class RadioGroupScope<T> {
 ///   ),
 /// )
 /// ```
-class FinesseRadioGroup<T> extends StatefulWidget {
+class UnaRadioGroup<T> extends StatefulWidget {
   /// Creates a radio group around [items], laid out in a wrap, or around a
   /// [child] that lays out its own radios.
-  const FinesseRadioGroup({
+  const UnaRadioGroup({
     super.key,
     this.items,
     this.child,
@@ -95,25 +95,25 @@ class FinesseRadioGroup<T> extends StatefulWidget {
          'a child that lays out its own radios.',
        );
 
-  /// {@template FinesseRadioGroup.value}
+  /// {@template UnaRadioGroup.value}
   /// The selected value, held by the parent. While it is non-null the group
   /// shows it and reports a tap through [onChanged] without changing by
   /// itself.
   /// {@endtemplate}
   final T? value;
 
-  /// {@template FinesseRadioGroup.initialValue}
+  /// {@template UnaRadioGroup.initialValue}
   /// The value selected at first, when the group keeps its own state.
   /// {@endtemplate}
   final T? initialValue;
 
-  /// {@template FinesseRadioGroup.items}
+  /// {@template UnaRadioGroup.items}
   /// The radios, laid out in a wrap along [axis]; any widget can stand
   /// among them. Give this or a [child], not both.
   /// {@endtemplate}
   final Iterable<Widget>? items;
 
-  /// {@template FinesseRadioGroup.child}
+  /// {@template UnaRadioGroup.child}
   /// The content of the group, for radios laid out freely: every `Radio`
   /// and `RadioListTile` below it, however deep, belongs to the group. The
   /// group adds no layout of its own, so [axis], [spacing] and the other
@@ -121,45 +121,45 @@ class FinesseRadioGroup<T> extends StatefulWidget {
   /// {@endtemplate}
   final Widget? child;
 
-  /// {@template FinesseRadioGroup.onChanged}
+  /// {@template UnaRadioGroup.onChanged}
   /// Called with the value of the radio the user selects. Null disables
   /// the group.
   /// {@endtemplate}
   final ValueChanged<T>? onChanged;
 
-  /// {@template FinesseRadioGroup.enabled}
+  /// {@template UnaRadioGroup.enabled}
   /// Whether the radio [items] are enabled, defaults to true.
   /// {@endtemplate}
   final bool enabled;
 
-  /// {@template FinesseRadioGroup.axis}
+  /// {@template UnaRadioGroup.axis}
   /// The axis of the radio group, defaults to [Axis.vertical].
   /// {@endtemplate}
   final Axis? axis;
 
-  /// {@template FinesseRadioGroup.spacing}
+  /// {@template UnaRadioGroup.spacing}
   /// The main axis spacing of the radio group items, defaults to 4
   /// {@endtemplate}
   final double? spacing;
 
-  /// {@template FinesseRadioGroup.runSpacing}
+  /// {@template UnaRadioGroup.runSpacing}
   /// The cross axis spacing of the radio group items, defaults to 0
   /// {@endtemplate}
   final double? runSpacing;
 
-  /// {@template FinesseRadioGroup.alignment}
+  /// {@template UnaRadioGroup.alignment}
   /// The main axis alignment of the radio group items, defaults to
   /// [WrapAlignment.start]
   /// {@endtemplate}
   final WrapAlignment? alignment;
 
-  /// {@template FinesseRadioGroup.runAlignment}
+  /// {@template UnaRadioGroup.runAlignment}
   /// The cross axis alignment of the radio group items, defaults to
   /// [WrapAlignment.start]
   /// {@endtemplate}
   final WrapAlignment? runAlignment;
 
-  /// {@template FinesseRadioGroup.crossAxisAlignment}
+  /// {@template UnaRadioGroup.crossAxisAlignment}
   /// The cross axis alignment of the radio group items, defaults to
   /// [WrapCrossAlignment.start]
   /// {@endtemplate}
@@ -181,22 +181,22 @@ class FinesseRadioGroup<T> extends StatefulWidget {
   }
 
   @override
-  State<FinesseRadioGroup<T>> createState() => _RadioGroupState<T>();
+  State<UnaRadioGroup<T>> createState() => _RadioGroupState<T>();
 }
 
-class _RadioGroupState<T> extends State<FinesseRadioGroup<T>> {
+class _RadioGroupState<T> extends State<UnaRadioGroup<T>> {
   late T? _value = widget.value ?? widget.initialValue;
 
   @override
-  void didUpdateWidget(covariant FinesseRadioGroup<T> oldWidget) {
+  void didUpdateWidget(covariant UnaRadioGroup<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     // A value written from outside — null included, which clears the
     // selection — replaces what the group shows.
     if (widget.value != oldWidget.value) _value = widget.value;
   }
 
-  /// Whether the radios take input: [FinesseRadioGroup.enabled], and an
-  /// [FinesseRadioGroup.onChanged] to report to.
+  /// Whether the radios take input: [UnaRadioGroup.enabled], and an
+  /// [UnaRadioGroup.onChanged] to report to.
   bool get _enabled => widget.enabled && widget.onChanged != null;
 
   void _select(Object? value) {
@@ -330,7 +330,7 @@ class Radio<T> extends StatefulWidget {
   /// {@template Radio.decoration}
   /// The decoration of the radio.
   /// {@endtemplate}
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// {@template Radio.size}
   /// The size of the radio, defaults to 16.
@@ -405,7 +405,7 @@ class _RadioState<T> extends State<Radio<T>> {
         .dependOnInheritedWidgetOfExactType<_RadioGroupMarker>();
     assert(
       group != null,
-      'A Radio has to be inside a FinesseRadioGroup, which holds the '
+      'A Radio has to be inside a UnaRadioGroup, which holds the '
       'selection.',
     );
 
@@ -417,7 +417,7 @@ class _RadioState<T> extends State<Radio<T>> {
     }
 
     final effectiveDecoration =
-        (theme.radioTheme.decoration ?? const FinesseDecoration()).merge(
+        (theme.radioTheme.decoration ?? const UnaDecoration()).merge(
           widget.decoration,
         );
 
@@ -428,7 +428,7 @@ class _RadioState<T> extends State<Radio<T>> {
     final effectiveCheckedDecoration =
         (theme.radioTheme.checkedDecoration ??
                 theme.radioTheme.decoration ??
-                const FinesseDecoration())
+                const UnaDecoration())
             .merge(widget.decoration);
 
     final effectiveSize = widget.size ?? theme.radioTheme.size ?? 16;

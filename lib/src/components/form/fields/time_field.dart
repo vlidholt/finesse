@@ -1,14 +1,14 @@
-import 'package:finesse/src/components/form/field.dart';
-import 'package:finesse/src/components/time_field.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/form/field.dart';
+import 'package:una/src/components/time_field.dart';
+import 'package:una/src/theme/components/decorator.dart';
 
-/// A [TimeField] that takes part in a `FinesseForm`, with a label, a
+/// A [TimeField] that takes part in a `UnaForm`, with a label, a
 /// description and validation.
 ///
 /// The form's value is the time once every field that shows is filled, and
 /// null before. A failed validation moves the focus to the first field.
-class TimeFormField extends FinesseFormField<TimeOfDay> {
+class TimeFormField extends UnaFormField<TimeOfDay> {
   /// Creates a time form field.
   TimeFormField({
     super.id,
@@ -62,7 +62,7 @@ class TimeFormField extends FinesseFormField<TimeOfDay> {
     Widget? trailing,
 
     /// The decoration of each field, merged over the theme's.
-    FinesseDecoration? decoration,
+    UnaDecoration? decoration,
 
     /// {@macro KeyboardToolbar.toolbarBuilder}
     WidgetBuilder? keyboardToolbarBuilder,
@@ -94,13 +94,12 @@ class TimeFormField extends FinesseFormField<TimeOfDay> {
        );
 
   @override
-  FinesseFormFieldState<TimeFormField, TimeOfDay> createState() =>
+  UnaFormFieldState<TimeFormField, TimeOfDay> createState() =>
       _TimeFormFieldState();
 }
 
 /// The state of a [TimeFormField].
-class _TimeFormFieldState
-    extends FinesseFormFieldState<TimeFormField, TimeOfDay> {
+class _TimeFormFieldState extends UnaFormFieldState<TimeFormField, TimeOfDay> {
   int _generation = 0;
 
   @override

@@ -1,8 +1,8 @@
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/motion_color.dart';
-import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/motion_color.dart';
+import 'package:una/src/utils/spring.dart';
 
 /// Builds a widget from the interaction states of a [Pressable].
 typedef PressableBuilder = Widget Function(
@@ -49,7 +49,7 @@ typedef PressableBuilder = Widget Function(
 ///
 /// For a gesture this has no callback for — a double tap, a secondary tap,
 /// the start of a long press — wrap the region in a `GestureDetector` or a
-/// `FinesseGestureDetector`.
+/// `UnaGestureDetector`.
 class Pressable extends StatefulWidget {
   /// Creates a pressable region.
   const Pressable({

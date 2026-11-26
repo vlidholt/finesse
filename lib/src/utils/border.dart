@@ -3,8 +3,8 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
-/// Converts a [FinesseBorderSide] to a Flutter [BorderSide].
-extension BorderSideToBorderSide on FinesseBorderSide {
+/// Converts a [UnaBorderSide] to a Flutter [BorderSide].
+extension BorderSideToBorderSide on UnaBorderSide {
   /// Returns the Flutter [BorderSide] for this side.
   ///
   /// A side with no width becomes a zero-width side that keeps its color,
@@ -32,14 +32,14 @@ extension BorderSideToBorderSide on FinesseBorderSide {
   }
 }
 
-/// Converts a [FinesseBorder] to a Flutter [Border].
-extension BorderToBorder on FinesseBorder {
-  /// Returns a [FinesseBoxBorder] with the four sides of this border.
+/// Converts a [UnaBorder] to a Flutter [Border].
+extension BorderToBorder on UnaBorder {
+  /// Returns a [UnaBoxBorder] with the four sides of this border.
   ///
   /// Missing sides become [BorderSide.none]. The radius, padding and offset are
   /// not part of the result.
   Border toBorder() {
-    return FinesseBoxBorder(
+    return UnaBoxBorder(
       top: top?.toBorderSide() ?? BorderSide.none,
       right: right?.toBorderSide() ?? BorderSide.none,
       bottom: bottom?.toBorderSide() ?? BorderSide.none,
@@ -58,9 +58,9 @@ extension BorderToBorder on FinesseBorder {
 /// straight sides clipped to the rounded outline — at field hairline widths
 /// the corners are indistinguishable from the real thing, and the state only
 /// lasts for the frames of the transition.
-class FinesseBoxBorder extends Border {
+class UnaBoxBorder extends Border {
   /// Creates a border with the given sides.
-  const FinesseBoxBorder({super.top, super.right, super.bottom, super.left});
+  const UnaBoxBorder({super.top, super.right, super.bottom, super.left});
 
   /// Mirrors the cases [Border.paint] can draw inside a radius itself: a
   /// fully uniform border, a uniformly invisible one, or sides that show a
@@ -122,13 +122,13 @@ class FinesseBoxBorder extends Border {
   }
 }
 
-/// {@template FinesseBorder}
+/// {@template UnaBorder}
 /// A wrapper around the [Border] class with a reasonable merge.
 /// {@endtemplate}
 @immutable
-class FinesseBorder {
-  /// {@macro FinesseBorder}
-  const FinesseBorder({
+class UnaBorder {
+  /// {@macro UnaBorder}
+  const UnaBorder({
     this.canMerge = true,
     this.padding,
     this.borderRadius,
@@ -140,8 +140,8 @@ class FinesseBorder {
   });
 
   /// Creates a border whose sides are all the same.
-  const FinesseBorder.fromBorderSide(
-    FinesseBorderSide side, {
+  const UnaBorder.fromBorderSide(
+    UnaBorderSide side, {
     this.canMerge = true,
     this.padding,
     this.borderRadius,
@@ -155,9 +155,9 @@ class FinesseBorder {
   ///
   /// The `vertical` argument applies to the [left] and [right] sides, and the
   /// `horizontal` argument applies to the [top] and [bottom] sides.
-  const FinesseBorder.symmetric({
-    FinesseBorderSide? vertical,
-    FinesseBorderSide? horizontal,
+  const UnaBorder.symmetric({
+    UnaBorderSide? vertical,
+    UnaBorderSide? horizontal,
     this.canMerge = true,
     this.padding,
     this.borderRadius,
@@ -170,7 +170,7 @@ class FinesseBorder {
   /// A uniform border with all sides the same color and width.
   ///
   /// The sides default to black solid borders, one logical pixel wide.
-  factory FinesseBorder.all({
+  factory UnaBorder.all({
     bool canMerge = true,
     Color? color,
     double? width,
@@ -180,13 +180,13 @@ class FinesseBorder {
     BorderRadiusGeometry? borderRadius,
     double? offset,
   }) {
-    final side = FinesseBorderSide(
+    final side = UnaBorderSide(
       color: color,
       width: width,
       style: style,
       strokeAlign: strokeAlign,
     );
-    return FinesseBorder.fromBorderSide(
+    return UnaBorder.fromBorderSide(
       side,
       padding: padding,
       canMerge: canMerge,
@@ -198,9 +198,9 @@ class FinesseBorder {
   /// Interpolates between two borders.
   ///
   /// The [canMerge] value comes from [b] when it is not null.
-  static FinesseBorder? lerp(FinesseBorder? a, FinesseBorder? b, double t) {
+  static UnaBorder? lerp(UnaBorder? a, UnaBorder? b, double t) {
     if (identical(a, b)) return a;
-    return FinesseBorder(
+    return UnaBorder(
       canMerge: b?.canMerge ?? a?.canMerge ?? true,
       padding: EdgeInsetsGeometry.lerp(a?.padding, b?.padding, t),
       borderRadius: BorderRadiusGeometry.lerp(
@@ -208,22 +208,22 @@ class FinesseBorder {
         b?.borderRadius,
         t,
       ),
-      top: FinesseBorderSide.lerp(
+      top: UnaBorderSide.lerp(
         a?.top,
         b?.top,
         t,
       ),
-      right: FinesseBorderSide.lerp(
+      right: UnaBorderSide.lerp(
         a?.right,
         b?.right,
         t,
       ),
-      bottom: FinesseBorderSide.lerp(
+      bottom: UnaBorderSide.lerp(
         a?.bottom,
         b?.bottom,
         t,
       ),
-      left: FinesseBorderSide.lerp(
+      left: UnaBorderSide.lerp(
         a?.left,
         b?.left,
         t,
@@ -240,17 +240,17 @@ class FinesseBorder {
       (left?.width ?? 0) != 0;
 
   /// A border with no sides that replaces any border it is merged into.
-  static const FinesseBorder none = FinesseBorder(canMerge: false);
+  static const UnaBorder none = UnaBorder(canMerge: false);
 
-  /// Creates a [FinesseBorder] that represents the addition of the two given
-  /// [FinesseBorder]s.
-  FinesseBorder merge(FinesseBorder? other) {
+  /// Creates a [UnaBorder] that represents the addition of the two given
+  /// [UnaBorder]s.
+  UnaBorder merge(UnaBorder? other) {
     if (other == null) return this;
     if (!other.canMerge) return other;
-    if (other is FinesseRoundedSuperellipseBorder) {
-      return FinesseRoundedSuperellipseBorder(
+    if (other is UnaRoundedSuperellipseBorder) {
+      return UnaRoundedSuperellipseBorder(
         side: switch (this) {
-          final FinesseRoundedSuperellipseBorder border =>
+          final UnaRoundedSuperellipseBorder border =>
             border.side?.merge(other.side) ?? other.side,
           _ => other.side,
         },
@@ -262,7 +262,7 @@ class FinesseBorder {
         offset: other.offset ?? offset,
       );
     }
-    if (this case final FinesseRoundedSuperellipseBorder border) {
+    if (this case final UnaRoundedSuperellipseBorder border) {
       // A plain override keeps the superellipse shape. It has one side for
       // every edge, so the override's sides apply only when they agree.
       final uniform =
@@ -270,7 +270,7 @@ class FinesseBorder {
           other.top == other.bottom &&
           other.top == other.left;
       final otherSide = uniform ? other.top : null;
-      return FinesseRoundedSuperellipseBorder(
+      return UnaRoundedSuperellipseBorder(
         side: border.side?.merge(otherSide) ?? otherSide,
         borderRadius: other.borderRadius ?? borderRadius,
         padding: other.padding ?? padding,
@@ -293,17 +293,17 @@ class FinesseBorder {
   }
 
   /// Returns a copy with the given fields replaced.
-  FinesseBorder copyWith({
+  UnaBorder copyWith({
     bool? canMerge,
     EdgeInsetsGeometry? padding,
-    FinesseBorderSide? top,
-    FinesseBorderSide? right,
-    FinesseBorderSide? bottom,
-    FinesseBorderSide? left,
+    UnaBorderSide? top,
+    UnaBorderSide? right,
+    UnaBorderSide? bottom,
+    UnaBorderSide? left,
     BorderRadiusGeometry? borderRadius,
     double? offset,
   }) {
-    return FinesseBorder(
+    return UnaBorder(
       canMerge: canMerge ?? this.canMerge,
       top: top ?? this.top,
       right: right ?? this.right,
@@ -325,16 +325,16 @@ class FinesseBorder {
   final BorderRadiusGeometry? borderRadius;
 
   /// The top side of this border.
-  final FinesseBorderSide? top;
+  final UnaBorderSide? top;
 
   /// The right side of this border.
-  final FinesseBorderSide? right;
+  final UnaBorderSide? right;
 
   /// The bottom side of this border.
-  final FinesseBorderSide? bottom;
+  final UnaBorderSide? bottom;
 
   /// The left side of this border.
-  final FinesseBorderSide? left;
+  final UnaBorderSide? left;
 
   /// The offset between the border and the widget.
   ///
@@ -344,16 +344,16 @@ class FinesseBorder {
 
   @override
   String toString() {
-    return '''FinesseBorder(canMerge: $canMerge, padding: $padding, borderRadius: $borderRadius, top: $top, right: $right, bottom: $bottom, left: $left, offset: $offset)''';
+    return '''UnaBorder(canMerge: $canMerge, padding: $padding, borderRadius: $borderRadius, top: $top, right: $right, bottom: $bottom, left: $left, offset: $offset)''';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    // Guards against a base [FinesseBorder] comparing equal to a subclass
-    // instance, keeping `==` symmetric with [FinesseRoundedSuperellipseBorder].
+    // Guards against a base [UnaBorder] comparing equal to a subclass
+    // instance, keeping `==` symmetric with [UnaRoundedSuperellipseBorder].
     if (other.runtimeType != runtimeType) return false;
-    return other is FinesseBorder &&
+    return other is UnaBorder &&
         other.canMerge == canMerge &&
         other.padding == padding &&
         other.borderRadius == borderRadius &&
@@ -379,9 +379,9 @@ class FinesseBorder {
 
 /// Creates the side of a border.
 @immutable
-class FinesseBorderSide with Diagnosticable {
+class UnaBorderSide with Diagnosticable {
   /// Creates the side of a border.
-  const FinesseBorderSide({
+  const UnaBorderSide({
     this.canMerge = true,
     this.color,
     this.width,
@@ -390,7 +390,7 @@ class FinesseBorderSide with Diagnosticable {
   }) : assert(width == null || width >= 0.0);
 
   /// Merges two border sides into one
-  FinesseBorderSide merge(FinesseBorderSide? other) {
+  UnaBorderSide merge(UnaBorderSide? other) {
     if (other == null) return this;
     if (!other.canMerge) return other;
     return copyWith(
@@ -420,9 +420,9 @@ class FinesseBorderSide with Diagnosticable {
   final BorderStyle? style;
 
   /// A hairline black border that is not rendered.
-  static const FinesseBorderSide none = FinesseBorderSide(canMerge: false);
+  static const UnaBorderSide none = UnaBorderSide(canMerge: false);
 
-  /// The relative position of the stroke on a [FinesseBorderSide] in an
+  /// The relative position of the stroke on a [UnaBorderSide] in an
   /// [OutlinedBorder] or [Border].
   ///
   /// Values typically range from -1.0 ([BorderSide.strokeAlignInside], inside
@@ -446,20 +446,20 @@ class FinesseBorderSide with Diagnosticable {
   ///
   /// This property is not honored by toPaint (because the [Paint] object
   /// cannot represent it); it is intended that classes that use
-  /// [FinesseBorderSide] objects implement this property when painting borders
+  /// [UnaBorderSide] objects implement this property when painting borders
   /// by suitably inflating or deflating their regions.
   final double? strokeAlign;
 
   /// Creates a copy of this border but with the given fields replaced with the
   /// new values.
-  FinesseBorderSide copyWith({
+  UnaBorderSide copyWith({
     bool? canMerge,
     Color? color,
     double? width,
     BorderStyle? style,
     double? strokeAlign,
   }) {
-    return FinesseBorderSide(
+    return UnaBorderSide(
       canMerge: canMerge ?? this.canMerge,
       color: color ?? this.color,
       width: width ?? this.width,
@@ -471,13 +471,13 @@ class FinesseBorderSide with Diagnosticable {
   /// Interpolates between two border sides.
   ///
   /// The style switches from [a] to [b] at the midpoint.
-  static FinesseBorderSide? lerp(
-    FinesseBorderSide? a,
-    FinesseBorderSide? b,
+  static UnaBorderSide? lerp(
+    UnaBorderSide? a,
+    UnaBorderSide? b,
     double t,
   ) {
     if (identical(a, b)) return a;
-    return FinesseBorderSide(
+    return UnaBorderSide(
       canMerge: b?.canMerge ?? a?.canMerge ?? true,
       color: Color.lerp(a?.color, b?.color, t),
       width: lerpDouble(a?.width, b?.width, t),
@@ -494,7 +494,7 @@ class FinesseBorderSide with Diagnosticable {
     if (other.runtimeType != runtimeType) {
       return false;
     }
-    return other is FinesseBorderSide &&
+    return other is UnaBorderSide &&
         other.canMerge == canMerge &&
         other.color == color &&
         other.width == width &&
@@ -506,7 +506,7 @@ class FinesseBorderSide with Diagnosticable {
   int get hashCode => Object.hash(canMerge, color, width, style, strokeAlign);
 
   @override
-  String toStringShort() => 'FinesseBorderSide';
+  String toStringShort() => 'UnaBorderSide';
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -547,8 +547,8 @@ class FinesseBorderSide with Diagnosticable {
   }
 }
 
-/// Converts a [FinesseRoundedSuperellipseBorder] to a Flutter [ShapeBorder].
-extension RoundedSuperellipseBorderExt on FinesseRoundedSuperellipseBorder {
+/// Converts a [UnaRoundedSuperellipseBorder] to a Flutter [ShapeBorder].
+extension RoundedSuperellipseBorderExt on UnaRoundedSuperellipseBorder {
   /// Returns a [RoundedSuperellipseBorder] with the side and radius of this
   /// border.
   ///
@@ -571,9 +571,9 @@ extension RoundedSuperellipseBorderExt on FinesseRoundedSuperellipseBorder {
 /// A rectangular border with rounded corners following the shape of an
 /// [RSuperellipse].
 @immutable
-class FinesseRoundedSuperellipseBorder extends FinesseBorder {
+class UnaRoundedSuperellipseBorder extends UnaBorder {
   /// Creates a superellipse border with [side] on every edge.
-  const FinesseRoundedSuperellipseBorder({
+  const UnaRoundedSuperellipseBorder({
     super.canMerge,
     this.side,
     super.borderRadius,
@@ -582,18 +582,18 @@ class FinesseRoundedSuperellipseBorder extends FinesseBorder {
   });
 
   /// The side drawn on every edge.
-  final FinesseBorderSide? side;
+  final UnaBorderSide? side;
 
   @override
   String toString() {
-    return '''FinesseRoundedSuperellipseBorder(canMerge: $canMerge, side: $side, borderRadius: $borderRadius, padding: $padding, offset: $offset)''';
+    return '''UnaRoundedSuperellipseBorder(canMerge: $canMerge, side: $side, borderRadius: $borderRadius, padding: $padding, offset: $offset)''';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other.runtimeType != runtimeType) return false;
-    return other is FinesseRoundedSuperellipseBorder &&
+    return other is UnaRoundedSuperellipseBorder &&
         other.canMerge == canMerge &&
         other.side == side &&
         other.borderRadius == borderRadius &&

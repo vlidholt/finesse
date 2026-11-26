@@ -1,7 +1,7 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
-/// `FinessePadding` takes theme spacing steps, not logical pixels.
+/// `UnaPadding` takes theme spacing steps, not logical pixels.
 class LayoutPaddingExample extends StatelessWidget {
   const LayoutPaddingExample({super.key});
 
@@ -12,7 +12,7 @@ class LayoutPaddingExample extends StatelessWidget {
 
     return ColoredBox(
       color: theme.colorScheme.muted,
-      child: FinessePadding.symmetric(
+      child: UnaPadding.symmetric(
         horizontal: 6,
         vertical: 4,
         child: Card(

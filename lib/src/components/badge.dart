@@ -1,9 +1,9 @@
-import 'package:finesse/src/theme/components/badge.dart';
-import 'package:finesse/src/theme/data.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/debug_check.dart';
-import 'package:finesse/src/utils/pop_in.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/components/badge.dart';
+import 'package:una/src/theme/data.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/debug_check.dart';
+import 'package:una/src/utils/pop_in.dart';
 
 /// Variants available for the [Badge] widget.
 enum BadgeVariant {

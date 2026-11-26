@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// A filter bar: one row that scrolls sideways and fades where it goes on,
 /// as above a list on a phone. One chip at a time, and never none; the

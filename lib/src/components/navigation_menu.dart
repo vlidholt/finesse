@@ -1,29 +1,29 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/components/icon_button.dart';
-import 'package:finesse/src/components/popover.dart';
-import 'package:finesse/src/components/sheet.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/raw_components/portal.dart';
-import 'package:finesse/src/raw_components/pressable.dart';
-import 'package:finesse/src/theme/components/layout.dart';
-import 'package:finesse/src/theme/components/navigation_menu.dart';
-import 'package:finesse/src/theme/form_factor.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/content_switch.dart';
-import 'package:finesse/src/utils/debug_check.dart';
-import 'package:finesse/src/utils/moving_indicator.dart';
-import 'package:finesse/src/utils/route_on_top.dart';
-import 'package:finesse/src/utils/spring.dart';
-import 'package:finesse/src/utils/spring_size.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/button.dart';
+import 'package:una/src/components/icon_button.dart';
+import 'package:una/src/components/popover.dart';
+import 'package:una/src/components/sheet.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/raw_components/portal.dart';
+import 'package:una/src/raw_components/pressable.dart';
+import 'package:una/src/theme/components/layout.dart';
+import 'package:una/src/theme/components/navigation_menu.dart';
+import 'package:una/src/theme/form_factor.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/content_switch.dart';
+import 'package:una/src/utils/debug_check.dart';
+import 'package:una/src/utils/moving_indicator.dart';
+import 'package:una/src/utils/route_on_top.dart';
+import 'package:una/src/utils/spring.dart';
+import 'package:una/src/utils/spring_size.dart';
 
 /// One entry of a [NavigationMenu]: a link, or a trigger that opens a
 /// panel.
@@ -572,7 +572,7 @@ class _NavigationMenuState extends State<NavigationMenu>
 
     final theme = Theme.of(context);
     final menu = theme.navigationMenuTheme;
-    final strings = FinesseLocalizations.of(context).navigation;
+    final strings = UnaLocalizations.of(context).navigation;
     final items = widget.items;
     final open = _open;
     final gap = menu.gap ?? 4;
@@ -1116,8 +1116,7 @@ class _CollapsedMenuState extends State<_CollapsedMenu> {
     _open = true;
     widget.onOpenChanged?.call(0);
     final label =
-        widget.semanticLabel ??
-        FinesseLocalizations.of(context).navigation.menu;
+        widget.semanticLabel ?? UnaLocalizations.of(context).navigation.menu;
     await showSheet<void>(
       context: context,
       builder: (context) => _MenuSheet(items: widget.items, label: label),
@@ -1128,7 +1127,7 @@ class _CollapsedMenuState extends State<_CollapsedMenu> {
 
   @override
   Widget build(BuildContext context) {
-    final strings = FinesseLocalizations.of(context).navigation;
+    final strings = UnaLocalizations.of(context).navigation;
     return IconButton.ghost(
       icon: const PhosphorIcon(PhosphorIconsRegular.list),
       semanticLabel: strings.openMenu,

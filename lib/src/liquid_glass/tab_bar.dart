@@ -1,9 +1,9 @@
 import 'dart:math' as math;
 
-import 'package:finesse/src/liquid_glass/liquid_glass.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
+import 'package:una/src/liquid_glass/liquid_glass.dart';
+import 'package:una/src/theme/theme.dart';
 
 /// A destination of a [LiquidGlassTabBar].
 @immutable
@@ -47,7 +47,7 @@ class LiquidGlassTabAction {
   final VoidCallback? onPressed;
 }
 
-/// The package's `GlassTabBar.bottom` in finesse's colours, type and size:
+/// The package's `GlassTabBar.bottom` in una's colours, type and size:
 /// a floating capsule whose selection is a lens of glass that slides and
 /// stretches from tab to tab, with an optional [action] on a capsule of its
 /// own beside it.

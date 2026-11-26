@@ -1,12 +1,12 @@
 import 'dart:async';
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:una/una.dart';
 
 /// A selectable font, mirroring shadcn/ui's `FONT_DEFINITIONS`.
 ///
-/// Every face is resolved through `google_fonts` at runtime: finesse bundles no
+/// Every face is resolved through `google_fonts` at runtime: una bundles no
 /// fonts, and neither does this app, which is why the list can be as long as
 /// the original's without shipping any font assets.
 ///

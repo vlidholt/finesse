@@ -8,7 +8,7 @@ final formDoc = ComponentDoc(
   slug: 'form',
   title: 'Form',
   description:
-      'Building forms with FinesseForm: field values collect under their ids, '
+      'Building forms with UnaForm: field values collect under their ids, '
       'and validation runs per field.',
   examples: [
     ComponentExample(

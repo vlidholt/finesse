@@ -1,8 +1,8 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 void main() {
   Future<void> pumpMenu(
@@ -16,7 +16,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Align(
           alignment: Alignment.topLeft,
           child: ContextMenu(
@@ -263,7 +263,7 @@ void main() {
     final controller = PopoverController();
     addTearDown(controller.dispose);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         theme: ThemeData(
           contextMenuTheme: const ContextMenuTheme(
             padding: EdgeInsets.symmetric(vertical: 4),

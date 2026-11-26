@@ -274,7 +274,7 @@ Haptics.impact(context);
 Haptics.impact(context, HapticImpact.medium);
 
 // Off for the whole app.
-FinesseApp(theme: ThemeData(haptics: false), home: const Home());''',
+UnaApp(theme: ThemeData(haptics: false), home: const Home());''',
           ),
           DocParagraph(
             '`Haptics` does not know what kind of pointer caused a change. '
@@ -304,7 +304,7 @@ FinesseApp(theme: ThemeData(haptics: false), home: const Home());''',
             'its bars, footer, floating action button and the keyboard '
             'under it. An `OverlayInsetsScope` collects the reports, and '
             'whatever floats over every screen reads them to stay clear. '
-            'The `Toaster` in `FinesseApp` is a scope and a reader already, '
+            'The `Toaster` in `UnaApp` is a scope and a reader already, '
             'which is how a toast rises above a bottom bar. You need a '
             'scope of your own only for something else that floats: a '
             'mini player, an offline banner, a chat bubble.',

@@ -57,7 +57,7 @@ enum ThemePreset {
     ),
   ),
 
-  /// Finesse's glass turned up: thinner cards and bars over a stronger
+  /// Una's glass turned up: thinner cards and bars over a stronger
   /// blur, on zinc with an indigo accent, set in Manrope.
   ///
   /// The one preset whose cards blur what is behind them. The package's

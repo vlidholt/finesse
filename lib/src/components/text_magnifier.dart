@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:finesse/src/components/text_selection.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/text_selection.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/shadow.dart';
 
 /// The loupe shown above the finger while the caret or a selection handle
 /// is dragged on a touch screen, so the text under the finger can be read.
@@ -38,7 +38,7 @@ class TextMagnifier extends StatefulWidget {
         // text it points at.
         shouldDisplayHandlesInMagnifier: false,
         magnifierBuilder: (context, controller, magnifierInfo) {
-          if (!FinesseTextSelectionControls.usesTouchSelection) return null;
+          if (!UnaTextSelectionControls.usesTouchSelection) return null;
           return TextMagnifier(magnifierInfo: magnifierInfo);
         },
       );

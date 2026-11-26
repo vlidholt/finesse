@@ -2,28 +2,28 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' show lerpDouble;
 
-import 'package:finesse/src/components/spinner.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/liquid_glass/liquid_glass.dart';
-import 'package:finesse/src/raw_components/pressable.dart';
-import 'package:finesse/src/theme/data.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/theme/themes/shadows.dart';
-import 'package:finesse/src/utils/backdrop.dart';
-import 'package:finesse/src/utils/border.dart';
-import 'package:finesse/src/utils/dismiss_shortcut.dart';
-import 'package:finesse/src/utils/overlay_insets.dart';
-import 'package:finesse/src/utils/pop_in.dart';
-import 'package:finesse/src/utils/shadow.dart';
-import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/spinner.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/liquid_glass/liquid_glass.dart';
+import 'package:una/src/raw_components/pressable.dart';
+import 'package:una/src/theme/data.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/theme/themes/shadows.dart';
+import 'package:una/src/utils/backdrop.dart';
+import 'package:una/src/utils/border.dart';
+import 'package:una/src/utils/dismiss_shortcut.dart';
+import 'package:una/src/utils/overlay_insets.dart';
+import 'package:una/src/utils/pop_in.dart';
+import 'package:una/src/utils/shadow.dart';
+import 'package:una/src/utils/spring.dart';
 
 /// What a [Toast] is about. It decides the icon the toast leads with; the
 /// surface is the same for all of them.
@@ -143,7 +143,7 @@ class Toast extends StatelessWidget {
     final background = toastTheme.backgroundColor ?? scheme.popover;
     final filter = toastTheme.filter;
     final border =
-        toastTheme.border ?? FinesseBorder.all(color: scheme.border, width: 1);
+        toastTheme.border ?? UnaBorder.all(color: scheme.border, width: 1);
     final gap = toastTheme.gap ?? 12;
     final iconSize = toastTheme.iconSize ?? 18;
     final titleStyle =
@@ -278,7 +278,7 @@ const _closeSize = 20.0;
 const _swipeDistance = 48.0;
 const _swipeVelocity = 500.0;
 
-/// Shows [Toast]s over [child]: the host `FinesseApp` installs above the
+/// Shows [Toast]s over [child]: the host `UnaApp` installs above the
 /// navigator, so a toast outlives the page that showed it.
 ///
 /// ```dart
@@ -312,8 +312,8 @@ const _swipeVelocity = 500.0;
 /// toast and back, Tab then walks the toasts' controls, and Escape dismisses
 /// the toast that has the focus and gives the focus back to the page.
 ///
-/// An app built on `FinesseApp` already has one. Under another app widget,
-/// use `FinesseAppBuilder`, or put a [Toaster] around the navigator.
+/// An app built on `UnaApp` already has one. Under another app widget,
+/// use `UnaAppBuilder`, or put a [Toaster] around the navigator.
 class Toaster extends StatefulWidget {
   /// Creates a host for toasts over [child].
   const Toaster({
@@ -362,10 +362,10 @@ class Toaster extends StatefulWidget {
           'it.',
         ),
         ErrorHint(
-          'FinesseApp provides one. Under another app widget, pass a '
-          'FinesseAppBuilder as its builder or wrap the navigator in a '
+          'UnaApp provides one. Under another app widget, pass a '
+          'UnaAppBuilder as its builder or wrap the navigator in a '
           'Toaster. A context from above the app (the one that builds '
-          'FinesseApp itself) does not see it either.',
+          'UnaApp itself) does not see it either.',
         ),
         context.describeElement('The context used was'),
       ]);
@@ -1273,7 +1273,7 @@ class _CloseButton extends StatelessWidget {
       ),
       child: Pressable(
         onPressed: onPressed,
-        semanticLabel: FinesseLocalizations.of(context).toast.dismiss,
+        semanticLabel: UnaLocalizations.of(context).toast.dismiss,
         builder: (context, states) {
           final active =
               states.contains(WidgetState.hovered) ||

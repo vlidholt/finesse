@@ -15,7 +15,7 @@ final toggleGroupDoc = ComponentDoc(
       'selection, and with no callback it is disabled. With `gap: 0` the '
       'items are joined into one bar, as in a `ButtonGroup`, and '
       '`ToggleGroupFormField` and `ToggleGroupMultipleFormField` put a '
-      'group in a `FinesseForm`.',
+      'group in a `UnaForm`.',
   examples: [
     ComponentExample(
       id: 'toggle_group_basic',

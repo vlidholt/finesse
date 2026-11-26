@@ -1,14 +1,14 @@
-// The example shows Material widgets beside finesse's through the SDK's own
-// Material library, as `package:finesse/material.dart` does; Flutter
+// The example shows Material widgets beside una's through the SDK's own
+// Material library, as `package:una/material.dart` does; Flutter
 // deprecated it in 3.47 in favour of the `material_ui` package.
 // ignore_for_file: deprecated_member_use
 
 import 'package:example/common/code_style.dart';
-import 'package:finesse/finesse.dart';
 import 'package:flutter/material.dart'
     hide ButtonTheme, IconButton, SelectionArea, Tab, Theme;
 import 'package:flutter/services.dart';
 import 'package:syntax_highlight/syntax_highlight.dart';
+import 'package:una/una.dart';
 
 /// One documented component: what the sidebar lists and a doc page renders.
 class ComponentDoc {

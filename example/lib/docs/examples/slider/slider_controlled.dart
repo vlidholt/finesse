@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// A controlled slider: the parent holds the value, so buttons beside it
 /// can move the thumb too, and a value the parent rounds stays rounded.
@@ -21,7 +21,7 @@ class _SliderControlledExampleState extends State<SliderControlledExample> {
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 360),
-      child: FinesseRow(
+      child: UnaRow(
         gap: GapSize.sm,
         children: [
           IconButton.ghost(

@@ -1,49 +1,49 @@
-# finesse
+# una
 
-[![pub package](https://img.shields.io/pub/v/finesse.svg)](https://pub.dev/packages/finesse)
-[![Flutter test](https://github.com/vlidholt/finesse/actions/workflows/flutter-test.yaml/badge.svg)](https://github.com/vlidholt/finesse/actions/workflows/flutter-test.yaml)
+[![pub package](https://img.shields.io/pub/v/una.svg)](https://pub.dev/packages/una)
+[![Flutter test](https://github.com/vlidholt/una/actions/workflows/flutter-test.yaml/badge.svg)](https://github.com/vlidholt/una/actions/workflows/flutter-test.yaml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 A design system for Flutter: more than a hundred widgets themed by one `ThemeData`, with frosted-glass surfaces that become Liquid Glass on iOS and macOS, desktop and phone metrics in the same theme, motion on springs, and no dependency on Material.
 
-![A dashboard on a desktop and a conversation on a phone, both built with finesse](https://raw.githubusercontent.com/vlidholt/finesse/main/doc/images/hero.webp)
+![A dashboard on a desktop and a conversation on a phone, both built with una](https://raw.githubusercontent.com/vlidholt/una/main/doc/images/hero.webp)
 
-See it in a whole app in [Demo](https://vlidholt.github.io/finesse_demo/), a small professional network built from `finesse` widgets ([source](https://github.com/vlidholt/finesse_demo)), and browse every component in the [component library](https://vlidholt.github.io/finesse/).
+See it in a whole app in [Demo](https://vlidholt.github.io/una_demo/), a small professional network built from `una` widgets ([source](https://github.com/vlidholt/una_demo)), and browse every component in the [component library](https://vlidholt.github.io/una/).
 
-`finesse` is a fork of [shad](https://pub.dev/packages/shad), a Flutter port of [shadcn/ui](https://ui.shadcn.com). It keeps that component set and theming model, drops the `Shad` prefix, and adds its own default look and the pieces an app needs around the components: a scaffold, app and navigation bars, sheets, pickers, lists, page layout, and theme-driven spacing and motion.
+`una` is a fork of [shad](https://pub.dev/packages/shad), a Flutter port of [shadcn/ui](https://ui.shadcn.com). It keeps that component set and theming model, drops the `Shad` prefix, and adds its own default look and the pieces an app needs around the components: a scaffold, app and navigation bars, sheets, pickers, lists, page layout, and theme-driven spacing and motion.
 
 ## Gallery
 
-![Cards, forms, a calendar, list sections, a one-time code field, toasts and more in the default light theme](https://raw.githubusercontent.com/vlidholt/finesse/main/doc/images/components-light.webp)
+![Cards, forms, a calendar, list sections, a one-time code field, toasts and more in the default light theme](https://raw.githubusercontent.com/vlidholt/una/main/doc/images/components-light.webp)
 
-![The same components in the dark theme](https://raw.githubusercontent.com/vlidholt/finesse/main/doc/images/components-dark.webp)
+![The same components in the dark theme](https://raw.githubusercontent.com/vlidholt/una/main/doc/images/components-dark.webp)
 
 ## Features
 
 - **Components.** Buttons, text fields, search and autocomplete, forms, dialogs, sheets on detents, action sheets, menus, popovers, toasts, tabs, a sidebar, a data table, a calendar, date, time and wheel pickers, sliders, chips, list sections and tiles, swipe actions, a reorderable list, a kanban board, a chat list with streaming text, avatars and badges, and more. Every one is a regular widget and composes with the rest of your tree.
-- **One theme, two form factors.** Every style carries metrics for a desktop and for a phone. `FinesseApp` picks between them from the window width, so the same `Button` is 36 points tall in a desktop window and 44 on a phone, body text grows from 14 to 15, and page margins tighten, with no `if (isMobile)` in your code.
+- **One theme, two form factors.** Every style carries metrics for a desktop and for a phone. `UnaApp` picks between them from the window width, so the same `Button` is 36 points tall in a desktop window and 44 on a phone, body text grows from 14 to 15, and page margins tighten, with no `if (isMobile)` in your code.
 - **App structure.** `Scaffold` with drawers, a footer, a bottom sheet and a floating action button; `AppBar` and a collapsing `SliverAppBar`; a top `NavigationBar`, a floating `BottomNavigationBar` and a `NavigationRail`, with `NavigationScaffold` to switch between them; page routes with the iOS back swipe and Android's predictive back.
 - **Glass.** Translucent cards, and bars, menus, popovers, tooltips and toasts that blur and saturate what is behind them, are part of the style, with tokens for blur and for the opacity of each kind of surface. `Glass` puts the same surface anywhere.
 - **Liquid Glass on Apple platforms.** On iOS and macOS, natively and on the web, the bars, menus, popovers, dialogs, sheets, toasts, switches, sliders and segmented controls are drawn with Liquid Glass through [`liquid_glass_widgets`](https://pub.dev/packages/liquid_glass_widgets), with no change to your code; `ThemeData(liquidGlass: LiquidGlassTheme(mode: ...))` turns it on everywhere or off. Call `await LiquidGlass.initialize()` in `main()` to load its shaders before the first frame.
 - **Motion from the theme.** Durations, curves and springs come from one `Motion` on the style: overlays grow from their anchor, selections travel, controls respond to a press, and the platform's reduced-motion setting is honoured everywhere. No component takes its own effects or durations.
-- **Spacing from the theme.** A named gap scale (`Gap.md()`, `FinesseRow(gap: GapSize.lg)`) and `PageContainer` keep screens consistent and let a theme change their rhythm.
-- **Styles and colour schemes.** Four styles (`finesse`, `nova`, `maia`, `lyra`) and four base palettes (`teal`, `neutral`, `zinc`, `stone`) in light and dark, 17 accent overlays, and every token overridable through `copyWith`.
+- **Spacing from the theme.** A named gap scale (`Gap.md()`, `UnaRow(gap: GapSize.lg)`) and `PageContainer` keep screens consistent and let a theme change their rhythm.
+- **Styles and colour schemes.** Four styles (`una`, `nova`, `maia`, `lyra`) and four base palettes (`teal`, `neutral`, `zinc`, `stone`) in light and dark, 17 accent overlays, and every token overridable through `copyWith`.
 - **Icons included.** The [Phosphor](https://phosphoricons.com) icon set ships in the package in six weights.
-- **Forms.** `FinesseForm` and a `*FormField` widget for every input, with per-field validation.
+- **Forms.** `UnaForm` and a `*FormField` widget for every input, with per-field validation.
 - **Localization.** 82 locales, built on `slang`.
-- **Material and Cupertino interop, opt-in.** `package:finesse/material.dart` themes Material and Cupertino widgets from the `finesse` theme, so both widget sets can share one page.
+- **Material and Cupertino interop, opt-in.** `package:una/material.dart` themes Material and Cupertino widgets from the `una` theme, so both widget sets can share one page.
 
 ## Installation
 
 ```bash
-flutter pub add finesse
+flutter pub add una
 ```
 
 ## Usage
 
 ```dart
 import 'package:flutter/widgets.dart';
-import 'package:finesse/finesse.dart';
+import 'package:una/una.dart';
 
 void main() {
   runApp(const MyApp());
@@ -54,7 +54,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FinesseApp(
+    return UnaApp(
       theme: ThemeData(),
       darkTheme: ThemeData(brightness: Brightness.dark),
       themeMode: ThemeMode.system,
@@ -88,11 +88,11 @@ The example app's component library gives the full reference. Each page pairs a 
 
 ## Names
 
-Widgets have no prefix: `Button`, `Card`, `Theme`, `ThemeData`. A name that would clash with Flutter's own widgets layer has a `Finesse` prefix instead (`FinesseApp`, `FinesseRow`, `FinesseColumn`, `FinessePadding`, `FinesseForm`, `FinesseTable`, `FinesseBorder`, `FinesseDecoration`). Some names are shared with Material (`Card`, `Switch`, `Dialog`, `Scaffold`, `AppBar`); in a file that imports both libraries, hide one side or import one with a prefix.
+Widgets have no prefix: `Button`, `Card`, `Theme`, `ThemeData`. A name that would clash with Flutter's own widgets layer has a `Una` prefix instead (`UnaApp`, `UnaRow`, `UnaColumn`, `UnaPadding`, `UnaForm`, `UnaTable`, `UnaBorder`, `UnaDecoration`). Some names are shared with Material (`Card`, `Switch`, `Dialog`, `Scaffold`, `AppBar`); in a file that imports both libraries, hide one side or import one with a prefix.
 
 ## Theming
 
-`ThemeData()` is the default look: the `finesse` style on the teal palette. A theme is a style, a colour scheme and a text theme, and each can be replaced on its own:
+`ThemeData()` is the default look: the `una` style on the teal palette. A theme is a style, a colour scheme and a text theme, and each can be replaced on its own:
 
 ```dart
 ThemeData(
@@ -104,23 +104,23 @@ ThemeData(
 )
 ```
 
-Four styles ship with the package. `finesse` is the default; `nova`, `maia` and `lyra` are styles from shadcn/ui:
+Four styles ship with the package. `una` is the default; `nova`, `maia` and `lyra` are styles from shadcn/ui:
 
-![The same card in the finesse, nova, maia and lyra styles](https://raw.githubusercontent.com/vlidholt/finesse/main/doc/images/styles.webp)
+![The same card in the una, nova, maia and lyra styles](https://raw.githubusercontent.com/vlidholt/una/main/doc/images/styles.webp)
 
 Four base palettes, each in light and dark:
 
-![The teal, neutral, zinc and stone palettes, light and dark](https://raw.githubusercontent.com/vlidholt/finesse/main/doc/images/palettes.webp)
+![The teal, neutral, zinc and stone palettes, light and dark](https://raw.githubusercontent.com/vlidholt/una/main/doc/images/palettes.webp)
 
 And accents that recolour any palette:
 
-![Violet, rose, amber, blue, emerald and orange accents on the neutral palette](https://raw.githubusercontent.com/vlidholt/finesse/main/doc/images/accents.webp)
+![Violet, rose, amber, blue, emerald and orange accents on the neutral palette](https://raw.githubusercontent.com/vlidholt/una/main/doc/images/accents.webp)
 
 A style is a set of measured tokens (control heights, radii, shadows, type roles, glass, spacing). Change any of them with `copyWith`; the change applies to the phone metrics too wherever they did not already differ:
 
 ```dart
 ThemeData(
-  style: StyleTokens.finesse.copyWith(
+  style: StyleTokens.una.copyWith(
     cardOpacity: 1, // opaque cards
     gapLg: 20,
   ),
@@ -131,9 +131,9 @@ Every component also has its own theme on `ThemeData` (`cardTheme`, `chipTheme`,
 
 ## Form factors
 
-![One settings screen in a desktop window and on a phone: the same widgets, with the phone's larger controls and a floating tab bar](https://raw.githubusercontent.com/vlidholt/finesse/main/doc/images/form-factors.webp)
+![One settings screen in a desktop window and on a phone: the same widgets, with the phone's larger controls and a floating tab bar](https://raw.githubusercontent.com/vlidholt/una/main/doc/images/form-factors.webp)
 
-`FinesseApp` uses the phone metrics when the window is narrower than the theme's `md` breakpoint (768) and the desktop metrics otherwise; `formFactor:` pins one. Widgets size themselves from the theme, so most screens need no branching. Where a screen is *arranged* differently on a phone, branch on the theme rather than on the window:
+`UnaApp` uses the phone metrics when the window is narrower than the theme's `md` breakpoint (768) and the desktop metrics otherwise; `formFactor:` pins one. Widgets size themselves from the theme, so most screens need no branching. Where a screen is *arranged* differently on a phone, branch on the theme rather than on the window:
 
 ```dart
 FormFactorBuilder(
@@ -151,12 +151,12 @@ Name the relationship between two things and let the theme decide the number:
 ```dart
 PageContainer(
   scrollable: true,
-  child: FinesseColumn(
+  child: UnaColumn(
     gap: GapSize.lg, // 16 on a desktop, 12 on a phone
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       const Text('Jobs'),
-      FinesseRow(gap: GapSize.md, children: stats),
+      UnaRow(gap: GapSize.md, children: stats),
       const Gap.xl(),
       results,
     ],
@@ -180,7 +180,7 @@ Regular, bold, fill, light, thin and duotone weights are available. `PhosphorIco
 
 ## Fonts
 
-`finesse` bundles no text fonts. Text uses the platform's font (SF on Apple platforms, Roboto on Android, Segoe UI on Windows) until you choose another one. There are two ways to choose:
+`una` bundles no text fonts. Text uses the platform's font (SF on Apple platforms, Roboto on Android, Segoe UI on Windows) until you choose another one. There are two ways to choose:
 
 **Google Fonts, fetched at runtime:**
 
@@ -216,19 +216,19 @@ The default look was designed around [Geist](https://vercel.com/font); the examp
 
 ## Material and Cupertino
 
-`package:finesse/finesse.dart` does not import Material, and imports Cupertino only through its Liquid Glass adapter (`liquid_glass_widgets` reads the SDK's `CupertinoTheme`); Flutter is moving both out of the SDK into the [`material_ui`](https://pub.dev/packages/material_ui) and [`cupertino_ui`](https://pub.dev/packages/cupertino_ui) packages. To use Material or Cupertino widgets in a `finesse` app, also import `package:finesse/material.dart` and wrap the app in a `FinesseMaterial`:
+`package:una/una.dart` does not import Material, and imports Cupertino only through its Liquid Glass adapter (`liquid_glass_widgets` reads the SDK's `CupertinoTheme`); Flutter is moving both out of the SDK into the [`material_ui`](https://pub.dev/packages/material_ui) and [`cupertino_ui`](https://pub.dev/packages/cupertino_ui) packages. To use Material or Cupertino widgets in a `una` app, also import `package:una/material.dart` and wrap the app in a `UnaMaterial`:
 
 ```dart
-import 'package:finesse/material.dart';
-import 'package:finesse/finesse.dart';
+import 'package:una/material.dart';
+import 'package:una/una.dart';
 
-FinesseApp(
-  builder: (context, child) => FinesseMaterial(child: child!),
+UnaApp(
+  builder: (context, child) => UnaMaterial(child: child!),
   home: const HomePage(),
 )
 ```
 
-`FinesseMaterial` derives a Material theme from the `finesse` theme. It also adds the Material and Cupertino localizations and a transparent `Material`, which widgets such as `TextField` and `Slider` need. To put `finesse` widgets inside your own `MaterialApp`, use `FinesseApp.custom` and `materialThemeFrom(Theme.of(context))`. `package:finesse/material.dart` uses the Material and Cupertino libraries that ship in the Flutter SDK.
+`UnaMaterial` derives a Material theme from the `una` theme. It also adds the Material and Cupertino localizations and a transparent `Material`, which widgets such as `TextField` and `Slider` need. To put `una` widgets inside your own `MaterialApp`, use `UnaApp.custom` and `materialThemeFrom(Theme.of(context))`. `package:una/material.dart` uses the Material and Cupertino libraries that ship in the Flutter SDK.
 
 ## Platform support
 
@@ -236,17 +236,17 @@ Android, iOS, macOS, Windows, Linux and the web, including WebAssembly. The pack
 
 ## Versioning
 
-`finesse` is at 0.x: the API can still change between minor versions, and each change is listed under "Changed" in the [changelog](CHANGELOG.md). There are no deprecation shims.
+`una` is at 0.x: the API can still change between minor versions, and each change is listed under "Changed" in the [changelog](CHANGELOG.md). There are no deprecation shims.
 
 ## Repository layout
 
 | Path | Contents |
 | --- | --- |
-| `lib/` | The `finesse` package. |
+| `lib/` | The `una` package. |
 | `fonts/phosphor/` | The bundled Phosphor icon fonts and their licence. |
-| `example/` | The component library: a page per component with live previews and their source, guides, and a theme editor that restyles it all. Deployed to <https://vlidholt.github.io/finesse/>. The demo app is in its own repository, [finesse_demo](https://github.com/vlidholt/finesse_demo). |
+| `example/` | The component library: a page per component with live previews and their source, guides, and a theme editor that restyles it all. Deployed to <https://vlidholt.github.io/una/>. The demo app is in its own repository, [una_demo](https://github.com/vlidholt/una_demo). |
 | `test/` | The package's test suite. |
-| `skills/finesse-overview/` | An [Agent Skill](https://agentskills.io) describing `finesse`'s API, for coding agents. |
+| `skills/una-overview/` | An [Agent Skill](https://agentskills.io) describing `una`'s API, for coding agents. |
 
 ## Contributing
 
@@ -254,7 +254,7 @@ Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to set
 
 ## Credits
 
-`finesse` is a fork of [shad](https://github.com/serverpod/shad) by [Serverpod](https://serverpod.dev), which began as [flutter-shadcn-ui](https://github.com/nank1ro/flutter-shadcn-ui) by [Alexandru Mariuti](https://github.com/nank1ro). Its icons are [Phosphor Icons](https://phosphoricons.com), bundled under the MIT License.
+`una` is a fork of [shad](https://github.com/serverpod/shad) by [Serverpod](https://serverpod.dev), which began as [flutter-shadcn-ui](https://github.com/nank1ro/flutter-shadcn-ui) by [Alexandru Mariuti](https://github.com/nank1ro). Its icons are [Phosphor Icons](https://phosphoricons.com), bundled under the MIT License.
 
 ## License
 

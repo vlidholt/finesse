@@ -1,11 +1,11 @@
 import 'dart:ui' show Tristate;
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// `Button(loading:)`, `IconButton(loading:)` and `IconButton(tooltip:)`.
 void main() {
@@ -20,7 +20,7 @@ void main() {
     tester.view.physicalSize = size;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         theme: theme,
         darkTheme: theme,
         builder: (context, child) => MediaQuery(

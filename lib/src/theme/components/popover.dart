@@ -1,11 +1,11 @@
 import 'dart:ui';
 
-import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
-import 'package:finesse/src/raw_components/portal.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
+import 'package:una/src/liquid_glass/liquid_glass_theme.dart';
+import 'package:una/src/raw_components/portal.dart';
+import 'package:una/src/theme/components/decorator.dart';
 
 part 'popover.g.theme.dart';
 
@@ -48,7 +48,7 @@ class PopoverTheme with _$PopoverTheme {
   final EdgeInsetsGeometry? padding;
 
   /// {@macro Popover.decoration}
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// {@macro Popover.anchor}
   final AnchorBase? anchor;

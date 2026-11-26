@@ -1,10 +1,10 @@
-import 'package:finesse/src/components/date_field.dart';
-import 'package:finesse/src/components/form/field.dart';
-import 'package:finesse/src/components/picker.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/date_field.dart';
+import 'package:una/src/components/form/field.dart';
+import 'package:una/src/components/picker.dart';
+import 'package:una/src/theme/components/decorator.dart';
 
-/// A [DateField] that takes part in a `FinesseForm`, with a label, a
+/// A [DateField] that takes part in a `UnaForm`, with a label, a
 /// description and validation.
 ///
 /// ```dart
@@ -18,7 +18,7 @@ import 'package:flutter/widgets.dart';
 ///
 /// The form's value is the date once the three fields spell one, and null
 /// before. A failed validation moves the focus to the first field.
-class DateFormField extends FinesseFormField<DateTime> {
+class DateFormField extends UnaFormField<DateTime> {
   /// Creates a date form field.
   DateFormField({
     super.id,
@@ -67,7 +67,7 @@ class DateFormField extends FinesseFormField<DateTime> {
     Widget? trailing,
 
     /// The decoration of each field, merged over the theme's.
-    FinesseDecoration? decoration,
+    UnaDecoration? decoration,
 
     /// {@macro KeyboardToolbar.toolbarBuilder}
     WidgetBuilder? keyboardToolbarBuilder,
@@ -102,13 +102,12 @@ class DateFormField extends FinesseFormField<DateTime> {
        );
 
   @override
-  FinesseFormFieldState<DateFormField, DateTime> createState() =>
+  UnaFormFieldState<DateFormField, DateTime> createState() =>
       _DateFormFieldState();
 }
 
 /// The state of a [DateFormField].
-class _DateFormFieldState
-    extends FinesseFormFieldState<DateFormField, DateTime> {
+class _DateFormFieldState extends UnaFormFieldState<DateFormField, DateTime> {
   int _generation = 0;
 
   @override

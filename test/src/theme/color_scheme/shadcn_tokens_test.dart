@@ -1,6 +1,6 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// Pins the values generated from shadcn/ui's `registry/themes.ts`.
 ///
@@ -39,7 +39,7 @@ void main() {
       );
     });
 
-    test('the palettes finesse dropped are no longer reachable', () {
+    test('the palettes una dropped are no longer reachable', () {
       for (final name in [
         'blue',
         'gray',

@@ -1,6 +1,6 @@
 ## 0.1.0
 
-The first release of `finesse`, a fork of
+The first release of `una`, a fork of
 [`shad`](https://pub.dev/packages/shad) 1.0.2. This entry describes the
 package as it is, compared with shad.
 
@@ -9,8 +9,8 @@ It needs Flutter 3.50 or later (Dart 3.14).
 The example app is the component library: a page per component and guide,
 and a theme editor that restyles it live. Demo, the app the default look
 was measured from (Strand, until it moved), is its own repository,
-[finesse_demo](https://github.com/vlidholt/finesse_demo), deployed to
-<https://vlidholt.github.io/finesse_demo/>.
+[una_demo](https://github.com/vlidholt/una_demo), deployed to
+<https://vlidholt.github.io/una_demo/>.
 
 ### Changed from shad
 
@@ -18,11 +18,11 @@ was measured from (Strand, until it moved), is its own repository,
 
 - **The `Shad` prefix is gone.** `ShadButton` is `Button`, `ShadTheme.of` is
   `Theme.of`, `ShadThemeData` is `ThemeData`. Names that would clash with
-  Flutter's widgets layer keep a `Finesse` prefix: `FinesseApp`,
-  `FinesseRow`, `FinesseColumn`, `FinessePadding`, `FinesseForm`,
-  `FinesseFormField`, `FinesseTable`, `FinesseBorder`, `FinesseDecoration`,
-  `FinesseGestureDetector`, `FinesseRadioGroup`, `FinessePageRoute`,
-  `FinesseMaterial` and a few more.
+  Flutter's widgets layer keep a `Una` prefix: `UnaApp`,
+  `UnaRow`, `UnaColumn`, `UnaPadding`, `UnaForm`,
+  `UnaFormField`, `UnaTable`, `UnaBorder`, `UnaDecoration`,
+  `UnaGestureDetector`, `UnaRadioGroup`, `UnaPageRoute`,
+  `UnaMaterial` and a few more.
 - **Flutter names where they exist.** `ShadInput` is `TextField`,
   `ShadInputFormField` is `TextFormField`, `ShadInputOTP` is `OtpField`,
   `ShadSeparator` is `Divider`, `ShadProgress` is `ProgressBar`,
@@ -40,10 +40,10 @@ was measured from (Strand, until it moved), is its own repository,
   changes its `value` set in place before it notifies, where
   `ShadStatesController` assigned a new set, so a listener that compares
   against the previous states keeps its own copy of them.
-- **`ShadAppType.shadcn` is `FinesseAppType.standard`**, the app
-  `FinesseApp.new` and `FinesseApp.router` build.
+- **`ShadAppType.shadcn` is `UnaAppType.standard`**, the app
+  `UnaApp.new` and `UnaApp.router` build.
 - **No `.raw` constructors.** `Button`, `IconButton`, `Badge`, `Toggle`,
-  `Dialog`, `Alert`, `FinesseTableCell` and `MenuItem` take `variant:` on
+  `Dialog`, `Alert`, `UnaTableCell` and `MenuItem` take `variant:` on
   their unnamed constructor; the named ones (`Button.outline`,
   `Badge.secondary`, `Dialog.alert`, `MenuItem.inset`, …) are shortcuts.
   `Select()` takes `SelectVariant.primary` or `.search` and
@@ -53,13 +53,13 @@ was measured from (Strand, until it moved), is its own repository,
 - **A `BorderRadius` is `borderRadius`**: on `Card`, `Dialog`, `Divider`,
   `Menubar`, `SelectOption`, `Skeleton`, `Sheet`, their themes, the themes
   of `Chip`, `Glass`, `IconTile`, `ListSection`, `ListTile`, the bottom
-  navigation bar and the floating action button, and on `FinesseBorder`.
+  navigation bar and the floating action button, and on `UnaBorder`.
   Named corners follow (`Command.itemBorderRadius`,
   `OtpFieldSlot.firstBorderRadius`, `CalendarTheme.dayButtonBorderRadius`,
   `SheetTheme.dragHandleBorderRadius`, `SidebarTheme.menuButtonBorderRadius`
   and the rest). `ThemeData.radius`, the design token, keeps its name.
 - **`cursor` is `mouseCursor`** (`Button`, `IconButton`, `Pressable`,
-  `FinesseGestureDetector`, their themes, `MenubarTheme.buttonMouseCursor`,
+  `UnaGestureDetector`, their themes, `MenubarTheme.buttonMouseCursor`,
   `TabsTheme.tabMouseCursor`) and `onHoverChange` is `onHover`.
 - **Open state has one vocabulary.** `Popover`, `ContextMenu` and
   `ContextMenuRegion` take `open:` (was `visible:`); `onOpenChange` is
@@ -104,12 +104,12 @@ was measured from (Strand, until it moved), is its own repository,
 
 #### Look and theme
 
-- **A new default look.** `ThemeData()` is the `finesse` style on the
+- **A new default look.** `ThemeData()` is the `una` style on the
   `TealColorScheme`: 10-point controls, 18-point translucent cards, bars and
   menus of frosted glass, soft tinted shadows. Pass `style: StyleTokens.nova`
   and `colorScheme: const NeutralColorScheme.light()` for the classic
   shadcn/ui look.
-- **Fewer built-in presets.** The styles are `finesse`, `nova`, `maia` and
+- **Fewer built-in presets.** The styles are `una`, `nova`, `maia` and
   `lyra`; the base colour schemes are `teal`, `neutral`, `zinc` and `stone`.
   `AccentScheme` still recolours any of them, and every token a preset sets
   can be set on its own through `StyleTokens.copyWith`.
@@ -136,7 +136,7 @@ was measured from (Strand, until it moved), is its own repository,
   style: it takes the scheme's `popover` and `popoverForeground` colours.
 - **Cards do not blur.** They stay translucent, but a backdrop filter per
   card is paid on every frame; opt in with
-  `StyleTokens.finesse.copyWith(cardBlur: true)` or `CardTheme(blur: …)`.
+  `StyleTokens.una.copyWith(cardBlur: true)` or `CardTheme(blur: …)`.
 - **Menu highlights are a wash in the default style.** The highlighted row
   of a menu, a `Select` and the `Command` palette is tinted with the menu's
   own foreground (`StyleTokens.menuHighlightOpacity`, 6% on a light menu and
@@ -149,7 +149,7 @@ was measured from (Strand, until it moved), is its own repository,
 - **Table rows are lighter.** Row hover is a faint wash and a selected row
   is tinted (`TableTheme.rowHoverColor`, `rowSelectedColor`, `footerColor`,
   `footerHoverColor`); `DataTable` fills its selected rows.
-- **Themes switch instead of interpolating.** `FinesseApp` applies a new
+- **Themes switch instead of interpolating.** `UnaApp` applies a new
   theme in one build and cross-fades the previous frame out over it
   (`CrossFadeTheme`); `AnimatedTheme` remains for an explicit lerp.
 - **A custom `ThemeVariant`** has to implement a method for every component
@@ -180,7 +180,7 @@ was measured from (Strand, until it moved), is its own repository,
   paints its own fill and shadow, and a menubar trigger no longer paints
   its own highlight: the list paints one indicator that moves between them.
 - **Smaller changes in behaviour.** A tooltip fades out instead of
-  vanishing. `FinessePageRoute` slides as well as fades. `Skeleton`
+  vanishing. `UnaPageRoute` slides as well as fades. `Skeleton`
   shimmers in the default style and holds still under reduced motion.
   `FocusRing` and `IndicatorBadge` keep the same tree shape whether shown
   or hidden.
@@ -209,12 +209,12 @@ was measured from (Strand, until it moved), is its own repository,
   dragging, the close button itself) stay parameters. `DialogTheme` gains
   `filter`.
 - **Rarer gestures are not button parameters.** Double tap, secondary tap,
-  tap down and the long-press phases are a `FinesseGestureDetector` around
+  tap down and the long-press phases are a `UnaGestureDetector` around
   the button. `hoverStrategies` and `longPressDuration` are gone from
   buttons, tabs, the menubar and the tooltip, and `HoverStrategies`,
   `HoverStrategy` and `ThemeData.hoverStrategies` with them: a press
   standing in for hover on a touch screen is built into
-  `FinesseGestureDetector`, and the tooltip has its own long press.
+  `UnaGestureDetector`, and the tooltip has its own long press.
   `Button.canRequestFocus` is gone (pass a `focusNode`, or `ExcludeFocus`).
 - **A button with nothing to do is disabled.** A `Button` or `IconButton`
   with no `onPressed`, no `onLongPress` and not loading is dimmed by
@@ -229,7 +229,7 @@ was measured from (Strand, until it moved), is its own repository,
   `BadgeTheme`; a pressable pill is a `Chip`. `shape` is `borderRadius`
   (null is a pill), on `Badge` and `BadgeTheme`, and the theme's outline
   is `BadgeTheme.borderColor`.
-- **`FinesseGestureDetector` reports true global positions.** It used to
+- **`UnaGestureDetector` reports true global positions.** It used to
   rewrite `globalPosition` to be overlay-local inside a nested navigator
   (the shad #319 workaround); `GlobalAnchor.offset` is global as
   documented, and the portal converts it.
@@ -237,7 +237,7 @@ was measured from (Strand, until it moved), is its own repository,
 #### Overlays
 
 - **One `PopoverController`** drives popovers, context menus, tooltips and
-  hover cards; `TooltipController` and `FinesseContextMenuController` are
+  hover cards; `TooltipController` and `UnaContextMenuController` are
   gone (`openAt(Offset)` replaces `showAt`).
 - **Tap-region plumbing is internal.** `Popover.areaGroupId` and
   `useSameGroupIdForChild`, the context menus' `groupId`, `onHoverArea`
@@ -260,7 +260,7 @@ was measured from (Strand, until it moved), is its own repository,
   `Popover.focusNode` is removed; `DatePicker.focusNode` is the trigger's.
 - **A tooltip's arrow sits on the edge that faces its trigger** by default.
 - **One toast system.** `ShadSonner`, `ShadToaster` and their scopes,
-  states and themes are one `Toaster` that `FinesseApp` provides:
+  states and themes are one `Toaster` that `UnaApp` provides:
   `Toaster.of(context).show(Toast(...))` returns an id for `update`,
   `dismiss` and `dismissAll`. `Toast` takes `title`, `description`,
   `leading`, `action`, `variant` (`ToastVariant.neutral`, `success`,
@@ -284,7 +284,7 @@ was measured from (Strand, until it moved), is its own repository,
 - **Value controls are controlled.** `value` + `onChanged`, or
   `initialValue` for a widget that holds its own state: `Slider` and
   `RangeSlider` (their controllers are gone; `Slider.label` is
-  `semanticLabel`), `FinesseRadioGroup` (`RadioController` is gone),
+  `semanticLabel`), `UnaRadioGroup` (`RadioController` is gone),
   `ToggleGroup` (`ToggleGroupController` is gone), `Select`
   (`SelectController` is gone, `popoverController` is `controller`),
   `Calendar` (`selected` is `value`, `.range` takes `range`,
@@ -303,7 +303,7 @@ was measured from (Strand, until it moved), is its own repository,
   style, so a time can be cleared by default) as on `DatePicker`; in a
   `Select.multiple` it keeps the last option rather than every one.
 - **A null callback disables a control.** A `ToggleGroup`, a
-  `FinesseRadioGroup` or a `Select` with no callback (a select with an
+  `UnaRadioGroup` or a `Select` with no callback (a select with an
   `onTap` excepted) is drawn disabled
   and takes no input, as a `Toggle`, a `Chip` or a `SegmentedControl` is.
 - **Pickers.** The inline time picker is `TimeField` (`TimeFieldTheme`,
@@ -324,7 +324,7 @@ was measured from (Strand, until it moved), is its own repository,
 - **Text fields on a touch screen** have selection handles, a horizontal
   toolbar and a magnifier by default: `magnifierConfiguration` null is
   `TextMagnifier.adaptiveConfiguration`, `selectionControls` null is
-  `FinesseTextSelectionControls.adaptive`, and
+  `UnaTextSelectionControls.adaptive`, and
   `TextFieldState.defaultContextMenuBuilder` returns the horizontal toolbar
   on iOS and Android.
 - **Tabs are value-based.** `TabBar<T>` takes `tabs: [Tab(value:, child:)]`,
@@ -350,7 +350,7 @@ was measured from (Strand, until it moved), is its own repository,
   [`liquid_glass_widgets`](https://pub.dev/packages/liquid_glass_widgets)
   (now a dependency, with `cupertino_icons`). `ThemeData(liquidGlass:
   LiquidGlassTheme(...))` decides where: `LiquidGlassMode.auto` (the
-  default) is Liquid Glass on Apple platforms and finesse's frosted glass
+  default) is Liquid Glass on Apple platforms and una's frosted glass
   elsewhere; `always` and `never` decide for every platform. Each component
   that switches has a nullable `liquidGlass` on its component theme that
   wins over the theme's.
@@ -375,9 +375,9 @@ was measured from (Strand, until it moved), is its own repository,
   `DropdownMenu` or a root `ContextMenu` opened at its own anchor — through
   the package's `GlassPopover`, still opened and closed by its
   `PopoverController`. A desktop menu, a right-click or long-press menu
-  and a submenu are finesse's popovers on glass.
+  and a submenu are una's popovers on glass.
 - **Without shader filters** (every browser, Skia) the package draws a
-  lighter glass whose blur and rim do little over a light page. finesse
+  lighter glass whose blur and rim do little over a light page. una
   gives overlays there a stronger blur and a whitened body and keeps its
   own hairline round them. A phone's or tablet's top bar that would be
   Liquid Glass is solid there instead: the bar colour at full opacity with
@@ -419,9 +419,9 @@ was measured from (Strand, until it moved), is its own repository,
 - The example's theme editor has a Liquid Glass toggle (Auto / On / Off)
   that previews it on any platform.
 - `LiquidGlass.initialize()` loads the shaders before the first frame; if
-  they fail to load, finesse falls back to frosted glass. Under Increase
-  Contrast finesse draws frosted glass.
-- **The phone metrics of `StyleTokens.finesse` are Liquid Glass's**, so a
+  they fail to load, una falls back to frosted glass. Under Increase
+  Contrast una draws frosted glass.
+- **The phone metrics of `StyleTokens.una` are Liquid Glass's**, so a
   phone layout is the same frosted or liquid: a 44-point app bar (was 60),
   a 64-point bottom bar (item height 52, was 48), a 58 × 26 switch (was
   44 × 24), a 28-point slider thumb (was 22), and 24-point corners on
@@ -431,12 +431,12 @@ was measured from (Strand, until it moved), is its own repository,
 #### App and screen structure
 
 - **Form factors.** Every style carries metrics for a desktop and for a
-  phone. `FinesseApp` picks between them from the window width (or
+  phone. `UnaApp` picks between them from the window width (or
   `formFactor:` pins one), so the same widgets get 44-point touch targets,
   15-point body text and tighter page margins on a narrow screen.
   `ThemeData.formFactor`, `ThemeData.withFormFactor`, `FormFactorBuilder`.
 - **Layout from the theme.** A named gap scale (`GapSize`, `Gap.md()`,
-  `FinesseRow(gap: GapSize.lg)`), `PageContainer` for page margins and
+  `UnaRow(gap: GapSize.lg)`), `PageContainer` for page margins and
   maximum width, and `ThemeData.layoutTheme`.
 - `Scaffold`: `appBar`, `body`, `bottomNavigationBar`, `footer`,
   `bottomSheet`, `banner`, `floatingActionButton`
@@ -471,9 +471,9 @@ was measured from (Strand, until it moved), is its own repository,
   `RestorableTabsController` (saved as the index of its tab, so a value of
   any type is restored),
   `SegmentedControl`, `Segment`, `SegmentedControlFormField`.
-- Back gestures on `FinessePageRoute`: the iOS edge swipe and Android's
-  predictive back preview (`backGesture`), and `FinessePage` for the
-  pages API. `FinesseScrollBehavior` stretches on Android.
+- Back gestures on `UnaPageRoute`: the iOS edge swipe and Android's
+  predictive back preview (`backGesture`), and `UnaPage` for the
+  pages API. `UnaScrollBehavior` stretches on Android.
 
 #### Overlays and sheets
 
@@ -507,8 +507,8 @@ was measured from (Strand, until it moved), is its own repository,
 - `SearchField` (`isSearchShortcut`, `shortcutLabel`, `clearOnEscape`),
   `showSearch` with `SearchViewBuilder`, `Autocomplete`, `NumberField`
   (`NumberField.stepper`, `NumberFieldVariant`), `TagField`.
-- Text selection on touch: `FinesseTextSelectionControls`
-  (`finesseTextSelectionControls`), `TextSelectionToolbar`,
+- Text selection on touch: `UnaTextSelectionControls`
+  (`unaTextSelectionControls`), `TextSelectionToolbar`,
   `TextSelectionToolbarButton`, `TextMagnifier`, `SelectionArea`,
   `TextSelectionTheme`, `TextFieldTheme.useSystemContextMenu`.
 - `DateField`: typed day, month and year in the locale's order, with a
@@ -521,7 +521,7 @@ was measured from (Strand, until it moved), is its own repository,
   with wheels, and a searchable or multiple `Select`. `SelectOption.label`.
 - `Slider` and `RangeSlider` value indicators (`SliderValueIndicator`),
   `RangeSlider.focusNode` (its lowest thumb's),
-  `Checkbox(tristate:)`, `FinesseRadioGroup(child:)`, `RadioGroupScope`.
+  `Checkbox(tristate:)`, `UnaRadioGroup(child:)`, `RadioGroupScope`.
 - `Chip` (`onDeleted`, `showCheckmark`, `enabled`) and `ChipGroup`
   (`ChipGroupItem`; one, or several with `ChipGroup.multiple`, wrapping or
   scrolling, with `leading` and `trailing` actions).
@@ -541,7 +541,7 @@ was measured from (Strand, until it moved), is its own repository,
 - `ListTile` (`value`, `showChevron`, `onLongPress`, `enabled`,
   `destructive`), `ListSection` (card or plain) and the lazy
   `SliverListSection`, `SwitchListTile`, `CheckboxListTile` (tristate),
-  `RadioListTile` (one choice of the `FinesseRadioGroup` around it, as a
+  `RadioListTile` (one choice of the `UnaRadioGroup` around it, as a
   `Radio` is), and `ExpansionTile`.
 - `SwipeActions` (`fullSwipe`, `onRemoved`) with `SwipeAction`s,
   `RefreshIndicator`, `Carousel` (`CarouselController`), `PageIndicator`.
@@ -638,14 +638,14 @@ was measured from (Strand, until it moved), is its own repository,
   key from the dialog around it); `isShownOnTop` and `isInTopRoute` (what a
   key handler or a system gesture asks before it acts: shown, and in the
   top route of every navigator up — a route's `isCurrent` answers for its
-  own navigator only); `FinesseTable.rowSelected`;
+  own navigator only); `UnaTable.rowSelected`;
   `Portal.onShown`; `BottomNavigationBarTheme.rimColor` and `shadows`.
 - Style tokens `tableHoverOpacity`, `tableSelectionTinted`,
   `menuHighlightOpacity`, `floatingShadowDark`, `fabSize` (`Sm`, `Lg`)
   and, for the floating bottom bar, `bottomNavigationOpacity`,
   `bottomNavigationLift`, `bottomNavigationBorderOpacity` and
   `bottomNavigationRimOpacity` (each with a `Dark` twin).
-- `FinesseLocalizations` strings for every new widget, in English; the
+- `UnaLocalizations` strings for every new widget, in English; the
   other 81 locales fall back to it.
 
 ### Fixed
@@ -708,7 +708,7 @@ Problems inherited from shad:
 - A menubar menu closed by a choice or by Escape left the menubar open.
 - A `Popover` could not switch between `controller:` and `open:`, and
   `ContextMenuTheme.subMenuPadding` did not reach submenus.
-- A reset of a `FinesseForm` called a text form field's `onChanged` and
+- A reset of a `UnaForm` called a text form field's `onChanged` and
   the form's `onReset` twice.
 - A calendar or date picker whose value was set to null from outside kept
   its selection, and a picker trigger's long label overflowed.
@@ -720,18 +720,18 @@ Problems inherited from shad:
 - A `ContextMenu` open from its first build did not take the keyboard
   focus.
 - Toasts had their shadow clipped off.
-- Merging a `FinesseRoundedSuperellipseBorder` dropped its `offset` and
+- Merging a `UnaRoundedSuperellipseBorder` dropped its `offset` and
   `padding`, so a focus ring drawn with one collapsed onto the element's
-  own border, and a plain `FinesseBorder` merged into one replaced the
+  own border, and a plain `UnaBorder` merged into one replaced the
   superellipse with a rectangle.
-- A `Dialog` on a narrow screen, an open `Tooltip` and a `FinesseApp` given
+- A `Dialog` on a narrow screen, an open `Tooltip` and a `UnaApp` given
   no theme derived the whole theme again on every build, and the page,
   dialog and `showPopover` routes set their transition up again on every
   tick of it.
 - Hover and selection fills flashed darker midway, because colours of
   different opacity were blended channel by channel.
 - Table hover and footer rows came out far too dark on a scheme whose
-  `muted` is translucent, `FinesseTable.list` never repainted its hover,
+  `muted` is translucent, `UnaTable.list` never repainted its hover,
   and the `DataTable` selection count was not localized.
 - A dialog's barrier blur popped in at the end of the transition.
 - `SelectOption.hoveredBackgroundColor` was ignored.
@@ -740,4 +740,4 @@ Problems inherited from shad:
 - Scrolling a `PageContainer` repainted the whole page on every frame, a
   switch of theme rebuilt the app on every frame of its transition, and a
   `Spinner` rebuilt on every frame instead of painting.
-- `FinesseMaterial` derived its Material theme on every rebuild.
+- `UnaMaterial` derived its Material theme on every rebuild.

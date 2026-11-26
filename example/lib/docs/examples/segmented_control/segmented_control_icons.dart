@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// Segments with an icon, on its own or before a label. An icon on its own
 /// is named by `semanticLabel` for a screen reader and by `tooltip` for a

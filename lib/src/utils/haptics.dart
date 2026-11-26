@@ -1,9 +1,9 @@
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/haptics_env_stub.dart'
-    if (dart.library.io) 'package:finesse/src/utils/haptics_env_io.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/haptics_env_stub.dart'
+    if (dart.library.io) 'package:una/src/utils/haptics_env_io.dart';
 
 /// How strong the tap of [Haptics.impact] is.
 enum HapticImpact {
@@ -20,7 +20,7 @@ enum HapticImpact {
 /// The package's haptic feedback: one place that decides whether the device
 /// ticks.
 ///
-/// Every finesse control that ticks under a finger goes through here, and
+/// Every una control that ticks under a finger goes through here, and
 /// an app's own controls can too:
 ///
 /// ```dart

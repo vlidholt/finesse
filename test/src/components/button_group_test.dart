@@ -1,10 +1,9 @@
-import 'package:finesse/finesse.dart';
-import 'package:finesse/src/components/button_group.dart'
-    show RenderButtonGroup;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/src/components/button_group.dart' show RenderButtonGroup;
+import 'package:una/una.dart';
 
 import '../../frame_sampler.dart';
 
@@ -12,7 +11,7 @@ import '../../frame_sampler.dart';
 /// hairline between two outlines, and nothing moved by the joining.
 void main() {
   const styles = [
-    StyleTokens.finesse,
+    StyleTokens.una,
     StyleTokens.nova,
     StyleTokens.maia,
     StyleTokens.lyra,
@@ -40,7 +39,7 @@ void main() {
     tester.view.physicalSize = const Size(800, 400);
     addTearDown(tester.view.reset);
     await tester.pumpWidget(const SizedBox.shrink());
-    final app = FinesseApp(
+    final app = UnaApp(
       theme: theme,
       darkTheme: theme,
       builder: (context, child) => MediaQuery(
@@ -61,7 +60,7 @@ void main() {
   );
 
   /// The decoration a button is drawn with, as its `Decorator` got it.
-  FinesseDecoration decorationOf(WidgetTester tester, Finder button) => tester
+  UnaDecoration decorationOf(WidgetTester tester, Finder button) => tester
       .widget<Decorator>(
         find.descendant(of: button, matching: find.byType(Decorator)).first,
       )
@@ -76,7 +75,7 @@ void main() {
     testWidgets('the children lie edge to edge, each exactly as wide as it '
         'is on its own, with its label where it was', (tester) async {
       for (final insideRing in [false, true]) {
-        final theme = themeOf(StyleTokens.finesse, insideRing: insideRing);
+        final theme = themeOf(StyleTokens.una, insideRing: insideRing);
         await pump(
           tester,
           Row(
@@ -321,7 +320,7 @@ void main() {
     testWidgets('the focused child is painted last, with a ring squared '
         'like its corners, and nothing moves', (tester) async {
       for (final insideRing in [false, true]) {
-        final theme = themeOf(StyleTokens.finesse, insideRing: insideRing);
+        final theme = themeOf(StyleTokens.una, insideRing: insideRing);
         await pump(
           tester,
           ButtonGroup(

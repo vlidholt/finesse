@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// Labels over a photo. `color` replaces the theme's tint with a dark scrim,
 /// used at its own alpha, so white text stays readable in light and dark.

@@ -1,8 +1,8 @@
-import 'package:finesse/src/components/card.dart';
-import 'package:finesse/src/raw_components/pressable.dart';
-import 'package:finesse/src/theme/components/card.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/card.dart';
+import 'package:una/src/raw_components/pressable.dart';
+import 'package:una/src/theme/components/card.dart';
+import 'package:una/src/theme/theme.dart';
 
 /// An icon on a soft, rounded square: the marker beside a statistic, a file
 /// type, a setting.
@@ -80,7 +80,7 @@ class IconTile extends StatelessWidget {
 /// )
 /// ```
 ///
-/// Put several in a `FinesseRow` wrapped in `Expanded`s for a summary strip.
+/// Put several in a `UnaRow` wrapped in `Expanded`s for a summary strip.
 class StatTile extends StatelessWidget {
   /// Creates a stat tile.
   const StatTile({

@@ -22,8 +22,8 @@ targets:
           timestamp: false
           flutter_integration: true
           locale_handling: false
-          class_name: FinesseLocalizationsData
-          enum_name: FinesseLocale
+          class_name: UnaLocalizationsData
+          enum_name: UnaLocale
           fallback_strategy: base_locale
           string_interpolation: dart
       slang_build_runner:legacy:

@@ -1,7 +1,7 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// A tooltip listens for what shows it itself: a mouse over its child, and
 /// a long press with a finger or a pen. The child is not re-themed to carry
@@ -19,7 +19,7 @@ void main() {
     late ThemeData outside;
     late ThemeData inside;
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Builder(
           builder: (context) {
             outside = Theme.of(context);
@@ -53,7 +53,7 @@ void main() {
   testWidgets('a long press with a finger shows it for as long as it is '
       'held, whatever the child is', (tester) async {
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Center(
           child: Tooltip(
             builder: (context) => const Text('Tip'),
@@ -80,7 +80,7 @@ void main() {
   testWidgets('a tap presses the button and shows nothing', (tester) async {
     var pressed = 0;
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Center(
           child: Tooltip(
             builder: (context) => const Text('Tip'),
@@ -102,7 +102,7 @@ void main() {
       'button is not pressed', (tester) async {
     var pressed = 0;
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Center(
           child: Tooltip(
             builder: (context) => const Text('Tip'),
@@ -128,7 +128,7 @@ void main() {
 
   testWidgets('a mouse held down is not a long press', (tester) async {
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Center(
           child: Tooltip(
             // Long after the press would have counted.
@@ -156,7 +156,7 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Center(
           child: Tooltip(
             longPressDuration: const Duration(milliseconds: 100),

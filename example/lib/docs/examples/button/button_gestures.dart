@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 class ButtonGesturesExample extends StatefulWidget {
   const ButtonGesturesExample({super.key});
@@ -22,7 +22,7 @@ class _ButtonGesturesExampleState extends State<ButtonGesturesExample> {
       children: [
         // The button answers a press and a long press; the detector around
         // it adds what a button has no callback for.
-        FinesseGestureDetector(
+        UnaGestureDetector(
           onDoubleTap: () => _say('Double tap'),
           onSecondaryTapDown: (_) => _say('Secondary tap'),
           child: Button.outline(

@@ -57,7 +57,7 @@ mixin _$ButtonTheme {
       hoverTextDecoration: t < 0.5
           ? a.hoverTextDecoration
           : b.hoverTextDecoration,
-      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
+      decoration: UnaDecoration.lerp(a.decoration, b.decoration, t),
       width: lerpDouble$(a.width, b.width, t),
       height: lerpDouble$(a.height, b.height, t),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
@@ -96,7 +96,7 @@ mixin _$ButtonTheme {
     Gradient? gradient,
     TextDecoration? textDecoration,
     TextDecoration? hoverTextDecoration,
-    FinesseDecoration? decoration,
+    UnaDecoration? decoration,
     double? width,
     double? height,
     EdgeInsetsGeometry? padding,

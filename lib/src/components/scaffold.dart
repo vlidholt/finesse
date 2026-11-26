@@ -1,21 +1,21 @@
 import 'dart:math' as math;
 
-import 'package:finesse/src/components/app_bar.dart';
-import 'package:finesse/src/components/navigation_bar.dart';
-import 'package:finesse/src/components/scaffold_drawer.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/theme/data.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/backdrop.dart';
-import 'package:finesse/src/utils/expand_reveal.dart';
-import 'package:finesse/src/utils/overlay_insets.dart';
-import 'package:finesse/src/utils/spring.dart';
-import 'package:finesse/src/utils/system_overlay_style.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/app_bar.dart';
+import 'package:una/src/components/navigation_bar.dart';
+import 'package:una/src/components/scaffold_drawer.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/theme/data.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/backdrop.dart';
+import 'package:una/src/utils/expand_reveal.dart';
+import 'package:una/src/utils/overlay_insets.dart';
+import 'package:una/src/utils/spring.dart';
+import 'package:una/src/utils/system_overlay_style.dart';
 
 /// Where a [Scaffold] puts its floating action button along the bottom of
 /// the screen.
@@ -303,7 +303,7 @@ class ScaffoldState extends State<Scaffold> with TickerProviderStateMixin {
     final navigator = Navigator.maybeOf(context);
     assert(
       navigator != null,
-      'A Scaffold needs a Navigator above it to open a drawer. FinesseApp '
+      'A Scaffold needs a Navigator above it to open a drawer. UnaApp '
       'provides one.',
     );
     if (navigator == null) return;
@@ -312,7 +312,7 @@ class ScaffoldState extends State<Scaffold> with TickerProviderStateMixin {
       content,
       atEnd: atEnd,
     );
-    final strings = FinesseLocalizations.of(context);
+    final strings = UnaLocalizations.of(context);
     final route = ScaffoldDrawerRoute(
       content: atEnd ? _endDrawerContent : _drawerContent,
       atEnd: atEnd,

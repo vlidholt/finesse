@@ -1,11 +1,11 @@
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/motion.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
+import 'package:una/src/components/button.dart';
+import 'package:una/src/liquid_glass/liquid_glass_theme.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/motion.dart';
 
 part 'tabs.g.theme.dart';
 
@@ -101,7 +101,7 @@ class TabsTheme with _$TabsTheme {
   final EdgeInsetsGeometry? padding;
 
   /// The decoration of a segmented strip: its fill and corners.
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// Constraints on the row of tabs in a segmented strip.
   final BoxConstraints? tabBarConstraints;
@@ -134,10 +134,10 @@ class TabsTheme with _$TabsTheme {
 
   /// The decoration of a tab of a segmented strip: its corners and focus
   /// ring.
-  final FinesseDecoration? tabDecoration;
+  final UnaDecoration? tabDecoration;
 
   /// The decoration of the selected tab. Defaults to [tabDecoration].
-  final FinesseDecoration? tabSelectedDecoration;
+  final UnaDecoration? tabSelectedDecoration;
 
   /// The colour of the label and icons of a tab that is not selected.
   final Color? tabForegroundColor;

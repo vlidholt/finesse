@@ -1,16 +1,16 @@
-import 'package:finesse/src/components/context_menu.dart';
-import 'package:finesse/src/components/dialog.dart';
-import 'package:finesse/src/components/sheet.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/raw_components/pressable.dart';
-import 'package:finesse/src/theme/components/context_menu.dart';
-import 'package:finesse/src/theme/components/dialog.dart';
-import 'package:finesse/src/theme/components/sheet.dart';
-import 'package:finesse/src/theme/form_factor.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/arrow_key_focus.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/context_menu.dart';
+import 'package:una/src/components/dialog.dart';
+import 'package:una/src/components/sheet.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/raw_components/pressable.dart';
+import 'package:una/src/theme/components/context_menu.dart';
+import 'package:una/src/theme/components/dialog.dart';
+import 'package:una/src/theme/components/sheet.dart';
+import 'package:una/src/theme/form_factor.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/arrow_key_focus.dart';
 
 /// One of the choices of an [ActionSheet].
 ///
@@ -360,7 +360,7 @@ class ActionSheet<T> extends StatelessWidget {
                   label:
                       cancelLabel ??
                       Text(
-                        FinesseLocalizations.of(context).actionSheet.cancel,
+                        UnaLocalizations.of(context).actionSheet.cancel,
                       ),
                   icon: null,
                   centered: true,

@@ -1,7 +1,7 @@
-import 'package:finesse/finesse.dart';
-import 'package:finesse/src/components/surface.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/src/components/surface.dart';
+import 'package:una/una.dart';
 
 /// `showPopover(showArrow: true)`: the arrow is on the edge that faces the
 /// rectangle and points at its middle, wherever the popover had to go to
@@ -19,7 +19,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         theme: ThemeData(motion: motion),
         home: Builder(
           builder: (context) => Button(
@@ -111,7 +111,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         theme: ThemeData(motion: Motion.none),
         home: Builder(
           builder: (context) => Button(

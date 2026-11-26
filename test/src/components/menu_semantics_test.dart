@@ -1,10 +1,10 @@
 import 'dart:ui' show CheckedState, SemanticsRole;
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// What a screen reader is told a menu is: a menu of menu items, of which
 /// some are checkboxes and radio buttons that are checked or not, under a
@@ -34,7 +34,7 @@ void main() {
       'ones', (tester) async {
     final handle = tester.ensureSemantics();
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Align(
           alignment: const Alignment(-.6, -.6),
           child: DropdownMenu(
@@ -104,7 +104,7 @@ void main() {
   testWidgets('a menu bar, with its triggers as menu items', (tester) async {
     final handle = tester.ensureSemantics();
     await tester.pumpWidget(
-      const FinesseApp(
+      const UnaApp(
         home: Align(
           alignment: Alignment.topLeft,
           child: Menubar(

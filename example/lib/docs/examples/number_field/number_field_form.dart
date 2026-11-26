@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 class NumberFieldFormExample extends StatefulWidget {
   const NumberFieldFormExample({super.key});
@@ -9,13 +9,13 @@ class NumberFieldFormExample extends StatefulWidget {
 }
 
 class _NumberFieldFormExampleState extends State<NumberFieldFormExample> {
-  final formKey = GlobalKey<FinesseFormState>();
+  final formKey = GlobalKey<UnaFormState>();
 
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 260),
-      child: FinesseForm(
+      child: UnaForm(
         key: formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,

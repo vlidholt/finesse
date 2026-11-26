@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 class DividerBasicExample extends StatelessWidget {
   const DividerBasicExample({super.key});
@@ -13,7 +13,7 @@ class DividerBasicExample extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Finesse', style: theme.textTheme.small),
+          Text('Una', style: theme.textTheme.small),
           const SizedBox(height: 4),
           Text(
             'A design system for Flutter.',

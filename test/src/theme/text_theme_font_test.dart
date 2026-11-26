@@ -1,8 +1,8 @@
 import 'dart:ui' as ui;
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 TextStyle _fakeGoogleFont({
   TextStyle? textStyle,
@@ -33,7 +33,7 @@ TextStyle _fakeGoogleFont({
 void main() {
   // Text fonts, that is: the package does ship the Phosphor icon fonts (see
   // test/src/icons/phosphor_icons_test.dart).
-  group('finesse bundles no text fonts', () {
+  group('una bundles no text fonts', () {
     test('the default text theme uses the platform font', () {
       final theme = TextTheme();
       expect(theme.family, isNull);

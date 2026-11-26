@@ -14,7 +14,7 @@ import 'package:flutter/widgets.dart';
 /// Padding(padding: spacing.all(6), child: ...); // 24px with the default step
 /// ```
 ///
-/// Prefer `Gap` and `FinessePadding` over reading the scale by hand — they do
+/// Prefer `Gap` and `UnaPadding` over reading the scale by hand — they do
 /// the lookup for you.
 @immutable
 class Spacing {

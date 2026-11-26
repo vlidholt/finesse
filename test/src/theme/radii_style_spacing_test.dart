@@ -1,6 +1,6 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 import '../../fixture_styles.dart';
 
@@ -78,14 +78,14 @@ void main() {
       expect(StyleTokens.lyra.radiusScale, scale);
     });
 
-    test('finesse at a base of 10 gives 6/10/12/16/18/20/24', () {
+    test('una at a base of 10 gives 6/10/12/16/18/20/24', () {
       const radii = Radii(
         BorderRadius.all(Radius.circular(10)),
         RadiusScale(sm: .6, lg: 1.2, xl: 1.6, xl2: 1.8, xl3: 2, xl4: 2.4),
       );
-      expect(StyleTokens.finesse.radius, 10);
-      expect(StyleTokens.finesse.radiusScale, radii.scale);
-      expect(StyleTokens.finesseMobile.radiusScale, radii.scale);
+      expect(StyleTokens.una.radius, 10);
+      expect(StyleTokens.una.radiusScale, radii.scale);
+      expect(StyleTokens.unaMobile.radiusScale, radii.scale);
 
       expect(radii.none, BorderRadius.zero);
       expect(radii.sm.topLeft.x, closeTo(6, 1e-9));
@@ -103,7 +103,7 @@ void main() {
     test('the default theme carries that scale and base', () {
       final theme = ThemeData();
       expect(theme.radius, const BorderRadius.all(Radius.circular(10)));
-      expect(theme.radii.scale, StyleTokens.finesse.radiusScale);
+      expect(theme.radii.scale, StyleTokens.una.radiusScale);
       expect(
         [
           for (final token in [
@@ -126,7 +126,7 @@ void main() {
       );
     });
 
-    test('the finesse surfaces land on the scale', () {
+    test('the una surfaces land on the scale', () {
       final theme = ThemeData();
       double radiusOf(BorderRadiusGeometry? r) =>
           r!.resolve(TextDirection.ltr).topLeft.x;
@@ -157,7 +157,7 @@ void main() {
       expect(theme.glassTheme.borderRadius, theme.cardTheme.borderRadius);
     });
 
-    test('a theme radius rescales the finesse steps', () {
+    test('a theme radius rescales the una steps', () {
       final theme = ThemeData(
         radius: const BorderRadius.all(Radius.circular(20)),
       );
@@ -208,7 +208,7 @@ void main() {
   group('StyleTokens', () {
     test('ships four styles, uniquely named, the default first', () {
       expect(StyleTokens.all, [
-        StyleTokens.finesse,
+        StyleTokens.una,
         StyleTokens.nova,
         StyleTokens.maia,
         StyleTokens.lyra,
@@ -224,7 +224,7 @@ void main() {
 
     test('fromName rejects an unknown name', () {
       expect(() => StyleTokens.fromName('nope'), throwsArgumentError);
-      // The shadcn styles finesse dropped are unknown names now.
+      // The shadcn styles una dropped are unknown names now.
       for (final name in ['vega', 'mira', 'luma', 'sera', 'rhea']) {
         expect(
           () => StyleTokens.fromName(name),
@@ -407,7 +407,7 @@ void main() {
       expect(lyra.textTheme.small.height, 16 / 12);
       expect(lyra.textTheme.muted.height, 16 / 12);
 
-      // finesse is unchanged, on a desktop and on a phone.
+      // una is unchanged, on a desktop and on a phone.
       expectScale(
         ThemeData(),
         h1: 30,
@@ -610,10 +610,10 @@ void main() {
       expect(const StyleTokens(name: 'custom').cardShadow, Shadows.xs);
       expect(StyleTokens.nova.cardShadow, Shadows.none);
       expect(StyleTokens.maia.popoverShadow, Shadows.xl2);
-      expect(StyleTokens.finesse.cardShadow, isNot(Shadows.none));
+      expect(StyleTokens.una.cardShadow, isNot(Shadows.none));
       expect(
-        StyleTokens.finesse.cardShadowDark,
-        isNot(StyleTokens.finesse.cardShadow),
+        StyleTokens.una.cardShadowDark,
+        isNot(StyleTokens.una.cardShadow),
       );
     });
 

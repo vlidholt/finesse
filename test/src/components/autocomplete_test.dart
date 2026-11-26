@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 const _fruits = ['Apple', 'Apricot', 'Avocado', 'Banana', 'Blueberry'];
 
@@ -23,7 +23,7 @@ Widget _app(
   double textScale = 1,
   AlignmentGeometry alignment = Alignment.topCenter,
 }) {
-  return FinesseApp(
+  return UnaApp(
     theme: theme,
     home: Builder(
       builder: (context) => MediaQuery(
@@ -618,7 +618,7 @@ void main() {
   testWidgets('right-to-left, a large text scale and every style lay out '
       'without overflow', (tester) async {
     for (final style in [
-      StyleTokens.finesse,
+      StyleTokens.una,
       StyleTokens.nova,
       StyleTokens.maia,
       StyleTokens.lyra,

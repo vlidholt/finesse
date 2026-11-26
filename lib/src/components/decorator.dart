@@ -1,10 +1,10 @@
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/border.dart';
-import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/border.dart';
+import 'package:una/src/utils/shadow.dart';
 
-/// Paints a [FinesseDecoration] around [child].
+/// Paints a [UnaDecoration] around [child].
 ///
 /// Picks the normal, focused or error form of each border from [focused] and
 /// `decoration.hasError`, and merges [decoration] over
@@ -22,7 +22,7 @@ class Decorator extends StatelessWidget {
   final Widget? child;
 
   /// The decoration to apply to the child.
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// Whether the child has focus, defaults to false.
   final bool focused;
@@ -77,7 +77,7 @@ class Decorator extends StatelessWidget {
     final primaryDecoration = ShadowDecoration(
       shadows: effectiveDecoration.shadows ?? const [],
       decoration: switch (border) {
-        final FinesseRoundedSuperellipseBorder border => ShapeDecoration(
+        final UnaRoundedSuperellipseBorder border => ShapeDecoration(
           color: effectiveDecoration.color,
           image: effectiveDecoration.image,
           gradient: effectiveDecoration.gradient,
@@ -86,7 +86,7 @@ class Decorator extends StatelessWidget {
             defaultBorderRadius: theme.radius,
           ),
         ),
-        final FinesseBorder? border => BoxDecoration(
+        final UnaBorder? border => BoxDecoration(
           border: true == border?.hasBorder ? border?.toBorder() : null,
           borderRadius: effectiveDecoration.shape == BoxShape.circle
               ? null

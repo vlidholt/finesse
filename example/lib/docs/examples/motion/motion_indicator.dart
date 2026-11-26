@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// One selection shape for a whole row. Each item marks where the shape
 /// belongs with a `MovingIndicatorTarget`; the `MovingIndicator` around the

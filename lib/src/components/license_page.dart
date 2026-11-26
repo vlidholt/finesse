@@ -1,20 +1,20 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:finesse/src/components/app_bar.dart';
-import 'package:finesse/src/components/divider.dart';
-import 'package:finesse/src/components/list_section.dart';
-import 'package:finesse/src/components/list_tile.dart';
-import 'package:finesse/src/components/scaffold.dart';
-import 'package:finesse/src/components/spinner.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/page_route.dart';
-import 'package:finesse/src/theme/components/layout.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/debug_check.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/app_bar.dart';
+import 'package:una/src/components/divider.dart';
+import 'package:una/src/components/list_section.dart';
+import 'package:una/src/components/list_tile.dart';
+import 'package:una/src/components/scaffold.dart';
+import 'package:una/src/components/spinner.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/page_route.dart';
+import 'package:una/src/theme/components/layout.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/debug_check.dart';
 
 /// Pushes a [LicensePage]: the licences of the software the app is built
 /// from.
@@ -42,7 +42,7 @@ Future<void> showLicensePage({
   bool useRootNavigator = false,
 }) {
   return Navigator.of(context, rootNavigator: useRootNavigator).push<void>(
-    FinessePageRoute<void>(
+    UnaPageRoute<void>(
       builder: (context) => LicensePage(
         applicationName: applicationName,
         applicationVersion: applicationVersion,
@@ -154,7 +154,7 @@ class _LicensePageState extends State<LicensePage> {
 
   Future<void> _open(_PackageLicenses package) {
     return Navigator.of(context).push<void>(
-      FinessePageRoute<void>(
+      UnaPageRoute<void>(
         builder: (context) => _PackageLicensePage(package: package),
       ),
     );
@@ -164,7 +164,7 @@ class _LicensePageState extends State<LicensePage> {
   Widget build(BuildContext context) {
     assert(debugCheckHasTheme(context));
     final theme = Theme.of(context);
-    final strings = FinesseLocalizations.of(context).licensePage;
+    final strings = UnaLocalizations.of(context).licensePage;
     final packages = _packages;
     final name = _applicationName;
 

@@ -1,12 +1,12 @@
 import 'dart:ui';
 
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/raw_components/portal.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/utils/border.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
+import 'package:una/src/components/button.dart';
+import 'package:una/src/raw_components/portal.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/utils/border.dart';
 
 part 'menubar.g.theme.dart';
 
@@ -71,7 +71,7 @@ class MenubarTheme with _$MenubarTheme {
   final Color? backgroundColor;
 
   /// {@macro Menubar.border}
-  final FinesseBorder? border;
+  final UnaBorder? border;
 
   /// {@macro ContextMenu.constraints}
   final BoxConstraints? constraints;
@@ -83,7 +83,7 @@ class MenubarTheme with _$MenubarTheme {
   final List<BoxShadow>? shadows;
 
   /// {@macro Popover.decoration}
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// {@macro Popover.filter}
   final ImageFilter? filter;
@@ -149,7 +149,7 @@ class MenubarTheme with _$MenubarTheme {
   final TextDecoration? buttonHoverTextDecoration;
 
   /// {@macro Button.decoration}
-  final FinesseDecoration? buttonDecoration;
+  final UnaDecoration? buttonDecoration;
 
   /// {@macro Button.gap}
   final double? buttonGap;

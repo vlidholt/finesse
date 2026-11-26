@@ -14,9 +14,9 @@ Update the `ref` below with your branch name, then users can test your changes b
 To try this branch, add the following to your `pubspec.yaml`:
 
 ```yaml
-finesse:
+una:
     git:
-      url: https://github.com/vlidholt/finesse
+      url: https://github.com/vlidholt/una
       ref: your-branch-name-here
 ```
 
@@ -32,5 +32,5 @@ finesse:
 - [ ] I updated the `CHANGELOG.md` file with a summary of changes made following the format already used.
 
 <!-- Links -->
-[Contributor Guide]: https://github.com/vlidholt/finesse/blob/main/CONTRIBUTING.md
+[Contributor Guide]: https://github.com/vlidholt/una/blob/main/CONTRIBUTING.md
 [Flutter Style Guide]: https://github.com/flutter/flutter/blob/main/docs/contributing/Style-guide-for-Flutter-repo.md

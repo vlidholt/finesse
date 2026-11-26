@@ -26,7 +26,7 @@ mixin _$TextFieldTheme {
     }
 
     return TextFieldTheme(
-      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
+      decoration: UnaDecoration.lerp(a.decoration, b.decoration, t),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
       style: TextStyle.lerp(a.style, b.style, t),
       cursorColor: Color.lerp(a.cursorColor, b.cursorColor, t),
@@ -68,7 +68,7 @@ mixin _$TextFieldTheme {
   }
 
   TextFieldTheme copyWith({
-    FinesseDecoration? decoration,
+    UnaDecoration? decoration,
     EdgeInsetsGeometry? padding,
     TextStyle? style,
     Color? cursorColor,

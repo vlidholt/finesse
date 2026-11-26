@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// A ring that follows a value: drag the slider and the arc eases to it.
 /// The middle of a ring holds a number or an icon.
@@ -19,11 +19,11 @@ class _ProgressRingBasicExampleState extends State<ProgressRingBasicExample> {
     final percent = (value * 100).round();
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 360),
-      child: FinesseColumn(
+      child: UnaColumn(
         gap: GapSize.xl,
         mainAxisSize: MainAxisSize.min,
         children: [
-          FinesseRow(
+          UnaRow(
             gap: GapSize.xl,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

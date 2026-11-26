@@ -10,7 +10,7 @@ final dataTableDoc = ComponentDoc(
       'and columns and a `DataTableController` sorts, filters, selects and '
       'pages them — or, made with `DataTableController.remote`, asks a '
       'server for one page at a time. To lay out cells of your own with none of that, use '
-      '`FinesseTable`, the grid it is built on.',
+      '`UnaTable`, the grid it is built on.',
   examples: [
     ComponentExample(
       id: 'data_table_payments',

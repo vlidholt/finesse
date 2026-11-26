@@ -29,8 +29,8 @@ mixin _$CheckboxTheme {
       color: Color.lerp(a.color, b.color, t),
       uncheckedColor: Color.lerp(a.uncheckedColor, b.uncheckedColor, t),
       size: lerpDouble$(a.size, b.size, t),
-      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
-      checkedDecoration: FinesseDecoration.lerp(
+      decoration: UnaDecoration.lerp(a.decoration, b.decoration, t),
+      checkedDecoration: UnaDecoration.lerp(
         a.checkedDecoration,
         b.checkedDecoration,
         t,
@@ -49,8 +49,8 @@ mixin _$CheckboxTheme {
     Color? color,
     Color? uncheckedColor,
     double? size,
-    FinesseDecoration? decoration,
-    FinesseDecoration? checkedDecoration,
+    UnaDecoration? decoration,
+    UnaDecoration? checkedDecoration,
     EdgeInsetsGeometry? padding,
     CrossAxisAlignment? crossAxisAlignment,
     EdgeInsetsGeometry? checkboxPadding,

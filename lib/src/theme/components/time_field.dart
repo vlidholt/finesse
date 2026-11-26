@@ -1,6 +1,6 @@
-import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
+import 'package:una/src/theme/components/decorator.dart';
 
 part 'time_field.g.theme.dart';
 
@@ -91,10 +91,10 @@ class TimeFieldTheme with _$TimeFieldTheme {
   final EdgeInsetsGeometry? fieldPadding;
 
   /// The decoration of a number field.
-  final FinesseDecoration? fieldDecoration;
+  final UnaDecoration? fieldDecoration;
 
   /// The decoration of the day-period select.
-  final FinesseDecoration? periodDecoration;
+  final UnaDecoration? periodDecoration;
 
   /// Linearly interpolates between two themes.
   static TimeFieldTheme? lerp(

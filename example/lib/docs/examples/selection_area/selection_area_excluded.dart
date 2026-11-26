@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 class SelectionAreaExcludedExample extends StatefulWidget {
   const SelectionAreaExcludedExample({super.key});
@@ -36,7 +36,7 @@ class _SelectionAreaExcludedExampleState
                   style: theme.textTheme.small,
                 ),
                 const Gap.xs(),
-                Text('FINESSE-2026-TEAL', style: theme.textTheme.large),
+                Text('UNA-2026-TEAL', style: theme.textTheme.large),
                 const Gap.sm(),
                 // Chrome that should not end up on the clipboard.
                 const SelectionContainer.disabled(

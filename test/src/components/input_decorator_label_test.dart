@@ -1,16 +1,16 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 void main() {
   testWidgets('a label with no label style and no fallback does not throw', (
     tester,
   ) async {
     await tester.pumpWidget(
-      const FinesseApp(
+      const UnaApp(
         home: InputDecorator(
           label: Text('Name'),
-          decoration: FinesseDecoration(fallbackToLabelStyle: false),
+          decoration: UnaDecoration(fallbackToLabelStyle: false),
           child: SizedBox(height: 10),
         ),
       ),

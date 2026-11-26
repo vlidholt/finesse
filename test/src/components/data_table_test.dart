@@ -1,7 +1,7 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 class _User {
   const _User(this.id, this.name, this.age);
@@ -54,7 +54,7 @@ void main() {
     testWidgets('sorts ascending, descending, then clears', (tester) async {
       final controller = build();
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: SizedBox(
             height: 400,
             child: DataTable<_User>(
@@ -101,7 +101,7 @@ void main() {
     testWidgets('switching columns restarts at ascending', (tester) async {
       final controller = build();
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: DataTable<_User>(
             columns: columns(),
             controller: controller,
@@ -217,7 +217,7 @@ void main() {
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: DataTable<_User>(
             columns: columns(),
             controller: controller,
@@ -238,7 +238,7 @@ void main() {
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: DataTable<_User>(
             columns: columns(),
             controller: controller,
@@ -278,7 +278,7 @@ void main() {
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: DataTable<_User>(
             columns: columns(),
             controller: controller,
@@ -329,7 +329,7 @@ void main() {
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: DataTable<_User>(
             columns: columns(),
             controller: controller,
@@ -351,7 +351,7 @@ void main() {
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: DataTable<_User>(
             columns: columns(),
             controller: controller,
@@ -369,7 +369,7 @@ void main() {
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: DataTable<_User>(
             columns: [
               ...columns().where((c) => c.id != 'age'),
@@ -398,7 +398,7 @@ void main() {
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: DataTable<_User>(
             columns: columns(),
             controller: controller,
@@ -425,7 +425,7 @@ void main() {
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: DataTable<_User>(
             columns: columns(),
             controller: controller,
@@ -456,7 +456,7 @@ void main() {
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: DataTable<_User>(
             columns: columns(),
             controller: controller,

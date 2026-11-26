@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// A list of conversations. With `onTap` a row highlights under the pointer
 /// and takes keyboard focus; `selected` gives it the accent fill.

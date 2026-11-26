@@ -1,13 +1,13 @@
 import 'dart:math' as math;
 
-import 'package:finesse/finesse.dart';
-import 'package:finesse/src/components/surface.dart';
-import 'package:finesse/src/utils/arrow_surface.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/src/components/surface.dart';
+import 'package:una/src/utils/arrow_surface.dart';
+import 'package:una/una.dart';
 
-import '../../finesse_harness.dart';
 import '../../frame_sampler.dart';
+import '../../una_harness.dart';
 
 /// `Popover(showArrow: true)`: an arrow on the edge that faces the trigger,
 /// pointing at the middle of it, part of the surface's own outline.
@@ -33,7 +33,7 @@ void main() {
     double textScale = 1,
     bool disableAnimations = false,
   }) async {
-    await pumpFinesse(
+    await pumpUna(
       tester,
       MediaQuery(
         data: MediaQueryData(
@@ -326,7 +326,7 @@ void main() {
 
     for (final brightness in Brightness.values) {
       for (final (styleName, style) in [
-        ('finesse', StyleTokens.finesse),
+        ('una', StyleTokens.una),
         ('nova', StyleTokens.nova),
       ]) {
         testWidgets(
@@ -340,7 +340,7 @@ void main() {
             addTearDown(tester.view.reset);
             await tester.pumpWidget(
               sampler.wrap(
-                FinesseApp(
+                UnaApp(
                   theme: theme,
                   darkTheme: theme,
                   home: ColoredBox(
@@ -513,7 +513,7 @@ void main() {
     ) async {
       final controller = PopoverController();
       addTearDown(controller.dispose);
-      await pumpFinesse(
+      await pumpUna(
         tester,
         Center(
           child: Popover(

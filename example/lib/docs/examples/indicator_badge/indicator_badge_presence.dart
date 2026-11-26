@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// Presence dots on avatars. `alignment` picks the corner; an `overhang` of
 /// zero keeps the dot inside the avatar's bounds, on the edge of the circle.

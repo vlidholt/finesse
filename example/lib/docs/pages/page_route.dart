@@ -7,19 +7,19 @@ final pageRouteDoc = ComponentDoc(
   slug: 'page_route',
   title: 'Page Route',
   description:
-      'How one page replaces another. `FinessePageRoute` is the route '
-      '`FinesseApp` pushes by default: a short slide and a fade on the '
+      'How one page replaces another. `UnaPageRoute` is the route '
+      '`UnaApp` pushes by default: a short slide and a fade on the '
       "theme's motion, from the end side on a phone and a few pixels' "
       'rise on a desktop. A page can be taken back with a gesture: a '
       'drag from its start edge on iOS, and a preview of the predictive '
-      'back gesture on Android. `FinessePage` is the same route for a '
+      'back gesture on Android. `UnaPage` is the same route for a '
       'declared page list.',
   examples: [
     ComponentExample(
       id: 'page_route_push',
       title: 'Pushing pages',
       description:
-          '`Navigator.push(FinessePageRoute(builder: ...))`. The page '
+          '`Navigator.push(UnaPageRoute(builder: ...))`. The page '
           'follows the finger for as long as it is held; past the '
           'middle, or flicked, it leaves, and otherwise it springs back '
           'with the speed it was let go at. `backGesture` is null by '
@@ -36,7 +36,7 @@ final pageRouteDoc = ComponentDoc(
       title: 'Declared pages',
       description:
           'With `Navigator.pages`, or a router package, pages are '
-          'values. `FinessePage(child: ...)` shows one through the same '
+          'values. `UnaPage(child: ...)` shows one through the same '
           'route, with `fullscreenDialog`, `maintainState` and '
           '`backGesture`. In `go_router`, return it from a '
           "route's `pageBuilder` with `key: state.pageKey`.",

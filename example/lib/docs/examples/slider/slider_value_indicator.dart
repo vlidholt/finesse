@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// The value in a bubble above the thumb: while the thumb is dragged,
 /// hovered or focused, or always. `valueLabel` writes it.
@@ -20,7 +20,7 @@ class _SliderValueIndicatorExampleState
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 360),
-      child: FinesseColumn(
+      child: UnaColumn(
         mainAxisSize: MainAxisSize.min,
         gap: GapSize.xl,
         children: [

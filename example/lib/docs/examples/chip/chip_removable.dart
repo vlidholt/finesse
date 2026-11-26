@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// Chips that can be removed: `onDeleted` adds a cross that is a target of
 /// its own, so the chip itself can still do something else. Backspace and
@@ -20,7 +20,7 @@ class _ChipRemovableExampleState extends State<ChipRemovableExample> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return FinesseColumn(
+    return UnaColumn(
       mainAxisSize: MainAxisSize.min,
       gap: GapSize.md,
       children: [

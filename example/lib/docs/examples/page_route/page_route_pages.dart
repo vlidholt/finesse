@@ -1,7 +1,7 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
-/// Declared pages: the list of `FinessePage`s *is* the stack. A swipe back
+/// Declared pages: the list of `UnaPage`s *is* the stack. A swipe back
 /// or the back button removes the page, and `onDidRemovePage` brings the
 /// state in line. A router package takes the same pages from its
 /// `pageBuilder`.
@@ -37,13 +37,13 @@ class _PageRoutePagesExampleState extends State<PageRoutePagesExample> {
           removeBottom: true,
           child: Navigator(
             pages: [
-              FinessePage<void>(
+              UnaPage<void>(
                 key: const ValueKey('people'),
                 child: Scaffold(
                   appBar: const AppBar(title: Text('People')),
                   body: PageContainer(
                     scrollable: true,
-                    child: FinesseColumn(
+                    child: UnaColumn(
                       gap: GapSize.sm,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -61,7 +61,7 @@ class _PageRoutePagesExampleState extends State<PageRoutePagesExample> {
                 ),
               ),
               if (open case final person?)
-                FinessePage<void>(
+                UnaPage<void>(
                   key: ValueKey(person),
                   backGesture: true,
                   child: Scaffold(

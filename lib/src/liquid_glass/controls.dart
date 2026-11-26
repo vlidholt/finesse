@@ -1,10 +1,10 @@
-import 'package:finesse/src/liquid_glass/liquid_glass.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/haptics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
+import 'package:una/src/liquid_glass/liquid_glass.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/haptics.dart';
 
-/// The package's `GlassSwitch` with finesse's colours and size: flat at
+/// The package's `GlassSwitch` with una's colours and size: flat at
 /// rest, a lens of glass while it is pressed or dragged.
 ///
 /// Built by `Switch` when Liquid Glass is active; not public.
@@ -62,7 +62,7 @@ class LiquidGlassSwitch extends StatelessWidget {
         inactiveColor: inactiveColor,
         thumbColor: thumbColor,
         useOwnLayer: true,
-        // Through finesse's rule: a phone only, the theme's switch, and
+        // Through una's rule: a phone only, the theme's switch, and
         // silent in tests.
         enableHaptics: Haptics.enabledOf(context),
         focusNode: focusNode,
@@ -72,7 +72,7 @@ class LiquidGlassSwitch extends StatelessWidget {
   }
 }
 
-/// The package's `GlassSlider` with finesse's colours and size: its thumb
+/// The package's `GlassSlider` with una's colours and size: its thumb
 /// turns into a lens of glass while it is dragged.
 ///
 /// Built by `Slider` when Liquid Glass is active; not public.
@@ -190,7 +190,7 @@ class LiquidGlassSegment {
   final String? semanticLabel;
 }
 
-/// The package's `GlassSegmentedControl` in finesse's type and size: the
+/// The package's `GlassSegmentedControl` in una's type and size: the
 /// selection is a lens of glass that slides and stretches between
 /// segments.
 ///

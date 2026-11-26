@@ -9,11 +9,11 @@
 // keep every seed that finds something in `_seeds`.
 import 'dart:math';
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// How the list is hosted.
 enum _Form {
@@ -220,7 +220,7 @@ void main() {
             AppLifecycleState.resumed,
           ),
         );
-        await tester.pumpWidget(FinesseApp(home: _Host(form: form)));
+        await tester.pumpWidget(UnaApp(home: _Host(form: form)));
         await tester.pump(const Duration(milliseconds: 300));
 
         final hostFinder = find.byType(_Host, skipOffstage: false);
@@ -363,7 +363,7 @@ void main() {
                 navigator()
                     .push(
                       random.nextBool()
-                          ? FinessePageRoute<void>(
+                          ? UnaPageRoute<void>(
                               builder: (context) => const Text('page'),
                             )
                           : PageRouteBuilder<void>(

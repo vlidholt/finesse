@@ -5,14 +5,14 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-// The names `package:finesse/finesse.dart` exports are pinned in
+// The names `package:una/una.dart` exports are pinned in
 // `test/public_api.txt`, so that the public surface changes only on purpose:
 // a state class, a render object or a helper that becomes public by accident
 // fails here, and so does a name that disappears.
 //
 // After a deliberate change, rewrite the list with
 //
-//     FINESSE_UPDATE_PUBLIC_API=1 flutter test test/public_api_test.dart
+//     UNA_UPDATE_PUBLIC_API=1 flutter test test/public_api_test.dart
 //
 // and read the diff: every added line is something users can now depend on.
 //
@@ -20,7 +20,7 @@ import 'package:flutter_test/flutter_test.dart';
 // to keep in step with the Flutter floor). It relies on `dart format`, which
 // CI enforces: a top-level declaration starts in column 0.
 
-const _barrel = 'lib/finesse.dart';
+const _barrel = 'lib/una.dart';
 const _pinned = 'test/public_api.txt';
 
 void main() {
@@ -28,7 +28,7 @@ void main() {
     final actual = exportedNames(_barrel).toList()..sort();
     final file = File(_pinned);
 
-    if (Platform.environment['FINESSE_UPDATE_PUBLIC_API'] == '1') {
+    if (Platform.environment['UNA_UPDATE_PUBLIC_API'] == '1') {
       file.writeAsStringSync('${actual.join('\n')}\n');
       return;
     }
@@ -45,13 +45,13 @@ void main() {
       added.isEmpty && removed.isEmpty,
       isTrue,
       reason:
-          'The public API of package:finesse/finesse.dart changed.\n'
+          'The public API of package:una/una.dart changed.\n'
           '${added.isEmpty ? '' : 'Now exported, not in $_pinned:\n'
                     '  ${added.join('\n  ')}\n'}'
           '${removed.isEmpty ? '' : 'In $_pinned, no longer exported:\n'
                     '  ${removed.join('\n  ')}\n'}'
           'If that is intended, run\n'
-          '  FINESSE_UPDATE_PUBLIC_API=1 flutter test '
+          '  UNA_UPDATE_PUBLIC_API=1 flutter test '
           'test/public_api_test.dart\n'
           'and commit $_pinned. Otherwise make the new name private, or '
           'hide it in $_barrel.',

@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// A bubble is a container: any widget works as its child. An attachment
 /// swaps the fill for the card colour and adds a border.

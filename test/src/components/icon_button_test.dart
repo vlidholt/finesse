@@ -1,22 +1,22 @@
-import 'package:finesse/material.dart';
-import 'package:finesse/src/app.dart';
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/components/icon_button.dart';
-import 'package:finesse/src/theme/color_scheme/zinc.dart';
-import 'package:finesse/src/theme/components/button.dart';
-import 'package:finesse/src/theme/data.dart';
-import 'package:finesse/src/theme/spacing.dart';
-import 'package:finesse/src/theme/style.dart';
 import 'package:flutter/material.dart' hide ButtonTheme, IconButton, ThemeData;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/material.dart';
+import 'package:una/src/app.dart';
+import 'package:una/src/components/button.dart';
+import 'package:una/src/components/icon_button.dart';
+import 'package:una/src/theme/color_scheme/zinc.dart';
+import 'package:una/src/theme/components/button.dart';
+import 'package:una/src/theme/data.dart';
+import 'package:una/src/theme/spacing.dart';
+import 'package:una/src/theme/style.dart';
 
 import '../../fixture_styles.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
+  // Helper method to create a test widget wrapped in UnaApp and Scaffold
   Widget createTestWidget(Widget child, {ThemeData? theme}) {
-    return FinesseApp(
-      builder: (context, child) => FinesseMaterial(child: child!),
+    return UnaApp(
+      builder: (context, child) => UnaMaterial(child: child!),
       theme: theme,
       home: Scaffold(body: child),
     );
@@ -204,12 +204,12 @@ void main() {
     // Read off `[&_svg:not([class*='size-'])]:size-*` in
     // apps/v4/registry/styles/style-*.css: most styles keep 16 everywhere,
     // `mira` follows the step down and `sera`'s base is `size-3.5`.
-    // finesse draws its glyphs larger: 18 in a text button (16 in a small
+    // una draws its glyphs larger: 18 in a text button (16 in a small
     // one) and 20 in every icon button. `mira` and `sera` no longer ship;
     // they stay here as fixtures because they are the styles that prove the
     // `sm` and base slots are read independently.
     final expected = {
-      StyleTokens.finesse: (16.0, 18.0, 18.0),
+      StyleTokens.una: (16.0, 18.0, 18.0),
       StyleTokens.nova: (14.0, 16.0, 16.0),
       StyleTokens.maia: (16.0, 16.0, 16.0),
       StyleTokens.lyra: (14.0, 16.0, 16.0),
@@ -236,7 +236,7 @@ void main() {
 
     test('icon buttons keep the base glyph except in mira and sera', () {
       final iconExpected = {
-        StyleTokens.finesse: (20.0, 20.0, 20.0),
+        StyleTokens.una: (20.0, 20.0, 20.0),
         StyleTokens.nova: (16.0, 16.0, 16.0),
         StyleTokens.maia: (16.0, 16.0, 16.0),
         StyleTokens.lyra: (16.0, 16.0, 16.0),

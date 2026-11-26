@@ -1,5 +1,5 @@
-import 'package:finesse/src/utils/browser_context_menu/browser_context_menu_stub.dart'
-    if (dart.library.js_interop) 'package:finesse/src/utils/browser_context_menu/browser_context_menu_web.dart'
+import 'package:una/src/utils/browser_context_menu/browser_context_menu_stub.dart'
+    if (dart.library.js_interop) 'package:una/src/utils/browser_context_menu/browser_context_menu_web.dart'
     as impl;
 
 /// Suppresses the browser's native context menu for the right-click that is

@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// Settings rows: an icon tile in front, a control, a value or a chevron
 /// behind, and a subtitle that is allowed to wrap to two lines.

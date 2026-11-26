@@ -1,6 +1,6 @@
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/spring_size.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/spring_size.dart';
 
 /// Which side of a conversation a [ChatBubble] belongs to.
 enum ChatBubbleDirection {

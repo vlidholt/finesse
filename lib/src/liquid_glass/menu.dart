@@ -1,18 +1,18 @@
 import 'dart:ui' as ui;
 
-import 'package:finesse/src/components/bar_button_scope.dart';
-import 'package:finesse/src/components/popover.dart';
-import 'package:finesse/src/liquid_glass/liquid_glass.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
 import 'package:liquid_glass_widgets/theme/glass_theme_helpers.dart' as lg;
+import 'package:una/src/components/bar_button_scope.dart';
+import 'package:una/src/components/popover.dart';
+import 'package:una/src/liquid_glass/liquid_glass.dart';
+import 'package:una/src/theme/theme.dart';
 
 /// A menu that morphs out of its trigger, as iOS 26 opens a menu from the
 /// button that shows it: the package's `GlassPopover` — the glass of the
 /// trigger stretched into the menu on a spring, the content fading in as it
 /// settles, and gathered back into the trigger on the way out — opened and
-/// closed by a finesse [PopoverController].
+/// closed by a una [PopoverController].
 ///
 /// The controller stays the one source of truth: opening or closing it
 /// morphs the menu, and a tap outside (the package's barrier) closes it.
@@ -123,7 +123,7 @@ class _LiquidGlassMorphPopoverState extends State<LiquidGlassMorphPopover> {
           if (legible) settings = legibleOverlaySettings(settings, theme);
           return lg.GlassPopover(
             controller: _glass,
-            // The trigger opens the menu through the finesse controller.
+            // The trigger opens the menu through the una controller.
             triggerBuilder: (context, _) => widget.child,
             contentBuilder: (context, _) {
               // Not the bar's buttons, though the trigger may be in a bar.

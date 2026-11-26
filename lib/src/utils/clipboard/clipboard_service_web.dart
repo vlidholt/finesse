@@ -1,6 +1,6 @@
 import 'dart:js_interop';
 
-import 'package:finesse/src/utils/clipboard/clipboard_service.dart';
+import 'package:una/src/utils/clipboard/clipboard_service.dart';
 import 'package:web/web.dart' as web;
 
 final _listeners = <PasteFilesCallback>{};

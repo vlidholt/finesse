@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/theme.dart';
 
 /// A spring, described the way a designer reads one: how long it takes and
 /// how much it bounces.
@@ -186,7 +186,7 @@ class MotionSpringCurve extends Curve {
 /// The motion vocabulary of a style: the durations, curves and springs every
 /// component animates with.
 ///
-/// A style carries one (`StyleTokens.motion`), so `finesse` is lively and the
+/// A style carries one (`StyleTokens.motion`), so `una` is lively and the
 /// shadcn styles are calmer, and `ThemeData(motion: ...)` replaces it for a
 /// whole app — [Motion.none] switches every transition off. Components do not
 /// read it from the theme directly: they call [Motion.of], which also honours
@@ -250,7 +250,7 @@ class Motion {
     this.reduced = false,
   });
 
-  /// The motion of the `finesse` style: quick springs with a little life in
+  /// The motion of the `una` style: quick springs with a little life in
   /// them, a clear press response and a selection indicator that stretches
   /// as it travels.
   static const lively = Motion(

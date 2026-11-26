@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// One screen, arranged twice. `FormFactorBuilder` follows the theme, so
 /// re-theming a subtree for a phone is enough to see the other layout.
@@ -28,7 +28,7 @@ class _BuildingBlocksFormFactorBuilderExampleState
       label: 'Conversation',
     );
 
-    return FinesseColumn(
+    return UnaColumn(
       mainAxisSize: MainAxisSize.min,
       gap: GapSize.lg,
       children: [
@@ -76,7 +76,7 @@ class _Panel extends StatelessWidget {
     final theme = Theme.of(context);
     return Card(
       child: Center(
-        child: FinesseColumn(
+        child: UnaColumn(
           mainAxisSize: MainAxisSize.min,
           gap: GapSize.sm,
           children: [

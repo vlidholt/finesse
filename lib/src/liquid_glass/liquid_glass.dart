@@ -2,12 +2,6 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
-import 'package:finesse/src/components/bar_button_scope.dart';
-import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
-import 'package:finesse/src/theme/components/button.dart';
-import 'package:finesse/src/theme/data.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/backdrop.dart';
 // The SDK's Cupertino, deprecated in favour of `cupertino_ui`: the package
 // reads the SDK's `CupertinoTheme`, and one from `cupertino_ui` is another
 // class it would not see.
@@ -21,11 +15,17 @@ import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
 // Not in the package's barrel, but a public library of it (outside `src/`):
 // the settings a `GlassContainer` would resolve, so a surface can fade them.
 import 'package:liquid_glass_widgets/theme/glass_theme_helpers.dart' as lg;
+import 'package:una/src/components/bar_button_scope.dart';
+import 'package:una/src/liquid_glass/liquid_glass_theme.dart';
+import 'package:una/src/theme/components/button.dart';
+import 'package:una/src/theme/data.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/backdrop.dart';
 
-/// Liquid Glass in finesse: setting it up, and asking whether a component
+/// Liquid Glass in una: setting it up, and asking whether a component
 /// draws with it.
 ///
-/// On iOS and macOS — natively and in a browser — finesse draws its
+/// On iOS and macOS — natively and in a browser — una draws its
 /// navigation chrome, floating surfaces and lens controls with the
 /// `liquid_glass_widgets` package, and its own frosted glass everywhere
 /// else. `ThemeData(liquidGlass: LiquidGlassTheme(...))` changes where and
@@ -50,7 +50,7 @@ abstract final class LiquidGlass {
   /// Loads the Liquid Glass shaders.
   ///
   /// If they fail to load, Liquid Glass is switched off for the life of the
-  /// app and finesse's frosted glass is drawn in its place.
+  /// app and una's frosted glass is drawn in its place.
   static Future<void> initialize() async {
     _quietPackageLogs();
     try {
@@ -61,9 +61,9 @@ abstract final class LiquidGlass {
         FlutterErrorDetails(
           exception: error,
           stack: stack,
-          library: 'finesse',
+          library: 'una',
           context: ErrorDescription(
-            'while loading the Liquid Glass shaders; finesse falls back to '
+            'while loading the Liquid Glass shaders; una falls back to '
             'its frosted glass',
           ),
         ),
@@ -159,7 +159,7 @@ abstract final class LiquidGlass {
   }
 }
 
-/// The package's theme for a finesse theme: its style and quality, its glow
+/// The package's theme for a una theme: its style and quality, its glow
 /// in the scheme's primary, and the glass tinted with the scheme's bar
 /// colour, under the caller's own settings.
 final _glassThemes = Expando<lg.GlassThemeData>('liquid glass theme');
@@ -282,14 +282,14 @@ CupertinoThemeData _cupertinoThemeOf(ThemeData theme) =>
       ),
     );
 
-/// Hands the finesse theme to the `liquid_glass_widgets` widgets below:
+/// Hands the una theme to the `liquid_glass_widgets` widgets below:
 /// the package's own theme, and the Cupertino theme its widgets take their
 /// accent and text style from.
 ///
-/// Every finesse widget that builds a package widget puts one around it, so
+/// Every una widget that builds a package widget puts one around it, so
 /// none of them depends on what the app put above it.
 class LiquidGlassBridge extends StatelessWidget {
-  /// Bridges the ambient finesse theme to [child].
+  /// Bridges the ambient una theme to [child].
   const LiquidGlassBridge({required this.child, super.key});
 
   /// The package widgets.
@@ -305,7 +305,7 @@ class LiquidGlassBridge extends StatelessWidget {
   }
 }
 
-/// The app-wide part of Liquid Glass that `FinesseApp` puts around its
+/// The app-wide part of Liquid Glass that `UnaApp` puts around its
 /// navigator: the package's accessibility switch and, when the theme asks
 /// for it, its adaptive quality.
 class LiquidGlassAppScope extends StatelessWidget {
@@ -325,7 +325,7 @@ class LiquidGlassAppScope extends StatelessWidget {
   }
 }
 
-/// A surface of Liquid Glass with finesse content on it: the material a
+/// A surface of Liquid Glass with una content on it: the material a
 /// bar, a popover or a dialog swaps its frosted glass for.
 ///
 /// The content brings no tint, border or shadow of its own; the glass has
@@ -418,7 +418,7 @@ class _LiquidGlassSurfaceState extends State<LiquidGlassSurface> {
     final theme = Theme.of(context);
     Widget child = BackdropFade.none(child: widget.child);
     // Without shader filters the package draws its lighter glass, whose
-    // rim all but vanishes over a light page: an overlay keeps finesse's
+    // rim all but vanishes over a light page: an overlay keeps una's
     // hairline there, so a menu over white still has an edge.
     final legible = widget.overlay && !ui.ImageFilter.isShaderFilterSupported;
     if (legible) {
@@ -495,7 +495,7 @@ Color overlayEdgeColor(ThemeData theme) {
 /// The iOS styles make an overlay legible with the package's frost, a
 /// cloud only its full (Impeller) tier draws: its lighter tier keeps the
 /// presets' near-zero blur and shows the page through the glass almost
-/// sharp. So the body is blurred as finesse's own floating glass is, and
+/// sharp. So the body is blurred as una's own floating glass is, and
 /// lifted towards white in a light theme — the package's whiten veil,
 /// strongest at the rim and lightest in the middle — so text reads over
 /// a white page and a busy one alike.

@@ -1,17 +1,17 @@
 import 'dart:math' as math;
 
-import 'package:finesse/src/components/date_picker.dart';
-import 'package:finesse/src/components/icon_button.dart';
-import 'package:finesse/src/components/picker.dart';
-import 'package:finesse/src/components/text_field.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart' show DateFormat;
+import 'package:una/src/components/date_picker.dart';
+import 'package:una/src/components/icon_button.dart';
+import 'package:una/src/components/picker.dart';
+import 'package:una/src/components/text_field.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/extensions/text_style.dart';
 
 /// One part of a date, as a [DateField] shows it.
 enum _Part { day, month, year }
@@ -109,7 +109,7 @@ class DateField extends StatefulWidget {
   final Widget? trailing;
 
   /// The decoration of each field, merged over the theme's.
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// Whether the date can be edited.
   final bool enabled;
@@ -380,7 +380,7 @@ class _DateFieldState extends State<DateField> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final field = theme.timeFieldTheme;
-    final l = FinesseLocalizations.of(context);
+    final l = UnaLocalizations.of(context);
     final textScaler = MediaQuery.textScalerOf(context);
     final textScale = textScaler.scale(1);
 
@@ -398,8 +398,9 @@ class _DateFieldState extends State<DateField> {
     );
     // Like TextField: the theme's field decoration is the whole base, so a
     // style whose fields underline keeps underlining here.
-    final decoration = (field.fieldDecoration ?? const FinesseDecoration())
-        .merge(widget.decoration);
+    final decoration = (field.fieldDecoration ?? const UnaDecoration()).merge(
+      widget.decoration,
+    );
     final gap = field.gap ?? 4;
     final width = field.fieldWidth ?? 48;
     final padding =

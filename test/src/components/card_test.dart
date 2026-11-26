@@ -1,20 +1,20 @@
-import 'package:finesse/material.dart';
-import 'package:finesse/src/app.dart';
-import 'package:finesse/src/components/card.dart'; // Adjust import path based on your project structure
-import 'package:finesse/src/theme/components/card.dart';
-import 'package:finesse/src/theme/data.dart';
-import 'package:finesse/src/theme/style.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/material.dart' hide Card, CardTheme, Theme, ThemeData;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/material.dart';
+import 'package:una/src/app.dart';
+import 'package:una/src/components/card.dart'; // Adjust import path based on your project structure
+import 'package:una/src/theme/components/card.dart';
+import 'package:una/src/theme/data.dart';
+import 'package:una/src/theme/style.dart';
+import 'package:una/src/theme/theme.dart';
 
 import '../../decoration_finders.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
+  // Helper method to create a test widget wrapped in UnaApp and Scaffold
   Widget createTestWidget(Widget child, {ThemeData? theme}) {
-    return FinesseApp(
-      builder: (context, child) => FinesseMaterial(child: child!),
+    return UnaApp(
+      builder: (context, child) => UnaMaterial(child: child!),
       theme: theme,
       home: Scaffold(
         body: child,
@@ -233,7 +233,7 @@ void main() {
       expect(containerFinder, findsOneWidget);
       final container = tester.widget<Container>(containerFinder);
       final decoration = boxDecorationOf(container.decoration);
-      // The default style is finesse: 20 of padding around a card colour
+      // The default style is una: 20 of padding around a card colour
       // washed to 88%, which is what lets the backdrop blur show through.
       final theme = Theme.of(tester.element(containerFinder));
       expect(container.padding, const EdgeInsets.all(20));

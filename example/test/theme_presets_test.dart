@@ -1,10 +1,10 @@
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/theme_editor/fonts.dart';
 import 'package:example/common/theme_editor/presets.dart';
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:una/una.dart';
 
 import 'support.dart';
 
@@ -397,7 +397,7 @@ void main() {
       );
       // With nothing overridden it is the package's own constant.
       expect(
-        identical(const ThemeEditorConfig().styleTokens, StyleTokens.finesse),
+        identical(const ThemeEditorConfig().styleTokens, StyleTokens.una),
         isTrue,
       );
       expect(
@@ -456,7 +456,7 @@ ThemeData(
     test('for the whole app names both themes', () {
       expect(const ThemeEditorConfig().toAppSnippet(), '''
 // flutter pub add google_fonts
-FinesseApp(
+UnaApp(
   theme: ThemeData(
     textTheme: TextTheme.fromGoogleFont(GoogleFonts.geist),
   ),
@@ -487,7 +487,7 @@ FinesseApp(
       // they are repeated on the phone tokens. Both are checked against the
       // package as it is.
       final copyWithReachesPhone =
-          StyleTokens.finesse
+          StyleTokens.una
               .copyWith(glassBlur: 1)
               .forFormFactor(FormFactor.mobile)
               .glassBlur ==
@@ -503,7 +503,7 @@ ThemeData(
     AccentScheme.indigoLight,
   ),
   textTheme: TextTheme.fromGoogleFont(GoogleFonts.manrope),
-  style: StyleTokens.finesse.copyWith(
+  style: StyleTokens.una.copyWith(
     cardOpacity: 0.7,
     cardOpacityDark: 0.7,
     cardBlur: true,
@@ -519,14 +519,14 @@ ThemeData(
     AccentScheme.indigoLight,
   ),
   textTheme: TextTheme.fromGoogleFont(GoogleFonts.manrope),
-  style: StyleTokens.finesse.copyWith(
+  style: StyleTokens.una.copyWith(
     cardOpacity: 0.7,
     cardOpacityDark: 0.7,
     cardBlur: true,
     barOpacity: 0.8,
     barOpacityDark: 0.8,
     glassBlur: 32,
-    mobile: StyleTokens.finesse.forFormFactor(FormFactor.mobile).copyWith(
+    mobile: StyleTokens.una.forFormFactor(FormFactor.mobile).copyWith(
       cardOpacity: 0.7,
       cardOpacityDark: 0.7,
       cardBlur: true,
@@ -542,7 +542,7 @@ ThemeData(
       // The same code, compiled. If a snippet above is edited, edit its
       // twin with it: this is what proves the export reproduces the theme.
       final style = copyWithReachesPhone
-          ? StyleTokens.finesse.copyWith(
+          ? StyleTokens.una.copyWith(
               cardOpacity: 0.7,
               cardOpacityDark: 0.7,
               cardBlur: true,
@@ -550,14 +550,14 @@ ThemeData(
               barOpacityDark: 0.8,
               glassBlur: 32,
             )
-          : StyleTokens.finesse.copyWith(
+          : StyleTokens.una.copyWith(
               cardOpacity: 0.7,
               cardOpacityDark: 0.7,
               cardBlur: true,
               barOpacity: 0.8,
               barOpacityDark: 0.8,
               glassBlur: 32,
-              mobile: StyleTokens.finesse
+              mobile: StyleTokens.una
                   .forFormFactor(FormFactor.mobile)
                   .copyWith(
                     cardOpacity: 0.7,
@@ -604,10 +604,10 @@ ThemeData(
       expect(config.toDartSnippet(), '''
 ThemeData(
   textTheme: TextTheme.fromGoogleFont(GoogleFonts.geist),
-  style: StyleTokens.finesse.copyWith(
+  style: StyleTokens.una.copyWith(
     pagePaddingX: 36,
     pagePaddingY: 36,
-    mobile: StyleTokens.finesse.forFormFactor(FormFactor.mobile).copyWith(
+    mobile: StyleTokens.una.forFormFactor(FormFactor.mobile).copyWith(
       pagePaddingX: 24,
       pagePaddingY: 24,
     ),
@@ -616,10 +616,10 @@ ThemeData(
 
       final exported = ThemeData(
         textTheme: TextTheme.fromGoogleFont(GoogleFonts.geist),
-        style: StyleTokens.finesse.copyWith(
+        style: StyleTokens.una.copyWith(
           pagePaddingX: 36,
           pagePaddingY: 36,
-          mobile: StyleTokens.finesse
+          mobile: StyleTokens.una
               .forFormFactor(FormFactor.mobile)
               .copyWith(pagePaddingX: 24, pagePaddingY: 24),
         ),
@@ -828,7 +828,7 @@ ThemeData(
       for (final preset in ThemePreset.values) {
         final snippet = preset.config.toAppSnippet();
         expect(snippet, isNot(contains('Shad')), reason: preset.label);
-        expect(snippet, contains('FinesseApp('));
+        expect(snippet, contains('UnaApp('));
         expect(snippet, contains('darkTheme: ThemeData('));
         // The dark half names the dark schemes and accents.
         if (preset.config.accentColor != AccentColor.base) {

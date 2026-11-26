@@ -30,7 +30,7 @@ mixin _$TooltipTheme {
       showDuration: lerpDuration$(a.showDuration, b.showDuration, t),
       anchor: t < 0.5 ? a.anchor : b.anchor,
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
-      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
+      decoration: UnaDecoration.lerp(a.decoration, b.decoration, t),
       longPressDuration: lerpDuration$(
         a.longPressDuration,
         b.longPressDuration,
@@ -50,7 +50,7 @@ mixin _$TooltipTheme {
     Duration? showDuration,
     AnchorBase? anchor,
     EdgeInsetsGeometry? padding,
-    FinesseDecoration? decoration,
+    UnaDecoration? decoration,
     Duration? longPressDuration,
     TextStyle? textStyle,
     double? maxWidth,

@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// Outside a section the row is a plain tile: the parts of an order, held
 /// open or closed by the parent through `open` and `onOpenChanged`.
@@ -19,7 +19,7 @@ class _ExpansionTilePlainExampleState extends State<ExpansionTilePlainExample> {
     final theme = Theme.of(context);
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 420),
-      child: FinesseColumn(
+      child: UnaColumn(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         gap: GapSize.sm,

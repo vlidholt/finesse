@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// The three-zone bar of a wide screen: a logo and a search field at the
 /// start, the destinations centred, the actions at the end.

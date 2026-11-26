@@ -1,6 +1,6 @@
-import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
+import 'package:una/src/theme/components/decorator.dart';
 
 part 'otp_field.g.theme.dart';
 
@@ -47,7 +47,7 @@ class OtpFieldTheme with _$OtpFieldTheme {
   final EdgeInsetsGeometry? padding;
 
   /// {@macro OtpFieldSlot.decoration}
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// {@macro OtpFieldSlot.firstBorderRadius}
   final BorderRadius? firstBorderRadius;

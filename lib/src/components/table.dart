@@ -1,18 +1,18 @@
-import 'package:finesse/src/theme/color_scheme/base.dart';
-import 'package:finesse/src/theme/components/table.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/extensions/text_style.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart';
+import 'package:una/src/theme/color_scheme/base.dart';
+import 'package:una/src/theme/components/table.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/extensions/text_style.dart';
 
-/// Builder function for creating [FinesseTableCell] widgets.
-typedef TableCellBuilder = FinesseTableCell Function(
+/// Builder function for creating [UnaTableCell] widgets.
+typedef TableCellBuilder = UnaTableCell Function(
   BuildContext context,
   TableVicinity vicinity,
 );
 
-/// Enum representing different variants of [FinesseTableCell].
+/// Enum representing different variants of [UnaTableCell].
 enum TableCellVariant {
   /// Variant for header cells.
   header,
@@ -24,15 +24,15 @@ enum TableCellVariant {
   footer,
 }
 
-/// {@template FinesseTableCell}
-/// A cell widget for use within [FinesseTable].
+/// {@template UnaTableCell}
+/// A cell widget for use within [UnaTable].
 ///
 /// Provides styling and structure for table cells, including header and footer
 /// variants.
 /// {@endtemplate}
-class FinesseTableCell extends TableViewCell {
-  /// {@macro FinesseTableCell}
-  const FinesseTableCell({
+class UnaTableCell extends TableViewCell {
+  /// {@macro UnaTableCell}
+  const UnaTableCell({
     super.key,
     this.variant = TableCellVariant.cell,
     required super.child,
@@ -42,10 +42,10 @@ class FinesseTableCell extends TableViewCell {
     this.style,
   });
 
-  /// Creates a [FinesseTableCell] with the header variant.
+  /// Creates a [UnaTableCell] with the header variant.
   ///
-  /// {@macro FinesseTableCell}
-  const FinesseTableCell.header({
+  /// {@macro UnaTableCell}
+  const UnaTableCell.header({
     super.key,
     required super.child,
     this.alignment,
@@ -54,10 +54,10 @@ class FinesseTableCell extends TableViewCell {
     this.style,
   }) : variant = TableCellVariant.header;
 
-  /// Creates a [FinesseTableCell] with the footer variant.
+  /// Creates a [UnaTableCell] with the footer variant.
   ///
-  /// {@macro FinesseTableCell}
-  const FinesseTableCell.footer({
+  /// {@macro UnaTableCell}
+  const UnaTableCell.footer({
     super.key,
     required super.child,
     this.alignment,
@@ -66,27 +66,27 @@ class FinesseTableCell extends TableViewCell {
     this.style,
   }) : variant = TableCellVariant.footer;
 
-  /// {@template FinesseTableCell.variant}
+  /// {@template UnaTableCell.variant}
   /// The variant of the table cell, determining its styling.
   /// {@endtemplate}
   final TableCellVariant variant;
 
-  /// {@template FinesseTableCell.alignment}
+  /// {@template UnaTableCell.alignment}
   /// Alignment of the cell's content.
   /// {@endtemplate}
   final AlignmentGeometry? alignment;
 
-  /// {@template FinesseTableCell.height}
+  /// {@template UnaTableCell.height}
   /// Height of the table cell.
   /// {@endtemplate}
   final double? height;
 
-  /// {@template FinesseTableCell.padding}
+  /// {@template UnaTableCell.padding}
   /// Padding within the table cell.
   /// {@endtemplate}
   final EdgeInsetsGeometry? padding;
 
-  /// {@template FinesseTableCell.style}
+  /// {@template UnaTableCell.style}
   /// Text style for the cell's content.
   /// {@endtemplate}
   final TextStyle? style;
@@ -139,25 +139,25 @@ class FinesseTableCell extends TableViewCell {
   }
 }
 
-/// {@template FinesseTable}
+/// {@template UnaTable}
 /// A customizable table widget for displaying tabular data.
 ///
 /// Supports on-demand cell building, fixed lists of cells, headers, footers,
 /// and various interactions.
 /// {@endtemplate}
-class FinesseTable extends StatefulWidget {
-  /// Creates a [FinesseTable] of widgets that are created on demand.
+class UnaTable extends StatefulWidget {
+  /// Creates a [UnaTable] of widgets that are created on demand.
   ///
   /// This constructor is appropriate for table views with a large
   /// number of cells because the [builder] is called only for those
   /// cells that are actually visible.
-  const FinesseTable({
+  const UnaTable({
     super.key,
     required TableCellBuilder this.builder,
     required this.columnCount,
     required this.rowCount,
-    FinesseTableCell Function(BuildContext context, int column)? header,
-    FinesseTableCell Function(BuildContext context, int column)? footer,
+    UnaTableCell Function(BuildContext context, int column)? header,
+    UnaTableCell Function(BuildContext context, int column)? footer,
     this.columnBuilder,
     this.rowBuilder,
     this.rowSpanExtent,
@@ -201,16 +201,16 @@ class FinesseTable extends StatefulWidget {
        header = null,
        footer = null;
 
-  /// Creates a [FinesseTable] from an explicit two dimensional array of
+  /// Creates a [UnaTable] from an explicit two dimensional array of
   /// [children].
   ///
   /// This constructor is appropriate for list views with a small number of
   /// children because constructing the [List] requires doing work for every
   /// child that could possibly be displayed in the list view instead of just
   /// those children that are actually visible.
-  FinesseTable.list({
+  UnaTable.list({
     super.key,
-    required Iterable<Iterable<FinesseTableCell>> this.children,
+    required Iterable<Iterable<UnaTableCell>> this.children,
     this.header,
     this.footer,
     this.columnBuilder,
@@ -257,79 +257,77 @@ class FinesseTable extends StatefulWidget {
        columnCount = children.elementAt(0).length,
        rowCount = children.length;
 
-  /// {@template FinesseTable.headerBuilder}
+  /// {@template UnaTable.headerBuilder}
   /// Builder function for creating header cells.
   /// {@endtemplate}
-  final FinesseTableCell Function(BuildContext context, int column)?
-  headerBuilder;
+  final UnaTableCell Function(BuildContext context, int column)? headerBuilder;
 
-  /// {@template FinesseTable.footerBuilder}
+  /// {@template UnaTable.footerBuilder}
   /// Builder function for creating footer cells.
   /// {@endtemplate}
-  final FinesseTableCell Function(BuildContext context, int column)?
-  footerBuilder;
+  final UnaTableCell Function(BuildContext context, int column)? footerBuilder;
 
-  /// {@template FinesseTable.header}
+  /// {@template UnaTable.header}
   /// Explicit list of header cells.
   /// {@endtemplate}
-  final Iterable<FinesseTableCell>? header;
+  final Iterable<UnaTableCell>? header;
 
-  /// {@template FinesseTable.footer}
+  /// {@template UnaTable.footer}
   /// Explicit list of footer cells.
   /// {@endtemplate}
-  final Iterable<FinesseTableCell>? footer;
+  final Iterable<UnaTableCell>? footer;
 
-  /// {@template FinesseTable.builder}
+  /// {@template UnaTable.builder}
   /// Builder function for creating table cells on demand.
   /// {@endtemplate}
   final TableCellBuilder? builder;
 
-  /// {@template FinesseTable.columnCount}
+  /// {@template UnaTable.columnCount}
   /// Number of columns in the table.
   /// {@endtemplate}
   final int columnCount;
 
-  /// {@template FinesseTable.rowCount}
+  /// {@template UnaTable.rowCount}
   /// Number of rows in the table (excluding header and footer).
   /// {@endtemplate}
   final int rowCount;
 
-  /// {@template FinesseTable.children}
-  /// Explicit 2D list of [FinesseTableCell] widgets.
+  /// {@template UnaTable.children}
+  /// Explicit 2D list of [UnaTableCell] widgets.
   /// {@endtemplate}
-  final Iterable<Iterable<FinesseTableCell>>? children;
+  final Iterable<Iterable<UnaTableCell>>? children;
 
-  /// {@template FinesseTable.columnBuilder}
+  /// {@template UnaTable.columnBuilder}
   /// Builder for defining column properties.
   /// {@endtemplate}
   final TableSpanBuilder? columnBuilder;
 
-  /// {@template FinesseTable.rowBuilder}
+  /// {@template UnaTable.rowBuilder}
   /// Builder for defining row properties.
   /// {@endtemplate}
   final TableSpanBuilder? rowBuilder;
 
-  /// {@template FinesseTable.rowSpanExtent}
+  /// {@template UnaTable.rowSpanExtent}
   /// Function to define custom row span extents.
   /// {@endtemplate}
   final TableSpanExtent? Function(int row)? rowSpanExtent;
 
-  /// {@template FinesseTable.columnSpanExtent}
+  /// {@template UnaTable.columnSpanExtent}
   /// Function to define custom column span extents.
   /// {@endtemplate}
   final TableSpanExtent? Function(int column)? columnSpanExtent;
 
-  /// {@template FinesseTable.rowSpanBackgroundDecoration}
+  /// {@template UnaTable.rowSpanBackgroundDecoration}
   /// Function to define background decoration for rows.
   /// {@endtemplate}
   final TableSpanDecoration? Function(int row)? rowSpanBackgroundDecoration;
 
-  /// {@template FinesseTable.rowSpanForegroundDecoration}
+  /// {@template UnaTable.rowSpanForegroundDecoration}
   /// Function to define foreground decoration for rows.
   /// {@endtemplate}
   final TableSpanDecoration? Function(int row)? rowSpanForegroundDecoration;
 
-  /// {@template FinesseTable.rowSelected}
+  /// {@template UnaTable.rowSelected}
   /// Whether the row at an index is selected, shadcn's
   /// `data-state="selected"`: a selected row is filled with the theme's
   /// `rowSelectedColor`, under the pointer or not. The index counts the
@@ -338,149 +336,149 @@ class FinesseTable extends StatefulWidget {
   /// {@endtemplate}
   final bool Function(int row)? rowSelected;
 
-  /// {@template FinesseTable.columnSpanBackgroundDecoration}
+  /// {@template UnaTable.columnSpanBackgroundDecoration}
   /// Function to define background decoration for columns.
   /// {@endtemplate}
   final TableSpanDecoration? Function(int column)?
   columnSpanBackgroundDecoration;
 
-  /// {@template FinesseTable.columnSpanForegroundDecoration}
+  /// {@template UnaTable.columnSpanForegroundDecoration}
   /// Function to define foreground decoration for columns.
   /// {@endtemplate}
   final TableSpanDecoration? Function(int column)?
   columnSpanForegroundDecoration;
 
-  /// {@template FinesseTable.onHoveredRowIndex}
+  /// {@template UnaTable.onHoveredRowIndex}
   /// Callback for when a row is hovered, providing the row index.
   /// {@endtemplate}
   final ValueChanged<int?>? onHoveredRowIndex;
 
-  /// {@template FinesseTable.verticalScrollController}
+  /// {@template UnaTable.verticalScrollController}
   /// Controller for vertical scrolling.
   /// {@endtemplate}
   final ScrollController? verticalScrollController;
 
-  /// {@template FinesseTable.horizontalScrollController}
+  /// {@template UnaTable.horizontalScrollController}
   /// Controller for horizontal scrolling.
   /// {@endtemplate}
   final ScrollController? horizontalScrollController;
 
-  /// {@template FinesseTable.pinnedRowCount}
+  /// {@template UnaTable.pinnedRowCount}
   /// Number of pinned rows at the top.
   /// {@endtemplate}
   final int? pinnedRowCount;
 
-  /// {@template FinesseTable.pinnedColumnCount}
+  /// {@template UnaTable.pinnedColumnCount}
   /// Number of pinned columns at the start.
   /// {@endtemplate}
   final int? pinnedColumnCount;
 
-  /// {@template FinesseTable.primary}
+  /// {@template UnaTable.primary}
   /// Whether this is the primary scroll view.
   /// {@endtemplate}
   final bool? primary;
 
-  /// {@template FinesseTable.diagonalDragBehavior}
+  /// {@template UnaTable.diagonalDragBehavior}
   /// Drag behavior when dragging diagonally.
   /// {@endtemplate}
   final DiagonalDragBehavior? diagonalDragBehavior;
 
-  /// {@template FinesseTable.dragStartBehavior}
+  /// {@template UnaTable.dragStartBehavior}
   /// Determines when a drag formally starts.
   /// {@endtemplate}
   final DragStartBehavior? dragStartBehavior;
 
-  /// {@template FinesseTable.keyboardDismissBehavior}
+  /// {@template UnaTable.keyboardDismissBehavior}
   /// Configures how the keyboard is dismissed when a drag starts.
   /// {@endtemplate}
   final ScrollViewKeyboardDismissBehavior? keyboardDismissBehavior;
 
-  /// {@template FinesseTable.verticalScrollPhysics}
+  /// {@template UnaTable.verticalScrollPhysics}
   /// Physics for vertical scrolling.
   /// {@endtemplate}
   final ScrollPhysics? verticalScrollPhysics;
 
-  /// {@template FinesseTable.horizontalScrollPhysics}
+  /// {@template UnaTable.horizontalScrollPhysics}
   /// Physics for horizontal scrolling.
   /// {@endtemplate}
   final ScrollPhysics? horizontalScrollPhysics;
 
-  /// {@template FinesseTable.onRowTap}
+  /// {@template UnaTable.onRowTap}
   /// Callback for tap gestures on a row.
   /// {@endtemplate}
   final void Function(int row)? onRowTap;
 
-  /// {@template FinesseTable.onRowTapDown}
+  /// {@template UnaTable.onRowTapDown}
   /// Callback for tap down gestures on a row.
   /// {@endtemplate}
   final void Function(int row)? onRowTapDown;
 
-  /// {@template FinesseTable.onRowTapUp}
+  /// {@template UnaTable.onRowTapUp}
   /// Callback for tap up gestures on a row.
   /// {@endtemplate}
   final void Function(int row)? onRowTapUp;
 
-  /// {@template FinesseTable.onRowTapCancel}
+  /// {@template UnaTable.onRowTapCancel}
   /// Callback for tap cancel gestures on a row.
   /// {@endtemplate}
   final void Function(int row)? onRowTapCancel;
 
-  /// {@template FinesseTable.onRowSecondaryTap}
+  /// {@template UnaTable.onRowSecondaryTap}
   /// Callback for secondary tap gestures on a row.
   /// {@endtemplate}
   final void Function(int row)? onRowSecondaryTap;
 
-  /// {@template FinesseTable.onRowSecondaryTapDown}
+  /// {@template UnaTable.onRowSecondaryTapDown}
   /// Callback for secondary tap down gestures on a row.
   /// {@endtemplate}
   final void Function(int row)? onRowSecondaryTapDown;
 
-  /// {@template FinesseTable.onRowSecondaryTapUp}
+  /// {@template UnaTable.onRowSecondaryTapUp}
   /// Callback for secondary tap up gestures on a row.
   /// {@endtemplate}
   final void Function(int row)? onRowSecondaryTapUp;
 
-  /// {@template FinesseTable.onRowSecondaryTapCancel}
+  /// {@template UnaTable.onRowSecondaryTapCancel}
   /// Callback for secondary tap cancel gestures on a row.
   /// {@endtemplate}
   final void Function(int row)? onRowSecondaryTapCancel;
 
-  /// {@template FinesseTable.onColumnTap}
+  /// {@template UnaTable.onColumnTap}
   /// Callback for tap gestures on a column.
   /// {@endtemplate}
   final void Function(int column)? onColumnTap;
 
-  /// {@template FinesseTable.onColumnTapDown}
+  /// {@template UnaTable.onColumnTapDown}
   /// Callback for tap down gestures on a column.
   /// {@endtemplate}
   final void Function(int column)? onColumnTapDown;
 
-  /// {@template FinesseTable.onColumnTapUp}
+  /// {@template UnaTable.onColumnTapUp}
   /// Callback for tap up gestures on a column.
   /// {@endtemplate}
   final void Function(int column)? onColumnTapUp;
 
-  /// {@template FinesseTable.onColumnTapCancel}
+  /// {@template UnaTable.onColumnTapCancel}
   /// Callback for tap cancel gestures on a column.
   /// {@endtemplate}
   final void Function(int column)? onColumnTapCancel;
 
-  /// {@template FinesseTable.onColumnSecondaryTap}
+  /// {@template UnaTable.onColumnSecondaryTap}
   /// Callback for secondary tap gestures on a column.
   /// {@endtemplate}
   final void Function(int column)? onColumnSecondaryTap;
 
-  /// {@template FinesseTable.onColumnSecondaryTapDown}
+  /// {@template UnaTable.onColumnSecondaryTapDown}
   /// Callback for secondary tap down gestures on a column.
   /// {@endtemplate}
   final void Function(int column)? onColumnSecondaryTapDown;
 
-  /// {@template FinesseTable.onColumnSecondaryTapUp}
+  /// {@template UnaTable.onColumnSecondaryTapUp}
   /// Callback for secondary tap up gestures on a column.
   /// {@endtemplate}
   final void Function(int column)? onColumnSecondaryTapUp;
 
-  /// {@template FinesseTable.onColumnSecondaryTapCancel}
+  /// {@template UnaTable.onColumnSecondaryTapCancel}
   /// Callback for secondary tap cancel gestures on a column.
   /// {@endtemplate}
   final void Function(int column)? onColumnSecondaryTapCancel;
@@ -492,10 +490,10 @@ class FinesseTable extends StatefulWidget {
   final Set<PointerDeviceKind>? supportedDevices;
 
   @override
-  State<FinesseTable> createState() => _TableState();
+  State<UnaTable> createState() => _TableState();
 }
 
-class _TableState extends State<FinesseTable> {
+class _TableState extends State<UnaTable> {
   final hoveredRowIndex = ValueNotifier<int?>(null);
 
   /// This is a workaround to avoid rebuilding the same row when the pointer
@@ -736,7 +734,7 @@ class _TableState extends State<FinesseTable> {
     // depends on the hovered index.
     final cells = widget.children == null
         ? null
-        : <List<FinesseTableCell>>[
+        : <List<UnaTableCell>>[
             if (widget.header != null) widget.header!.toList(),
             ...widget.children!.map((row) => row.toList()),
             if (widget.footer != null) widget.footer!.toList(),
@@ -748,7 +746,7 @@ class _TableState extends State<FinesseTable> {
         // A new closure for every hovered row, on purpose: the table's
         // delegate only rebuilds its row spans — which carry the hover
         // wash — when the row builder it is handed differs. Built once per
-        // `build` instead, a `FinesseTable.list` never repainted its
+        // `build` instead, a `UnaTable.list` never repainted its
         // hover at all.
         final effectiveRowBuilder =
             customRowBuilder ?? (i) => _buildRowSpan(i, effectiveRowCount);

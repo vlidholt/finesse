@@ -1,23 +1,23 @@
 import 'dart:ui' as ui;
 
-import 'package:finesse/material.dart';
-import 'package:finesse/src/app.dart';
-import 'package:finesse/src/components/otp_field.dart';
-import 'package:finesse/src/components/text_field.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/theme/color_scheme/neutral.dart';
-import 'package:finesse/src/theme/data.dart';
-import 'package:finesse/src/theme/style.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/material.dart' hide TextField, Theme, ThemeData;
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/material.dart';
+import 'package:una/src/app.dart';
+import 'package:una/src/components/otp_field.dart';
+import 'package:una/src/components/text_field.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/theme/color_scheme/neutral.dart';
+import 'package:una/src/theme/data.dart';
+import 'package:una/src/theme/style.dart';
+import 'package:una/src/theme/theme.dart';
 
 void main() {
-  // Helper method to create a test widget wrapped in FinesseApp and Scaffold
+  // Helper method to create a test widget wrapped in UnaApp and Scaffold
   Widget createTestWidget(Widget child, {ThemeData? theme}) {
-    return FinesseApp(
-      builder: (context, child) => FinesseMaterial(child: child!),
+    return UnaApp(
+      builder: (context, child) => UnaMaterial(child: child!),
       theme: theme,
       home: Scaffold(body: child),
     );
@@ -123,7 +123,7 @@ void main() {
           ),
           // The pixel maths below needs transparent slots and an opaque
           // hairline to tell "ring over hairline" from the reverse. That is
-          // shadcn's nova on neutral; finesse fills its slots with a
+          // shadcn's nova on neutral; una fills its slots with a
           // translucent wash and outlines them with one, which blend to
           // within the tolerance in either order.
           theme: ThemeData(
@@ -212,8 +212,8 @@ void main() {
       'no-secondary-border variant leaves the ring to the decorator',
       (tester) async {
         await tester.pumpWidget(
-          FinesseApp(
-            builder: (context, child) => FinesseMaterial(child: child!),
+          UnaApp(
+            builder: (context, child) => UnaMaterial(child: child!),
             theme: ThemeData(disableSecondaryBorder: true),
             home: const Scaffold(body: strip),
           ),

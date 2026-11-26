@@ -1,6 +1,6 @@
-import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
+import 'package:una/src/theme/components/decorator.dart';
 
 part 'alert.g.theme.dart';
 
@@ -37,7 +37,7 @@ class AlertTheme with _$AlertTheme {
   bool get canMerge => _canMerge;
 
   /// {@macro Alert.decoration}
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// {@macro Alert.iconPadding}
   final EdgeInsetsGeometry? iconPadding;

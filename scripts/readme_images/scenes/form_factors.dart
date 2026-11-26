@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 import '../frames.dart';
 import '../harness.dart';
@@ -183,7 +183,7 @@ class SettingsScreen extends StatelessWidget {
 
     final body = PageContainer(
       scrollable: true,
-      child: FinesseColumn(
+      child: UnaColumn(
         gap: GapSize.lg,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

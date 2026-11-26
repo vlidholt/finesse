@@ -1,6 +1,6 @@
 import 'package:example/docs/phone_frame.dart';
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// `centerTitle` puts the title in the centre of the bar — not of the space
 /// the buttons leave — the way a pushed page is titled on iOS.

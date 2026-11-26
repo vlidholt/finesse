@@ -1,8 +1,8 @@
-import 'package:finesse/finesse.dart' hide Scaffold;
-import 'package:finesse/material.dart';
-import 'package:finesse/src/components/select.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/material.dart';
+import 'package:una/src/components/select.dart';
+import 'package:una/una.dart' hide Scaffold;
 
 /// The chevron auto-scroll loops drive a single [ScrollController]. A second
 /// `animateTo` on a scroll position disposes the first one's activity, and
@@ -11,8 +11,8 @@ import 'package:flutter_test/flutter_test.dart';
 /// whole microtask queue before returning to the embedder, which freezes the
 /// app: no frames, no input, no resize. Only one loop may ever run.
 void main() {
-  Widget wrap(Widget child) => FinesseApp(
-    builder: (context, child) => FinesseMaterial(child: child!),
+  Widget wrap(Widget child) => UnaApp(
+    builder: (context, child) => UnaMaterial(child: child!),
     home: Scaffold(body: child),
   );
 

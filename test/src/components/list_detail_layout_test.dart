@@ -1,9 +1,9 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
-import '../../finesse_harness.dart';
+import '../../una_harness.dart';
 
 /// [ListDetailLayout]: two panes on a desktop, a list with its detail
 /// pushed over it on a phone.
@@ -74,7 +74,7 @@ void main() {
     testWidgets('the list is a column at the start, a hairline, and the '
         'detail or the placeholder in the rest', (tester) async {
       for (final direction in TextDirection.values) {
-        await pumpFinesse(tester, const _Mail(), textDirection: direction);
+        await pumpUna(tester, const _Mail(), textDirection: direction);
         final ltr = direction == TextDirection.ltr;
         final list = tester.getRect(find.text('list 0'));
         expect(list.width, 360);
@@ -99,7 +99,7 @@ void main() {
     testWidgets('each choice has its own detail; the list keeps its state', (
       tester,
     ) async {
-      await pumpFinesse(tester, const _Mail());
+      await pumpUna(tester, const _Mail());
       await tester.tap(find.text('list 0'));
       await tester.tap(find.text('open 1'));
       await tester.pump();
@@ -115,7 +115,7 @@ void main() {
     testWidgets('resizable, the line between the two can be dragged', (
       tester,
     ) async {
-      await pumpFinesse(tester, const _Mail(resizable: true));
+      await pumpUna(tester, const _Mail(resizable: true));
       expect(tester.takeException(), isNull);
       final before = tester.getSize(find.text('list 0')).width;
       expect(before, moreOrLessEquals(360, epsilon: 8));
@@ -131,7 +131,7 @@ void main() {
     testWidgets('the list has the screen, and a detail is pushed over it '
         'as a page and popped when it goes', (tester) async {
       final closes = <int>[];
-      await pumpFinesse(
+      await pumpUna(
         tester,
         _Mail(closes: closes),
         formFactor: FormFactor.mobile,
@@ -153,7 +153,7 @@ void main() {
       expect(find.text('list 0'), findsNothing);
       expect(
         ModalRoute.of(tester.element(find.text('detail 1 0'))),
-        isA<FinessePageRoute<void>>(),
+        isA<UnaPageRoute<void>>(),
       );
 
       // The system's back goes to this page, not to the app's.
@@ -167,7 +167,7 @@ void main() {
     testWidgets('a swipe from the start edge goes back on iOS', (tester) async {
       debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
       final closes = <int>[];
-      await pumpFinesse(
+      await pumpUna(
         tester,
         _Mail(closes: closes),
         formFactor: FormFactor.mobile,
@@ -182,7 +182,7 @@ void main() {
     });
 
     testWidgets('the list keeps its state under the detail', (tester) async {
-      await pumpFinesse(tester, const _Mail(), formFactor: FormFactor.mobile);
+      await pumpUna(tester, const _Mail(), formFactor: FormFactor.mobile);
       await tester.tap(find.text('list 0'));
       await tester.pump();
       await tester.tap(find.text('open 1'));
@@ -197,14 +197,14 @@ void main() {
     ) async {
       final navigator = GlobalKey<NavigatorState>();
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           navigatorKey: navigator,
           formFactor: FormFactor.mobile,
           home: const SizedBox(),
         ),
       );
       navigator.currentState!.push(
-        FinessePageRoute<void>(builder: (context) => const _Mail()),
+        UnaPageRoute<void>(builder: (context) => const _Mail()),
       );
       await tester.pumpAndSettle();
       expect(find.text('list 0'), findsOneWidget);
@@ -217,7 +217,7 @@ void main() {
   testWidgets('both keep their state when the form factor changes', (
     tester,
   ) async {
-    Widget app(FormFactor formFactor) => FinesseApp(
+    Widget app(FormFactor formFactor) => UnaApp(
       formFactor: formFactor,
       home: const _Mail(key: Key('mail')),
     );

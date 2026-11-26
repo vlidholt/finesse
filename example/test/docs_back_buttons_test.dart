@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:example/docs/examples/list_detail_layout/list_detail_layout_basic.dart';
 import 'package:example/docs/examples/page_route/page_route_pages.dart';
 import 'package:example/docs/examples/page_route/page_route_push.dart';
-import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart' show ByteData, FontLoader;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 import 'support.dart' show setUpFonts;
 
@@ -29,7 +29,7 @@ Future<void> _pump(WidgetTester tester, Widget example) async {
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
   await tester.pumpWidget(
-    FinesseApp(
+    UnaApp(
       theme: ThemeData(textTheme: TextTheme(family: _font)),
       home: Scaffold(body: Center(child: example)),
     ),

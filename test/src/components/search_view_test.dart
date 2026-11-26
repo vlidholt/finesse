@@ -1,7 +1,7 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 const _people = ['Ada Lovelace', 'Alan Turing', 'Grace Hopper'];
 
@@ -83,7 +83,7 @@ Widget _app(
   ThemeData? theme,
   TextDirection direction = TextDirection.ltr,
 }) {
-  return FinesseApp(
+  return UnaApp(
     theme: theme,
     formFactor: formFactor,
     builder: (context, app) =>

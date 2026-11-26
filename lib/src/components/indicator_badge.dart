@@ -1,7 +1,7 @@
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/pop_in.dart';
 import 'package:flutter/rendering.dart' show OverflowBoxFit;
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/pop_in.dart';
 
 /// A small count or dot pinned to the corner of another widget: unread
 /// messages on an icon, presence on an avatar.

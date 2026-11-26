@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// Scrollbar gives any scrollable — here a lazily built list — the same
 /// scrollbar as ScrollArea.

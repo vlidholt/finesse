@@ -66,7 +66,7 @@ final buttonDoc = ComponentDoc(
       description:
           'A button answers a press, a long press and the keyboard. For a '
           'double tap, a secondary tap or anything rarer, put a '
-          '`FinesseGestureDetector` around it: the button keeps its press.',
+          '`UnaGestureDetector` around it: the button keeps its press.',
       builder: (_) => const ButtonGesturesExample(),
     ),
   ],

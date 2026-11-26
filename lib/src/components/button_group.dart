@@ -1,12 +1,12 @@
 import 'dart:math' as math;
 
-import 'package:finesse/src/components/decorator.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/border.dart';
-import 'package:finesse/src/utils/debug_check.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/decorator.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/border.dart';
+import 'package:una/src/utils/debug_check.dart';
 
 /// Joins buttons into one control: a toolbar cluster, a split button, a
 /// stepper's minus and plus around its value.
@@ -233,10 +233,10 @@ class ButtonGroupScope extends InheritedWidget {
   /// [fallback] is the decoration [decoration] is merged over when it is
   /// drawn, usually the theme's `decoration`: an outline or a ring that
   /// [decoration] leaves to it is joined too.
-  FinesseDecoration join(
-    FinesseDecoration decoration,
+  UnaDecoration join(
+    UnaDecoration decoration,
     TextDirection textDirection, {
-    FinesseDecoration? fallback,
+    UnaDecoration? fallback,
   }) {
     final merged = fallback == null ? decoration : fallback.merge(decoration);
     final horizontal = axis == Axis.horizontal;
@@ -266,12 +266,12 @@ class ButtonGroupScope extends InheritedWidget {
       );
     }
 
-    FinesseBorder? ring(FinesseBorder? border) {
-      if (border == null || border is FinesseRoundedSuperellipseBorder) {
+    UnaBorder? ring(UnaBorder? border) {
+      if (border == null || border is UnaRoundedSuperellipseBorder) {
         return border;
       }
       // Not `copyWith`: a null radius has to stay null.
-      return FinesseBorder(
+      return UnaBorder(
         canMerge: border.canMerge,
         top: border.top,
         right: border.right,
@@ -283,11 +283,9 @@ class ButtonGroupScope extends InheritedWidget {
       );
     }
 
-    FinesseBorder? outline(FinesseBorder? border) {
+    UnaBorder? outline(UnaBorder? border) {
       final joined = ring(border);
-      if (joined == null ||
-          joined is FinesseRoundedSuperellipseBorder ||
-          isFirst) {
+      if (joined == null || joined is UnaRoundedSuperellipseBorder || isFirst) {
         return joined;
       }
       final side = horizontal ? (ltr ? joined.left : joined.right) : joined.top;
@@ -298,7 +296,7 @@ class ButtonGroupScope extends InheritedWidget {
       final reserve = horizontal
           ? (ltr ? EdgeInsets.only(left: width) : EdgeInsets.only(right: width))
           : EdgeInsets.only(top: width);
-      return FinesseBorder(
+      return UnaBorder(
         canMerge: joined.canMerge,
         top: horizontal ? joined.top : given,
         right: horizontal && !ltr ? given : joined.right,
@@ -397,7 +395,7 @@ class ButtonGroupText extends StatelessWidget {
     final direction = Directionality.of(context);
     final group = ButtonGroupScope.maybeOf(context);
 
-    var decoration = (outline.decoration ?? const FinesseDecoration()).copyWith(
+    var decoration = (outline.decoration ?? const UnaDecoration()).copyWith(
       color: theme.colorScheme.muted,
     );
     if (group != null) {

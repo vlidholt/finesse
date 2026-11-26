@@ -1,9 +1,9 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 const _text = 'The quick brown fox jumps';
 
@@ -14,7 +14,7 @@ Widget _app(
   double textScale = 1,
   bool disableAnimations = false,
 }) {
-  return FinesseApp(
+  return UnaApp(
     theme: theme,
     home: Builder(
       builder: (context) => MediaQuery(
@@ -67,17 +67,17 @@ void main() {
             platform == TargetPlatform.android ||
             platform == TargetPlatform.fuchsia;
         expect(
-          FinesseTextSelectionControls.adaptive,
-          touch ? same(finesseTextSelectionControls) : isNull,
+          UnaTextSelectionControls.adaptive,
+          touch ? same(unaTextSelectionControls) : isNull,
           reason: '$platform',
         );
-        expect(FinesseTextSelectionControls.usesTouchSelection, touch);
+        expect(UnaTextSelectionControls.usesTouchSelection, touch);
       }
       debugDefaultTargetPlatformOverride = null;
     });
 
     test('handle geometry: the anchor is on the stem', () {
-      final controls = FinesseTextSelectionControls();
+      final controls = UnaTextSelectionControls();
       const line = 20.0;
       final size = controls.getHandleSize(line);
       expect(size.height, greaterThan(line));
@@ -314,13 +314,13 @@ void main() {
       _app(
         TextField(
           initialValue: _text,
-          selectionControls: finesseTextSelectionControls,
+          selectionControls: unaTextSelectionControls,
           magnifierConfiguration: TextMagnifierConfiguration.disabled,
         ),
       ),
     );
     final editable = tester.widget<EditableText>(find.byType(EditableText));
-    expect(editable.selectionControls, same(finesseTextSelectionControls));
+    expect(editable.selectionControls, same(unaTextSelectionControls));
     expect(
       editable.magnifierConfiguration,
       same(TextMagnifierConfiguration.disabled),
@@ -358,7 +358,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        FinesseApp(home: toolbar(above: const Offset(400, 20))),
+        UnaApp(home: toolbar(above: const Offset(400, 20))),
       );
       await settle(tester);
       final rect = tester.getRect(find.byType(Surface));
@@ -368,7 +368,7 @@ void main() {
 
     testWidgets('stays on screen near an edge', (tester) async {
       await tester.pumpWidget(
-        FinesseApp(home: toolbar(above: const Offset(4, 300))),
+        UnaApp(home: toolbar(above: const Offset(4, 300))),
       );
       await settle(tester);
       final rect = tester.getRect(find.byType(Surface));
@@ -383,7 +383,7 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       await tester.pumpWidget(
-        FinesseApp(home: toolbar(above: const Offset(180, 300), actions: 8)),
+        UnaApp(home: toolbar(above: const Offset(180, 300), actions: 8)),
       );
       await settle(tester);
 
@@ -420,7 +420,7 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       await tester.pumpWidget(
-        FinesseApp(home: toolbar(above: const Offset(150, 300), actions: 7)),
+        UnaApp(home: toolbar(above: const Offset(150, 300), actions: 7)),
       );
       await settle(tester);
       final seen = <String>{};
@@ -440,7 +440,7 @@ void main() {
 
     testWidgets('is mirrored in a right-to-left locale', (tester) async {
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: Directionality(
             textDirection: TextDirection.rtl,
             child: toolbar(above: const Offset(400, 300)),
@@ -458,7 +458,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: Builder(
             builder: (context) => MediaQuery(
               data: MediaQuery.of(
@@ -484,7 +484,7 @@ void main() {
       final focusNode = FocusNode();
       addTearDown(focusNode.dispose);
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: Stack(
             children: [
               Focus(
@@ -507,13 +507,13 @@ void main() {
 
     testWidgets('settles, and appears at once without motion', (tester) async {
       await tester.pumpWidget(
-        FinesseApp(home: toolbar(above: const Offset(400, 300))),
+        UnaApp(home: toolbar(above: const Offset(400, 300))),
       );
       await tester.pumpAndSettle();
 
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           theme: ThemeData(motion: Motion.none),
           home: toolbar(above: const Offset(400, 300)),
         ),
@@ -527,7 +527,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: TextSelectionToolbar.buttonItems(
             anchors: const TextSelectionToolbarAnchors(
               primaryAnchor: Offset(400, 300),
@@ -553,7 +553,7 @@ void main() {
     testWidgets('the theme restyles it', (tester) async {
       const dividerColor = Color(0xFFFF0000);
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           theme: ThemeData(
             textSelectionTheme: const TextSelectionTheme(
               toolbarHeight: 56,
@@ -609,7 +609,7 @@ void main() {
 
     test('every style gives the toolbar a touch-sized height', () {
       for (final style in [
-        StyleTokens.finesse,
+        StyleTokens.una,
         StyleTokens.nova,
         StyleTokens.maia,
         StyleTokens.lyra,

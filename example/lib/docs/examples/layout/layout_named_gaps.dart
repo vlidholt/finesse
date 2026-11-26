@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// A card laid out entirely with named gaps: `lg` between its sections,
 /// `sm` between related controls, `xs` between an icon and its label.
@@ -12,7 +12,7 @@ class LayoutNamedGapsExample extends StatelessWidget {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 340),
       child: Card(
-        child: FinesseColumn(
+        child: UnaColumn(
           gap: GapSize.lg,
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -24,7 +24,7 @@ class LayoutNamedGapsExample extends StatelessWidget {
                 Text('Senior product designer', style: theme.textTheme.large),
                 // One odd gap in a plain Column: reach for `Gap`.
                 const Gap.xs(),
-                FinesseRow(
+                UnaRow(
                   gap: GapSize.xs,
                   children: [
                     PhosphorIcon(
@@ -38,7 +38,7 @@ class LayoutNamedGapsExample extends StatelessWidget {
               ],
             ),
             const Divider(margin: EdgeInsets.zero),
-            FinesseRow(
+            UnaRow(
               gap: GapSize.sm,
               children: [
                 Expanded(

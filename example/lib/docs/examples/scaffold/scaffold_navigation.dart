@@ -1,8 +1,8 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// One `NavigationScaffold`, three arrangements. Desktop and Phone switch
-/// the frame's form factor, which is what `FinesseApp` does from the window
+/// the frame's form factor, which is what `UnaApp` does from the window
 /// width, and leave the layout to it; Tablet asks for the rail.
 class ScaffoldNavigationExample extends StatefulWidget {
   const ScaffoldNavigationExample({super.key});
@@ -139,7 +139,7 @@ class _ScaffoldNavigationExampleState extends State<ScaffoldNavigationExample> {
                       for (final destination in _destinations)
                         (context) => PageContainer(
                           scrollable: true,
-                          child: FinesseColumn(
+                          child: UnaColumn(
                             gap: GapSize.lg,
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [

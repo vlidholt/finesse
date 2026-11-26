@@ -1,55 +1,55 @@
 // ignore_for_file: lines_longer_than_80_chars
 
-import 'package:finesse/src/components/scroll_area.dart';
-import 'package:finesse/src/components/toast.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/liquid_glass/liquid_glass.dart';
-import 'package:finesse/src/page_route.dart';
-import 'package:finesse/src/theme/cross_fade_theme.dart';
-import 'package:finesse/src/theme/data.dart';
-import 'package:finesse/src/theme/form_factor.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/theme/theme_scope.dart';
-import 'package:finesse/src/utils/mouse_area.dart';
-import 'package:finesse/src/utils/mouse_cursor_provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart'
     show GlobalWidgetsLocalizations;
+import 'package:una/src/components/scroll_area.dart';
+import 'package:una/src/components/toast.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/liquid_glass/liquid_glass.dart';
+import 'package:una/src/page_route.dart';
+import 'package:una/src/theme/cross_fade_theme.dart';
+import 'package:una/src/theme/data.dart';
+import 'package:una/src/theme/form_factor.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/theme/theme_scope.dart';
+import 'package:una/src/utils/mouse_area.dart';
+import 'package:una/src/utils/mouse_cursor_provider.dart';
 
-/// Which of [FinesseApp.theme] and [FinesseApp.darkTheme] the app uses.
+/// Which of [UnaApp.theme] and [UnaApp.darkTheme] the app uses.
 enum ThemeMode {
   /// Follow the platform's brightness setting.
   system,
 
-  /// Always use [FinesseApp.theme].
+  /// Always use [UnaApp.theme].
   light,
 
-  /// Always use [FinesseApp.darkTheme], or [FinesseApp.theme] when it is null.
+  /// Always use [UnaApp.darkTheme], or [UnaApp.theme] when it is null.
   dark,
 }
 
-/// The kind of app that [FinesseApp] builds.
-enum FinesseAppType {
-  /// The standard finesse app: a [WidgetsApp] with finesse defaults. Used by
-  /// [FinesseApp.new] and [FinesseApp.router].
+/// The kind of app that [UnaApp] builds.
+enum UnaAppType {
+  /// The standard una app: a [WidgetsApp] with una defaults. Used by
+  /// [UnaApp.new] and [UnaApp.router].
   standard,
 
-  /// Calls [FinesseApp.appBuilder], so you can build your own app widget, for
-  /// example a `MaterialApp`. Used by [FinesseApp.custom].
+  /// Calls [UnaApp.appBuilder], so you can build your own app widget, for
+  /// example a `MaterialApp`. Used by [UnaApp.custom].
   custom,
 }
 
-/// The root widget of a finesse app.
+/// The root widget of a una app.
 ///
 /// It provides the [Theme], the localizations and the toaster. Below them
-/// it builds a [WidgetsApp], or calls [appBuilder] for [FinesseApp.custom].
+/// it builds a [WidgetsApp], or calls [appBuilder] for [UnaApp.custom].
 ///
-/// finesse does not depend on Material or Cupertino. To use their widgets in the
-/// same app, wrap them in a `FinesseMaterial` from `package:finesse/material.dart`,
+/// una does not depend on Material or Cupertino. To use their widgets in the
+/// same app, wrap them in a `UnaMaterial` from `package:una/material.dart`,
 /// usually through [builder].
-class FinesseApp extends StatefulWidget {
-  /// Creates a [FinesseApp] providing a [Theme].
-  const FinesseApp({
+class UnaApp extends StatefulWidget {
+  /// Creates a [UnaApp] providing a [Theme].
+  const UnaApp({
     super.key,
     this.navigatorKey,
     this.onGenerateRoute,
@@ -79,7 +79,7 @@ class FinesseApp extends StatefulWidget {
     this.themeMode,
     this.formFactor,
     this.restorationScopeId,
-    this.scrollBehavior = const FinesseScrollBehavior(),
+    this.scrollBehavior = const UnaScrollBehavior(),
     this.pageRouteBuilder,
     this.themeCurve = Curves.linear,
     this.backgroundColor,
@@ -89,10 +89,10 @@ class FinesseApp extends StatefulWidget {
        backButtonDispatcher = null,
        routerConfig = null,
        appBuilder = null,
-       type = FinesseAppType.standard;
+       type = UnaAppType.standard;
 
-  /// Creates a [FinesseApp] that uses the [Router] instead of a [Navigator].
-  const FinesseApp.router({
+  /// Creates a [UnaApp] that uses the [Router] instead of a [Navigator].
+  const UnaApp.router({
     super.key,
     this.theme,
     this.darkTheme,
@@ -119,7 +119,7 @@ class FinesseApp extends StatefulWidget {
     this.shortcuts,
     this.actions,
     this.restorationScopeId,
-    this.scrollBehavior = const FinesseScrollBehavior(),
+    this.scrollBehavior = const UnaScrollBehavior(),
     this.themeCurve = Curves.linear,
     this.backgroundColor,
   }) : navigatorObservers = null,
@@ -132,16 +132,16 @@ class FinesseApp extends StatefulWidget {
        initialRoute = null,
        pageRouteBuilder = null,
        appBuilder = null,
-       type = FinesseAppType.standard;
+       type = UnaAppType.standard;
 
-  /// Creates a [FinesseApp] that provides the theme but calls [appBuilder] to
+  /// Creates a [UnaApp] that provides the theme but calls [appBuilder] to
   /// build the app widget.
   ///
-  /// Use it to put a `MaterialApp` or a `CupertinoApp` below the finesse theme.
+  /// Use it to put a `MaterialApp` or a `CupertinoApp` below the una theme.
   /// Theme it with `materialThemeFrom(Theme.of(context))` from
-  /// `package:finesse/material.dart`, and return a [FinesseAppBuilder] from its
+  /// `package:una/material.dart`, and return a [UnaAppBuilder] from its
   /// `builder` to get the toaster.
-  const FinesseApp.custom({
+  const UnaApp.custom({
     super.key,
     required WidgetBuilder this.appBuilder,
     this.theme,
@@ -174,24 +174,24 @@ class FinesseApp extends StatefulWidget {
        routerDelegate = null,
        routes = null,
        backgroundColor = null,
-       scrollBehavior = const FinesseScrollBehavior(),
+       scrollBehavior = const UnaScrollBehavior(),
        shortcuts = null,
        showPerformanceOverlay = false,
        showSemanticsDebugger = false,
        supportedLocales = const <Locale>[Locale('en', 'US')],
        themeCurve = Curves.linear,
        title = '',
-       type = FinesseAppType.custom;
+       type = UnaAppType.custom;
 
   /// The type of app to use.
   ///
-  /// If you are going to use only Finesse components, use
-  /// [FinesseAppType.standard]. To build your own app widget, such as a
-  /// `MaterialApp`, use [FinesseAppType.custom].
-  final FinesseAppType type;
+  /// If you are going to use only Una components, use
+  /// [UnaAppType.standard]. To build your own app widget, such as a
+  /// `MaterialApp`, use [UnaAppType.custom].
+  final UnaAppType type;
 
   /// Default visual properties, like colors fonts and shapes, for this app's
-  /// finesse widgets.
+  /// una widgets.
   ///
   /// A second [darkTheme] [ThemeData] value, which is used to provide a
   /// dark version of the user interface can also be specified. [themeMode] will
@@ -298,32 +298,32 @@ class FinesseApp extends StatefulWidget {
   /// See [WidgetsApp.navigatorObservers].
   final List<NavigatorObserver>? navigatorObservers;
 
-  /// Gives route information to the [Router]. Used by [FinesseApp.router].
+  /// Gives route information to the [Router]. Used by [UnaApp.router].
   ///
   /// See [WidgetsApp.routeInformationProvider].
   final RouteInformationProvider? routeInformationProvider;
 
   /// Parses route information into a configuration for [routerDelegate].
-  /// Used by [FinesseApp.router].
+  /// Used by [UnaApp.router].
   ///
   /// See [WidgetsApp.routeInformationParser].
   final RouteInformationParser<Object>? routeInformationParser;
 
   /// Builds the [Navigator] from the route configuration. Used by
-  /// [FinesseApp.router].
+  /// [UnaApp.router].
   ///
   /// See [WidgetsApp.routerDelegate].
   final RouterDelegate<Object>? routerDelegate;
 
   /// Tells the [Router] when the system back button is pressed. Used by
-  /// [FinesseApp.router].
+  /// [UnaApp.router].
   ///
   /// See [WidgetsApp.backButtonDispatcher].
   final BackButtonDispatcher? backButtonDispatcher;
 
   /// A single object that holds the router delegates, as an alternative to
   /// [routeInformationProvider], [routeInformationParser], [routerDelegate] and
-  /// [backButtonDispatcher]. Used by [FinesseApp.router].
+  /// [backButtonDispatcher]. Used by [UnaApp.router].
   ///
   /// See [WidgetsApp.routerConfig].
   final RouterConfig<Object>? routerConfig;
@@ -335,7 +335,7 @@ class FinesseApp extends StatefulWidget {
   /// correctly animate between pages, and to represent the "return value" of
   /// a route (e.g. which button a user selected in a modal dialog).
   ///
-  /// Defaults to a [FinessePageRoute]: a short slide and fade, with the
+  /// Defaults to a [UnaPageRoute]: a short slide and fade, with the
   /// iOS back swipe and the preview of the predictive back gesture on
   /// Android. Pass a `MaterialPageRoute` or a `CupertinoPageRoute` here for
   /// their platform transitions instead.
@@ -384,10 +384,10 @@ class FinesseApp extends StatefulWidget {
 
   /// Extra localization delegates for the app.
   ///
-  /// The app always adds the finesse and widgets delegates after these. Add
+  /// The app always adds the una and widgets delegates after these. Add
   /// `GlobalMaterialLocalizations.delegate` and
   /// `GlobalCupertinoLocalizations.delegate` here for Material or Cupertino
-  /// widgets, or wrap them in a `FinesseMaterial`, which adds them. See [WidgetsApp.localizationsDelegates].
+  /// widgets, or wrap them in a `UnaMaterial`, which adds them. See [WidgetsApp.localizationsDelegates].
   final Iterable<LocalizationsDelegate<dynamic>>? localizationsDelegates;
 
   /// Selects the app locale from the list of system locales.
@@ -435,12 +435,12 @@ class FinesseApp extends StatefulWidget {
   /// add your own [Shortcuts] widget.
   ///
   /// Alternatively, you could insert a [Shortcuts] widget with just the mapping
-  /// you want to add between the [FinesseApp] and its child and get the same
+  /// you want to add between the [UnaApp] and its child and get the same
   /// effect.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///   return FinesseApp(
+  ///   return UnaApp(
   ///     shortcuts: <ShortcutActivator, Intent>{
   ///       ... WidgetsApp.defaultShortcuts,
   ///       const SingleActivator(LogicalKeyboardKey.select):
@@ -469,12 +469,12 @@ class FinesseApp extends StatefulWidget {
   /// add your own [Actions] widget.
   ///
   /// Alternatively, you could insert a [Actions] widget with just the mapping
-  /// you want to add between the [FinesseApp] and its child and get the same
+  /// you want to add between the [UnaApp] and its child and get the same
   /// effect.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///   return FinesseApp(
+  ///   return UnaApp(
   ///     actions: <Type, Action<Intent>>{
   ///       ... WidgetsApp.defaultActions,
   ///       ActivateAction: CallbackAction(
@@ -505,7 +505,7 @@ class FinesseApp extends StatefulWidget {
   final String? restorationScopeId;
 
   /// How [Scrollable] widgets in the app behave. Defaults to
-  /// [FinesseScrollBehavior].
+  /// [UnaScrollBehavior].
   ///
   /// See also:
   ///
@@ -520,27 +520,27 @@ class FinesseApp extends StatefulWidget {
   /// A custom app widget builder.
   final WidgetBuilder? appBuilder;
 
-  /// {@macro FinesseAppBuilder.backgroundColor}
+  /// {@macro UnaAppBuilder.backgroundColor}
   final Color? backgroundColor;
 
   @override
-  State<FinesseApp> createState() => _AppState();
+  State<UnaApp> createState() => _AppState();
 }
 
-class _AppState extends State<FinesseApp> {
+class _AppState extends State<UnaApp> {
   final heroController = HeroController();
 
   bool get usesRouter =>
       widget.routerDelegate != null || widget.routerConfig != null;
 
-  /// The app's own delegates, followed by finesse's and the widgets layer's.
+  /// The app's own delegates, followed by una's and the widgets layer's.
   Iterable<LocalizationsDelegate<dynamic>>
   get effectiveLocalizationsDelegates sync* {
     final localizationsDelegates = widget.localizationsDelegates;
     if (localizationsDelegates != null) {
       yield* localizationsDelegates;
     }
-    yield GlobalFinesseLocalizations.delegate;
+    yield GlobalUnaLocalizations.delegate;
     yield GlobalWidgetsLocalizations.delegate;
   }
 
@@ -611,7 +611,7 @@ class _AppState extends State<FinesseApp> {
   }
 
   Widget _builder(BuildContext context, Widget? child) {
-    return FinesseAppBuilder(
+    return UnaAppBuilder(
       backgroundColor: widget.backgroundColor,
       builder: widget.builder,
       child: child,
@@ -621,7 +621,7 @@ class _AppState extends State<FinesseApp> {
   Widget _buildApp(BuildContext context) {
     final theme = Theme.of(context);
     switch (widget.type) {
-      case FinesseAppType.standard:
+      case UnaAppType.standard:
         if (usesRouter) {
           return DefaultStyles(
             data: theme,
@@ -693,10 +693,10 @@ class _AppState extends State<FinesseApp> {
             pageRouteBuilder:
                 widget.pageRouteBuilder ??
                 <T>(RouteSettings settings, WidgetBuilder builder) =>
-                    FinessePageRoute<T>(settings: settings, builder: builder),
+                    UnaPageRoute<T>(settings: settings, builder: builder),
           ),
         );
-      case FinesseAppType.custom:
+      case UnaAppType.custom:
         return DefaultStyles(
           data: theme,
           child: Builder(builder: widget.appBuilder!),
@@ -705,7 +705,7 @@ class _AppState extends State<FinesseApp> {
   }
 }
 
-/// Describes how [Scrollable] widgets behave for [FinesseApp]s.
+/// Describes how [Scrollable] widgets behave for [UnaApp]s.
 ///
 /// Vertical scrollables get a [Scrollbar] on every platform but Android
 /// and Fuchsia, where scrollbars are not shown. On those two a scrollable
@@ -715,10 +715,10 @@ class _AppState extends State<FinesseApp> {
 /// See also:
 ///
 ///  * [ScrollBehavior], the default scrolling behavior extended by this class.
-class FinesseScrollBehavior extends ScrollBehavior {
-  /// Creates a FinesseScrollBehavior that decorates vertical [Scrollable]s with
+class UnaScrollBehavior extends ScrollBehavior {
+  /// Creates a UnaScrollBehavior that decorates vertical [Scrollable]s with
   /// a [Scrollbar] based on the current platform.
-  const FinesseScrollBehavior();
+  const UnaScrollBehavior();
 
   @override
   Widget buildScrollbar(
@@ -770,14 +770,14 @@ class FinesseScrollBehavior extends ScrollBehavior {
 // `Colors.blue`, which this default used to be.
 const _defaultColor = Color(0xFF2196F3);
 
-/// {@template FinesseAppBuilder}
+/// {@template UnaAppBuilder}
 /// The builder for an `*App` instance.
 ///
 /// Must be placed in the builder of the `*App` widget.
 /// {@endtemplate}
-class FinesseAppBuilder extends StatelessWidget {
-  /// {@macro FinesseAppBuilder}
-  const FinesseAppBuilder({
+class UnaAppBuilder extends StatelessWidget {
+  /// {@macro UnaAppBuilder}
+  const UnaAppBuilder({
     super.key,
     this.builder,
     this.child,
@@ -790,7 +790,7 @@ class FinesseAppBuilder extends StatelessWidget {
   /// The widget below this one, usually the app's [Navigator].
   final Widget? child;
 
-  /// {@template FinesseAppBuilder.backgroundColor}
+  /// {@template UnaAppBuilder.backgroundColor}
   /// The background color of the page, defaults to `Theme.of(context).colorScheme.background`.
   /// {@endtemplate}
   final Color? backgroundColor;

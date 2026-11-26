@@ -1,7 +1,7 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// On the web the app's default shortcuts do not bind the arrow keys to
 /// directional focus — they scroll — so a list that relied on those
@@ -56,7 +56,7 @@ void main() {
       final menu = PopoverController();
       addTearDown(menu.dispose);
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           shortcuts: web ? _webShortcuts : null,
           home: Center(
             child: DropdownMenu(
@@ -93,7 +93,7 @@ void main() {
         'and dividers and through its checkable rows — $where', (tester) async {
       late BuildContext page;
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           shortcuts: web ? _webShortcuts : null,
           home: Builder(
             builder: (context) {
@@ -150,7 +150,7 @@ void main() {
       addTearDown(popover.dispose);
       String? chosen;
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           shortcuts: web ? _webShortcuts : null,
           home: Center(
             child: Select<String>(

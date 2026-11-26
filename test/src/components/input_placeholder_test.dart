@@ -1,6 +1,6 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// The placeholder used to be driven by a ValueListenableBuilder wrapped
 /// around the whole field, so every keystroke — and every cursor move, since
@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// It is now driven by a derived notifier scoped to the placeholder alone.
 /// These tests pin the visible behaviour that refactor had to preserve.
 void main() {
-  Widget wrap(Widget child) => FinesseApp(home: child);
+  Widget wrap(Widget child) => UnaApp(home: child);
 
   testWidgets('placeholder shows when empty and hides once text is typed', (
     tester,

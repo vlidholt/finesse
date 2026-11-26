@@ -35,7 +35,7 @@ final formFactorsDoc = ComponentDoc(
         title: 'How it is chosen',
         children: [
           DocParagraph(
-            '`FinesseApp` picks the form factor from the window width: '
+            '`UnaApp` picks the form factor from the window width: '
             'narrower than the theme\'s `md` breakpoint (768 by default) '
             'is `mobile`, anything wider is `desktop`. Resize the window '
             'across the breakpoint and the whole app re-lays itself out '
@@ -44,7 +44,7 @@ final formFactorsDoc = ComponentDoc(
           ),
           CodeBlock(
             code: '''
-FinesseApp(
+UnaApp(
   // Null, the default, follows the window width.
   formFactor: FormFactor.mobile,
   home: const HomePage(),
@@ -110,15 +110,15 @@ Theme(
         children: [
           DocParagraph(
             'A `StyleTokens` has a `mobile` field: a second, complete set '
-            'of tokens for a touch-sized screen. `StyleTokens.finesse` '
-            'points it at `StyleTokens.finesseMobile`, which was measured '
+            'of tokens for a touch-sized screen. `StyleTokens.una` '
+            'points it at `StyleTokens.unaMobile`, which was measured '
             'from the phone designs. A style that leaves it null gets '
             'derived metrics instead. `forFormFactor` is what resolves '
             'either:',
           ),
           CodeBlock(
             code: '''
-StyleTokens.finesse.forFormFactor(FormFactor.mobile); // finesseMobile
+StyleTokens.una.forFormFactor(FormFactor.mobile); // unaMobile
 StyleTokens.nova.forFormFactor(FormFactor.mobile);    // derived from nova''',
           ),
           DocParagraph('The derivation only ever loosens a style:'),

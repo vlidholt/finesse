@@ -5,7 +5,7 @@ final tableDoc = ComponentDoc(
   slug: 'table',
   title: 'Table',
   description:
-      '`FinesseTable` is the grid itself: header, body and footer rows of '
+      '`UnaTable` is the grid itself: header, body and footer rows of '
       'cells you build, laid out lazily in both directions, with sizes per '
       'row and column. It knows nothing about your data. For sorting, '
       'selection, filtering and paging over a list of rows, use '

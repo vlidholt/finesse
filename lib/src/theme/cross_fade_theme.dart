@@ -1,15 +1,15 @@
 import 'dart:ui' as ui;
 
-import 'package:finesse/src/theme/data.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/data.dart';
+import 'package:una/src/theme/theme.dart';
 
 /// Applies [data] to [child] and, when it changes, fades from what was on
 /// screen to the new look.
 ///
-/// This is how `FinesseApp` moves between themes — light to dark, one
+/// This is how `UnaApp` moves between themes — light to dark, one
 /// palette to another. The new theme is applied **at once**, in one build,
 /// and a picture of the last frame painted under the old one is laid over
 /// the result and faded out. On screen that is the same cross-fade as

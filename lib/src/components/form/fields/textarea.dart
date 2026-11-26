@@ -1,16 +1,16 @@
 import 'dart:ui' as ui;
 
-import 'package:finesse/src/components/form/field.dart';
-import 'package:finesse/src/components/textarea.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/clipboard/clipboard_service.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/form/field.dart';
+import 'package:una/src/components/textarea.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/clipboard/clipboard_service.dart';
 
-/// A [Textarea] that takes part in a `FinesseForm`, with a label, a
+/// A [Textarea] that takes part in a `UnaForm`, with a label, a
 /// description and validation.
-class TextareaFormField extends FinesseFormField<String> {
+class TextareaFormField extends UnaFormField<String> {
   /// Creates a textarea form field.
   TextareaFormField({
     super.key,
@@ -33,7 +33,7 @@ class TextareaFormField extends FinesseFormField<String> {
     void Function(String)? onChanged,
 
     /// {@macro Textarea.decoration}
-    FinesseDecoration? decoration,
+    UnaDecoration? decoration,
 
     /// {@macro Textarea.placeholder}
     Widget? placeholder,
@@ -229,7 +229,7 @@ class TextareaFormField extends FinesseFormField<String> {
          onChanged: onChanged == null ? null : (v) => onChanged(v ?? ''),
          decorationBuilder: (context) =>
              (Theme.of(context).textFieldTheme.decoration ??
-                     const FinesseDecoration())
+                     const UnaDecoration())
                  .merge(decoration),
          builder: (state) {
            state as _TextareaFormFieldState;
@@ -311,13 +311,13 @@ class TextareaFormField extends FinesseFormField<String> {
   final TextEditingController? controller;
 
   @override
-  FinesseFormFieldState<TextareaFormField, String> createState() =>
+  UnaFormFieldState<TextareaFormField, String> createState() =>
       _TextareaFormFieldState();
 }
 
 /// The state of a [TextareaFormField].
 class _TextareaFormFieldState
-    extends FinesseFormFieldState<TextareaFormField, String> {
+    extends UnaFormFieldState<TextareaFormField, String> {
   /// The key of the inner [Textarea].
   final GlobalKey<State<StatefulWidget>> textareaKey = GlobalKey();
   TextEditingController? _controller;

@@ -1,13 +1,13 @@
-import 'package:finesse/finesse.dart';
-import 'package:finesse/src/components/surface.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/src/components/surface.dart';
+import 'package:una/una.dart';
 
 import '../../frame_sampler.dart';
 
 /// A floating surface's shadow is outside its shape and nowhere else.
 ///
-/// The floating surfaces of the `finesse` style are glass, and anything
+/// The floating surfaces of the `una` style are glass, and anything
 /// painted behind glass shows through it: a shadow under the surface reads
 /// as a grey, dirty wash in the menu. There are three ways for it to get
 /// there, and each has happened:
@@ -80,7 +80,7 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     await tester.pumpWidget(
       sampler.wrap(
-        FinesseApp(
+        UnaApp(
           theme: theme,
           darkTheme: theme,
           home: Stack(
@@ -243,8 +243,8 @@ void main() {
         theme: ({required shadow}) => ThemeData(
           brightness: brightness,
           style: shadow
-              ? StyleTokens.finesse
-              : StyleTokens.finesse.copyWith(popoverShadow: const []),
+              ? StyleTokens.una
+              : StyleTokens.una.copyWith(popoverShadow: const []),
         ),
         build: ({required shadow}) {
           controller = PopoverController();
@@ -284,7 +284,7 @@ void main() {
         // a side out: this point is in the arrow and outside the bubble,
         // whatever the entrance has scaled the tooltip to.
         final arrow = tester.getRect(
-          find.byKey(const ValueKey('finesse_tooltip_arrow')),
+          find.byKey(const ValueKey('una_tooltip_arrow')),
         );
         final below =
             arrow.center.dy >
@@ -305,9 +305,7 @@ void main() {
               controller: controller,
               // Tooltips cast no shadow by default; one that does must keep
               // it off the bubble *and* off the arrow.
-              decoration: shadow
-                  ? const FinesseDecoration(shadows: heavy)
-                  : null,
+              decoration: shadow ? const UnaDecoration(shadows: heavy) : null,
               builder: (context) => const SizedBox(width: 120, height: 24),
               child: const SizedBox(width: 60, height: 24),
             ),
@@ -351,7 +349,7 @@ void main() {
     // shadow is cut out of box and arrow alike — through the clip over
     // glass, and by being covered under a solid fill.
     for (final (finish, style) in [
-      ('glass', StyleTokens.finesse),
+      ('glass', StyleTokens.una),
       ('solid', StyleTokens.nova),
     ]) {
       testWidgets('$mode: a $finish popover and its arrow', (tester) async {
@@ -435,7 +433,7 @@ void main() {
           child: Command(
             width: 260,
             showSearch: false,
-            decoration: shadow ? const FinesseDecoration(shadows: heavy) : null,
+            decoration: shadow ? const UnaDecoration(shadows: heavy) : null,
             groups: const [
               CommandGroup(
                 items: [
@@ -462,8 +460,8 @@ void main() {
         theme: ({required shadow}) => ThemeData(
           brightness: brightness,
           style: shadow
-              ? StyleTokens.finesse
-              : StyleTokens.finesse.copyWith(
+              ? StyleTokens.una
+              : StyleTokens.una.copyWith(
                   sheetShadow: const [],
                   floatingShadowDark: const [],
                 ),

@@ -1,15 +1,15 @@
-import 'package:finesse/src/components/disabled.dart';
-import 'package:finesse/src/components/text_field.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/border.dart';
-import 'package:finesse/src/utils/provider.dart';
-import 'package:finesse/src/utils/separated_iterable.dart';
-import 'package:finesse/src/utils/text_editing_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/disabled.dart';
+import 'package:una/src/components/text_field.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/border.dart';
+import 'package:una/src/utils/provider.dart';
+import 'package:una/src/utils/separated_iterable.dart';
+import 'package:una/src/utils/text_editing_controller.dart';
 
 /// A zero-width space. An empty slot holds it, so that a backspace in an
 /// empty slot still changes the text and can move focus to the previous
@@ -512,7 +512,7 @@ class OtpFieldSlot extends StatefulWidget {
   /// {@template OtpFieldSlot.controller}
   /// The controller for the input of the slot
   /// {@endtemplate}
-  final FinesseTextEditingController? controller;
+  final UnaTextEditingController? controller;
 
   /// {@template OtpFieldSlot.inputFormatters}
   /// The input formatters for the input of the slot
@@ -555,7 +555,7 @@ class OtpFieldSlot extends StatefulWidget {
   /// {@template OtpFieldSlot.decoration}
   /// The decoration of the slot
   /// {@endtemplate}
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// {@template OtpFieldSlot.firstBorderRadius}
   /// The radius applied to the first slot of each group
@@ -616,9 +616,8 @@ class _OtpFieldSlotState extends State<OtpFieldSlot> {
 
   FocusNode? _focusNode;
   FocusNode get focusNode => widget.focusNode ?? _focusNode!;
-  FinesseTextEditingController? _controller;
-  FinesseTextEditingController get controller =>
-      widget.controller ?? _controller!;
+  UnaTextEditingController? _controller;
+  UnaTextEditingController get controller => widget.controller ?? _controller!;
   late final int index;
 
   @override
@@ -642,7 +641,7 @@ class _OtpFieldSlotState extends State<OtpFieldSlot> {
       );
     }
     if (widget.controller == null) {
-      _controller = FinesseTextEditingController();
+      _controller = UnaTextEditingController();
     }
 
     controller.text = widget.initialValue ?? kInvisibleCharCode;
@@ -763,12 +762,12 @@ class _OtpFieldSlotState extends State<OtpFieldSlot> {
     // takes the ring colour and the ring itself sits outside it, at the
     // theme's width and opacity. It used to be an opaque 2px border with no
     // ring at all, which read as a different component.
-    final defaultDecoration = FinesseDecoration(
-      focusedBorder: FinesseBorder.all(color: theme.colorScheme.ring, width: 1),
-      border: FinesseBorder(
-        top: FinesseBorderSide(color: theme.colorScheme.border, width: 1),
-        bottom: FinesseBorderSide(color: theme.colorScheme.border, width: 1),
-        right: FinesseBorderSide(color: theme.colorScheme.border, width: 1),
+    final defaultDecoration = UnaDecoration(
+      focusedBorder: UnaBorder.all(color: theme.colorScheme.ring, width: 1),
+      border: UnaBorder(
+        top: UnaBorderSide(color: theme.colorScheme.border, width: 1),
+        bottom: UnaBorderSide(color: theme.colorScheme.border, width: 1),
+        right: UnaBorderSide(color: theme.colorScheme.border, width: 1),
         padding: const EdgeInsets.all(1),
       ),
     );
@@ -777,18 +776,18 @@ class _OtpFieldSlotState extends State<OtpFieldSlot> {
         .merge(widget.decoration);
 
     final effectiveDecoration = mergedDecoration.merge(
-      FinesseDecoration(
-        border: FinesseBorder(
+      UnaDecoration(
+        border: UnaBorder(
           borderRadius: effectiveRadius,
           // Same colour whether or not it is drawn: `Border` requires
           // colour-uniform sides before it will paint a radius, and only the
           // ends of the strip are rounded.
-          left: FinesseBorderSide(
+          left: UnaBorderSide(
             color: theme.colorScheme.input,
             width: isFirstInGroup ? 1 : 0,
           ),
         ),
-        focusedBorder: FinesseBorder(borderRadius: effectiveRadius),
+        focusedBorder: UnaBorder(borderRadius: effectiveRadius),
         // Outside the slot, flush against it, like every other field
         // (`data-[active=true]:ring-3`).
         //
@@ -796,10 +795,10 @@ class _OtpFieldSlotState extends State<OtpFieldSlot> {
         // *rounded* corner grows by the same amount to stay concentric with
         // the slot's — keeping the slot's radius left a gap at the corners.
         // Square corners stay square. The offset is restated because
-        // `FinesseBorder.merge` takes the other's radius *and* offset
+        // `UnaBorder.merge` takes the other's radius *and* offset
         // unconditionally: supplying only the radius here would silently
         // collapse the ring onto the slot's own border.
-        secondaryFocusedBorder: FinesseBorder(
+        secondaryFocusedBorder: UnaBorder(
           borderRadius: _inflateCorners(effectiveRadius, theme.style.ringWidth),
           offset: theme.style.ringWidth,
         ),
@@ -810,7 +809,7 @@ class _OtpFieldSlotState extends State<OtpFieldSlot> {
     // the same merge chain TextField and Decorator apply.
     final textDirection = Directionality.of(context);
     final resolvedDecoration = theme.decoration.merge(
-      (theme.textFieldTheme.decoration ?? const FinesseDecoration()).merge(
+      (theme.textFieldTheme.decoration ?? const UnaDecoration()).merge(
         effectiveDecoration,
       ),
     );
@@ -856,7 +855,7 @@ class _OtpFieldSlotState extends State<OtpFieldSlot> {
 
     final inputDecoration = liftRing
         ? effectiveDecoration.merge(
-            const FinesseDecoration(disableSecondaryBorder: true),
+            const UnaDecoration(disableSecondaryBorder: true),
           )
         : effectiveDecoration;
 

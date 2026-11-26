@@ -41,7 +41,7 @@ enum RadiusToken {
 /// [RadiusToken] scale.
 ///
 /// The default is Tailwind's: 0.75, 1.25, 1.75, 2, 3 and 4 times the base. A
-/// style with its own rhythm supplies its own; Finesse's default style uses
+/// style with its own rhythm supplies its own; Una's default style uses
 /// `RadiusScale(sm: .6, lg: 1.2, xl: 1.6, xl2: 1.8, xl3: 2, xl4: 2.4)`, which
 /// at a base of 10 gives 6, 12, 16, 18, 20 and 24.
 @immutable

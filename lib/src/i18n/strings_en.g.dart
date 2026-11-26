@@ -8,14 +8,14 @@
 part of 'strings.g.dart';
 
 // Path: <root>
-typedef FinesseLocalizationsDataEn = FinesseLocalizationsData; // ignore: unused_element
-class FinesseLocalizationsData with BaseTranslations<FinesseLocale, FinesseLocalizationsData> {
+typedef UnaLocalizationsDataEn = UnaLocalizationsData; // ignore: unused_element
+class UnaLocalizationsData with BaseTranslations<UnaLocale, UnaLocalizationsData> {
 	/// You can call this constructor and build your own translation instance of this locale.
-	/// Constructing via the enum [FinesseLocale.build] is preferred.
-	FinesseLocalizationsData({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<FinesseLocale, FinesseLocalizationsData>? meta})
+	/// Constructing via the enum [UnaLocale.build] is preferred.
+	UnaLocalizationsData({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<UnaLocale, UnaLocalizationsData>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
 		  _meta = meta ?? TranslationMetadata(
-		    locale: FinesseLocale.en,
+		    locale: UnaLocale.en,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
@@ -24,54 +24,54 @@ class FinesseLocalizationsData with BaseTranslations<FinesseLocale, FinesseLocal
 	}
 
 	/// Metadata for the translations of <en>.
-	final TranslationMetadata<FinesseLocale, FinesseLocalizationsData> _meta;
-	@override TranslationMetadata<FinesseLocale, FinesseLocalizationsData> get $meta => _meta;
+	final TranslationMetadata<UnaLocale, UnaLocalizationsData> _meta;
+	@override TranslationMetadata<UnaLocale, UnaLocalizationsData> get $meta => _meta;
 
 	/// Access flat map
 	dynamic operator[](String key) => _meta.getTranslation(key);
 
-	late final FinesseLocalizationsData _root = this; // ignore: unused_field
+	late final UnaLocalizationsData _root = this; // ignore: unused_field
 
-	FinesseLocalizationsData $copyWith({TranslationMetadata<FinesseLocale, FinesseLocalizationsData>? meta}) => FinesseLocalizationsData(meta: meta ?? this.$meta);
+	UnaLocalizationsData $copyWith({TranslationMetadata<UnaLocale, UnaLocalizationsData>? meta}) => UnaLocalizationsData(meta: meta ?? this.$meta);
 
 	// Translations
-	late final FinesseLocalizationsData$actionSheet$en actionSheet = FinesseLocalizationsData$actionSheet$en.internal(_root);
-	late final FinesseLocalizationsData$alert$en alert = FinesseLocalizationsData$alert$en.internal(_root);
-	late final FinesseLocalizationsData$timePicker$en timePicker = FinesseLocalizationsData$timePicker$en.internal(_root);
-	late final FinesseLocalizationsData$datePicker$en datePicker = FinesseLocalizationsData$datePicker$en.internal(_root);
-	late final FinesseLocalizationsData$input$en input = FinesseLocalizationsData$input$en.internal(_root);
-	late final FinesseLocalizationsData$autocomplete$en autocomplete = FinesseLocalizationsData$autocomplete$en.internal(_root);
-	late final FinesseLocalizationsData$numberField$en numberField = FinesseLocalizationsData$numberField$en.internal(_root);
-	late final FinesseLocalizationsData$search$en search = FinesseLocalizationsData$search$en.internal(_root);
-	late final FinesseLocalizationsData$tagField$en tagField = FinesseLocalizationsData$tagField$en.internal(_root);
-	late final FinesseLocalizationsData$keyboardToolbar$en keyboardToolbar = FinesseLocalizationsData$keyboardToolbar$en.internal(_root);
-	late final FinesseLocalizationsData$empty$en empty = FinesseLocalizationsData$empty$en.internal(_root);
-	late final FinesseLocalizationsData$stepper$en stepper = FinesseLocalizationsData$stepper$en.internal(_root);
-	late final FinesseLocalizationsData$toast$en toast = FinesseLocalizationsData$toast$en.internal(_root);
-	late final FinesseLocalizationsData$chip$en chip = FinesseLocalizationsData$chip$en.internal(_root);
-	late final FinesseLocalizationsData$command$en command = FinesseLocalizationsData$command$en.internal(_root);
-	late final FinesseLocalizationsData$menu$en menu = FinesseLocalizationsData$menu$en.internal(_root);
-	late final FinesseLocalizationsData$licensePage$en licensePage = FinesseLocalizationsData$licensePage$en.internal(_root);
-	late final FinesseLocalizationsData$dataTable$en dataTable = FinesseLocalizationsData$dataTable$en.internal(_root);
-	late final FinesseLocalizationsData$pagination$en pagination = FinesseLocalizationsData$pagination$en.internal(_root);
-	late final FinesseLocalizationsData$carousel$en carousel = FinesseLocalizationsData$carousel$en.internal(_root);
-	late final FinesseLocalizationsData$refreshIndicator$en refreshIndicator = FinesseLocalizationsData$refreshIndicator$en.internal(_root);
-	late final FinesseLocalizationsData$reorder$en reorder = FinesseLocalizationsData$reorder$en.internal(_root);
-	late final FinesseLocalizationsData$swipeActions$en swipeActions = FinesseLocalizationsData$swipeActions$en.internal(_root);
-	late final FinesseLocalizationsData$rating$en rating = FinesseLocalizationsData$rating$en.internal(_root);
-	late final FinesseLocalizationsData$colorPicker$en colorPicker = FinesseLocalizationsData$colorPicker$en.internal(_root);
-	late final FinesseLocalizationsData$dialog$en dialog = FinesseLocalizationsData$dialog$en.internal(_root);
-	late final FinesseLocalizationsData$sheet$en sheet = FinesseLocalizationsData$sheet$en.internal(_root);
-	late final FinesseLocalizationsData$button$en button = FinesseLocalizationsData$button$en.internal(_root);
-	late final FinesseLocalizationsData$board$en board = FinesseLocalizationsData$board$en.internal(_root);
-	late final FinesseLocalizationsData$navigation$en navigation = FinesseLocalizationsData$navigation$en.internal(_root);
+	late final UnaLocalizationsData$actionSheet$en actionSheet = UnaLocalizationsData$actionSheet$en.internal(_root);
+	late final UnaLocalizationsData$alert$en alert = UnaLocalizationsData$alert$en.internal(_root);
+	late final UnaLocalizationsData$timePicker$en timePicker = UnaLocalizationsData$timePicker$en.internal(_root);
+	late final UnaLocalizationsData$datePicker$en datePicker = UnaLocalizationsData$datePicker$en.internal(_root);
+	late final UnaLocalizationsData$input$en input = UnaLocalizationsData$input$en.internal(_root);
+	late final UnaLocalizationsData$autocomplete$en autocomplete = UnaLocalizationsData$autocomplete$en.internal(_root);
+	late final UnaLocalizationsData$numberField$en numberField = UnaLocalizationsData$numberField$en.internal(_root);
+	late final UnaLocalizationsData$search$en search = UnaLocalizationsData$search$en.internal(_root);
+	late final UnaLocalizationsData$tagField$en tagField = UnaLocalizationsData$tagField$en.internal(_root);
+	late final UnaLocalizationsData$keyboardToolbar$en keyboardToolbar = UnaLocalizationsData$keyboardToolbar$en.internal(_root);
+	late final UnaLocalizationsData$empty$en empty = UnaLocalizationsData$empty$en.internal(_root);
+	late final UnaLocalizationsData$stepper$en stepper = UnaLocalizationsData$stepper$en.internal(_root);
+	late final UnaLocalizationsData$toast$en toast = UnaLocalizationsData$toast$en.internal(_root);
+	late final UnaLocalizationsData$chip$en chip = UnaLocalizationsData$chip$en.internal(_root);
+	late final UnaLocalizationsData$command$en command = UnaLocalizationsData$command$en.internal(_root);
+	late final UnaLocalizationsData$menu$en menu = UnaLocalizationsData$menu$en.internal(_root);
+	late final UnaLocalizationsData$licensePage$en licensePage = UnaLocalizationsData$licensePage$en.internal(_root);
+	late final UnaLocalizationsData$dataTable$en dataTable = UnaLocalizationsData$dataTable$en.internal(_root);
+	late final UnaLocalizationsData$pagination$en pagination = UnaLocalizationsData$pagination$en.internal(_root);
+	late final UnaLocalizationsData$carousel$en carousel = UnaLocalizationsData$carousel$en.internal(_root);
+	late final UnaLocalizationsData$refreshIndicator$en refreshIndicator = UnaLocalizationsData$refreshIndicator$en.internal(_root);
+	late final UnaLocalizationsData$reorder$en reorder = UnaLocalizationsData$reorder$en.internal(_root);
+	late final UnaLocalizationsData$swipeActions$en swipeActions = UnaLocalizationsData$swipeActions$en.internal(_root);
+	late final UnaLocalizationsData$rating$en rating = UnaLocalizationsData$rating$en.internal(_root);
+	late final UnaLocalizationsData$colorPicker$en colorPicker = UnaLocalizationsData$colorPicker$en.internal(_root);
+	late final UnaLocalizationsData$dialog$en dialog = UnaLocalizationsData$dialog$en.internal(_root);
+	late final UnaLocalizationsData$sheet$en sheet = UnaLocalizationsData$sheet$en.internal(_root);
+	late final UnaLocalizationsData$button$en button = UnaLocalizationsData$button$en.internal(_root);
+	late final UnaLocalizationsData$board$en board = UnaLocalizationsData$board$en.internal(_root);
+	late final UnaLocalizationsData$navigation$en navigation = UnaLocalizationsData$navigation$en.internal(_root);
 }
 
 // Path: actionSheet
-class FinesseLocalizationsData$actionSheet$en {
-	FinesseLocalizationsData$actionSheet$en.internal(this._root);
+class UnaLocalizationsData$actionSheet$en {
+	UnaLocalizationsData$actionSheet$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -80,10 +80,10 @@ class FinesseLocalizationsData$actionSheet$en {
 }
 
 // Path: alert
-class FinesseLocalizationsData$alert$en {
-	FinesseLocalizationsData$alert$en.internal(this._root);
+class UnaLocalizationsData$alert$en {
+	UnaLocalizationsData$alert$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -92,10 +92,10 @@ class FinesseLocalizationsData$alert$en {
 }
 
 // Path: timePicker
-class FinesseLocalizationsData$timePicker$en {
-	FinesseLocalizationsData$timePicker$en.internal(this._root);
+class UnaLocalizationsData$timePicker$en {
+	UnaLocalizationsData$timePicker$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -125,10 +125,10 @@ class FinesseLocalizationsData$timePicker$en {
 }
 
 // Path: datePicker
-class FinesseLocalizationsData$datePicker$en {
-	FinesseLocalizationsData$datePicker$en.internal(this._root);
+class UnaLocalizationsData$datePicker$en {
+	UnaLocalizationsData$datePicker$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -158,10 +158,10 @@ class FinesseLocalizationsData$datePicker$en {
 }
 
 // Path: input
-class FinesseLocalizationsData$input$en {
-	FinesseLocalizationsData$input$en.internal(this._root);
+class UnaLocalizationsData$input$en {
+	UnaLocalizationsData$input$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -215,10 +215,10 @@ class FinesseLocalizationsData$input$en {
 }
 
 // Path: autocomplete
-class FinesseLocalizationsData$autocomplete$en {
-	FinesseLocalizationsData$autocomplete$en.internal(this._root);
+class UnaLocalizationsData$autocomplete$en {
+	UnaLocalizationsData$autocomplete$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -236,10 +236,10 @@ class FinesseLocalizationsData$autocomplete$en {
 }
 
 // Path: numberField
-class FinesseLocalizationsData$numberField$en {
-	FinesseLocalizationsData$numberField$en.internal(this._root);
+class UnaLocalizationsData$numberField$en {
+	UnaLocalizationsData$numberField$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -251,10 +251,10 @@ class FinesseLocalizationsData$numberField$en {
 }
 
 // Path: search
-class FinesseLocalizationsData$search$en {
-	FinesseLocalizationsData$search$en.internal(this._root);
+class UnaLocalizationsData$search$en {
+	UnaLocalizationsData$search$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -272,10 +272,10 @@ class FinesseLocalizationsData$search$en {
 }
 
 // Path: tagField
-class FinesseLocalizationsData$tagField$en {
-	FinesseLocalizationsData$tagField$en.internal(this._root);
+class UnaLocalizationsData$tagField$en {
+	UnaLocalizationsData$tagField$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -290,10 +290,10 @@ class FinesseLocalizationsData$tagField$en {
 }
 
 // Path: keyboardToolbar
-class FinesseLocalizationsData$keyboardToolbar$en {
-	FinesseLocalizationsData$keyboardToolbar$en.internal(this._root);
+class UnaLocalizationsData$keyboardToolbar$en {
+	UnaLocalizationsData$keyboardToolbar$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -302,10 +302,10 @@ class FinesseLocalizationsData$keyboardToolbar$en {
 }
 
 // Path: empty
-class FinesseLocalizationsData$empty$en {
-	FinesseLocalizationsData$empty$en.internal(this._root);
+class UnaLocalizationsData$empty$en {
+	UnaLocalizationsData$empty$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -314,10 +314,10 @@ class FinesseLocalizationsData$empty$en {
 }
 
 // Path: stepper
-class FinesseLocalizationsData$stepper$en {
-	FinesseLocalizationsData$stepper$en.internal(this._root);
+class UnaLocalizationsData$stepper$en {
+	UnaLocalizationsData$stepper$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -341,10 +341,10 @@ class FinesseLocalizationsData$stepper$en {
 }
 
 // Path: toast
-class FinesseLocalizationsData$toast$en {
-	FinesseLocalizationsData$toast$en.internal(this._root);
+class UnaLocalizationsData$toast$en {
+	UnaLocalizationsData$toast$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -353,10 +353,10 @@ class FinesseLocalizationsData$toast$en {
 }
 
 // Path: chip
-class FinesseLocalizationsData$chip$en {
-	FinesseLocalizationsData$chip$en.internal(this._root);
+class UnaLocalizationsData$chip$en {
+	UnaLocalizationsData$chip$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -365,10 +365,10 @@ class FinesseLocalizationsData$chip$en {
 }
 
 // Path: command
-class FinesseLocalizationsData$command$en {
-	FinesseLocalizationsData$command$en.internal(this._root);
+class UnaLocalizationsData$command$en {
+	UnaLocalizationsData$command$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -377,10 +377,10 @@ class FinesseLocalizationsData$command$en {
 }
 
 // Path: menu
-class FinesseLocalizationsData$menu$en {
-	FinesseLocalizationsData$menu$en.internal(this._root);
+class UnaLocalizationsData$menu$en {
+	UnaLocalizationsData$menu$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -431,10 +431,10 @@ class FinesseLocalizationsData$menu$en {
 }
 
 // Path: licensePage
-class FinesseLocalizationsData$licensePage$en {
-	FinesseLocalizationsData$licensePage$en.internal(this._root);
+class UnaLocalizationsData$licensePage$en {
+	UnaLocalizationsData$licensePage$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -449,10 +449,10 @@ class FinesseLocalizationsData$licensePage$en {
 }
 
 // Path: dataTable
-class FinesseLocalizationsData$dataTable$en {
-	FinesseLocalizationsData$dataTable$en.internal(this._root);
+class UnaLocalizationsData$dataTable$en {
+	UnaLocalizationsData$dataTable$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -476,10 +476,10 @@ class FinesseLocalizationsData$dataTable$en {
 }
 
 // Path: pagination
-class FinesseLocalizationsData$pagination$en {
-	FinesseLocalizationsData$pagination$en.internal(this._root);
+class UnaLocalizationsData$pagination$en {
+	UnaLocalizationsData$pagination$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -497,10 +497,10 @@ class FinesseLocalizationsData$pagination$en {
 }
 
 // Path: carousel
-class FinesseLocalizationsData$carousel$en {
-	FinesseLocalizationsData$carousel$en.internal(this._root);
+class UnaLocalizationsData$carousel$en {
+	UnaLocalizationsData$carousel$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -518,10 +518,10 @@ class FinesseLocalizationsData$carousel$en {
 }
 
 // Path: refreshIndicator
-class FinesseLocalizationsData$refreshIndicator$en {
-	FinesseLocalizationsData$refreshIndicator$en.internal(this._root);
+class UnaLocalizationsData$refreshIndicator$en {
+	UnaLocalizationsData$refreshIndicator$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -533,10 +533,10 @@ class FinesseLocalizationsData$refreshIndicator$en {
 }
 
 // Path: reorder
-class FinesseLocalizationsData$reorder$en {
-	FinesseLocalizationsData$reorder$en.internal(this._root);
+class UnaLocalizationsData$reorder$en {
+	UnaLocalizationsData$reorder$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -569,10 +569,10 @@ class FinesseLocalizationsData$reorder$en {
 }
 
 // Path: swipeActions
-class FinesseLocalizationsData$swipeActions$en {
-	FinesseLocalizationsData$swipeActions$en.internal(this._root);
+class UnaLocalizationsData$swipeActions$en {
+	UnaLocalizationsData$swipeActions$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -581,10 +581,10 @@ class FinesseLocalizationsData$swipeActions$en {
 }
 
 // Path: rating
-class FinesseLocalizationsData$rating$en {
-	FinesseLocalizationsData$rating$en.internal(this._root);
+class UnaLocalizationsData$rating$en {
+	UnaLocalizationsData$rating$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -593,10 +593,10 @@ class FinesseLocalizationsData$rating$en {
 }
 
 // Path: colorPicker
-class FinesseLocalizationsData$colorPicker$en {
-	FinesseLocalizationsData$colorPicker$en.internal(this._root);
+class UnaLocalizationsData$colorPicker$en {
+	UnaLocalizationsData$colorPicker$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -617,10 +617,10 @@ class FinesseLocalizationsData$colorPicker$en {
 }
 
 // Path: dialog
-class FinesseLocalizationsData$dialog$en {
-	FinesseLocalizationsData$dialog$en.internal(this._root);
+class UnaLocalizationsData$dialog$en {
+	UnaLocalizationsData$dialog$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -632,10 +632,10 @@ class FinesseLocalizationsData$dialog$en {
 }
 
 // Path: sheet
-class FinesseLocalizationsData$sheet$en {
-	FinesseLocalizationsData$sheet$en.internal(this._root);
+class UnaLocalizationsData$sheet$en {
+	UnaLocalizationsData$sheet$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -644,10 +644,10 @@ class FinesseLocalizationsData$sheet$en {
 }
 
 // Path: button
-class FinesseLocalizationsData$button$en {
-	FinesseLocalizationsData$button$en.internal(this._root);
+class UnaLocalizationsData$button$en {
+	UnaLocalizationsData$button$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -656,10 +656,10 @@ class FinesseLocalizationsData$button$en {
 }
 
 // Path: board
-class FinesseLocalizationsData$board$en {
-	FinesseLocalizationsData$board$en.internal(this._root);
+class UnaLocalizationsData$board$en {
+	UnaLocalizationsData$board$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -692,10 +692,10 @@ class FinesseLocalizationsData$board$en {
 }
 
 // Path: navigation
-class FinesseLocalizationsData$navigation$en {
-	FinesseLocalizationsData$navigation$en.internal(this._root);
+class UnaLocalizationsData$navigation$en {
+	UnaLocalizationsData$navigation$en.internal(this._root);
 
-	final FinesseLocalizationsData _root; // ignore: unused_field
+	final UnaLocalizationsData _root; // ignore: unused_field
 
 	// Translations
 
@@ -717,7 +717,7 @@ class FinesseLocalizationsData$navigation$en {
 ///
 /// The Dart AOT compiler has issues with very large switch statements,
 /// so the map is split into smaller functions (512 entries each).
-extension on FinesseLocalizationsData {
+extension on UnaLocalizationsData {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
 			'actionSheet.cancel' => 'Cancel',

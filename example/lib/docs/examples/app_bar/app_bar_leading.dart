@@ -1,6 +1,6 @@
 import 'package:example/docs/phone_frame.dart';
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// None of these bars is given a `leading`. The first page has nothing to
 /// go back to; the pushed one gets a back button; the full-screen dialog
@@ -33,19 +33,19 @@ class _Page extends StatelessWidget {
         ),
       ),
       body: Center(
-        child: FinesseColumn(
+        child: UnaColumn(
           mainAxisSize: MainAxisSize.min,
           gap: GapSize.md,
           children: [
             Button.outline(
               onPressed: () => Navigator.of(context).push(
-                FinessePageRoute<void>(builder: (_) => _Page(depth: depth + 1)),
+                UnaPageRoute<void>(builder: (_) => _Page(depth: depth + 1)),
               ),
               child: const Text('Push a page'),
             ),
             Button.outline(
               onPressed: () => Navigator.of(context).push(
-                FinessePageRoute<void>(
+                UnaPageRoute<void>(
                   fullscreenDialog: true,
                   builder: (_) => _Page(depth: depth, dialog: true),
                 ),

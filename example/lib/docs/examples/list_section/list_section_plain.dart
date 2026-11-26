@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// The plain variant: no card, rows from edge to edge with hairlines that
 /// start at the names, whatever the rows lead with.

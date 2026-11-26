@@ -1,6 +1,6 @@
-import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
+import 'package:una/src/theme/components/decorator.dart';
 
 part 'checkbox.g.theme.dart';
 
@@ -39,12 +39,12 @@ class CheckboxTheme with _$CheckboxTheme {
   final double? size;
 
   /// {@macro Checkbox.decoration}
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// The decoration while checked, when it differs from [decoration] —
   /// shadcn recolours the outline with the fill (`data-checked:border-primary`)
   /// so a checked control has no pale halo. Null means "same as [decoration]".
-  final FinesseDecoration? checkedDecoration;
+  final UnaDecoration? checkedDecoration;
 
   /// {@macro Checkbox.padding}
   final EdgeInsetsGeometry? padding;

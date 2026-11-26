@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// A term in running text explains itself. The card opens above the line,
 /// so it does not cover what the reader is about to read, and falls back

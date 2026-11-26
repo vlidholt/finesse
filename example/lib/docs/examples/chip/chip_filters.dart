@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// Filter chips. Each one toggles on its own; a selected chip takes the
 /// theme's accent fill, text and outline.

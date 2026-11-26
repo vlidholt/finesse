@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// Another trigger: `triggerBuilder` gets the time and a callback that
 /// opens the picker. `formatTime` writes the time on the default button.
@@ -17,7 +17,7 @@ class _TimePickerTriggerExampleState extends State<TimePickerTriggerExample> {
 
   @override
   Widget build(BuildContext context) {
-    return FinesseRow(
+    return UnaRow(
       mainAxisSize: MainAxisSize.min,
       gap: GapSize.md,
       children: [

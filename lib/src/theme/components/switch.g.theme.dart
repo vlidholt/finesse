@@ -42,7 +42,7 @@ mixin _$SwitchTheme {
       height: lerpDouble$(a.height, b.height, t),
       margin: lerpDouble$(a.margin, b.margin, t),
       thumbStretch: lerpDouble$(a.thumbStretch, b.thumbStretch, t),
-      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
+      decoration: UnaDecoration.lerp(a.decoration, b.decoration, t),
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
     );
   }
@@ -56,7 +56,7 @@ mixin _$SwitchTheme {
     double? height,
     double? margin,
     double? thumbStretch,
-    FinesseDecoration? decoration,
+    UnaDecoration? decoration,
     EdgeInsetsGeometry? padding,
   }) {
     final _this = (this as SwitchTheme);

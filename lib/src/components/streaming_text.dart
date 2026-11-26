@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
 
 /// Holds text that arrives a piece at a time, for a [StreamingText].
 ///
@@ -201,7 +201,7 @@ class StreamingTextController extends ChangeNotifier {
 /// With reduced motion each chunk appears as it arrives, with a short fade;
 /// with motion switched off, at once.
 ///
-/// {@template finesse.StreamingText.markdown}
+/// {@template una.StreamingText.markdown}
 /// It lays out plain text in one style, or the spans of
 /// [StreamingText.rich]. For Markdown, split what has arrived into blocks:
 /// render the blocks that are complete with your Markdown widget, and give

@@ -28,12 +28,12 @@ final iconsDoc = ComponentDoc(
           ),
           CodeBlock(
             code: '''
-import 'package:finesse/finesse.dart';
+import 'package:una/una.dart';
 
 const PhosphorIcon(PhosphorIconsRegular.house)''',
           ),
           DocParagraph(
-            'The fonts are bundled with finesse, so there is no second '
+            'The fonts are bundled with una, so there is no second '
             'dependency and nothing to declare in your pubspec. The '
             'constants are `const IconData`, which keeps Flutter\'s icon '
             'tree-shaking working: a release build carries only the '
@@ -97,7 +97,7 @@ const PhosphorIcon(PhosphorIconsRegular.house)''',
             code: '''
 // For the app: a stronger correction.
 ThemeData(
-  style: StyleTokens.finesse.copyWith(iconOpticalStrength: .8),
+  style: StyleTokens.una.copyWith(iconOpticalStrength: .8),
 )
 
 // Off, here only.
@@ -128,7 +128,7 @@ Theme(
           id: 'icons_selected',
           title: 'Regular and fill for selected states',
           description:
-              'The convention throughout finesse: the regular weight at '
+              'The convention throughout una: the regular weight at '
               'rest, the fill weight of the same icon when selected. It '
               'is what `NavigationDestination.selectedIcon` is for.',
           builder: (_) => const IconsSelectedExample(),
@@ -202,7 +202,7 @@ Theme(
         children: [
           DocParagraph(
             'Phosphor Icons are MIT licensed. The notice is part of '
-            "finesse's own `LICENSE`, which Flutter collects onto an "
+            "una's own `LICENSE`, which Flutter collects onto an "
             "app's licence page automatically.",
           ),
         ],

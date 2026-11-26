@@ -8,11 +8,11 @@
 // something; to hunt, raise the count in `_seeds`.
 import 'dart:math';
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// Seeds for a board whose columns scroll, and for a shrink-wrapped one.
 ///
@@ -189,7 +189,7 @@ void main() {
           ),
         );
         await tester.pumpWidget(
-          FinesseApp(home: _Host(shrinkWrap: shrinkWrap)),
+          UnaApp(home: _Host(shrinkWrap: shrinkWrap)),
         );
         await tester.pump(const Duration(milliseconds: 300));
 
@@ -328,7 +328,7 @@ void main() {
                 navigator()
                     .push(
                       random.nextBool()
-                          ? FinessePageRoute<void>(
+                          ? UnaPageRoute<void>(
                               builder: (context) => const Text('page'),
                             )
                           : PageRouteBuilder<void>(

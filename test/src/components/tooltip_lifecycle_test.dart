@@ -1,10 +1,10 @@
 import 'dart:ui' show PointerDeviceKind;
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 Future<TestGesture> _mouse(WidgetTester tester) async {
   final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
@@ -44,7 +44,7 @@ double _opacity(WidgetTester tester, Finder content) {
   return opacity;
 }
 
-Widget _app(FocusNode focus, {Motion? motion}) => FinesseApp(
+Widget _app(FocusNode focus, {Motion? motion}) => UnaApp(
   theme: ThemeData(style: StyleTokens.nova, motion: motion),
   home: Center(
     child: Tooltip(

@@ -3,14 +3,14 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-/// Loads the regular Phosphor font as `packages/finesse/PhosphorRegular`,
+/// Loads the regular Phosphor font as `packages/una/PhosphorRegular`,
 /// the family an icon of this package names. Tests otherwise load no fonts
 /// and draw every glyph as a box.
 ///
 /// On the VM this is the font the package ships, from its asset bundle. A
 /// browser test has no asset bundle, so there it is [phosphorRegularSubset].
 Future<void> loadPhosphorRegular() async {
-  final loader = FontLoader('packages/finesse/PhosphorRegular')
+  final loader = FontLoader('packages/una/PhosphorRegular')
     ..addFont(
       kIsWeb
           ? Future.value(ByteData.sublistView(phosphorRegularSubset))

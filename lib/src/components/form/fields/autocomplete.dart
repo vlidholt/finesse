@@ -1,11 +1,11 @@
-import 'package:finesse/src/components/autocomplete.dart';
-import 'package:finesse/src/components/form/field.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/autocomplete.dart';
+import 'package:una/src/components/form/field.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/theme.dart';
 
-/// An [Autocomplete] that takes part in a `FinesseForm`, with a label, a
+/// An [Autocomplete] that takes part in a `UnaForm`, with a label, a
 /// description and validation. Its value is the text in the field, typed or
 /// taken from an option.
 ///
@@ -20,7 +20,7 @@ import 'package:flutter/widgets.dart';
 ///       cities.contains(text) ? null : 'Pick a city from the list',
 /// )
 /// ```
-class AutocompleteFormField<T extends Object> extends FinesseFormField<String> {
+class AutocompleteFormField<T extends Object> extends UnaFormField<String> {
   /// Creates an autocomplete form field.
   AutocompleteFormField({
     super.id,
@@ -103,14 +103,14 @@ class AutocompleteFormField<T extends Object> extends FinesseFormField<String> {
     TextInputAction? textInputAction,
 
     /// Merged over the theme's text field decoration.
-    FinesseDecoration? decoration,
+    UnaDecoration? decoration,
   }) : super(
          initialValue: initialValue ?? '',
          validator: validator == null ? null : (text) => validator(text ?? ''),
          onChanged: onChanged == null ? null : (text) => onChanged(text ?? ''),
          decorationBuilder: (context) =>
              (Theme.of(context).textFieldTheme.decoration ??
-                     const FinesseDecoration())
+                     const UnaDecoration())
                  .merge(decoration),
          builder: (field) {
            final state = field as _AutocompleteFormFieldState<T>;
@@ -141,13 +141,13 @@ class AutocompleteFormField<T extends Object> extends FinesseFormField<String> {
        );
 
   @override
-  FinesseFormFieldState<AutocompleteFormField<T>, String> createState() =>
+  UnaFormFieldState<AutocompleteFormField<T>, String> createState() =>
       _AutocompleteFormFieldState<T>();
 }
 
 /// The state of an [AutocompleteFormField].
 class _AutocompleteFormFieldState<T extends Object>
-    extends FinesseFormFieldState<AutocompleteFormField<T>, String> {
+    extends UnaFormFieldState<AutocompleteFormField<T>, String> {
   /// The controller of the field's text.
   late final TextEditingController controller = TextEditingController(
     text: value,

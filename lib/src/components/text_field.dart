@@ -4,32 +4,32 @@ import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:boxy/flex.dart';
-import 'package:finesse/src/components/context_menu.dart';
-import 'package:finesse/src/components/decorator.dart';
-import 'package:finesse/src/components/disabled.dart';
-import 'package:finesse/src/components/text_magnifier.dart';
-import 'package:finesse/src/components/text_selection.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/i18n/strings.g.dart';
-import 'package:finesse/src/icons/phosphor_icon.dart';
-import 'package:finesse/src/icons/phosphor_icons_regular.dart';
-import 'package:finesse/src/raw_components/keyboard_toolbar.dart';
-import 'package:finesse/src/raw_components/portal.dart';
-import 'package:finesse/src/raw_components/pressable.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/clipboard/clipboard_service.dart';
-import 'package:finesse/src/utils/extensions/text_style.dart';
-import 'package:finesse/src/utils/pop_in.dart';
-import 'package:finesse/src/utils/separated_iterable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/context_menu.dart';
+import 'package:una/src/components/decorator.dart';
+import 'package:una/src/components/disabled.dart';
+import 'package:una/src/components/text_magnifier.dart';
+import 'package:una/src/components/text_selection.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/i18n/strings.g.dart';
+import 'package:una/src/icons/phosphor_icon.dart';
+import 'package:una/src/icons/phosphor_icons_regular.dart';
+import 'package:una/src/raw_components/keyboard_toolbar.dart';
+import 'package:una/src/raw_components/portal.dart';
+import 'package:una/src/raw_components/pressable.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/clipboard/clipboard_service.dart';
+import 'package:una/src/utils/extensions/text_style.dart';
+import 'package:una/src/utils/pop_in.dart';
+import 'package:una/src/utils/separated_iterable.dart';
 
 String? _localizedLabel(
   ContextMenuButtonType type,
-  FinesseLocalizationsData l,
+  UnaLocalizationsData l,
 ) {
   return switch (type) {
     ContextMenuButtonType.cut => l.input.cut,
@@ -198,7 +198,7 @@ class TextField extends StatefulWidget {
     Widget? placeholder,
     TextEditingController? controller,
     FocusNode? focusNode,
-    FinesseDecoration? decoration,
+    UnaDecoration? decoration,
     TextInputAction? textInputAction,
     TextStyle? style,
     bool readOnly = false,
@@ -277,7 +277,7 @@ class TextField extends StatefulWidget {
   /// The decoration applied to the input field.
   /// Merged with the theme’s default decoration if provided.
   /// {@endtemplate}
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// {@template TextField.undoController}
   /// The controller for managing undo/redo history.
@@ -525,7 +525,7 @@ class TextField extends StatefulWidget {
   /// {@template TextField.selectionControls}
   /// Builds the drag handles at the ends of a selection.
   ///
-  /// Defaults to `FinesseTextSelectionControls.adaptive`: this system's
+  /// Defaults to `UnaTextSelectionControls.adaptive`: this system's
   /// handles on iOS and Android, and none on a desktop, where a selection
   /// is made with the pointer.
   /// {@endtemplate}
@@ -916,10 +916,10 @@ class TextFieldState extends State<TextField>
     }
     if (widget.scrollController == null) _scrollController = ScrollController();
     if (widget.onPasteFiles != null && kIsWeb) {
-      FinesseClipboard.addPasteFilesListener(_onPasteFiles);
+      UnaClipboard.addPasteFilesListener(_onPasteFiles);
     }
     if (widget.onPasteFilesError != null && kIsWeb) {
-      FinesseClipboard.addPasteFilesErrorListener(_onPasteFilesError);
+      UnaClipboard.addPasteFilesErrorListener(_onPasteFilesError);
     }
     // NOTE: _syncIsEmptySource is deliberately not called here. For the local
     // controller, `effectiveController` reads RestorableTextEditingController
@@ -959,19 +959,19 @@ class TextFieldState extends State<TextField>
 
     if (kIsWeb && widget.onPasteFiles != oldWidget.onPasteFiles) {
       if (oldWidget.onPasteFiles != null) {
-        FinesseClipboard.removePasteFilesListener(_onPasteFiles);
+        UnaClipboard.removePasteFilesListener(_onPasteFiles);
       }
       if (widget.onPasteFiles != null) {
-        FinesseClipboard.addPasteFilesListener(_onPasteFiles);
+        UnaClipboard.addPasteFilesListener(_onPasteFiles);
       }
     }
 
     if (kIsWeb && widget.onPasteFilesError != oldWidget.onPasteFilesError) {
       if (oldWidget.onPasteFilesError != null) {
-        FinesseClipboard.removePasteFilesErrorListener(_onPasteFilesError);
+        UnaClipboard.removePasteFilesErrorListener(_onPasteFilesError);
       }
       if (widget.onPasteFilesError != null) {
-        FinesseClipboard.addPasteFilesErrorListener(_onPasteFilesError);
+        UnaClipboard.addPasteFilesErrorListener(_onPasteFilesError);
       }
     }
 
@@ -992,10 +992,10 @@ class TextFieldState extends State<TextField>
     _isEmpty.dispose();
     effectiveFocusNode.removeListener(onFocusChange);
     if (kIsWeb && widget.onPasteFiles != null) {
-      FinesseClipboard.removePasteFilesListener(_onPasteFiles);
+      UnaClipboard.removePasteFilesListener(_onPasteFiles);
     }
     if (kIsWeb && widget.onPasteFilesError != null) {
-      FinesseClipboard.removePasteFilesErrorListener(_onPasteFilesError);
+      UnaClipboard.removePasteFilesErrorListener(_onPasteFilesError);
     }
     if (widget.focusNode == null) effectiveFocusNode.dispose();
     _controller?.dispose();
@@ -1200,7 +1200,7 @@ class TextFieldState extends State<TextField>
     BuildContext context,
     EditableTextState editableTextState,
   ) {
-    if (FinesseTextSelectionControls.usesTouchSelection) {
+    if (UnaTextSelectionControls.usesTouchSelection) {
       final useSystemMenu =
           Theme.of(context).textFieldTheme.useSystemContextMenu ?? false;
       if (useSystemMenu &&
@@ -1213,7 +1213,7 @@ class TextFieldState extends State<TextField>
         editableTextState: editableTextState,
       );
     }
-    final l = FinesseLocalizations.of(context);
+    final l = UnaLocalizations.of(context);
     final textValue = editableTextState.textEditingValue;
     final selection = textValue.selection;
     final hasSelection = selection.isValid && !selection.isCollapsed;
@@ -1276,7 +1276,7 @@ class TextFieldState extends State<TextField>
         .merge(widget.style);
 
     final effectiveDecoration =
-        (theme.textFieldTheme.decoration ?? const FinesseDecoration()).merge(
+        (theme.textFieldTheme.decoration ?? const UnaDecoration()).merge(
           widget.decoration,
         );
 
@@ -1382,7 +1382,7 @@ class TextFieldState extends State<TextField>
         theme.textFieldTheme.useBrowserContextMenu ??
         kIsWeb;
 
-    final l = FinesseLocalizations.of(context);
+    final l = UnaLocalizations.of(context);
     final showClear = widget.clearable && widget.enabled && !widget.readOnly;
     final showReveal = widget.revealable && widget.obscureText;
     // As tall as a line of the field's text, so a button never makes the
@@ -1428,7 +1428,7 @@ class TextFieldState extends State<TextField>
                                   defaultContextMenuBuilder),
                         selectionControls:
                             widget.selectionControls ??
-                            FinesseTextSelectionControls.adaptive,
+                            UnaTextSelectionControls.adaptive,
                         // ! End of selection handler
                         // ! section
                         mouseCursor: effectiveMouseCursor,
@@ -1809,7 +1809,7 @@ class _CounterRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l = FinesseLocalizations.of(context);
+    final l = UnaLocalizations.of(context);
     final resolved = padding.resolve(Directionality.of(context));
     final max = maxLength != null && maxLength! > 0 ? maxLength : null;
     final style = theme.textTheme.caption.copyWith(

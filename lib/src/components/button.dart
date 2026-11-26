@@ -1,20 +1,20 @@
-import 'package:finesse/src/components/bar_button_scope.dart';
-import 'package:finesse/src/components/button_group.dart';
-import 'package:finesse/src/components/decorator.dart';
-import 'package:finesse/src/components/spinner.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/raw_components/pressable.dart';
-import 'package:finesse/src/theme/components/button.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/data.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/debug_check.dart';
-import 'package:finesse/src/utils/motion_color.dart';
-import 'package:finesse/src/utils/pop_in.dart';
-import 'package:finesse/src/utils/separated_iterable.dart';
-import 'package:finesse/src/utils/text_scaled_height.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/bar_button_scope.dart';
+import 'package:una/src/components/button_group.dart';
+import 'package:una/src/components/decorator.dart';
+import 'package:una/src/components/spinner.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/raw_components/pressable.dart';
+import 'package:una/src/theme/components/button.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/data.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/debug_check.dart';
+import 'package:una/src/utils/motion_color.dart';
+import 'package:una/src/utils/pop_in.dart';
+import 'package:una/src/utils/separated_iterable.dart';
+import 'package:una/src/utils/text_scaled_height.dart';
 
 /// Variants available for the [Button] widget.
 enum ButtonVariant {
@@ -90,7 +90,7 @@ enum ButtonSize {
 /// its colours; both, the focus ring and activation from the keyboard come
 /// from `Pressable`, as for every other control. For a gesture a button has
 /// no callback for — a double tap, a secondary tap, the moment a press
-/// starts — wrap it in a `FinesseGestureDetector`.
+/// starts — wrap it in a `UnaGestureDetector`.
 class Button extends StatefulWidget {
   /// Creates a button: the primary variant unless [variant] says otherwise
   /// or, in an `AppBar` or `SliverAppBar`, the variant the bar gives the
@@ -417,7 +417,7 @@ class _ButtonState extends State<Button> {
       ButtonSize.lg => sizes?.lg ?? theme.buttonSizesTheme.lg!,
     };
 
-    var decoration = style.decoration ?? const FinesseDecoration();
+    var decoration = style.decoration ?? const UnaDecoration();
     // In a `ButtonGroup` the corners and the edge towards a neighbour are
     // the group's to decide.
     final group = ButtonGroupScope.maybeOf(context);
@@ -484,7 +484,7 @@ class _ButtonState extends State<Button> {
       // with the text beside the button.
       semanticContainer: true,
       semanticValue: loading
-          ? FinesseLocalizations.of(context).button.loading
+          ? UnaLocalizations.of(context).button.loading
           : null,
       // The press is acknowledged by a scale, a paint-time transform: the
       // button's box, and so its height, never changes.

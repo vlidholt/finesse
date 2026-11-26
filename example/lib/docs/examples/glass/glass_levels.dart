@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// The two levels over a photograph. `regular` lets the backdrop through;
 /// `strong` is the one for a surface that carries text.
@@ -40,7 +40,7 @@ class GlassLevelsExample extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 96, 16, 16),
-              child: FinesseColumn(
+              child: UnaColumn(
                 gap: GapSize.md,
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,

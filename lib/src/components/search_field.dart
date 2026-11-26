@@ -1,18 +1,18 @@
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/components/spinner.dart';
-import 'package:finesse/src/components/text_field.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/icons/phosphor_icon.dart';
-import 'package:finesse/src/icons/phosphor_icons_regular.dart';
-import 'package:finesse/src/theme/components/button.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/dismiss_shortcut.dart';
-import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/button.dart';
+import 'package:una/src/components/spinner.dart';
+import 'package:una/src/components/text_field.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/icons/phosphor_icon.dart';
+import 'package:una/src/icons/phosphor_icons_regular.dart';
+import 'package:una/src/theme/components/button.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/dismiss_shortcut.dart';
+import 'package:una/src/utils/spring.dart';
 
 /// A text field for a search: a magnifier at the start, a clear button
 /// while it has text, and the keyboard's search action.
@@ -140,7 +140,7 @@ class SearchField extends StatefulWidget {
   final bool enabled;
 
   /// Merged over the theme's text field decoration.
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// The constraints of the field, in place of the theme's text field
   /// height: a search box set into a denser surface.
@@ -275,7 +275,7 @@ class _SearchFieldState extends State<SearchField> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l = FinesseLocalizations.of(context);
+    final l = UnaLocalizations.of(context);
     final colors = theme.colorScheme;
     // A glyph a little larger than the text beside it, as the designs set
     // an icon in a line of text.

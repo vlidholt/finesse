@@ -1,16 +1,16 @@
 import 'dart:async';
 
-import 'package:finesse/src/components/page_indicator.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/raw_components/pressable.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/debug_check.dart';
-import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/page_indicator.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/raw_components/pressable.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/debug_check.dart';
+import 'package:una/src/utils/shadow.dart';
 
 /// Drives a [Carousel] from outside: go to a page, step forward or back.
 ///
@@ -450,7 +450,7 @@ class _CarouselState extends State<Carousel> {
     assert(debugCheckHasTheme(context));
     final theme = Theme.of(context);
     final carousel = theme.carouselTheme;
-    final strings = FinesseLocalizations.of(context).carousel;
+    final strings = UnaLocalizations.of(context).carousel;
     final count = widget.itemCount;
     final horizontal = widget.axis == Axis.horizontal;
     final spacing =

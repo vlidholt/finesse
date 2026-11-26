@@ -1,8 +1,8 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 Widget _app(
   Widget child, {
@@ -11,7 +11,7 @@ Widget _app(
   bool disableAnimations = false,
   VoidCallback? onEscape,
 }) {
-  return FinesseApp(
+  return UnaApp(
     theme: theme,
     home: Builder(
       builder: (context) => MediaQuery(
@@ -63,7 +63,7 @@ void main() {
   testWidgets('is exactly as tall as a text field, in every style and form '
       'factor', (tester) async {
     for (final style in [
-      StyleTokens.finesse,
+      StyleTokens.una,
       StyleTokens.nova,
       StyleTokens.maia,
       StyleTokens.lyra,

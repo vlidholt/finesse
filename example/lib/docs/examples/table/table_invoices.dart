@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 const _invoices = [
   (
@@ -46,7 +46,7 @@ class TableInvoicesExample extends StatelessWidget {
           ),
           child: SizedBox(
             height: tableHeight,
-            child: FinesseTable.list(
+            child: UnaTable.list(
               // The Amount column absorbs any leftover width so the table
               // spans the full card instead of leaving a gap on the right.
               columnSpanExtent: (index) => switch (index) {
@@ -59,19 +59,19 @@ class TableInvoicesExample extends StatelessWidget {
                 ),
               },
               header: const [
-                FinesseTableCell.header(child: Text('Invoice')),
-                FinesseTableCell.header(child: Text('Status')),
-                FinesseTableCell.header(child: Text('Method')),
-                FinesseTableCell.header(
+                UnaTableCell.header(child: Text('Invoice')),
+                UnaTableCell.header(child: Text('Status')),
+                UnaTableCell.header(child: Text('Method')),
+                UnaTableCell.header(
                   alignment: Alignment.centerRight,
                   child: Text('Amount'),
                 ),
               ],
               footer: const [
-                FinesseTableCell.footer(child: Text('Total')),
-                FinesseTableCell.footer(child: Text('')),
-                FinesseTableCell.footer(child: Text('')),
-                FinesseTableCell.footer(
+                UnaTableCell.footer(child: Text('Total')),
+                UnaTableCell.footer(child: Text('')),
+                UnaTableCell.footer(child: Text('')),
+                UnaTableCell.footer(
                   alignment: Alignment.centerRight,
                   child: Text(r'$1750.00'),
                 ),
@@ -79,10 +79,10 @@ class TableInvoicesExample extends StatelessWidget {
               children: [
                 for (final invoice in _invoices)
                   [
-                    FinesseTableCell(child: Text(invoice.invoice)),
-                    FinesseTableCell(child: Text(invoice.status)),
-                    FinesseTableCell(child: Text(invoice.method)),
-                    FinesseTableCell(
+                    UnaTableCell(child: Text(invoice.invoice)),
+                    UnaTableCell(child: Text(invoice.status)),
+                    UnaTableCell(child: Text(invoice.method)),
+                    UnaTableCell(
                       alignment: Alignment.centerRight,
                       child: Text(invoice.amount),
                     ),

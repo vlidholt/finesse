@@ -1,7 +1,7 @@
-import 'package:finesse/finesse.dart';
-import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/src/utils/moving_indicator.dart';
+import 'package:una/una.dart';
 
 const _frame = Duration(milliseconds: 16);
 const _pill = BoxDecoration(color: Color(0xff000000));
@@ -23,7 +23,7 @@ class _Segments extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FinesseApp(
+    return UnaApp(
       theme: ThemeData(
         motion: motion ?? Motion.lively.copyWith(snappy: const MotionSpring()),
       ),
@@ -217,7 +217,7 @@ void main() {
   testWidgets('a target outside a MovingIndicator paints its own '
       'decoration', (tester) async {
     await tester.pumpWidget(
-      const FinesseApp(
+      const UnaApp(
         home: Center(
           child: MovingIndicatorTarget(
             selected: true,
@@ -260,7 +260,7 @@ void main() {
     }
 
     Widget segments({required int? selected, required Decoration pill}) =>
-        FinesseApp(
+        UnaApp(
           home: Align(
             alignment: Alignment.topLeft,
             child: MovingIndicator(

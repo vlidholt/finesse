@@ -1,7 +1,7 @@
-import 'package:finesse/finesse.dart' hide Scaffold;
-import 'package:finesse/material.dart';
 import 'package:flutter/material.dart' hide Theme, Tooltip;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/material.dart';
+import 'package:una/una.dart' hide Scaffold;
 
 /// The arrow points at the trigger, not at the middle of the bubble.
 ///
@@ -10,7 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// then aims it at empty space beside the trigger, which is what this locks
 /// down.
 void main() {
-  const arrow = ValueKey('finesse_tooltip_arrow');
+  const arrow = ValueKey('una_tooltip_arrow');
   const viewport = Size(400, 400);
 
   /// Pumps a tooltip whose trigger sits at [triggerAlignment], already open.
@@ -28,8 +28,8 @@ void main() {
     addTearDown(controller.dispose);
 
     await tester.pumpWidget(
-      FinesseApp(
-        builder: (context, child) => FinesseMaterial(child: child!),
+      UnaApp(
+        builder: (context, child) => UnaMaterial(child: child!),
         home: Scaffold(
           body: Align(
             alignment: triggerAlignment,

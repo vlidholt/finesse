@@ -1,7 +1,7 @@
-import 'package:finesse/src/theme/components/layout.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/components/layout.dart';
+import 'package:una/src/theme/theme.dart';
 
 /// Empty space between two children of a [Row], [Column] or [Flex], measured
 /// in steps on the theme's spacing scale.
@@ -172,11 +172,11 @@ class _RenderGap extends RenderBox {
 
 /// [Padding] measured in steps on the theme's spacing scale.
 ///
-/// The named constructors mirror [EdgeInsets], so `FinessePadding.symmetric(
+/// The named constructors mirror [EdgeInsets], so `UnaPadding.symmetric(
 /// horizontal: 6, vertical: 4)` is shadcn's `px-6 py-4`.
-class FinessePadding extends StatelessWidget {
+class UnaPadding extends StatelessWidget {
   /// The same number of steps on every side.
-  const FinessePadding.all(double steps, {super.key, required this.child})
+  const UnaPadding.all(double steps, {super.key, required this.child})
     : _left = steps,
       _top = steps,
       _right = steps,
@@ -185,7 +185,7 @@ class FinessePadding extends StatelessWidget {
       _end = null;
 
   /// Steps on the horizontal and vertical axes.
-  const FinessePadding.symmetric({
+  const UnaPadding.symmetric({
     super.key,
     required this.child,
     double horizontal = 0,
@@ -198,7 +198,7 @@ class FinessePadding extends StatelessWidget {
        _end = null;
 
   /// Steps on individually chosen sides.
-  const FinessePadding.only({
+  const UnaPadding.only({
     super.key,
     required this.child,
     double left = 0,
@@ -214,7 +214,7 @@ class FinessePadding extends StatelessWidget {
 
   /// Steps on direction-relative sides, resolved against the ambient
   /// [Directionality].
-  const FinessePadding.directional({
+  const UnaPadding.directional({
     super.key,
     required this.child,
     double start = 0,
@@ -262,9 +262,9 @@ class FinessePadding extends StatelessWidget {
 /// scale.
 ///
 /// Equivalent to shadcn's `flex flex-col gap-N`.
-class FinesseColumn extends StatelessWidget {
+class UnaColumn extends StatelessWidget {
   /// Creates a column with [spacing] steps between its [children].
-  const FinesseColumn({
+  const UnaColumn({
     super.key,
     this.spacing = 0,
     this.gap,
@@ -332,9 +332,9 @@ class FinesseColumn extends StatelessWidget {
 /// A [Row] whose `spacing` is expressed in steps on the theme's spacing scale.
 ///
 /// Equivalent to shadcn's `flex items-center gap-N`.
-class FinesseRow extends StatelessWidget {
+class UnaRow extends StatelessWidget {
   /// Creates a row with [spacing] steps between its [children].
-  const FinesseRow({
+  const UnaRow({
     super.key,
     this.spacing = 0,
     this.gap,

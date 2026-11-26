@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// An inbox that refreshes when pulled down — and, for a mouse, from the
 /// button in its header, which calls `show()` on the indicator's state.

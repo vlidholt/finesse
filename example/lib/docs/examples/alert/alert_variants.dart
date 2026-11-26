@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 class AlertVariantsExample extends StatelessWidget {
   const AlertVariantsExample({super.key});
@@ -8,7 +8,7 @@ class AlertVariantsExample extends StatelessWidget {
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 520),
-      child: const FinesseColumn(
+      child: const UnaColumn(
         gap: GapSize.md,
         mainAxisSize: MainAxisSize.min,
         children: [

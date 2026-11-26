@@ -1,6 +1,6 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 void main() {
   testWidgets('long action labels ellipsize on a narrow screen', (
@@ -10,7 +10,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Dialog(
           title: const Text('Delete'),
           actions: [
@@ -32,7 +32,7 @@ void main() {
       'not a button lays out its own', (tester) async {
     _phone(tester);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         formFactor: FormFactor.mobile,
         home: Dialog(
           title: const Text('Share'),
@@ -72,7 +72,7 @@ void main() {
   ) async {
     _phone(tester);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         formFactor: FormFactor.mobile,
         home: Dialog(
           title: const Text('Share'),
@@ -101,7 +101,7 @@ void main() {
   testWidgets('the phone layout follows the form factor, not the window', (
     tester,
   ) async {
-    Widget app(FormFactor formFactor) => FinesseApp(
+    Widget app(FormFactor formFactor) => UnaApp(
       formFactor: formFactor,
       home: Dialog(
         title: const Text('Delete'),
@@ -149,7 +149,7 @@ void main() {
   ) async {
     _phone(tester);
     await tester.pumpWidget(
-      const FinesseApp(
+      const UnaApp(
         formFactor: FormFactor.mobile,
         home: Padding(
           padding: EdgeInsets.all(16),

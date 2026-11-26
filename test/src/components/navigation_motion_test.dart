@@ -1,8 +1,8 @@
-import 'package:finesse/finesse.dart';
-import 'package:finesse/src/utils/moving_indicator.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/src/utils/moving_indicator.dart';
+import 'package:una/una.dart';
 
 /// Frame-by-frame checks of the navigation bars: one indicator that travels
 /// between the destinations, icons that cross-fade from their regular to
@@ -33,7 +33,7 @@ Widget _app(
   Motion? motion,
   FormFactor formFactor = FormFactor.desktop,
 }) {
-  return FinesseApp(
+  return UnaApp(
     theme: ThemeData(motion: motion ?? _motion),
     formFactor: formFactor,
     home: Builder(

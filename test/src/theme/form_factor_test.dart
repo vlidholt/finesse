@@ -1,6 +1,6 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 import '../../fixture_styles.dart';
 
@@ -8,21 +8,21 @@ import '../../fixture_styles.dart';
 /// one. These lock the numbers that make a phone layout a phone layout —
 /// 44-point controls, 15-point body text, 16-point page margins — and the
 /// plumbing that gets them from `StyleTokens` through `ThemeData` to
-/// `FinesseApp`.
+/// `UnaApp`.
 void main() {
-  group('finesse through ThemeData(formFactor:)', () {
+  group('una through ThemeData(formFactor:)', () {
     final desktop = ThemeData();
     final mobile = ThemeData(formFactor: FormFactor.mobile);
 
     test('a theme is desktop unless told otherwise', () {
       expect(desktop.formFactor, FormFactor.desktop);
-      expect(desktop.style, StyleTokens.finesse);
+      expect(desktop.style, StyleTokens.una);
       expect(mobile.formFactor, FormFactor.mobile);
-      expect(mobile.style, StyleTokens.finesseMobile);
+      expect(mobile.style, StyleTokens.unaMobile);
       // The variant remembers the style it was asked for, not only the one
       // it resolved.
-      expect(mobile.variant.baseStyle, StyleTokens.finesse);
-      expect(desktop.variant.baseStyle, StyleTokens.finesse);
+      expect(mobile.variant.baseStyle, StyleTokens.una);
+      expect(desktop.variant.baseStyle, StyleTokens.una);
     });
 
     test('button, input and chip are 36/40/32 on a desktop', () {
@@ -56,7 +56,7 @@ void main() {
       expect(mobile.textFieldTheme.style!.fontSize, 15);
     });
 
-    test('the finesse style owns the prose scale', () {
+    test('the una style owns the prose scale', () {
       // shadcn's typography examples are a fixed prose scale; a style that
       // names display/headline/subtitle/small rewrites them.
       expect(desktop.textTheme.h1.fontSize, 30);
@@ -150,13 +150,13 @@ void main() {
       }
     });
 
-    test('finesse names its mobile counterpart', () {
-      expect(StyleTokens.finesse.mobile, same(StyleTokens.finesseMobile));
+    test('una names its mobile counterpart', () {
+      expect(StyleTokens.una.mobile, same(StyleTokens.unaMobile));
       expect(
-        StyleTokens.finesse.forFormFactor(FormFactor.mobile),
-        same(StyleTokens.finesseMobile),
+        StyleTokens.una.forFormFactor(FormFactor.mobile),
+        same(StyleTokens.unaMobile),
       );
-      expect(StyleTokens.finesseMobile.name, 'finesse');
+      expect(StyleTokens.unaMobile.name, 'una');
     });
 
     test('a style with no explicit mobile derives one', () {
@@ -294,7 +294,7 @@ void main() {
       final second = desktop.withFormFactor(FormFactor.mobile);
       expect(first, second);
       expect(first.hashCode, second.hashCode);
-      // Cached per theme, so `FinesseApp` can call it on every build.
+      // Cached per theme, so `UnaApp` can call it on every build.
       expect(second, same(first));
     });
 
@@ -307,7 +307,7 @@ void main() {
     });
 
     test('two equal themes derive equal themes without sharing a cache', () {
-      // An app that builds its theme inline hands `FinesseApp` a new
+      // An app that builds its theme inline hands `UnaApp` a new
       // instance per build; the derived themes must still be `==`.
       final a = ThemeData().withFormFactor(FormFactor.mobile);
       final b = ThemeData().withFormFactor(FormFactor.mobile);
@@ -374,7 +374,7 @@ void main() {
         ),
       );
       expect(theme.formFactor, FormFactor.mobile);
-      expect(theme.style, StyleTokens.finesseMobile);
+      expect(theme.style, StyleTokens.unaMobile);
       expect(theme.buttonSizesTheme.regular!.height, 44);
     });
   });
@@ -429,7 +429,7 @@ void main() {
     });
   });
 
-  group('FinesseApp', () {
+  group('UnaApp', () {
     Future<FormFactor> pumpAt(
       WidgetTester tester,
       double width, {
@@ -442,7 +442,7 @@ void main() {
 
       late ThemeData seen;
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           theme: theme,
           formFactor: formFactor,
           home: Builder(
@@ -495,7 +495,7 @@ void main() {
 
       late ThemeData seen;
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: Builder(
             builder: (context) {
               seen = Theme.of(context);
@@ -534,7 +534,7 @@ void main() {
 
       final seen = <ThemeData>[];
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: Builder(
             builder: (context) {
               seen.add(Theme.of(context));
@@ -588,7 +588,7 @@ void main() {
 
       final heights = <double>{};
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: Builder(
             builder: (context) {
               heights.add(Theme.of(context).buttonSizesTheme.regular!.height);
@@ -615,7 +615,7 @@ void main() {
       final light = ThemeData(brightness: Brightness.light);
       final dark = ThemeData(brightness: Brightness.dark);
       late ThemeData seen;
-      Widget app(ThemeMode mode) => FinesseApp(
+      Widget app(ThemeMode mode) => UnaApp(
         theme: light,
         darkTheme: dark,
         themeMode: mode,
@@ -657,7 +657,7 @@ void main() {
       final light = ThemeData(brightness: Brightness.light);
       final dark = ThemeData(brightness: Brightness.dark);
       late ThemeData seen;
-      Widget app(ThemeMode mode) => FinesseApp(
+      Widget app(ThemeMode mode) => UnaApp(
         theme: light,
         darkTheme: dark,
         themeMode: mode,
@@ -685,7 +685,7 @@ void main() {
 
       late ThemeData seen;
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           theme: ThemeData(brightness: Brightness.light),
           darkTheme: ThemeData(brightness: Brightness.dark),
           themeMode: ThemeMode.dark,
@@ -702,14 +702,14 @@ void main() {
       expect(seen.formFactor, FormFactor.mobile);
     });
 
-    testWidgets('FinesseApp.custom resolves it as well', (tester) async {
+    testWidgets('UnaApp.custom resolves it as well', (tester) async {
       tester.view.devicePixelRatio = 1;
       tester.view.physicalSize = const Size(390, 800);
       addTearDown(tester.view.reset);
 
       late ThemeData seen;
       await tester.pumpWidget(
-        FinesseApp.custom(
+        UnaApp.custom(
           appBuilder: (context) {
             seen = Theme.of(context);
             return const SizedBox.shrink();
@@ -737,7 +737,7 @@ void main() {
         ValueListenableBuilder<int>(
           valueListenable: rebuild,
           builder: (context, value, _) {
-            return FinesseApp(
+            return UnaApp(
               theme: ThemeData(),
               home: Builder(
                 builder: (context) {
@@ -818,7 +818,7 @@ void main() {
     ) async {
       for (final formFactor in FormFactor.values) {
         await tester.pumpWidget(
-          FinesseApp(
+          UnaApp(
             formFactor: formFactor,
             home: FormFactorBuilder(
               mobile: (context) => const Text('phone'),

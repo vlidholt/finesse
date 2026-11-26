@@ -34,7 +34,7 @@ mixin _$TabsTheme {
       dragStartBehavior: t < 0.5 ? a.dragStartBehavior : b.dragStartBehavior,
       physics: t < 0.5 ? a.physics : b.physics,
       padding: EdgeInsetsGeometry.lerp(a.padding, b.padding, t),
-      decoration: FinesseDecoration.lerp(a.decoration, b.decoration, t),
+      decoration: UnaDecoration.lerp(a.decoration, b.decoration, t),
       tabBarConstraints: BoxConstraints.lerp(
         a.tabBarConstraints,
         b.tabBarConstraints,
@@ -68,12 +68,8 @@ mixin _$TabsTheme {
         t,
       ),
       tabPadding: EdgeInsetsGeometry.lerp(a.tabPadding, b.tabPadding, t),
-      tabDecoration: FinesseDecoration.lerp(
-        a.tabDecoration,
-        b.tabDecoration,
-        t,
-      ),
-      tabSelectedDecoration: FinesseDecoration.lerp(
+      tabDecoration: UnaDecoration.lerp(a.tabDecoration, b.tabDecoration, t),
+      tabSelectedDecoration: UnaDecoration.lerp(
         a.tabSelectedDecoration,
         b.tabSelectedDecoration,
         t,
@@ -156,7 +152,7 @@ mixin _$TabsTheme {
     DragStartBehavior? dragStartBehavior,
     ScrollPhysics? physics,
     EdgeInsetsGeometry? padding,
-    FinesseDecoration? decoration,
+    UnaDecoration? decoration,
     BoxConstraints? tabBarConstraints,
     BoxConstraints? contentConstraints,
     bool? expandContent,
@@ -166,8 +162,8 @@ mixin _$TabsTheme {
     Color? tabHoverBackgroundColor,
     Color? tabSelectedHoverBackgroundColor,
     EdgeInsetsGeometry? tabPadding,
-    FinesseDecoration? tabDecoration,
-    FinesseDecoration? tabSelectedDecoration,
+    UnaDecoration? tabDecoration,
+    UnaDecoration? tabSelectedDecoration,
     Color? tabForegroundColor,
     Color? tabSelectedForegroundColor,
     TextStyle? tabTextStyle,

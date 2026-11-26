@@ -2,10 +2,10 @@
 @TestOn('browser')
 library;
 
-import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 Future<void> _settle(WidgetTester tester) async {
   for (var i = 0; i < 12; i++) {
@@ -22,7 +22,7 @@ void main() {
       'browser, and Enter takes one', (tester) async {
     String? selected;
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Center(
           child: SizedBox(
             width: 300,
@@ -53,7 +53,7 @@ void main() {
   ) async {
     num? value = 5;
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Center(
           child: SizedBox(
             width: 200,
@@ -85,7 +85,7 @@ void main() {
     addTearDown(tester.view.reset);
     var pressed = 0;
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: TextSelectionToolbar(
           anchorAbove: const Offset(160, 200),
           anchorBelow: const Offset(160, 220),
@@ -117,7 +117,7 @@ void main() {
   testWidgets('a search view opens, searches and closes on Escape in the '
       'browser', (tester) async {
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         formFactor: FormFactor.desktop,
         home: Scaffold(
           body: Builder(

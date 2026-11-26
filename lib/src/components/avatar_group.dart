@@ -1,5 +1,5 @@
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/theme.dart';
 
 /// A row of overlapping avatars, each ringed in the colour of the surface
 /// behind it: the people who reacted, the mutual connections.

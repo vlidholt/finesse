@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// `TypingIndicator` in an incoming bubble, beside the sender's avatar.
 class ChatBubbleTypingExample extends StatelessWidget {

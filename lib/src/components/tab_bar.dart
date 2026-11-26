@@ -1,7 +1,7 @@
-import 'package:finesse/src/components/tab_list.dart';
-import 'package:finesse/src/components/tabs.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/tab_list.dart';
+import 'package:una/src/components/tabs.dart';
+import 'package:una/src/theme/theme.dart';
 
 /// A row of tabs for switching between the views of a page. It reports
 /// which tab was chosen; showing the matching view is up to the caller, a

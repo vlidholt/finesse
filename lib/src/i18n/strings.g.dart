@@ -102,10 +102,10 @@ part 'strings_en.g.dart';
 /// Supported locales.
 ///
 /// Usage:
-/// - LocaleSettings.setLocale(FinesseLocale.en) // set locale
-/// - Locale locale = FinesseLocale.en.flutterLocale // get flutter locale from enum
-/// - if (LocaleSettings.currentLocale == FinesseLocale.en) // locale check
-enum FinesseLocale with BaseAppLocale<FinesseLocale, FinesseLocalizationsData> {
+/// - LocaleSettings.setLocale(UnaLocale.en) // set locale
+/// - Locale locale = UnaLocale.en.flutterLocale // get flutter locale from enum
+/// - if (LocaleSettings.currentLocale == UnaLocale.en) // locale check
+enum UnaLocale with BaseAppLocale<UnaLocale, UnaLocalizationsData> {
 	en(languageCode: 'en'),
 	af(languageCode: 'af'),
 	am(languageCode: 'am'),
@@ -189,7 +189,7 @@ enum FinesseLocale with BaseAppLocale<FinesseLocale, FinesseLocalizationsData> {
 	zh(languageCode: 'zh'),
 	zu(languageCode: 'zu');
 
-	const FinesseLocale({
+	const UnaLocale({
 		required this.languageCode,
 		this.scriptCode, // ignore: unused_element, unused_element_parameter
 		this.countryCode, // ignore: unused_element, unused_element_parameter
@@ -200,581 +200,581 @@ enum FinesseLocale with BaseAppLocale<FinesseLocale, FinesseLocalizationsData> {
 	@override final String? countryCode;
 
 	@override
-	Future<FinesseLocalizationsData> build({
+	Future<UnaLocalizationsData> build({
 		Map<String, Node>? overrides,
 		PluralResolver? cardinalResolver,
 		PluralResolver? ordinalResolver,
 	}) async {
 		switch (this) {
-			case FinesseLocale.en:
-				return FinesseLocalizationsDataEn(
+			case UnaLocale.en:
+				return UnaLocalizationsDataEn(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.af:
+			case UnaLocale.af:
 				await l_af.loadLibrary();
-				return l_af.FinesseLocalizationsDataAf(
+				return l_af.UnaLocalizationsDataAf(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.am:
+			case UnaLocale.am:
 				await l_am.loadLibrary();
-				return l_am.FinesseLocalizationsDataAm(
+				return l_am.UnaLocalizationsDataAm(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ar:
+			case UnaLocale.ar:
 				await l_ar.loadLibrary();
-				return l_ar.FinesseLocalizationsDataAr(
+				return l_ar.UnaLocalizationsDataAr(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.as:
+			case UnaLocale.as:
 				await l_as.loadLibrary();
-				return l_as.FinesseLocalizationsDataAs(
+				return l_as.UnaLocalizationsDataAs(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.az:
+			case UnaLocale.az:
 				await l_az.loadLibrary();
-				return l_az.FinesseLocalizationsDataAz(
+				return l_az.UnaLocalizationsDataAz(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.be:
+			case UnaLocale.be:
 				await l_be.loadLibrary();
-				return l_be.FinesseLocalizationsDataBe(
+				return l_be.UnaLocalizationsDataBe(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.bg:
+			case UnaLocale.bg:
 				await l_bg.loadLibrary();
-				return l_bg.FinesseLocalizationsDataBg(
+				return l_bg.UnaLocalizationsDataBg(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.bn:
+			case UnaLocale.bn:
 				await l_bn.loadLibrary();
-				return l_bn.FinesseLocalizationsDataBn(
+				return l_bn.UnaLocalizationsDataBn(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.bo:
+			case UnaLocale.bo:
 				await l_bo.loadLibrary();
-				return l_bo.FinesseLocalizationsDataBo(
+				return l_bo.UnaLocalizationsDataBo(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.bs:
+			case UnaLocale.bs:
 				await l_bs.loadLibrary();
-				return l_bs.FinesseLocalizationsDataBs(
+				return l_bs.UnaLocalizationsDataBs(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ca:
+			case UnaLocale.ca:
 				await l_ca.loadLibrary();
-				return l_ca.FinesseLocalizationsDataCa(
+				return l_ca.UnaLocalizationsDataCa(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.cs:
+			case UnaLocale.cs:
 				await l_cs.loadLibrary();
-				return l_cs.FinesseLocalizationsDataCs(
+				return l_cs.UnaLocalizationsDataCs(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.cy:
+			case UnaLocale.cy:
 				await l_cy.loadLibrary();
-				return l_cy.FinesseLocalizationsDataCy(
+				return l_cy.UnaLocalizationsDataCy(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.da:
+			case UnaLocale.da:
 				await l_da.loadLibrary();
-				return l_da.FinesseLocalizationsDataDa(
+				return l_da.UnaLocalizationsDataDa(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.de:
+			case UnaLocale.de:
 				await l_de.loadLibrary();
-				return l_de.FinesseLocalizationsDataDe(
+				return l_de.UnaLocalizationsDataDe(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.el:
+			case UnaLocale.el:
 				await l_el.loadLibrary();
-				return l_el.FinesseLocalizationsDataEl(
+				return l_el.UnaLocalizationsDataEl(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.es:
+			case UnaLocale.es:
 				await l_es.loadLibrary();
-				return l_es.FinesseLocalizationsDataEs(
+				return l_es.UnaLocalizationsDataEs(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.et:
+			case UnaLocale.et:
 				await l_et.loadLibrary();
-				return l_et.FinesseLocalizationsDataEt(
+				return l_et.UnaLocalizationsDataEt(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.eu:
+			case UnaLocale.eu:
 				await l_eu.loadLibrary();
-				return l_eu.FinesseLocalizationsDataEu(
+				return l_eu.UnaLocalizationsDataEu(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.fa:
+			case UnaLocale.fa:
 				await l_fa.loadLibrary();
-				return l_fa.FinesseLocalizationsDataFa(
+				return l_fa.UnaLocalizationsDataFa(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.fi:
+			case UnaLocale.fi:
 				await l_fi.loadLibrary();
-				return l_fi.FinesseLocalizationsDataFi(
+				return l_fi.UnaLocalizationsDataFi(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.fil:
+			case UnaLocale.fil:
 				await l_fil.loadLibrary();
-				return l_fil.FinesseLocalizationsDataFil(
+				return l_fil.UnaLocalizationsDataFil(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.fr:
+			case UnaLocale.fr:
 				await l_fr.loadLibrary();
-				return l_fr.FinesseLocalizationsDataFr(
+				return l_fr.UnaLocalizationsDataFr(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ga:
+			case UnaLocale.ga:
 				await l_ga.loadLibrary();
-				return l_ga.FinesseLocalizationsDataGa(
+				return l_ga.UnaLocalizationsDataGa(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.gl:
+			case UnaLocale.gl:
 				await l_gl.loadLibrary();
-				return l_gl.FinesseLocalizationsDataGl(
+				return l_gl.UnaLocalizationsDataGl(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.gsw:
+			case UnaLocale.gsw:
 				await l_gsw.loadLibrary();
-				return l_gsw.FinesseLocalizationsDataGsw(
+				return l_gsw.UnaLocalizationsDataGsw(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.gu:
+			case UnaLocale.gu:
 				await l_gu.loadLibrary();
-				return l_gu.FinesseLocalizationsDataGu(
+				return l_gu.UnaLocalizationsDataGu(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.he:
+			case UnaLocale.he:
 				await l_he.loadLibrary();
-				return l_he.FinesseLocalizationsDataHe(
+				return l_he.UnaLocalizationsDataHe(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.hi:
+			case UnaLocale.hi:
 				await l_hi.loadLibrary();
-				return l_hi.FinesseLocalizationsDataHi(
+				return l_hi.UnaLocalizationsDataHi(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.hr:
+			case UnaLocale.hr:
 				await l_hr.loadLibrary();
-				return l_hr.FinesseLocalizationsDataHr(
+				return l_hr.UnaLocalizationsDataHr(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.hu:
+			case UnaLocale.hu:
 				await l_hu.loadLibrary();
-				return l_hu.FinesseLocalizationsDataHu(
+				return l_hu.UnaLocalizationsDataHu(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.hy:
+			case UnaLocale.hy:
 				await l_hy.loadLibrary();
-				return l_hy.FinesseLocalizationsDataHy(
+				return l_hy.UnaLocalizationsDataHy(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.id:
+			case UnaLocale.id:
 				await l_id.loadLibrary();
-				return l_id.FinesseLocalizationsDataId(
+				return l_id.UnaLocalizationsDataId(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.icelandic:
+			case UnaLocale.icelandic:
 				await l_is.loadLibrary();
-				return l_is.FinesseLocalizationsDataIs(
+				return l_is.UnaLocalizationsDataIs(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.it:
+			case UnaLocale.it:
 				await l_it.loadLibrary();
-				return l_it.FinesseLocalizationsDataIt(
+				return l_it.UnaLocalizationsDataIt(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ja:
+			case UnaLocale.ja:
 				await l_ja.loadLibrary();
-				return l_ja.FinesseLocalizationsDataJa(
+				return l_ja.UnaLocalizationsDataJa(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ka:
+			case UnaLocale.ka:
 				await l_ka.loadLibrary();
-				return l_ka.FinesseLocalizationsDataKa(
+				return l_ka.UnaLocalizationsDataKa(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.kk:
+			case UnaLocale.kk:
 				await l_kk.loadLibrary();
-				return l_kk.FinesseLocalizationsDataKk(
+				return l_kk.UnaLocalizationsDataKk(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.km:
+			case UnaLocale.km:
 				await l_km.loadLibrary();
-				return l_km.FinesseLocalizationsDataKm(
+				return l_km.UnaLocalizationsDataKm(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.kn:
+			case UnaLocale.kn:
 				await l_kn.loadLibrary();
-				return l_kn.FinesseLocalizationsDataKn(
+				return l_kn.UnaLocalizationsDataKn(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ko:
+			case UnaLocale.ko:
 				await l_ko.loadLibrary();
-				return l_ko.FinesseLocalizationsDataKo(
+				return l_ko.UnaLocalizationsDataKo(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ky:
+			case UnaLocale.ky:
 				await l_ky.loadLibrary();
-				return l_ky.FinesseLocalizationsDataKy(
+				return l_ky.UnaLocalizationsDataKy(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.lo:
+			case UnaLocale.lo:
 				await l_lo.loadLibrary();
-				return l_lo.FinesseLocalizationsDataLo(
+				return l_lo.UnaLocalizationsDataLo(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.lt:
+			case UnaLocale.lt:
 				await l_lt.loadLibrary();
-				return l_lt.FinesseLocalizationsDataLt(
+				return l_lt.UnaLocalizationsDataLt(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.lv:
+			case UnaLocale.lv:
 				await l_lv.loadLibrary();
-				return l_lv.FinesseLocalizationsDataLv(
+				return l_lv.UnaLocalizationsDataLv(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.mk:
+			case UnaLocale.mk:
 				await l_mk.loadLibrary();
-				return l_mk.FinesseLocalizationsDataMk(
+				return l_mk.UnaLocalizationsDataMk(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ml:
+			case UnaLocale.ml:
 				await l_ml.loadLibrary();
-				return l_ml.FinesseLocalizationsDataMl(
+				return l_ml.UnaLocalizationsDataMl(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.mn:
+			case UnaLocale.mn:
 				await l_mn.loadLibrary();
-				return l_mn.FinesseLocalizationsDataMn(
+				return l_mn.UnaLocalizationsDataMn(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.mr:
+			case UnaLocale.mr:
 				await l_mr.loadLibrary();
-				return l_mr.FinesseLocalizationsDataMr(
+				return l_mr.UnaLocalizationsDataMr(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ms:
+			case UnaLocale.ms:
 				await l_ms.loadLibrary();
-				return l_ms.FinesseLocalizationsDataMs(
+				return l_ms.UnaLocalizationsDataMs(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.my:
+			case UnaLocale.my:
 				await l_my.loadLibrary();
-				return l_my.FinesseLocalizationsDataMy(
+				return l_my.UnaLocalizationsDataMy(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.nb:
+			case UnaLocale.nb:
 				await l_nb.loadLibrary();
-				return l_nb.FinesseLocalizationsDataNb(
+				return l_nb.UnaLocalizationsDataNb(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ne:
+			case UnaLocale.ne:
 				await l_ne.loadLibrary();
-				return l_ne.FinesseLocalizationsDataNe(
+				return l_ne.UnaLocalizationsDataNe(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.nl:
+			case UnaLocale.nl:
 				await l_nl.loadLibrary();
-				return l_nl.FinesseLocalizationsDataNl(
+				return l_nl.UnaLocalizationsDataNl(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.no:
+			case UnaLocale.no:
 				await l_no.loadLibrary();
-				return l_no.FinesseLocalizationsDataNo(
+				return l_no.UnaLocalizationsDataNo(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.or:
+			case UnaLocale.or:
 				await l_or.loadLibrary();
-				return l_or.FinesseLocalizationsDataOr(
+				return l_or.UnaLocalizationsDataOr(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.pa:
+			case UnaLocale.pa:
 				await l_pa.loadLibrary();
-				return l_pa.FinesseLocalizationsDataPa(
+				return l_pa.UnaLocalizationsDataPa(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.pl:
+			case UnaLocale.pl:
 				await l_pl.loadLibrary();
-				return l_pl.FinesseLocalizationsDataPl(
+				return l_pl.UnaLocalizationsDataPl(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ps:
+			case UnaLocale.ps:
 				await l_ps.loadLibrary();
-				return l_ps.FinesseLocalizationsDataPs(
+				return l_ps.UnaLocalizationsDataPs(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.pt:
+			case UnaLocale.pt:
 				await l_pt.loadLibrary();
-				return l_pt.FinesseLocalizationsDataPt(
+				return l_pt.UnaLocalizationsDataPt(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ro:
+			case UnaLocale.ro:
 				await l_ro.loadLibrary();
-				return l_ro.FinesseLocalizationsDataRo(
+				return l_ro.UnaLocalizationsDataRo(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ru:
+			case UnaLocale.ru:
 				await l_ru.loadLibrary();
-				return l_ru.FinesseLocalizationsDataRu(
+				return l_ru.UnaLocalizationsDataRu(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.si:
+			case UnaLocale.si:
 				await l_si.loadLibrary();
-				return l_si.FinesseLocalizationsDataSi(
+				return l_si.UnaLocalizationsDataSi(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.sk:
+			case UnaLocale.sk:
 				await l_sk.loadLibrary();
-				return l_sk.FinesseLocalizationsDataSk(
+				return l_sk.UnaLocalizationsDataSk(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.sl:
+			case UnaLocale.sl:
 				await l_sl.loadLibrary();
-				return l_sl.FinesseLocalizationsDataSl(
+				return l_sl.UnaLocalizationsDataSl(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.sq:
+			case UnaLocale.sq:
 				await l_sq.loadLibrary();
-				return l_sq.FinesseLocalizationsDataSq(
+				return l_sq.UnaLocalizationsDataSq(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.sr:
+			case UnaLocale.sr:
 				await l_sr.loadLibrary();
-				return l_sr.FinesseLocalizationsDataSr(
+				return l_sr.UnaLocalizationsDataSr(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.sv:
+			case UnaLocale.sv:
 				await l_sv.loadLibrary();
-				return l_sv.FinesseLocalizationsDataSv(
+				return l_sv.UnaLocalizationsDataSv(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.sw:
+			case UnaLocale.sw:
 				await l_sw.loadLibrary();
-				return l_sw.FinesseLocalizationsDataSw(
+				return l_sw.UnaLocalizationsDataSw(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ta:
+			case UnaLocale.ta:
 				await l_ta.loadLibrary();
-				return l_ta.FinesseLocalizationsDataTa(
+				return l_ta.UnaLocalizationsDataTa(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.te:
+			case UnaLocale.te:
 				await l_te.loadLibrary();
-				return l_te.FinesseLocalizationsDataTe(
+				return l_te.UnaLocalizationsDataTe(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.th:
+			case UnaLocale.th:
 				await l_th.loadLibrary();
-				return l_th.FinesseLocalizationsDataTh(
+				return l_th.UnaLocalizationsDataTh(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.tl:
+			case UnaLocale.tl:
 				await l_tl.loadLibrary();
-				return l_tl.FinesseLocalizationsDataTl(
+				return l_tl.UnaLocalizationsDataTl(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.tr:
+			case UnaLocale.tr:
 				await l_tr.loadLibrary();
-				return l_tr.FinesseLocalizationsDataTr(
+				return l_tr.UnaLocalizationsDataTr(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ug:
+			case UnaLocale.ug:
 				await l_ug.loadLibrary();
-				return l_ug.FinesseLocalizationsDataUg(
+				return l_ug.UnaLocalizationsDataUg(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.uk:
+			case UnaLocale.uk:
 				await l_uk.loadLibrary();
-				return l_uk.FinesseLocalizationsDataUk(
+				return l_uk.UnaLocalizationsDataUk(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ur:
+			case UnaLocale.ur:
 				await l_ur.loadLibrary();
-				return l_ur.FinesseLocalizationsDataUr(
+				return l_ur.UnaLocalizationsDataUr(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.uz:
+			case UnaLocale.uz:
 				await l_uz.loadLibrary();
-				return l_uz.FinesseLocalizationsDataUz(
+				return l_uz.UnaLocalizationsDataUz(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.vi:
+			case UnaLocale.vi:
 				await l_vi.loadLibrary();
-				return l_vi.FinesseLocalizationsDataVi(
+				return l_vi.UnaLocalizationsDataVi(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.zh:
+			case UnaLocale.zh:
 				await l_zh.loadLibrary();
-				return l_zh.FinesseLocalizationsDataZh(
+				return l_zh.UnaLocalizationsDataZh(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.zu:
+			case UnaLocale.zu:
 				await l_zu.loadLibrary();
-				return l_zu.FinesseLocalizationsDataZu(
+				return l_zu.UnaLocalizationsDataZu(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
@@ -783,500 +783,500 @@ enum FinesseLocale with BaseAppLocale<FinesseLocale, FinesseLocalizationsData> {
 	}
 
 	@override
-	FinesseLocalizationsData buildSync({
+	UnaLocalizationsData buildSync({
 		Map<String, Node>? overrides,
 		PluralResolver? cardinalResolver,
 		PluralResolver? ordinalResolver,
 	}) {
 		switch (this) {
-			case FinesseLocale.en:
-				return FinesseLocalizationsDataEn(
+			case UnaLocale.en:
+				return UnaLocalizationsDataEn(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.af:
-				return l_af.FinesseLocalizationsDataAf(
+			case UnaLocale.af:
+				return l_af.UnaLocalizationsDataAf(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.am:
-				return l_am.FinesseLocalizationsDataAm(
+			case UnaLocale.am:
+				return l_am.UnaLocalizationsDataAm(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ar:
-				return l_ar.FinesseLocalizationsDataAr(
+			case UnaLocale.ar:
+				return l_ar.UnaLocalizationsDataAr(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.as:
-				return l_as.FinesseLocalizationsDataAs(
+			case UnaLocale.as:
+				return l_as.UnaLocalizationsDataAs(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.az:
-				return l_az.FinesseLocalizationsDataAz(
+			case UnaLocale.az:
+				return l_az.UnaLocalizationsDataAz(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.be:
-				return l_be.FinesseLocalizationsDataBe(
+			case UnaLocale.be:
+				return l_be.UnaLocalizationsDataBe(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.bg:
-				return l_bg.FinesseLocalizationsDataBg(
+			case UnaLocale.bg:
+				return l_bg.UnaLocalizationsDataBg(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.bn:
-				return l_bn.FinesseLocalizationsDataBn(
+			case UnaLocale.bn:
+				return l_bn.UnaLocalizationsDataBn(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.bo:
-				return l_bo.FinesseLocalizationsDataBo(
+			case UnaLocale.bo:
+				return l_bo.UnaLocalizationsDataBo(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.bs:
-				return l_bs.FinesseLocalizationsDataBs(
+			case UnaLocale.bs:
+				return l_bs.UnaLocalizationsDataBs(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ca:
-				return l_ca.FinesseLocalizationsDataCa(
+			case UnaLocale.ca:
+				return l_ca.UnaLocalizationsDataCa(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.cs:
-				return l_cs.FinesseLocalizationsDataCs(
+			case UnaLocale.cs:
+				return l_cs.UnaLocalizationsDataCs(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.cy:
-				return l_cy.FinesseLocalizationsDataCy(
+			case UnaLocale.cy:
+				return l_cy.UnaLocalizationsDataCy(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.da:
-				return l_da.FinesseLocalizationsDataDa(
+			case UnaLocale.da:
+				return l_da.UnaLocalizationsDataDa(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.de:
-				return l_de.FinesseLocalizationsDataDe(
+			case UnaLocale.de:
+				return l_de.UnaLocalizationsDataDe(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.el:
-				return l_el.FinesseLocalizationsDataEl(
+			case UnaLocale.el:
+				return l_el.UnaLocalizationsDataEl(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.es:
-				return l_es.FinesseLocalizationsDataEs(
+			case UnaLocale.es:
+				return l_es.UnaLocalizationsDataEs(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.et:
-				return l_et.FinesseLocalizationsDataEt(
+			case UnaLocale.et:
+				return l_et.UnaLocalizationsDataEt(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.eu:
-				return l_eu.FinesseLocalizationsDataEu(
+			case UnaLocale.eu:
+				return l_eu.UnaLocalizationsDataEu(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.fa:
-				return l_fa.FinesseLocalizationsDataFa(
+			case UnaLocale.fa:
+				return l_fa.UnaLocalizationsDataFa(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.fi:
-				return l_fi.FinesseLocalizationsDataFi(
+			case UnaLocale.fi:
+				return l_fi.UnaLocalizationsDataFi(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.fil:
-				return l_fil.FinesseLocalizationsDataFil(
+			case UnaLocale.fil:
+				return l_fil.UnaLocalizationsDataFil(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.fr:
-				return l_fr.FinesseLocalizationsDataFr(
+			case UnaLocale.fr:
+				return l_fr.UnaLocalizationsDataFr(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ga:
-				return l_ga.FinesseLocalizationsDataGa(
+			case UnaLocale.ga:
+				return l_ga.UnaLocalizationsDataGa(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.gl:
-				return l_gl.FinesseLocalizationsDataGl(
+			case UnaLocale.gl:
+				return l_gl.UnaLocalizationsDataGl(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.gsw:
-				return l_gsw.FinesseLocalizationsDataGsw(
+			case UnaLocale.gsw:
+				return l_gsw.UnaLocalizationsDataGsw(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.gu:
-				return l_gu.FinesseLocalizationsDataGu(
+			case UnaLocale.gu:
+				return l_gu.UnaLocalizationsDataGu(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.he:
-				return l_he.FinesseLocalizationsDataHe(
+			case UnaLocale.he:
+				return l_he.UnaLocalizationsDataHe(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.hi:
-				return l_hi.FinesseLocalizationsDataHi(
+			case UnaLocale.hi:
+				return l_hi.UnaLocalizationsDataHi(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.hr:
-				return l_hr.FinesseLocalizationsDataHr(
+			case UnaLocale.hr:
+				return l_hr.UnaLocalizationsDataHr(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.hu:
-				return l_hu.FinesseLocalizationsDataHu(
+			case UnaLocale.hu:
+				return l_hu.UnaLocalizationsDataHu(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.hy:
-				return l_hy.FinesseLocalizationsDataHy(
+			case UnaLocale.hy:
+				return l_hy.UnaLocalizationsDataHy(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.id:
-				return l_id.FinesseLocalizationsDataId(
+			case UnaLocale.id:
+				return l_id.UnaLocalizationsDataId(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.icelandic:
-				return l_is.FinesseLocalizationsDataIs(
+			case UnaLocale.icelandic:
+				return l_is.UnaLocalizationsDataIs(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.it:
-				return l_it.FinesseLocalizationsDataIt(
+			case UnaLocale.it:
+				return l_it.UnaLocalizationsDataIt(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ja:
-				return l_ja.FinesseLocalizationsDataJa(
+			case UnaLocale.ja:
+				return l_ja.UnaLocalizationsDataJa(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ka:
-				return l_ka.FinesseLocalizationsDataKa(
+			case UnaLocale.ka:
+				return l_ka.UnaLocalizationsDataKa(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.kk:
-				return l_kk.FinesseLocalizationsDataKk(
+			case UnaLocale.kk:
+				return l_kk.UnaLocalizationsDataKk(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.km:
-				return l_km.FinesseLocalizationsDataKm(
+			case UnaLocale.km:
+				return l_km.UnaLocalizationsDataKm(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.kn:
-				return l_kn.FinesseLocalizationsDataKn(
+			case UnaLocale.kn:
+				return l_kn.UnaLocalizationsDataKn(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ko:
-				return l_ko.FinesseLocalizationsDataKo(
+			case UnaLocale.ko:
+				return l_ko.UnaLocalizationsDataKo(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ky:
-				return l_ky.FinesseLocalizationsDataKy(
+			case UnaLocale.ky:
+				return l_ky.UnaLocalizationsDataKy(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.lo:
-				return l_lo.FinesseLocalizationsDataLo(
+			case UnaLocale.lo:
+				return l_lo.UnaLocalizationsDataLo(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.lt:
-				return l_lt.FinesseLocalizationsDataLt(
+			case UnaLocale.lt:
+				return l_lt.UnaLocalizationsDataLt(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.lv:
-				return l_lv.FinesseLocalizationsDataLv(
+			case UnaLocale.lv:
+				return l_lv.UnaLocalizationsDataLv(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.mk:
-				return l_mk.FinesseLocalizationsDataMk(
+			case UnaLocale.mk:
+				return l_mk.UnaLocalizationsDataMk(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ml:
-				return l_ml.FinesseLocalizationsDataMl(
+			case UnaLocale.ml:
+				return l_ml.UnaLocalizationsDataMl(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.mn:
-				return l_mn.FinesseLocalizationsDataMn(
+			case UnaLocale.mn:
+				return l_mn.UnaLocalizationsDataMn(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.mr:
-				return l_mr.FinesseLocalizationsDataMr(
+			case UnaLocale.mr:
+				return l_mr.UnaLocalizationsDataMr(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ms:
-				return l_ms.FinesseLocalizationsDataMs(
+			case UnaLocale.ms:
+				return l_ms.UnaLocalizationsDataMs(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.my:
-				return l_my.FinesseLocalizationsDataMy(
+			case UnaLocale.my:
+				return l_my.UnaLocalizationsDataMy(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.nb:
-				return l_nb.FinesseLocalizationsDataNb(
+			case UnaLocale.nb:
+				return l_nb.UnaLocalizationsDataNb(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ne:
-				return l_ne.FinesseLocalizationsDataNe(
+			case UnaLocale.ne:
+				return l_ne.UnaLocalizationsDataNe(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.nl:
-				return l_nl.FinesseLocalizationsDataNl(
+			case UnaLocale.nl:
+				return l_nl.UnaLocalizationsDataNl(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.no:
-				return l_no.FinesseLocalizationsDataNo(
+			case UnaLocale.no:
+				return l_no.UnaLocalizationsDataNo(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.or:
-				return l_or.FinesseLocalizationsDataOr(
+			case UnaLocale.or:
+				return l_or.UnaLocalizationsDataOr(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.pa:
-				return l_pa.FinesseLocalizationsDataPa(
+			case UnaLocale.pa:
+				return l_pa.UnaLocalizationsDataPa(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.pl:
-				return l_pl.FinesseLocalizationsDataPl(
+			case UnaLocale.pl:
+				return l_pl.UnaLocalizationsDataPl(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ps:
-				return l_ps.FinesseLocalizationsDataPs(
+			case UnaLocale.ps:
+				return l_ps.UnaLocalizationsDataPs(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.pt:
-				return l_pt.FinesseLocalizationsDataPt(
+			case UnaLocale.pt:
+				return l_pt.UnaLocalizationsDataPt(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ro:
-				return l_ro.FinesseLocalizationsDataRo(
+			case UnaLocale.ro:
+				return l_ro.UnaLocalizationsDataRo(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ru:
-				return l_ru.FinesseLocalizationsDataRu(
+			case UnaLocale.ru:
+				return l_ru.UnaLocalizationsDataRu(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.si:
-				return l_si.FinesseLocalizationsDataSi(
+			case UnaLocale.si:
+				return l_si.UnaLocalizationsDataSi(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.sk:
-				return l_sk.FinesseLocalizationsDataSk(
+			case UnaLocale.sk:
+				return l_sk.UnaLocalizationsDataSk(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.sl:
-				return l_sl.FinesseLocalizationsDataSl(
+			case UnaLocale.sl:
+				return l_sl.UnaLocalizationsDataSl(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.sq:
-				return l_sq.FinesseLocalizationsDataSq(
+			case UnaLocale.sq:
+				return l_sq.UnaLocalizationsDataSq(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.sr:
-				return l_sr.FinesseLocalizationsDataSr(
+			case UnaLocale.sr:
+				return l_sr.UnaLocalizationsDataSr(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.sv:
-				return l_sv.FinesseLocalizationsDataSv(
+			case UnaLocale.sv:
+				return l_sv.UnaLocalizationsDataSv(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.sw:
-				return l_sw.FinesseLocalizationsDataSw(
+			case UnaLocale.sw:
+				return l_sw.UnaLocalizationsDataSw(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ta:
-				return l_ta.FinesseLocalizationsDataTa(
+			case UnaLocale.ta:
+				return l_ta.UnaLocalizationsDataTa(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.te:
-				return l_te.FinesseLocalizationsDataTe(
+			case UnaLocale.te:
+				return l_te.UnaLocalizationsDataTe(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.th:
-				return l_th.FinesseLocalizationsDataTh(
+			case UnaLocale.th:
+				return l_th.UnaLocalizationsDataTh(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.tl:
-				return l_tl.FinesseLocalizationsDataTl(
+			case UnaLocale.tl:
+				return l_tl.UnaLocalizationsDataTl(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.tr:
-				return l_tr.FinesseLocalizationsDataTr(
+			case UnaLocale.tr:
+				return l_tr.UnaLocalizationsDataTr(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ug:
-				return l_ug.FinesseLocalizationsDataUg(
+			case UnaLocale.ug:
+				return l_ug.UnaLocalizationsDataUg(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.uk:
-				return l_uk.FinesseLocalizationsDataUk(
+			case UnaLocale.uk:
+				return l_uk.UnaLocalizationsDataUk(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.ur:
-				return l_ur.FinesseLocalizationsDataUr(
+			case UnaLocale.ur:
+				return l_ur.UnaLocalizationsDataUr(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.uz:
-				return l_uz.FinesseLocalizationsDataUz(
+			case UnaLocale.uz:
+				return l_uz.UnaLocalizationsDataUz(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.vi:
-				return l_vi.FinesseLocalizationsDataVi(
+			case UnaLocale.vi:
+				return l_vi.UnaLocalizationsDataVi(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.zh:
-				return l_zh.FinesseLocalizationsDataZh(
+			case UnaLocale.zh:
+				return l_zh.UnaLocalizationsDataZh(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case FinesseLocale.zu:
-				return l_zu.FinesseLocalizationsDataZu(
+			case UnaLocale.zu:
+				return l_zu.UnaLocalizationsDataZu(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
@@ -1286,18 +1286,18 @@ enum FinesseLocale with BaseAppLocale<FinesseLocale, FinesseLocalizationsData> {
 }
 
 /// Provides utility functions without any side effects.
-class AppLocaleUtils extends BaseAppLocaleUtils<FinesseLocale, FinesseLocalizationsData> {
+class AppLocaleUtils extends BaseAppLocaleUtils<UnaLocale, UnaLocalizationsData> {
 	AppLocaleUtils._() : super(
-		baseLocale: FinesseLocale.en,
-		locales: FinesseLocale.values,
+		baseLocale: UnaLocale.en,
+		locales: UnaLocale.values,
 	);
 
 	static final instance = AppLocaleUtils._();
 
 	// static aliases (checkout base methods for documentation)
-	static FinesseLocale parse(String rawLocale) => instance.parse(rawLocale);
-	static FinesseLocale parseLocaleParts({required String languageCode, String? scriptCode, String? countryCode}) => instance.parseLocaleParts(languageCode: languageCode, scriptCode: scriptCode, countryCode: countryCode);
-	static FinesseLocale findDeviceLocale() => instance.findDeviceLocale();
+	static UnaLocale parse(String rawLocale) => instance.parse(rawLocale);
+	static UnaLocale parseLocaleParts({required String languageCode, String? scriptCode, String? countryCode}) => instance.parseLocaleParts(languageCode: languageCode, scriptCode: scriptCode, countryCode: countryCode);
+	static UnaLocale findDeviceLocale() => instance.findDeviceLocale();
 	static List<Locale> get supportedLocales => instance.supportedLocales;
 	static List<String> get supportedLocalesRaw => instance.supportedLocalesRaw;
 }

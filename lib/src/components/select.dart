@@ -3,31 +3,31 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/components/decorator.dart';
-import 'package:finesse/src/components/disabled.dart';
-import 'package:finesse/src/components/divider.dart';
-import 'package:finesse/src/components/picker.dart';
-import 'package:finesse/src/components/popover.dart';
-import 'package:finesse/src/components/sheet.dart';
-import 'package:finesse/src/components/text_field.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/icons/phosphor_icons.dart';
-import 'package:finesse/src/raw_components/focusable.dart';
-import 'package:finesse/src/raw_components/portal.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/components/layout.dart';
-import 'package:finesse/src/theme/components/sheet.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/arrow_key_focus.dart';
-import 'package:finesse/src/utils/debug_check.dart';
-import 'package:finesse/src/utils/dismiss_shortcut.dart';
-import 'package:finesse/src/utils/extensions/text_style.dart';
-import 'package:finesse/src/utils/gesture_detector.dart';
-import 'package:finesse/src/utils/provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/button.dart';
+import 'package:una/src/components/decorator.dart';
+import 'package:una/src/components/disabled.dart';
+import 'package:una/src/components/divider.dart';
+import 'package:una/src/components/picker.dart';
+import 'package:una/src/components/popover.dart';
+import 'package:una/src/components/sheet.dart';
+import 'package:una/src/components/text_field.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/raw_components/focusable.dart';
+import 'package:una/src/raw_components/portal.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/components/layout.dart';
+import 'package:una/src/theme/components/sheet.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/arrow_key_focus.dart';
+import 'package:una/src/utils/debug_check.dart';
+import 'package:una/src/utils/dismiss_shortcut.dart';
+import 'package:una/src/utils/extensions/text_style.dart';
+import 'package:una/src/utils/gesture_detector.dart';
+import 'package:una/src/utils/provider.dart';
 
 /// Builder for the selected option widget in [Select].
 typedef SelectedOptionBuilder<T> = Widget Function(
@@ -529,9 +529,9 @@ class Select<T> extends StatefulWidget {
   /// {@template Select.decoration}
   /// The visual decoration of the select input.
   ///
-  /// Uses [FinesseDecoration] to define borders, colors, and more.
+  /// Uses [UnaDecoration] to define borders, colors, and more.
   /// {@endtemplate}
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// {@template Select.trailing}
   /// The widget to display at the end of the select input, typically an icon.
@@ -1209,7 +1209,7 @@ class SelectState<T> extends State<Select<T>> {
                     theme.selectTheme.searchPadding ??
                     const EdgeInsets.all(12),
                 placeholder: widget.searchPlaceholder,
-                decoration: FinesseDecoration.none,
+                decoration: UnaDecoration.none,
                 onChanged: widget.onSearchChanged,
                 onSubmitted: widget.onSearchSubmitted,
               ),
@@ -1309,7 +1309,7 @@ class SelectState<T> extends State<Select<T>> {
                     child: decorated,
                   );
                 },
-                child: FinesseGestureDetector(
+                child: UnaGestureDetector(
                   mouseCursor: SystemMouseCursors.click,
                   behavior: HitTestBehavior.opaque,
                   onTapDown: (details) {
@@ -1458,7 +1458,7 @@ class SelectState<T> extends State<Select<T>> {
                                   expands: true,
                                   onPressed: close,
                                   child: Text(
-                                    FinesseLocalizations.of(
+                                    UnaLocalizations.of(
                                       context,
                                     ).datePicker.done,
                                   ),
@@ -1723,7 +1723,7 @@ class _OptionState<T> extends State<SelectOption<T>> {
       },
       child: Focus(
         focusNode: focusNode,
-        child: FinesseGestureDetector(
+        child: UnaGestureDetector(
           behavior: HitTestBehavior.opaque,
           mouseCursor: SystemMouseCursors.click,
           onHover: (value) {

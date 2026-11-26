@@ -5,7 +5,7 @@ final stylesDoc = ComponentDoc(
   title: 'Styles',
   description:
       'A style is a complete preset for geometry, typography, shadows and '
-      'translucency. Four ship with finesse, switchable with one line.',
+      'translucency. Four ship with una, switchable with one line.',
   body: (context) => const DocProse(
     children: [
       DocParagraph(
@@ -28,7 +28,7 @@ ThemeData(
           ),
           DocBullets(
             items: [
-              '`finesse`: the default. Soft glass: 36px buttons and 40px '
+              '`una`: the default. Soft glass: 36px buttons and 40px '
                   'fields, controls rounded to 10 and cards to 18, with '
                   'translucent cards and outline buttons, and bars, menus '
                   'and popovers over a blurred backdrop. It has '
@@ -43,9 +43,9 @@ ThemeData(
           ),
           DocParagraph(
             '`nova`, `maia` and `lyra` are three of the styles of '
-            'shadcn/ui, measured from its CSS. `finesse` is the '
+            'shadcn/ui, measured from its CSS. `una` is the '
             "package's own, measured from the designs of Demo, the app at "
-            '`https://vlidholt.github.io/finesse_demo/`.',
+            '`https://vlidholt.github.io/una_demo/`.',
           ),
           DocParagraph(
             'Try them live: open the theme editor with the paintbrush '
@@ -86,8 +86,8 @@ ThemeData(
           DocParagraph(
             '`copyWith` changes the set of metrics it is called on. '
             '`nova`, `maia` and `lyra` derive their phone metrics from '
-            'the result, so one call covers both. `finesse` has a '
-            'separate `finesseMobile`: to change it on a phone too, copy '
+            'the result, so one call covers both. `una` has a '
+            'separate `unaMobile`: to change it on a phone too, copy '
             'that as well and pass it as `mobile`.',
           ),
         ],
@@ -98,8 +98,8 @@ ThemeData(
           DocParagraph(
             'Every style carries a second set of metrics for a phone: '
             'larger touch targets, larger body text, tighter page '
-            'margins. `finesse` defines its own; the others derive '
-            'theirs. `FinesseApp` picks between the two from the window '
+            'margins. `una` defines its own; the others derive '
+            'theirs. `UnaApp` picks between the two from the window '
             'width. See Form Factors.',
           ),
         ],
@@ -126,8 +126,8 @@ StyleTokens opaque(StyleTokens style) => style.copyWith(
 );
 
 ThemeData(
-  style: opaque(StyleTokens.finesse).copyWith(
-    mobile: opaque(StyleTokens.finesseMobile),
+  style: opaque(StyleTokens.una).copyWith(
+    mobile: opaque(StyleTokens.unaMobile),
   ),
 )''',
           ),
@@ -142,7 +142,7 @@ ThemeData(
           CodeBlock(
             code: '''
 ThemeData(
-  style: StyleTokens.finesse.copyWith(cardBlur: true),
+  style: StyleTokens.una.copyWith(cardBlur: true),
 )''',
           ),
         ],

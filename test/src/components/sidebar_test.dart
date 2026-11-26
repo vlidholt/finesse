@@ -1,11 +1,11 @@
-import 'package:finesse/material.dart';
-import 'package:finesse/src/app.dart';
-import 'package:finesse/src/components/sheet.dart';
-import 'package:finesse/src/components/sidebar.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart' hide Theme;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/material.dart';
+import 'package:una/src/app.dart';
+import 'package:una/src/components/sheet.dart';
+import 'package:una/src/components/sidebar.dart';
+import 'package:una/src/theme/theme.dart';
 
 import '../../decoration_finders.dart';
 
@@ -22,8 +22,8 @@ void main() {
     Widget? footer,
     Widget child = const Text('content'),
   }) {
-    return FinesseApp(
-      builder: (context, child) => FinesseMaterial(child: child!),
+    return UnaApp(
+      builder: (context, child) => UnaMaterial(child: child!),
       home: Scaffold(
         body: SidebarScaffold(
           controller: controller,
@@ -483,8 +483,8 @@ void main() {
       addTearDown(show.dispose);
 
       await tester.pumpWidget(
-        FinesseApp(
-          builder: (context, child) => FinesseMaterial(child: child!),
+        UnaApp(
+          builder: (context, child) => UnaMaterial(child: child!),
           home: ValueListenableBuilder<bool>(
             valueListenable: show,
             builder: (context, value, _) => value
@@ -554,8 +554,8 @@ void main() {
     testWidgets('borderRadius clips the embedded scaffold', (tester) async {
       await pumpDesktop(
         tester,
-        FinesseApp(
-          builder: (context, child) => FinesseMaterial(child: child!),
+        UnaApp(
+          builder: (context, child) => UnaMaterial(child: child!),
           home: Center(
             child: SizedBox(
               width: 700,
@@ -585,8 +585,8 @@ void main() {
       SidebarController controller, {
       SidebarCollapsible collapsible = SidebarCollapsible.icon,
     }) {
-      return FinesseApp(
-        builder: (context, child) => FinesseMaterial(child: child!),
+      return UnaApp(
+        builder: (context, child) => UnaMaterial(child: child!),
         home: Scaffold(
           body: SidebarScaffold(
             controller: controller,
@@ -666,8 +666,8 @@ void main() {
       addTearDown(controller.dispose);
       await pumpDesktop(
         tester,
-        FinesseApp(
-          builder: (context, child) => FinesseMaterial(child: child!),
+        UnaApp(
+          builder: (context, child) => UnaMaterial(child: child!),
           home: Scaffold(
             body: SidebarScaffold(
               controller: controller,
@@ -731,8 +731,8 @@ void main() {
 
       await pumpDesktop(
         tester,
-        FinesseApp(
-          builder: (context, child) => FinesseMaterial(child: child!),
+        UnaApp(
+          builder: (context, child) => UnaMaterial(child: child!),
           home: Scaffold(
             body: SidebarScaffold(
               sidebar: Sidebar(

@@ -1,13 +1,13 @@
-import 'package:finesse/src/components/bar_button_scope.dart';
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/components/icon_button.dart';
-import 'package:finesse/src/components/tooltip.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/icons/phosphor_icon.dart';
-import 'package:finesse/src/icons/phosphor_icons_regular.dart';
-import 'package:finesse/src/theme/form_factor.dart';
-import 'package:finesse/src/theme/theme.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/bar_button_scope.dart';
+import 'package:una/src/components/button.dart';
+import 'package:una/src/components/icon_button.dart';
+import 'package:una/src/components/tooltip.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/icons/phosphor_icon.dart';
+import 'package:una/src/icons/phosphor_icons_regular.dart';
+import 'package:una/src/theme/form_factor.dart';
+import 'package:una/src/theme/theme.dart';
 
 /// The button that goes back: a caret pointing at the start of the line.
 ///
@@ -52,7 +52,7 @@ class BackButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final rtl = Directionality.of(context) == TextDirection.rtl;
     return _DismissButton(
-      label: semanticLabel ?? FinesseLocalizations.of(context).navigation.back,
+      label: semanticLabel ?? UnaLocalizations.of(context).navigation.back,
       icon:
           icon ??
           PhosphorIcon(
@@ -105,7 +105,7 @@ class CloseButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _DismissButton(
-      label: semanticLabel ?? FinesseLocalizations.of(context).dialog.close,
+      label: semanticLabel ?? UnaLocalizations.of(context).dialog.close,
       icon: icon ?? const PhosphorIcon(PhosphorIconsRegular.x),
       onPressed: onPressed,
       enabled: enabled,

@@ -1,7 +1,7 @@
-import 'package:finesse/finesse.dart';
-import 'package:finesse/src/utils/entrance.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/src/utils/entrance.dart';
+import 'package:una/una.dart';
 
 void main() {
   group('MotionSpring', () {
@@ -157,9 +157,9 @@ void main() {
   });
 
   group('the theme', () {
-    test('finesse is lively, the shadcn styles are calm', () {
-      expect(StyleTokens.finesse.motion, Motion.lively);
-      expect(StyleTokens.finesseMobile.motion, Motion.lively);
+    test('una is lively, the shadcn styles are calm', () {
+      expect(StyleTokens.una.motion, Motion.lively);
+      expect(StyleTokens.unaMobile.motion, Motion.lively);
       expect(StyleTokens.nova.motion, Motion.calm);
       expect(StyleTokens.maia.motion, Motion.calm);
       expect(StyleTokens.lyra.motion, Motion.calm);
@@ -216,7 +216,7 @@ void main() {
     });
 
     test('StyleTokens.copyWith(motion:) reaches the phone metrics', () {
-      final style = StyleTokens.finesse.copyWith(motion: Motion.calm);
+      final style = StyleTokens.una.copyWith(motion: Motion.calm);
       expect(style.motion, Motion.calm);
       expect(style.forFormFactor(FormFactor.mobile).motion, Motion.calm);
     });
@@ -225,7 +225,7 @@ void main() {
       late Motion plain;
       late Motion reduced;
       await tester.pumpWidget(
-        FinesseApp(
+        UnaApp(
           home: Builder(
             builder: (context) {
               plain = Motion.of(context);

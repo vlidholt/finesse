@@ -1,11 +1,11 @@
 import 'dart:ui';
 
-import 'package:finesse/src/components/button.dart';
-import 'package:finesse/src/raw_components/portal.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
+import 'package:una/src/components/button.dart';
+import 'package:una/src/raw_components/portal.dart';
+import 'package:una/src/theme/components/decorator.dart';
 
 part 'context_menu.g.theme.dart';
 
@@ -106,8 +106,8 @@ class ContextMenuTheme with _$ContextMenuTheme {
   final ButtonVariant? buttonVariant;
 
   /// The decoration of the context menu item, defaults to
-  /// `FinesseDecoration(secondaryBorder: FinesseBorder.none)`.
-  final FinesseDecoration? itemDecoration;
+  /// `UnaDecoration(secondaryBorder: UnaBorder.none)`.
+  final UnaDecoration? itemDecoration;
 
   /// The text style of the context menu item, defaults to
   /// `small.copyWith(fontWeight: FontWeight.normal)`.
@@ -158,7 +158,7 @@ class ContextMenuTheme with _$ContextMenuTheme {
   final List<BoxShadow>? shadows;
 
   /// {@macro Popover.decoration}
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// {@macro Popover.filter}
   final ImageFilter? filter;

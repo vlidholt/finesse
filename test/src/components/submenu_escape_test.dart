@@ -1,7 +1,7 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// Escape closes one layer of a menu tree at a time, innermost first: the
 /// submenu the focus is in, then the menu it hangs from.
@@ -16,7 +16,7 @@ void main() {
     final controller = PopoverController();
     addTearDown(controller.dispose);
     await tester.pumpWidget(
-      FinesseApp(
+      UnaApp(
         home: Align(
           alignment: const Alignment(-.6, -.6),
           child: DropdownMenu(

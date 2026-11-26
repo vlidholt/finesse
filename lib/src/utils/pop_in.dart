@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/utils/spring.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/utils/spring.dart';
 
 /// Pops a small thing into view on a spring and takes it out again: a check
 /// mark, a radio dot, a badge.

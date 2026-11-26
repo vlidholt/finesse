@@ -1,5 +1,5 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
 
 /// The three outlines. With no callback a chip is a static tag, not a
 /// control, and is not announced as a button.

@@ -1,19 +1,19 @@
 import 'dart:async';
 
-import 'package:finesse/src/components/app_bar.dart';
-import 'package:finesse/src/components/back_button.dart';
-import 'package:finesse/src/components/dialog.dart';
-import 'package:finesse/src/components/scaffold.dart';
-import 'package:finesse/src/components/search_field.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/page_route.dart';
-import 'package:finesse/src/theme/components/dialog.dart';
-import 'package:finesse/src/theme/form_factor.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/theme/themes/shadows.dart';
-import 'package:finesse/src/utils/dismiss_shortcut.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/app_bar.dart';
+import 'package:una/src/components/back_button.dart';
+import 'package:una/src/components/dialog.dart';
+import 'package:una/src/components/scaffold.dart';
+import 'package:una/src/components/search_field.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/page_route.dart';
+import 'package:una/src/theme/components/dialog.dart';
+import 'package:una/src/theme/form_factor.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/theme/themes/shadows.dart';
+import 'package:una/src/utils/dismiss_shortcut.dart';
 
 /// Builds the body of a search view for [query].
 ///
@@ -75,7 +75,7 @@ Future<T?> showSearch<T>({
   final theme = Theme.of(context);
   if (theme.formFactor == FormFactor.mobile) {
     return Navigator.of(context, rootNavigator: useRootNavigator).push<T>(
-      FinessePageRoute<T>(
+      UnaPageRoute<T>(
         fullscreenDialog: true,
         builder: (context) => _SearchView<T>(
           builder: builder,
@@ -217,7 +217,7 @@ class _SearchViewState<T> extends State<_SearchView<T>> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l = FinesseLocalizations.of(context);
+    final l = UnaLocalizations.of(context);
     final commandTheme = theme.commandTheme;
 
     final results = Builder(

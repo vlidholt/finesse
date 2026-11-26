@@ -1,7 +1,7 @@
-import 'package:finesse/src/theme/motion.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
+import 'package:una/src/theme/motion.dart';
 
 part 'board.g.theme.dart';
 

@@ -1,17 +1,17 @@
 import 'dart:math' as math;
 
-import 'package:finesse/src/components/surface.dart';
-import 'package:finesse/src/i18n/localizations_delegate.dart';
-import 'package:finesse/src/i18n/strings.g.dart';
-import 'package:finesse/src/icons/phosphor_icon.dart';
-import 'package:finesse/src/icons/phosphor_icons_regular.dart';
-import 'package:finesse/src/raw_components/pressable.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/entrance.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/surface.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
+import 'package:una/src/i18n/strings.g.dart';
+import 'package:una/src/icons/phosphor_icon.dart';
+import 'package:una/src/icons/phosphor_icons_regular.dart';
+import 'package:una/src/raw_components/pressable.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/entrance.dart';
 
 /// The selection handles of a touch screen, in this system's look: a thin
 /// stem the height of the line with a dot at its end, in the scheme's tint.
@@ -23,13 +23,13 @@ import 'package:flutter/widgets.dart';
 /// widens it).
 ///
 /// `TextField`, `Textarea` and `SelectionArea` use
-/// [FinesseTextSelectionControls.adaptive] by default: these controls where
+/// [UnaTextSelectionControls.adaptive] by default: these controls where
 /// the platform is touch-first (iOS, Android, Fuchsia) and none on a
 /// desktop, where a selection is made with the pointer and has no handles.
 /// Pass an instance as `selectionControls` to get handles everywhere:
 ///
 /// ```dart
-/// TextField(selectionControls: finesseTextSelectionControls)
+/// TextField(selectionControls: unaTextSelectionControls)
 /// ```
 ///
 /// Colour and size come from `ThemeData.textSelectionTheme`.
@@ -37,17 +37,17 @@ import 'package:flutter/widgets.dart';
 /// The controls draw handles only. The menu over a selection is built by
 /// the field's `contextMenuBuilder` — a [TextSelectionToolbar] by default
 /// on touch platforms.
-class FinesseTextSelectionControls extends TextSelectionControls
+class UnaTextSelectionControls extends TextSelectionControls
     with TextSelectionHandleControls {
   /// Creates the controls. They hold no state: one instance,
-  /// [finesseTextSelectionControls], serves the whole app.
-  FinesseTextSelectionControls();
+  /// [unaTextSelectionControls], serves the whole app.
+  UnaTextSelectionControls();
 
   /// The controls for the platform the app runs on:
-  /// [finesseTextSelectionControls] on iOS, Android and Fuchsia, and null —
+  /// [unaTextSelectionControls] on iOS, Android and Fuchsia, and null —
   /// no handles — on macOS, Windows and Linux.
   static TextSelectionControls? get adaptive =>
-      usesTouchSelection ? finesseTextSelectionControls : null;
+      usesTouchSelection ? unaTextSelectionControls : null;
 
   /// Whether the platform edits text by touch: handles at the ends of a
   /// selection, a toolbar over it, a magnifier under the finger.
@@ -63,7 +63,7 @@ class FinesseTextSelectionControls extends TextSelectionControls
   };
 
   // Used when no theme is in reach, which only a handle built outside any
-  // `FinesseApp` is.
+  // `UnaApp` is.
   static const _fallbackDot = 12.0;
   static const _fallbackStem = 2.0;
 
@@ -123,9 +123,9 @@ class FinesseTextSelectionControls extends TextSelectionControls
   }
 }
 
-/// The one instance of [FinesseTextSelectionControls].
-final TextSelectionControls finesseTextSelectionControls =
-    FinesseTextSelectionControls();
+/// The one instance of [UnaTextSelectionControls].
+final TextSelectionControls unaTextSelectionControls =
+    UnaTextSelectionControls();
 
 class _HandlePainter extends CustomPainter {
   const _HandlePainter({
@@ -244,7 +244,7 @@ class TextSelectionToolbar extends StatelessWidget {
   /// Creates the toolbar for a list of framework button items, such as
   /// `EditableTextState.contextMenuButtonItems`, placed by [anchors].
   ///
-  /// The standard actions take their labels from `FinesseLocalizations`; a
+  /// The standard actions take their labels from `UnaLocalizations`; a
   /// custom one shows its own [ContextMenuButtonItem.label], and an item
   /// with no label at all is left out.
   static Widget buttonItems({
@@ -292,13 +292,13 @@ class TextSelectionToolbar extends StatelessWidget {
   static String? labelFor(BuildContext context, ContextMenuButtonItem item) {
     final label = item.label;
     if (label != null && label.isNotEmpty) return label;
-    final l = FinesseLocalizations.of(context);
+    final l = UnaLocalizations.of(context);
     return _standardLabel(item.type, l);
   }
 
   static String? _standardLabel(
     ContextMenuButtonType type,
-    FinesseLocalizationsData l,
+    UnaLocalizationsData l,
   ) {
     return switch (type) {
       ContextMenuButtonType.cut => l.input.cut,
@@ -542,7 +542,7 @@ class _ToolbarPagerState extends State<_ToolbarPager> {
 
   @override
   Widget build(BuildContext context) {
-    final l = FinesseLocalizations.of(context);
+    final l = UnaLocalizations.of(context);
     final rtl = Directionality.of(context) == TextDirection.rtl;
     final size = Theme.of(context).textSelectionTheme.toolbarTextStyle;
     final iconSize = (size?.fontSize ?? 14) + 2;

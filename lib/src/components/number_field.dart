@@ -1,20 +1,20 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:finesse/src/components/decorator.dart';
-import 'package:finesse/src/components/text_field.dart';
-import 'package:finesse/src/icons/phosphor_icon.dart';
-import 'package:finesse/src/icons/phosphor_icons_regular.dart';
-import 'package:finesse/src/raw_components/pressable.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/form_factor.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/content_switch.dart';
-import 'package:finesse/src/utils/haptics.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart' show NumberFormat;
+import 'package:una/src/components/decorator.dart';
+import 'package:una/src/components/text_field.dart';
+import 'package:una/src/icons/phosphor_icon.dart';
+import 'package:una/src/icons/phosphor_icons_regular.dart';
+import 'package:una/src/raw_components/pressable.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/form_factor.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/content_switch.dart';
+import 'package:una/src/utils/haptics.dart';
 
 /// How a [NumberField] presents itself.
 enum NumberFieldVariant {
@@ -182,7 +182,7 @@ class NumberField extends StatefulWidget {
   final FocusNode? focusNode;
 
   /// Merged over the theme's text field decoration.
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// Called with the value after Enter committed it.
   final ValueChanged<num?>? onSubmitted;
@@ -649,7 +649,7 @@ class _NumberFieldState extends State<NumberField> {
     final theme = Theme.of(context);
     final direction = Directionality.of(context);
     final decoration =
-        (theme.textFieldTheme.decoration ?? const FinesseDecoration()).merge(
+        (theme.textFieldTheme.decoration ?? const UnaDecoration()).merge(
           widget.decoration,
         );
     final border = decoration.border;

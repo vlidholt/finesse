@@ -1,7 +1,7 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
 /// How opaque the picture of the previous frame is drawn over the app, or
 /// null when it is not drawn at all.
@@ -181,16 +181,16 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
   });
 
-  testWidgets('FinesseApp changes theme this way', (tester) async {
+  testWidgets('UnaApp changes theme this way', (tester) async {
     final builds = <Brightness>[];
-    Widget finesseApp(ThemeMode mode) => FinesseApp(
+    Widget unaApp(ThemeMode mode) => UnaApp(
       themeMode: mode,
       theme: light,
       darkTheme: dark,
       home: _Probe(builds),
     );
-    await tester.pumpWidget(finesseApp(ThemeMode.light));
-    await tester.pumpWidget(finesseApp(ThemeMode.dark));
+    await tester.pumpWidget(unaApp(ThemeMode.light));
+    await tester.pumpWidget(unaApp(ThemeMode.dark));
     expect(builds, [Brightness.light, Brightness.dark]);
     expect(_overlayOpacity(tester), 1);
     await tester.pump();

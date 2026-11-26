@@ -1,5 +1,5 @@
-// The example shows Material widgets beside finesse's through the SDK's own
-// Material library, as `package:finesse/material.dart` does; Flutter
+// The example shows Material widgets beside una's through the SDK's own
+// Material library, as `package:una/material.dart` does; Flutter
 // deprecated it in 3.47 in favour of the `material_ui` package.
 // ignore_for_file: deprecated_member_use
 
@@ -8,10 +8,10 @@ import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/theme_editor/fonts.dart';
 import 'package:example/common/theme_editor/picker.dart';
 import 'package:example/common/theme_editor/presets.dart';
-import 'package:finesse/finesse.dart';
 import 'package:flutter/material.dart'
     hide Dialog, Divider, IconButton, Theme, ThemeData, showDialog;
 import 'package:flutter/services.dart';
+import 'package:una/una.dart';
 
 /// The theme customizer: a panel docked beside the app.
 ///
@@ -57,7 +57,7 @@ class ThemeCustomizerPanel extends StatelessWidget {
     colorScheme: const NeutralColorScheme.dark(),
     radius: const BorderRadius.all(Radius.circular(8)),
     // Pinned too: the panel is laid out against shadcn's compact Nova
-    // metrics, and the package default — Finesse — is roomier.
+    // metrics, and the package default — Una — is roomier.
     style: StyleTokens.nova,
   );
 
@@ -489,7 +489,7 @@ class _Section extends StatelessWidget {
         Semantics(
           button: true,
           expanded: expanded,
-          child: FinesseGestureDetector(
+          child: UnaGestureDetector(
             mouseCursor: SystemMouseCursors.click,
             behavior: HitTestBehavior.opaque,
             onTap: onToggle,
@@ -640,7 +640,7 @@ class _PresetTileState extends State<_PresetTile> {
     return Semantics(
       button: widget.onTap != null,
       selected: widget.selected,
-      child: FinesseGestureDetector(
+      child: UnaGestureDetector(
         mouseCursor: widget.onTap == null
             ? SystemMouseCursors.basic
             : SystemMouseCursors.click,
@@ -803,7 +803,7 @@ class _Actions extends StatelessWidget {
         title: const Text('Theme code'),
         description: const Text(
           'The light and dark themes of this configuration. Pass them to '
-          'your FinesseApp.',
+          'your UnaApp.',
         ),
         semanticLabel: 'Generated theme code',
         actions: [

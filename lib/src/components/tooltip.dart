@@ -1,21 +1,21 @@
 import 'dart:ui' show ImageFilter;
 
-import 'package:finesse/src/components/decorator.dart';
-import 'package:finesse/src/components/popover.dart';
-import 'package:finesse/src/raw_components/portal.dart';
-import 'package:finesse/src/theme/components/decorator.dart';
-import 'package:finesse/src/theme/data.dart';
-import 'package:finesse/src/theme/motion.dart';
-import 'package:finesse/src/theme/theme.dart';
-import 'package:finesse/src/utils/anchor_stage.dart';
-import 'package:finesse/src/utils/arrow_surface.dart';
-import 'package:finesse/src/utils/backdrop.dart';
-import 'package:finesse/src/utils/dismiss_shortcut.dart';
-import 'package:finesse/src/utils/entrance.dart';
-import 'package:finesse/src/utils/mouse_area.dart';
-import 'package:finesse/src/utils/shadow.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/decorator.dart';
+import 'package:una/src/components/popover.dart';
+import 'package:una/src/raw_components/portal.dart';
+import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/data.dart';
+import 'package:una/src/theme/motion.dart';
+import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/anchor_stage.dart';
+import 'package:una/src/utils/arrow_surface.dart';
+import 'package:una/src/utils/backdrop.dart';
+import 'package:una/src/utils/dismiss_shortcut.dart';
+import 'package:una/src/utils/entrance.dart';
+import 'package:una/src/utils/mouse_area.dart';
+import 'package:una/src/utils/shadow.dart';
 
 /// {@template Tooltip}
 /// A widget that displays a tooltip on hover or focus, styled to match the
@@ -100,7 +100,7 @@ class Tooltip extends StatefulWidget {
   ///
   /// Defines the visual appearance of the tooltip's container.
   /// {@endtemplate}
-  final FinesseDecoration? decoration;
+  final UnaDecoration? decoration;
 
   /// {@template Tooltip.anchor}
   /// The anchor position of the tooltip relative to its child.
@@ -328,7 +328,7 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
     final motion = Motion.of(context);
     final effectivePadding = widget.padding ?? theme.tooltipTheme.padding;
     final effectiveDecoration =
-        (theme.tooltipTheme.decoration ?? const FinesseDecoration()).merge(
+        (theme.tooltipTheme.decoration ?? const UnaDecoration()).merge(
           widget.decoration,
         );
 
@@ -451,7 +451,7 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
                     Positioned.fill(
                       child: ArrowMarker(
                         shape: shape,
-                        markerKey: const ValueKey('finesse_tooltip_arrow'),
+                        markerKey: const ValueKey('una_tooltip_arrow'),
                       ),
                     ),
                   ],

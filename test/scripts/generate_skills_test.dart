@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../scripts/generate_skills.dart' as skills;
 
-/// The skill under `skills/finesse-overview/` is generated in part from the
+/// The skill under `skills/una-overview/` is generated in part from the
 /// example app's docs pages. This fails when a docs page changed and the
 /// skill was not regenerated, when the registry gained a page the skill
 /// does not cover, or when a link in the skill leads nowhere.
@@ -23,7 +23,7 @@ void main() {
             File(path).readAsStringSync() != content)
           path,
     ];
-    final onDisk = Directory('skills/finesse-overview/components')
+    final onDisk = Directory('skills/una-overview/components')
         .listSync()
         .whereType<File>()
         .map((f) => f.path)

@@ -1,9 +1,9 @@
-import 'package:finesse/finesse.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/una.dart';
 
-import '../../finesse_harness.dart';
+import '../../una_harness.dart';
 
 /// A select's trigger is a field: the value it shows is set as a text
 /// field sets what is typed into it, and its placeholder as a text field's
@@ -36,7 +36,7 @@ void main() {
   );
 
   for (final (name, style) in [
-    ('finesse', StyleTokens.finesse),
+    ('una', StyleTokens.una),
     ('nova', StyleTokens.nova),
     ('maia', StyleTokens.maia),
     ('lyra', StyleTokens.lyra),
@@ -52,7 +52,7 @@ void main() {
         );
         final scheme = theme.colorScheme;
 
-        await pumpFinesse(
+        await pumpUna(
           tester,
           Center(child: form(value: 'en')),
           theme: theme,
@@ -69,7 +69,7 @@ void main() {
 
         // A select holds the value it started with: a fresh one.
         await tester.pumpWidget(const SizedBox.shrink());
-        await pumpFinesse(tester, Center(child: form()), theme: theme);
+        await pumpUna(tester, Center(child: form()), theme: theme);
         final fieldPlaceholder = painted(tester, 'Empty field');
         final placeholder = painted(tester, 'Pick one');
         expect(placeholder.color, scheme.mutedForeground);
