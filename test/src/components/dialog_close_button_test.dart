@@ -27,13 +27,12 @@ void main() {
     await settle(tester);
   }
 
-  test('no built-in dialog theme shows a close button; the sheet shows '
-      'its own', () {
+  test('no built-in dialog or sheet theme shows a close button', () {
     for (final style in StyleTokens.all) {
       final theme = ThemeData(style: style);
       expect(theme.primaryDialogTheme.showCloseButton, isNull);
       expect(theme.alertDialogTheme.showCloseButton, isNull);
-      expect(theme.sheetTheme.showCloseButton, isTrue);
+      expect(theme.sheetTheme.showCloseButton, isNull);
     }
   });
 
@@ -172,7 +171,9 @@ void main() {
     expect(closeIcon, findsOneWidget);
   });
 
-  testWidgets('a sheet keeps its close button', (tester) async {
+  testWidgets('a sheet shows none by default, and its own when asked', (
+    tester,
+  ) async {
     await pumpUna(
       tester,
       Builder(
@@ -182,6 +183,29 @@ void main() {
               context: context,
               side: SheetSide.right,
               builder: (context) => const Sheet(title: Text('Filters')),
+            ),
+            child: const Text('Open'),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Open'));
+    await settle(tester);
+    expect(find.text('Filters'), findsOneWidget);
+    expect(closeIcon, findsNothing);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await pumpUna(
+      tester,
+      Builder(
+        builder: (context) => Center(
+          child: Button(
+            onPressed: () => showSheet<void>(
+              context: context,
+              side: SheetSide.right,
+              builder: (context) => const Sheet(
+                title: Text('Filters'),
+                showCloseButton: true,
+              ),
             ),
             child: const Text('Open'),
           ),

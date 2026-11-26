@@ -316,4 +316,42 @@ void main() {
     expect(button.top, greaterThanOrEqualTo(bar.top));
     expect(button.bottom, lessThanOrEqualTo(bar.bottom));
   });
+
+  testWidgets("on a floating pill a button takes the pill's curve; docked, "
+      'its own corners', (tester) async {
+    BorderRadiusGeometry? radiusOf() => tester
+        .widget<Decorator>(
+          find
+              .descendant(
+                of: find.widgetWithText(Button, 'Reply'),
+                matching: find.byType(Decorator),
+              )
+              .first,
+        )
+        .decoration!
+        .border
+        ?.borderRadius;
+
+    await pumpUna(
+      tester,
+      _toolbar(
+        floating: true,
+        trailing: Button(onPressed: () {}, child: const Text('Reply')),
+      ),
+      formFactor: FormFactor.mobile,
+    );
+    final theme = ThemeData();
+    expect(radiusOf(), theme.radii.full);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await pumpUna(
+      tester,
+      _toolbar(
+        floating: false,
+        trailing: Button(onPressed: () {}, child: const Text('Reply')),
+      ),
+      formFactor: FormFactor.mobile,
+    );
+    expect(radiusOf(), isNot(theme.radii.full));
+  });
 }

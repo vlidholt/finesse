@@ -690,6 +690,35 @@ void main() {
       );
       expect(docs.height, greaterThanOrEqualTo(44));
       expect(docs.width, greaterThan(300));
+      // A row's text keeps a phone's room from the edge of its fill, and
+      // a section's label lines up with it.
+      final docsRow = tester.getRect(
+        find.ancestor(
+          of: find.text('Docs'),
+          matching: find.byType(NavigationMenuLink),
+        ),
+      );
+      final pricingRow = tester.getRect(
+        find.ancestor(
+          of: find.text('Pricing'),
+          matching: find.byType(NavigationMenuLink),
+        ),
+      );
+      final room = ThemeData()
+          .withFormFactor(FormFactor.mobile)
+          .layoutTheme
+          .gap(GapSize.md);
+      expect(
+        tester.getTopLeft(find.text('Pricing')).dx - pricingRow.left,
+        greaterThanOrEqualTo(room),
+      );
+      expect(
+        tester.getTopLeft(find.text('Resources')).dx,
+        moreOrLessEquals(
+          docsRow.left +
+              (tester.getTopLeft(find.text('Pricing')).dx - pricingRow.left),
+        ),
+      );
       expect(tester.takeException(), isNull);
     });
 

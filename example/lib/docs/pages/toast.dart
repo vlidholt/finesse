@@ -29,11 +29,12 @@ final toastDoc = ComponentDoc(
       id: 'toast_variants',
       title: 'Variants',
       description:
-          'Every variant is the same surface — a popover surface, glass in '
-          'a style whose popovers are — and says what it is with the icon '
-          'it leads with, in the `success`, `warning` and `destructive` '
-          'colours of the scheme. `leading` replaces the icon. A '
-          'destructive toast is announced assertively.',
+          'Every variant is a popover surface — glass in a style whose '
+          'popovers are. A success, warning or destructive toast washes it '
+          'in the `success`, `warning` or `destructive` colour of the '
+          'scheme (`ToastTheme.statusTintOpacity`) and leads with an icon '
+          'in that colour, on the title\'s line. `leading` replaces the '
+          'icon. A destructive toast is announced assertively.',
       builder: (_) => const ToastVariantsExample(),
     ),
     ComponentExample(

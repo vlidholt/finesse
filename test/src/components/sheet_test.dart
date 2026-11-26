@@ -437,11 +437,19 @@ void main() {
       expect(tester.getTopLeft(find.text('Stay')).dy, resting);
     });
 
-    testWidgets('has a close button, which the theme and the widget can '
-        'take away', (tester) async {
+    testWidgets('has no close button unless the widget or the theme asks '
+        'for one', (tester) async {
       await _open(
         tester,
         builder: (context) => const Sheet(title: Text('Title')),
+      );
+      expect(find.bySemanticsLabel('Close'), findsNothing);
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      await _open(
+        tester,
+        builder: (context) =>
+            const Sheet(title: Text('Title'), showCloseButton: true),
       );
       final close = find.bySemanticsLabel('Close');
       expect(close, findsOneWidget);
@@ -454,20 +462,10 @@ void main() {
       await tester.pumpWidget(const SizedBox.shrink());
       await _open(
         tester,
-        builder: (context) =>
-            const Sheet(title: Text('Title'), showCloseButton: false),
-      );
-      expect(find.bySemanticsLabel('Close'), findsNothing);
-
-      await tester.pumpWidget(const SizedBox.shrink());
-      await _open(
-        tester,
-        theme: ThemeData(
-          sheetTheme: const SheetTheme(showCloseButton: false),
-        ),
+        theme: ThemeData(sheetTheme: const SheetTheme(showCloseButton: true)),
         builder: (context) => const Sheet(title: Text('Title')),
       );
-      expect(find.bySemanticsLabel('Close'), findsNothing);
+      expect(find.bySemanticsLabel('Close'), findsOneWidget);
     });
 
     testWidgets('the close button is on the left in a right-to-left app', (
@@ -495,7 +493,8 @@ void main() {
       unawaited(
         showSheet<void>(
           context: opener,
-          builder: (context) => const Sheet(title: Text('Title')),
+          builder: (context) =>
+              const Sheet(title: Text('Title'), showCloseButton: true),
         ),
       );
       await tester.pumpAndSettle();
@@ -1436,7 +1435,7 @@ void main() {
       expect(_surface(tester).bottom, _phone.height);
     });
 
-    testWidgets('shows a close button when it is told how to close', (
+    testWidgets('a close button asked for calls onDismissed', (
       tester,
     ) async {
       var closed = 0;
@@ -1449,6 +1448,7 @@ void main() {
           child: Sheet(
             controller: controller,
             onDismissed: () => closed++,
+            showCloseButton: true,
             title: const Text('Title'),
           ),
         ),
@@ -1497,7 +1497,7 @@ void main() {
           final theme = ThemeData(brightness: brightness, style: style);
           final sheet = theme.sheetTheme;
           expect(sheet.backgroundColor, theme.colorScheme.background);
-          expect(sheet.showCloseButton, isTrue);
+          expect(sheet.showCloseButton, isNull);
           expect(sheet.padding, isNotNull);
           expect(sheet.titleStyle, isNotNull);
           expect(sheet.borderRadius, isNotNull);

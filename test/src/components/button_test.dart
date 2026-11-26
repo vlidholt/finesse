@@ -282,10 +282,12 @@ void main() {
       expect(pressed, false);
 
       // Check opacity is reduced for disabled state
-      final opacityFinder = find.descendant(
-        of: find.byType(Button),
-        matching: find.byType(Opacity),
-      );
+      final opacityFinder = find
+          .descendant(
+            of: find.byType(Button),
+            matching: find.byType(Opacity),
+          )
+          .first;
       expect(opacityFinder, findsOneWidget);
       final opacity = tester.widget<Opacity>(opacityFinder);
       expect(opacity.opacity, 0.5);
@@ -310,10 +312,12 @@ void main() {
         ),
       );
       final opacity = tester.widget<Opacity>(
-        find.descendant(
-          of: find.byType(Button),
-          matching: find.byType(Opacity),
-        ),
+        find
+            .descendant(
+              of: find.byType(Button),
+              matching: find.byType(Opacity),
+            )
+            .first,
       );
       expect(opacity.opacity, .3);
     });
@@ -352,10 +356,12 @@ void main() {
             isNot(SystemMouseCursors.click),
           );
           final opacity = tester.widget<Opacity>(
-            find.descendant(
-              of: find.byType(Button),
-              matching: find.byType(Opacity),
-            ),
+            find
+                .descendant(
+                  of: find.byType(Button),
+                  matching: find.byType(Opacity),
+                )
+                .first,
           );
           expect(opacity.opacity, ThemeData().disabledOpacity);
         });

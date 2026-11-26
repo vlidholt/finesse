@@ -277,10 +277,24 @@ class Toggle extends StatelessWidget {
             child: filled,
           );
         }
+        // Joined, the outline is a hairline shared with the neighbours, so
+        // only the fill and the content are dimmed: a disabled toggle's
+        // edge would otherwise be a paler stretch of the group's.
+        final innerDim = joined != null && !enabled
+            ? theme.disabledOpacity
+            : 1.0;
+        final ownFill = decoration.color;
+        final outline = innerDim != 1 && ownFill != null
+            ? decoration.copyWith(
+                color: ownFill.withValues(alpha: ownFill.a * innerDim),
+              )
+            : decoration;
+        filled = Opacity(opacity: innerDim, child: filled);
         // Dimmed and deaf while disabled; the same widgets either way, so
         // the toggle keeps its state when it is enabled again.
         return Disabled(
           enabled: enabled,
+          disabledOpacity: joined == null ? null : 1,
           // The size constraints sit *outside* the decorator so the outline
           // variant's border — and the no-secondary-border variant's focus
           // reserve — is counted into the toggle's height, the way CSS
@@ -295,7 +309,7 @@ class Toggle extends StatelessWidget {
             ),
             child: Decorator(
               focused: states.contains(WidgetState.focused),
-              decoration: decoration,
+              decoration: outline,
               child: filled,
             ),
           ),

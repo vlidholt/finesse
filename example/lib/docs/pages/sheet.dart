@@ -20,7 +20,9 @@ final sheetDoc = ComponentDoc(
           'On a phone a sheet from the bottom spans the screen, has a drag '
           'handle and is pulled down to close. On a desktop it is centred '
           'and no wider than a readable column; a sheet from a side is the '
-          'usual choice there.',
+          'usual choice there. A tap outside, a drag and Escape dismiss '
+          'it, so it has no close button unless showCloseButton asks for '
+          'one.',
       builder: (_) => const SheetSidesExample(),
     ),
     ComponentExample(
