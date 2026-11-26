@@ -425,6 +425,22 @@ was measured from (Strand, until it moved), is its own repository,
   and every field of the style under "All settings", grouped and
   searchable, for the form factor the app shows. Liquid Glass Auto / On /
   Off sits with the other preview settings.
+- **`ColorScheme.fromSeed`**: a whole scheme from one colour, made the
+  way the six built-in schemes are (Ocean's lightness, the seed's hue), so
+  any seed gets their contrast; a grey seed gives a monochrome scheme.
+- **`ControlSize.sm`** on `NumberField`, `Select` and `SegmentedControl`:
+  a small button's height, padding and text, for dense panels. A small
+  number field puts its minus and plus at the two ends on every form
+  factor.
+- **A sidebar's phone sheet follows a sidebar that changes** while it is
+  open (a search typed into it, a group opened in it).
+- **The example opens on a showcase** — the components as pieces of real
+  screens, under a header that restyles the app — with the editor open
+  beside it on a desktop. The reference is grouped into categories. The
+  editor offers twenty-one palettes and a seed of your own, shows the key
+  colours with the rest a fold away, uses the small controls, treats a
+  value set back to its original as no edit, and shows its code
+  highlighted.
 - **In a browser the top bar is the filled one** unless its theme asks
   for Liquid Glass with `always`: a page there has no status bar for the
   glass capsules to hang under. A large `SliverAppBar` over a picture

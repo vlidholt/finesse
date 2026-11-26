@@ -1897,6 +1897,18 @@ come from it.
   configuration: building the same configuration twice must give `==`
   themes, or every rebuild of the shell is a theme change (see "Theme
   equality is load-bearing").
+- **The app opens on the showcase** (`example/lib/showcase/`), switched
+  from the top bar (`appSectionProvider`; an `IndexedStack` keeps both
+  sections, the hidden one under `TickerMode(false)`), with the editor
+  opening by itself in a window at least 1100 wide. Tests start on the
+  reference with the editor closed: `pumpApp` sets `initialAppSection`
+  and `openEditorOnDesktop` (and puts them back).
+- **Palettes** (`ColorPalette`): the six schemes and fifteen seeds for
+  `ColorScheme.fromSeed`; `seed` stands in for `colors` when set. A colour
+  or a style field set back to the value it has without the edit is no
+  edit (`withColor`/`withStyleValue` drop it), so nothing shows as changed.
+  The panel's chrome has Liquid Glass off: in a browser on a Mac the
+  segmented controls and sliders were glass capsules among the rows.
 - **Colours: a scheme, then any token by hand.** `colors` is one of
   `ColorSchemes`; `lightColors`/`darkColors` (`ColorEdits`) pin tokens in
   one brightness, and a token pinned in one only is carried to the other
