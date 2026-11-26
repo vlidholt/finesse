@@ -1858,8 +1858,20 @@ class DefaultThemeVariant extends ThemeVariant {
             0.0,
             double.infinity,
           );
-    final selectedFill =
-        _fill(style.tabSelectedFill, colorScheme) ?? colorScheme.background;
+    // shadcn's selected tab is `bg-background` on a `bg-muted` strip. There
+    // the page is white, as a card is; in una's schemes the page is a grey
+    // a step under the cards, nearly the strip's own colour, and the
+    // selected tab vanished into it. So the page colour stands for the
+    // surface a card has in light, and in dark (where shadcn lifts it with
+    // `bg-input/30`) for a wash a step above the strip.
+    final selectedFill = style.tabSelectedFill == SurfaceFill.background
+        ? (_isDark
+              ? Color.alphaBlend(
+                  _wash(colorScheme.input, 1.3),
+                  colorScheme.card,
+                )
+              : colorScheme.card)
+        : _fill(style.tabSelectedFill, colorScheme) ?? colorScheme.background;
     return TabsTheme(
       dragStartBehavior: DragStartBehavior.start,
       padding: EdgeInsets.all(style.tabsListPadding),
