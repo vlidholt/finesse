@@ -6,6 +6,7 @@ import 'package:una/src/theme/color_scheme/graphite.dart';
 import 'package:una/src/theme/color_scheme/iris.dart';
 import 'package:una/src/theme/color_scheme/ocean.dart';
 import 'package:una/src/theme/color_scheme/rose.dart';
+import 'package:una/src/theme/color_scheme/seed.dart';
 
 /// The colour tokens of a theme.
 ///
@@ -88,6 +89,28 @@ class ColorScheme {
        _borderStrong = borderStrong,
        _accentBorder = accentBorder,
        _bar = bar;
+
+  /// A whole scheme from one colour, made the way the built-in schemes
+  /// are.
+  ///
+  /// Every token keeps the lightness of Ocean's (`OceanColorScheme`), which
+  /// is tuned against contrast, and takes [seed]'s hue: the accent tokens
+  /// (primary, tint, ring, selection, accent wash, the first chart colours)
+  /// at a strength that follows the seed's, the greys with a breath of it.
+  /// So a seed of any lightness gives a primary that carries white text and
+  /// a tint that reads on the page, in light and dark. A grey seed gives a
+  /// monochrome scheme, its primary its ink. Status colours are Ocean's.
+  ///
+  /// The primary is the seed's hue, not the seed itself; set it exactly
+  /// with `copyWith(primary: seed)` where the seed must be the brand colour.
+  ///
+  /// ```dart
+  /// ThemeData(colorScheme: ColorScheme.fromSeed(const Color(0xFF0EA5E9)))
+  /// ```
+  factory ColorScheme.fromSeed(
+    Color seed, {
+    Brightness brightness = Brightness.light,
+  }) => schemeFromSeed(seed, brightness);
 
   /// Returns the light or dark built-in scheme called [name] (see
   /// [ColorSchemes]).
