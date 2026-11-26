@@ -237,6 +237,7 @@ class ThemeEditorConfig {
     this.style = StylePreset.una,
     this.baseColor = BaseColor.blue,
     this.accentColor = AccentColor.base,
+    this.customAccent,
     this.headingFontTitle,
     this.fontTitle = 'Geist',
     this.radius = RadiusPreset.style,
@@ -262,6 +263,11 @@ class ThemeEditorConfig {
   final StylePreset style;
   final BaseColor baseColor;
   final AccentColor accentColor;
+
+  /// A colour picked by hand for the accent. When set it stands in for
+  /// [accentColor]: the base palette is re-tinted with
+  /// [ColorScheme.applyAccent].
+  final Color? customAccent;
 
   /// Null means "same as body", shadcn's `fontHeading: "inherit"`.
   final String? headingFontTitle;
@@ -373,6 +379,7 @@ class ThemeEditorConfig {
     StylePreset? style,
     BaseColor? baseColor,
     AccentColor? accentColor,
+    ValueGetter<Color?>? customAccent,
     String? headingFontTitle,
     bool clearHeadingFont = false,
     String? fontTitle,
@@ -400,6 +407,7 @@ class ThemeEditorConfig {
       style: style ?? this.style,
       baseColor: baseColor ?? this.baseColor,
       accentColor: accentColor ?? this.accentColor,
+      customAccent: customAccent == null ? this.customAccent : customAccent(),
       headingFontTitle: clearHeadingFont
           ? null
           : (headingFontTitle ?? this.headingFontTitle),
@@ -451,6 +459,7 @@ class ThemeEditorConfig {
         other.style == style &&
         other.baseColor == baseColor &&
         other.accentColor == accentColor &&
+        other.customAccent == customAccent &&
         other.headingFontTitle == headingFontTitle &&
         other.fontTitle == fontTitle &&
         other.radius == radius &&
@@ -478,6 +487,7 @@ class ThemeEditorConfig {
     style,
     baseColor,
     accentColor,
+    customAccent,
     headingFontTitle,
     fontTitle,
     radius,
@@ -504,6 +514,7 @@ class ThemeEditorConfig {
 
   ColorScheme _scheme(Brightness b) {
     final scheme = baseColor.scheme(b);
+    if (customAccent case final custom?) return scheme.applyAccent(custom);
     final accent = accentColor.scheme(b);
     if (accent == null) return scheme;
 
@@ -660,7 +671,9 @@ class ThemeEditorConfig {
     final dark = brightness == Brightness.dark;
     final lines = <String>[
       if (dark) 'brightness: Brightness.dark,',
-      if (baseColor != BaseColor.blue || accentColor != AccentColor.base)
+      if (baseColor != BaseColor.blue ||
+          accentColor != AccentColor.base ||
+          customAccent != null)
         ..._prefixed('colorScheme: ', _schemeCode(brightness)),
       if (!usesStyleRadius)
         'radius: BorderRadius.circular(${_number(effectiveRadius)}),',
@@ -707,6 +720,10 @@ class ThemeEditorConfig {
   /// The colour scheme expression for [b], ending in a comma.
   List<String> _schemeCode(Brightness b) {
     final base = 'const ${baseColor.className}.${b.name}()';
+    if (customAccent case final custom?) {
+      final hex = colorToHex(custom).substring(1);
+      return ['$base.applyAccent(', '  const Color(0xFF$hex),', '),'];
+    }
     if (accentColor == AccentColor.base) return ['$base,'];
 
     final accent =

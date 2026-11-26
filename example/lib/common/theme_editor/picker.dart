@@ -756,3 +756,65 @@ class _ThemeGroupPickerState extends State<ThemeGroupPicker> {
     );
   }
 }
+
+/// A colour chosen with the package's `ColorPicker`, in a setting row: the
+/// hex as its value, a Clear button once one is chosen, and the swatch
+/// that opens the picker (a popover on a desktop, a sheet on a phone).
+class ThemeColorPicker extends StatelessWidget {
+  const ThemeColorPicker({
+    required this.label,
+    required this.value,
+    required this.current,
+    required this.onChanged,
+    super.key,
+  });
+
+  final String label;
+
+  /// The colour chosen, or null while none is.
+  final Color? value;
+
+  /// The colour in use now, which the picker opens on.
+  final Color current;
+
+  final ValueChanged<Color?> onChanged;
+
+  static const _swatches = [
+    Color(0xFF2563EB),
+    Color(0xFF0D9488),
+    Color(0xFF16A34A),
+    Color(0xFFCA8A04),
+    Color(0xFFEA580C),
+    Color(0xFFDC2626),
+    Color(0xFFDB2777),
+    Color(0xFF7C3AED),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final value = this.value;
+    return _SettingBox(
+      label: label,
+      value: value == null ? 'None' : colorToHex(value),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 4,
+        children: [
+          if (value != null)
+            Button.ghost(
+              size: ButtonSize.sm,
+              onPressed: () => onChanged(null),
+              child: const Text('Clear'),
+            ),
+          ColorPickerButton(
+            semanticLabel: label,
+            size: 24,
+            value: value ?? current,
+            swatches: _swatches,
+            onChanged: onChanged,
+          ),
+        ],
+      ),
+    );
+  }
+}

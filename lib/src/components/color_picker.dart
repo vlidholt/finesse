@@ -2,14 +2,18 @@ import 'dart:math' as math;
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/disabled.dart';
 import 'package:una/src/components/layout.dart';
 import 'package:una/src/components/picker.dart';
 import 'package:una/src/components/popover.dart';
+import 'package:una/src/components/segmented_control.dart';
 import 'package:una/src/components/text_field.dart';
 import 'package:una/src/i18n/localizations_delegate.dart';
 import 'package:una/src/raw_components/pressable.dart';
 import 'package:una/src/theme/components/layout.dart';
+import 'package:una/src/theme/form_factor.dart';
 import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/haptics.dart';
 import 'package:una/src/utils/shadow.dart';
 
 /// Writes [color] as `#RRGGBB`, or `#RRGGBBAA` with [alpha].
@@ -37,9 +41,23 @@ Color? colorFromHex(String text) {
   );
 }
 
-/// A colour chosen by eye, by number or from a list: an area for
-/// saturation and brightness, a track for the hue and, with [showAlpha],
-/// one for the opacity, a hex field, and [swatches].
+/// How a [ColorPicker] offers its colours, as iOS's colour picker does.
+enum ColorPickerMode {
+  /// An area for saturation and brightness over a track for the hue.
+  spectrum,
+
+  /// A grid of twelve hues in nine shades, under a row of greys.
+  grid,
+
+  /// A track each for red, green and blue, with their values.
+  sliders,
+}
+
+/// A colour chosen by eye, by number or from a list: a [ColorPickerMode]
+/// for the colour itself (a spectrum, a grid or red, green and blue
+/// sliders, switched between by a segmented control when there are more
+/// than one), a track for the opacity with [showAlpha], a hex field, and
+/// [swatches].
 ///
 /// ```dart
 /// ColorPicker(
@@ -49,10 +67,11 @@ Color? colorFromHex(String text) {
 /// )
 /// ```
 ///
-/// It is controlled and reports as the colour changes. Every part is a
-/// slider to the keyboard and to assistive technology: the arrow keys
-/// move a thumb, with Shift in larger steps. `ColorPickerButton` puts the
-/// picker behind a swatch.
+/// It is controlled and reports as the colour changes; a null [onChanged]
+/// disables it. Every track is a slider to the keyboard and to assistive
+/// technology: the arrow keys move a thumb, with Shift in larger steps,
+/// and in the grid they move from cell to cell. `ColorPickerButton` puts
+/// the picker behind a swatch.
 class ColorPicker extends StatefulWidget {
   /// Creates a colour picker.
   const ColorPicker({
@@ -61,14 +80,23 @@ class ColorPicker extends StatefulWidget {
     this.swatches,
     this.showAlpha = false,
     this.showHex = true,
+    this.modes = ColorPickerMode.values,
+    this.initialMode,
     super.key,
   });
 
   /// The colour shown.
   final Color value;
 
-  /// Called with the new colour as it changes.
-  final ValueChanged<Color> onChanged;
+  /// Called with the new colour as it changes. Null disables the picker.
+  final ValueChanged<Color>? onChanged;
+
+  /// The ways the colour can be chosen, in the order the segmented control
+  /// lists them; with one there is no control. Defaults to all three.
+  final List<ColorPickerMode> modes;
+
+  /// The mode shown first. Defaults to the first of [modes].
+  final ColorPickerMode? initialMode;
 
   /// Colours offered under the picker, one tap each.
   final List<Color>? swatches;
@@ -88,6 +116,9 @@ class _ColorPickerState extends State<ColorPicker> {
   /// [Color] forgets its hue at black, white and grey, and the thumbs
   /// would jump.
   late HSVColor _hsv = HSVColor.fromColor(widget.value);
+  late ColorPickerMode _mode = widget.modes.contains(widget.initialMode)
+      ? widget.initialMode!
+      : widget.modes.first;
   late final _hex = TextEditingController(text: _hexOf(widget.value));
 
   String _hexOf(Color color) => colorToHex(color, alpha: widget.showAlpha);
@@ -101,6 +132,7 @@ class _ColorPickerState extends State<ColorPicker> {
     }
     final hex = _hexOf(widget.value);
     if (colorFromHex(_hex.text) != colorFromHex(hex)) _hex.text = hex;
+    if (!widget.modes.contains(_mode)) _mode = widget.modes.first;
   }
 
   @override
@@ -113,23 +145,23 @@ class _ColorPickerState extends State<ColorPicker> {
     setState(() => _hsv = hsv);
     final color = hsv.toColor();
     _hex.text = _hexOf(color);
-    if (color != widget.value) widget.onChanged(color);
+    if (color != widget.value) widget.onChanged?.call(color);
   }
 
   void _setColor(Color color) {
     final next = widget.showAlpha ? color : color.withValues(alpha: 1);
     setState(() => _hsv = HSVColor.fromColor(next));
-    if (next != widget.value) widget.onChanged(next);
+    _hex.text = _hexOf(next);
+    if (next != widget.value) widget.onChanged?.call(next);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final l = UnaLocalizations.of(context);
-    final swatches = widget.swatches;
-    final opaque = _hsv.withAlpha(1).toColor();
-    String percent(double v) => '${(v * 100).round()}%';
+  /// [color] at the picker's current opacity: a grid cell or a channel
+  /// changes the colour, not how see-through it is.
+  void _setOpaque(Color color) =>
+      _setColor(color.withValues(alpha: widget.showAlpha ? _hsv.alpha : 1));
 
+  Widget _spectrum(BuildContext context) {
+    final l = UnaLocalizations.of(context);
     return UnaColumn(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -162,65 +194,409 @@ class _ColorPickerState extends State<ColorPicker> {
           ),
           onChanged: (t) => _set(_hsv.withHue((t * 360).clamp(0, 360))),
         ),
-        if (widget.showAlpha)
-          _ColorTrack(
-            value: _hsv.alpha,
-            semanticLabel: l.colorPicker.opacity,
-            semanticValue: percent(_hsv.alpha),
-            thumbColor: _hsv.toColor(),
-            checkered: true,
-            gradient: LinearGradient(
-              colors: [opaque.withValues(alpha: 0), opaque],
-            ),
-            onChanged: (t) => _set(_hsv.withAlpha(t)),
-          ),
-        if (widget.showHex)
-          TextField(
-            controller: _hex,
-            leading: Padding(
-              padding: const EdgeInsetsDirectional.only(end: 8),
-              child: _Swatch(
-                color: _hsv.toColor(),
-                size: 18,
-                radius: theme.radii.sm,
-              ),
-            ),
-            placeholder: Text(l.colorPicker.hex),
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp('[#0-9a-fA-F]')),
-              LengthLimitingTextInputFormatter(9),
-            ],
-            onChanged: (text) {
-              final color = colorFromHex(text);
-              // Only a whole colour: "#1" on the way to "#123456" is not
-              // one yet.
-              final digits = text.replaceFirst('#', '').length;
-              if (color != null && digits >= 6) _setColor(color);
-            },
-            onSubmitted: (text) {
-              final color = colorFromHex(text);
-              if (color != null) _setColor(color);
-              _hex.text = _hexOf(_hsv.toColor());
-            },
-          ),
-        if (swatches != null && swatches.isNotEmpty)
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final swatch in swatches)
-                _SwatchButton(
-                  color: swatch,
-                  selected:
-                      colorToHex(swatch, alpha: true) ==
-                      colorToHex(_hsv.toColor(), alpha: true),
-                  onPressed: () => _setColor(swatch),
-                ),
-            ],
-          ),
       ],
     );
   }
+
+  Widget _sliders(BuildContext context) {
+    final theme = Theme.of(context);
+    final l = UnaLocalizations.of(context);
+    final color = _hsv.withAlpha(1).toColor();
+    int byte(double channel) => (channel * 255).round().clamp(0, 255);
+    Widget channel({
+      required String label,
+      required String short,
+      required double value,
+      required Color from,
+      required Color to,
+      required Color Function(double) at,
+    }) {
+      final style = theme.textTheme.caption.copyWith(
+        fontFeatures: const [FontFeature.tabularFigures()],
+      );
+      return Row(
+        children: [
+          SizedBox(
+            width: 16,
+            child: ExcludeSemantics(child: Text(short, style: style)),
+          ),
+          Expanded(
+            child: _ColorTrack(
+              value: value,
+              semanticLabel: label,
+              semanticValue: '${byte(value)}',
+              thumbColor: color,
+              gradient: LinearGradient(colors: [from, to]),
+              onChanged: (t) => _setOpaque(at(t)),
+            ),
+          ),
+          SizedBox(
+            width: 36,
+            child: ExcludeSemantics(
+              child: Text(
+                '${byte(value)}',
+                textAlign: TextAlign.end,
+                style: style,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return UnaColumn(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      gap: GapSize.md,
+      children: [
+        channel(
+          label: l.colorPicker.red,
+          short: 'R',
+          value: color.r,
+          from: color.withValues(red: 0),
+          to: color.withValues(red: 1),
+          at: (t) => color.withValues(red: t),
+        ),
+        channel(
+          label: l.colorPicker.green,
+          short: 'G',
+          value: color.g,
+          from: color.withValues(green: 0),
+          to: color.withValues(green: 1),
+          at: (t) => color.withValues(green: t),
+        ),
+        channel(
+          label: l.colorPicker.blue,
+          short: 'B',
+          value: color.b,
+          from: color.withValues(blue: 0),
+          to: color.withValues(blue: 1),
+          at: (t) => color.withValues(blue: t),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l = UnaLocalizations.of(context);
+    final swatches = widget.swatches;
+    final opaque = _hsv.withAlpha(1).toColor();
+    final mobile = theme.formFactor != FormFactor.desktop;
+    String percent(double v) => '${(v * 100).round()}%';
+
+    return Disabled(
+      enabled: widget.onChanged != null,
+      child: UnaColumn(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        gap: GapSize.md,
+        children: [
+          if (widget.modes.length > 1)
+            Center(
+              widthFactor: mobile ? null : 1,
+              child: SegmentedControl<ColorPickerMode>(
+                // Across the picker on a phone, as iOS has it; centred at
+                // its own width on a desktop, where equal thirds of a
+                // popover would cut the labels short.
+                expand: mobile,
+                value: _mode,
+                onChanged: (mode) => setState(() => _mode = mode),
+                segments: [
+                  for (final mode in widget.modes)
+                    Segment(
+                      value: mode,
+                      label: Text(switch (mode) {
+                        ColorPickerMode.spectrum => l.colorPicker.spectrum,
+                        ColorPickerMode.grid => l.colorPicker.grid,
+                        ColorPickerMode.sliders => l.colorPicker.sliders,
+                      }),
+                    ),
+                ],
+              ),
+            ),
+          switch (_mode) {
+            ColorPickerMode.spectrum => _spectrum(context),
+            ColorPickerMode.grid => _ColorGrid(
+              selected: opaque,
+              semanticLabel: l.colorPicker.grid,
+              onSelected: _setOpaque,
+            ),
+            ColorPickerMode.sliders => _sliders(context),
+          },
+          if (widget.showAlpha)
+            _ColorTrack(
+              value: _hsv.alpha,
+              semanticLabel: l.colorPicker.opacity,
+              semanticValue: percent(_hsv.alpha),
+              thumbColor: _hsv.toColor(),
+              checkered: true,
+              gradient: LinearGradient(
+                colors: [opaque.withValues(alpha: 0), opaque],
+              ),
+              onChanged: (t) => _set(_hsv.withAlpha(t)),
+            ),
+          if (widget.showHex)
+            TextField(
+              controller: _hex,
+              leading: Padding(
+                padding: const EdgeInsetsDirectional.only(end: 8),
+                child: _Swatch(
+                  color: _hsv.toColor(),
+                  size: 18,
+                  radius: theme.radii.sm,
+                ),
+              ),
+              placeholder: Text(l.colorPicker.hex),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp('[#0-9a-fA-F]')),
+                LengthLimitingTextInputFormatter(9),
+              ],
+              onChanged: (text) {
+                final color = colorFromHex(text);
+                // Only a whole colour: "#1" on the way to "#123456" is not
+                // one yet.
+                final digits = text.replaceFirst('#', '').length;
+                if (color != null && digits >= 6) {
+                  final next = widget.showAlpha
+                      ? color
+                      : color.withValues(alpha: 1);
+                  setState(() => _hsv = HSVColor.fromColor(next));
+                  if (next != widget.value) widget.onChanged?.call(next);
+                }
+              },
+              onSubmitted: (text) {
+                final color = colorFromHex(text);
+                if (color != null) _setColor(color);
+                _hex.text = _hexOf(_hsv.toColor());
+              },
+            ),
+          if (swatches != null && swatches.isNotEmpty)
+            Wrap(
+              // A finger's target on a phone, a pointer's on a desktop.
+              spacing: mobile ? 10 : 8,
+              runSpacing: mobile ? 10 : 8,
+              children: [
+                for (final swatch in swatches)
+                  _SwatchButton(
+                    color: swatch,
+                    size: mobile ? 30 : 22,
+                    selected:
+                        colorToHex(swatch, alpha: true) ==
+                        colorToHex(_hsv.toColor(), alpha: true),
+                    onPressed: () => _setColor(swatch),
+                  ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// iOS's grid: a row of greys from white to black over twelve hues, each
+/// in nine shades from light to dark. A tap or a drag picks the cell under
+/// the finger; the arrow keys move from cell to cell.
+class _ColorGrid extends StatefulWidget {
+  const _ColorGrid({
+    required this.selected,
+    required this.semanticLabel,
+    required this.onSelected,
+  });
+
+  final Color selected;
+  final String semanticLabel;
+  final ValueChanged<Color> onSelected;
+
+  static const columns = 12;
+  static const rows = 10;
+
+  /// The colour of the cell at [column] and [row].
+  static Color colorAt(int column, int row) {
+    if (row == 0) {
+      final v = 1 - column / (columns - 1);
+      return HSVColor.fromAHSV(1, 0, 0, v).toColor();
+    }
+    final hue = column * 360 / columns;
+    final lightness = .9 - (row - 1) * (.72 / (rows - 2));
+    return HSLColor.fromAHSL(1, hue, .9, lightness).toColor();
+  }
+
+  /// The cell showing [color], if one does.
+  static (int, int)? cellOf(Color color) {
+    final hex = colorToHex(color);
+    for (var row = 0; row < rows; row++) {
+      for (var column = 0; column < columns; column++) {
+        if (colorToHex(colorAt(column, row)) == hex) return (column, row);
+      }
+    }
+    return null;
+  }
+
+  @override
+  State<_ColorGrid> createState() => _ColorGridState();
+}
+
+class _ColorGridState extends State<_ColorGrid> {
+  bool _focused = false;
+
+  void _pickAt(Offset local, Size size) {
+    final column = (local.dx / size.width * _ColorGrid.columns).floor().clamp(
+      0,
+      _ColorGrid.columns - 1,
+    );
+    final row = (local.dy / size.height * _ColorGrid.rows).floor().clamp(
+      0,
+      _ColorGrid.rows - 1,
+    );
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    final color = _ColorGrid.colorAt(
+      rtl ? _ColorGrid.columns - 1 - column : column,
+      row,
+    );
+    if (colorToHex(color) != colorToHex(widget.selected)) {
+      Haptics.selection(context);
+      widget.onSelected(color);
+    }
+  }
+
+  void _move(int dx, int dy) {
+    final (column, row) = _ColorGrid.cellOf(widget.selected) ?? (0, 0);
+    widget.onSelected(
+      _ColorGrid.colorAt(
+        (column + dx).clamp(0, _ColorGrid.columns - 1),
+        (row + dy).clamp(0, _ColorGrid.rows - 1),
+      ),
+    );
+  }
+
+  KeyEventResult _onKey(FocusNode node, KeyEvent event) {
+    if (event is KeyUpEvent) return KeyEventResult.ignored;
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    final key = event.logicalKey;
+    if (key == LogicalKeyboardKey.arrowRight) {
+      _move(rtl ? -1 : 1, 0);
+    } else if (key == LogicalKeyboardKey.arrowLeft) {
+      _move(rtl ? 1 : -1, 0);
+    } else if (key == LogicalKeyboardKey.arrowDown) {
+      _move(0, 1);
+    } else if (key == LogicalKeyboardKey.arrowUp) {
+      _move(0, -1);
+    } else {
+      return KeyEventResult.ignored;
+    }
+    return KeyEventResult.handled;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cell = _ColorGrid.cellOf(widget.selected);
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    return Semantics(
+      label: widget.semanticLabel,
+      value: colorToHex(widget.selected),
+      onIncrease: () => _move(1, 0),
+      onDecrease: () => _move(-1, 0),
+      increasedValue: colorToHex(widget.selected),
+      decreasedValue: colorToHex(widget.selected),
+      child: Focus(
+        onKeyEvent: _onKey,
+        onFocusChange: (focused) => setState(() => _focused = focused),
+        child: FocusRing(
+          visible: _focused,
+          borderRadius: theme.radii.md,
+          child: AspectRatio(
+            aspectRatio: _ColorGrid.columns / _ColorGrid.rows,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final size = constraints.biggest;
+                return GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTapDown: (d) => _pickAt(d.localPosition, size),
+                  onPanDown: (d) => _pickAt(d.localPosition, size),
+                  onPanUpdate: (d) => _pickAt(d.localPosition, size),
+                  child: ClipRRect(
+                    borderRadius: theme.radii.md,
+                    child: CustomPaint(
+                      size: size,
+                      painter: _GridPainter(
+                        selected: cell,
+                        rtl: rtl,
+                        ring: theme.colorScheme.background,
+                        ink: theme.colorScheme.foreground,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _GridPainter extends CustomPainter {
+  const _GridPainter({
+    required this.selected,
+    required this.rtl,
+    required this.ring,
+    required this.ink,
+  });
+
+  final (int, int)? selected;
+  final bool rtl;
+  final Color ring;
+  final Color ink;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width / _ColorGrid.columns;
+    final h = size.height / _ColorGrid.rows;
+    Rect cellRect(int column, int row) {
+      final x = rtl ? _ColorGrid.columns - 1 - column : column;
+      // A hair over, so neighbours meet without a seam.
+      return Rect.fromLTWH(x * w, row * h, w + .5, h + .5);
+    }
+
+    for (var row = 0; row < _ColorGrid.rows; row++) {
+      for (var column = 0; column < _ColorGrid.columns; column++) {
+        canvas.drawRect(
+          cellRect(column, row),
+          Paint()..color = _ColorGrid.colorAt(column, row),
+        );
+      }
+    }
+    if (selected case (final column, final row)) {
+      final rect = cellRect(column, row).deflate(1.5);
+      final r = RRect.fromRectAndRadius(rect, const Radius.circular(3));
+      canvas
+        ..drawRRect(
+          r,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 3
+            ..color = ring,
+        )
+        ..drawRRect(
+          r.deflate(1.5),
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1
+            ..color = ink.withValues(alpha: .35),
+        );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_GridPainter old) =>
+      old.selected != selected ||
+      old.rtl != rtl ||
+      old.ring != ring ||
+      old.ink != ink;
 }
 
 /// How far an arrow key moves a thumb: a hundredth, a tenth with Shift.
@@ -649,8 +1025,10 @@ class _SwatchButton extends StatelessWidget {
     required this.color,
     required this.selected,
     required this.onPressed,
+    this.size = 22,
   });
 
+  final double size;
   final Color color;
   final bool selected;
   final VoidCallback onPressed;
@@ -676,7 +1054,7 @@ class _SwatchButton extends StatelessWidget {
           ),
           child: Padding(
             padding: const EdgeInsets.all(3),
-            child: _Swatch(color: color, size: 22, radius: theme.radii.sm),
+            child: _Swatch(color: color, size: size, radius: theme.radii.sm),
           ),
         ),
       ),

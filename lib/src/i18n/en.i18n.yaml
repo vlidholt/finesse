@@ -150,11 +150,17 @@ rating:
   value: "$value of $count"
 
 colorPicker:
+  blue: "Blue"
+  green: "Green"
+  grid: "Grid"
   hex: "Hex"
   hue: "Hue"
   opacity: "Opacity"
+  red: "Red"
   saturationAndBrightness: "Saturation and brightness"
   selectColor: "Select colour"
+  sliders: "Sliders"
+  spectrum: "Spectrum"
 
 dialog:
   close: "Close"

@@ -399,6 +399,15 @@ was measured from (Strand, until it moved), is its own repository,
   `leading`, also inside an `IndicatorBadge`, `Tooltip` or
   `RepaintBoundary` — stands with its glyph, not its box, on the bar's
   margin; a button with a surface, and a capsule of glass, with its edge.
+- **`ColorPicker` has iOS's three modes** (`ColorPickerMode`): the
+  spectrum, a grid of twelve hues in nine shades under a row of greys
+  (tap or drag; the arrow keys move between cells), and red, green and
+  blue sliders with their values, switched by a segmented control that
+  spans the picker on a phone and sits centred on a desktop. `modes`
+  picks which are offered. A null `onChanged` disables the picker, and
+  its swatches are a finger's size on a phone. The example's theme
+  editor uses it for a custom accent colour, exported as
+  `applyAccent`.
 - **The default palette is `BlueColorScheme`**: a standard blue
   (`#2563EB` buttons, a `#1D4ED8` tint in the light; `#6EB0FB` in the
   dark) on a cool grey page, setting every optional token as the teal

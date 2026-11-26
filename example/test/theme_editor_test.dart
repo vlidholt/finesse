@@ -298,6 +298,39 @@ void main() {
     addTearDown(() => FlutterError.onError = report);
   }
 
+  group('a custom accent', () {
+    const custom = Color(0xFFDB2777);
+
+    test('re-tints the base palette with applyAccent', () {
+      const config = ThemeEditorConfig(customAccent: custom);
+      expect(config.colorScheme.primary, custom);
+      expect(
+        config.colorScheme,
+        const BlueColorScheme.light().applyAccent(custom),
+      );
+      // It is part of the look, so no preset matches it.
+      expect(config.look, isNot(const ThemeEditorConfig().look));
+    });
+
+    test('is exported as applyAccent with the colour', () {
+      const config = ThemeEditorConfig(customAccent: custom);
+      final snippet = config.toDartSnippet();
+      expect(snippet, contains('.applyAccent('));
+      expect(snippet, contains('const Color(0xFFDB2777)'));
+    });
+
+    test('stands in for the preset accent, and clears', () {
+      const config = ThemeEditorConfig(
+        accentColor: AccentColor.violet,
+        customAccent: custom,
+      );
+      expect(config.colorScheme.primary, custom);
+      final cleared = config.copyWith(customAccent: () => null);
+      expect(cleared.customAccent, isNull);
+      expect(cleared.colorScheme.primary, isNot(custom));
+    });
+  });
+
   group('the customizer panel', () {
     /// Pumps the whole app and opens the editor.
     ///

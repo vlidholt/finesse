@@ -600,6 +600,15 @@ class UnaLocalizationsData$colorPicker$en {
 
 	// Translations
 
+	/// en: 'Blue'
+	String get blue => 'Blue';
+
+	/// en: 'Green'
+	String get green => 'Green';
+
+	/// en: 'Grid'
+	String get grid => 'Grid';
+
 	/// en: 'Hex'
 	String get hex => 'Hex';
 
@@ -609,11 +618,20 @@ class UnaLocalizationsData$colorPicker$en {
 	/// en: 'Opacity'
 	String get opacity => 'Opacity';
 
+	/// en: 'Red'
+	String get red => 'Red';
+
 	/// en: 'Saturation and brightness'
 	String get saturationAndBrightness => 'Saturation and brightness';
 
 	/// en: 'Select colour'
 	String get selectColor => 'Select colour';
+
+	/// en: 'Sliders'
+	String get sliders => 'Sliders';
+
+	/// en: 'Spectrum'
+	String get spectrum => 'Spectrum';
 }
 
 // Path: dialog
@@ -823,11 +841,17 @@ extension on UnaLocalizationsData {
 			'reorder.dragHandle' => 'Drag to reorder',
 			'swipeActions.more' => 'More actions',
 			'rating.value' => ({required Object value, required Object count}) => '${value} of ${count}',
+			'colorPicker.blue' => 'Blue',
+			'colorPicker.green' => 'Green',
+			'colorPicker.grid' => 'Grid',
 			'colorPicker.hex' => 'Hex',
 			'colorPicker.hue' => 'Hue',
 			'colorPicker.opacity' => 'Opacity',
+			'colorPicker.red' => 'Red',
 			'colorPicker.saturationAndBrightness' => 'Saturation and brightness',
 			'colorPicker.selectColor' => 'Select colour',
+			'colorPicker.sliders' => 'Sliders',
+			'colorPicker.spectrum' => 'Spectrum',
 			'dialog.close' => 'Close',
 			'dialog.dismiss' => 'Dismiss',
 			'sheet.resize' => 'Resize',

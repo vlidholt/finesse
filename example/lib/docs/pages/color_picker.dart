@@ -6,10 +6,14 @@ final colorPickerDoc = ComponentDoc(
   slug: 'color_picker',
   title: 'Color Picker',
   description:
-      'A colour chosen by eye, by number or from a list: an area for '
-      'saturation and brightness, tracks for the hue and the opacity, a '
-      'hex field and swatches. `ColorPickerButton` puts it behind a '
-      'swatch, in a popover or, on a phone, a bottom sheet.',
+      'A colour chosen by eye, by number or from a list, as iOS and macOS '
+      'offer it: a spectrum (an area for saturation and brightness over a '
+      'hue track), a grid of twelve hues in nine shades, or red, green and '
+      'blue sliders, switched by a segmented control; then an opacity '
+      'track, a hex field and swatches. `modes` picks which of the three '
+      'are offered, and a null `onChanged` disables it. '
+      '`ColorPickerButton` puts it behind a swatch, in a popover or, on a '
+      'phone, a bottom sheet.',
   examples: [
     ComponentExample(
       id: 'color_picker_button',
@@ -25,7 +29,7 @@ final colorPickerDoc = ComponentDoc(
       description:
           '`showAlpha` adds the opacity track and writes the hex with '
           'its alpha. `colorToHex` and `colorFromHex` convert.',
-      minPreviewHeight: 460,
+      minPreviewHeight: 520,
       builder: (_) => const ColorPickerInlineExample(),
     ),
   ],

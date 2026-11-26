@@ -1,6 +1,6 @@
 # Color Picker
 
-A colour chosen by eye, by number or from a list: an area for saturation and brightness, tracks for the hue and the opacity, a hex field and swatches. `ColorPickerButton` puts it behind a swatch, in a popover or, on a phone, a bottom sheet.
+A colour chosen by eye, by number or from a list, as iOS and macOS offer it: a spectrum (an area for saturation and brightness over a hue track), a grid of twelve hues in nine shades, or red, green and blue sliders, switched by a segmented control; then an opacity track, a hex field and swatches. `modes` picks which of the three are offered, and a null `onChanged` disables it. `ColorPickerButton` puts it behind a swatch, in a popover or, on a phone, a bottom sheet.
 
 ## Behind a swatch
 

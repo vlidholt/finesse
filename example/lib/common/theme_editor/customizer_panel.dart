@@ -214,7 +214,17 @@ class _SettingsState extends State<_Settings> {
                     swatch: accent.swatch(Brightness.light, config.baseColor),
                   ),
               ],
-              onChanged: (v) => onChanged(config.copyWith(accentColor: v)),
+              // A preset accent replaces a colour picked by hand.
+              onChanged: (v) => onChanged(
+                config.copyWith(accentColor: v, customAccent: () => null),
+              ),
+            ),
+            ThemeColorPicker(
+              label: 'Custom Accent',
+              value: config.customAccent,
+              current: config.colorScheme.primary,
+              onChanged: (color) =>
+                  onChanged(config.copyWith(customAccent: () => color)),
             ),
           ]),
           _section(_SectionId.fonts, [

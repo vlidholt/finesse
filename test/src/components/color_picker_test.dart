@@ -10,11 +10,15 @@ class _Host extends StatefulWidget {
     this.initial = const Color(0xFF0F766E),
     this.showAlpha = false,
     this.swatches,
+    this.mode,
+    this.enabled = true,
   });
 
   final Color initial;
   final bool showAlpha;
   final List<Color>? swatches;
+  final ColorPickerMode? mode;
+  final bool enabled;
 
   @override
   State<_Host> createState() => _HostState();
@@ -36,10 +40,13 @@ class _HostState extends State<_Host> {
           value: value,
           showAlpha: widget.showAlpha,
           swatches: widget.swatches,
-          onChanged: (v) {
-            changes.add(v);
-            setState(() => value = v);
-          },
+          initialMode: widget.mode,
+          onChanged: widget.enabled
+              ? (v) {
+                  changes.add(v);
+                  setState(() => value = v);
+                }
+              : null,
         ),
       ),
     );
@@ -129,7 +136,9 @@ void main() {
     ) async {
       useTraditionalHighlights();
       await pumpUna(tester, const _Host());
-      // The area is the first Tab stop.
+      // The mode's segmented control is the first Tab stop, the area the
+      // second.
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
       await tester.sendKeyEvent(LogicalKeyboardKey.tab);
       await tester.pump();
       final before = hsvOf(tester);
@@ -313,6 +322,101 @@ void main() {
       await tester.tap(find.byType(ColorPickerButton), warnIfMissed: false);
       await rest(tester);
       expect(find.byType(ColorPicker), findsNothing);
+    });
+  });
+
+  group('ColorPicker modes', () {
+    _HostState host(WidgetTester tester) =>
+        tester.state<_HostState>(find.byType(_Host));
+
+    testWidgets('a segmented control switches between the three', (
+      tester,
+    ) async {
+      await pumpUna(tester, const _Host());
+      expect(find.byType(SegmentedControl<ColorPickerMode>), findsOneWidget);
+      for (final label in ['Spectrum', 'Grid', 'Sliders']) {
+        expect(find.text(label), findsOneWidget);
+      }
+      // The third segment, from the keyboard: the arrows move a segmented
+      // control's selection. (The test font's em-wide glyphs overflow the
+      // labels at this width, so a tap is not a fair test of the layout.)
+      useTraditionalHighlights();
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      for (var i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      expect(find.text('R'), findsOneWidget);
+      // Teal's red, green and blue, as numbers.
+      expect(find.text('15'), findsOneWidget);
+      expect(find.text('118'), findsOneWidget);
+      expect(find.text('110'), findsOneWidget);
+    });
+
+    testWidgets('one mode shows no control', (tester) async {
+      await pumpUna(
+        tester,
+        const Center(
+          child: SizedBox(
+            width: 260,
+            child: ColorPicker(
+              value: Color(0xFF0F766E),
+              onChanged: null,
+              modes: [ColorPickerMode.spectrum],
+            ),
+          ),
+        ),
+      );
+      expect(find.byType(SegmentedControl<ColorPickerMode>), findsNothing);
+    });
+
+    testWidgets('a tap in the grid picks the cell under it', (tester) async {
+      await pumpUna(tester, const _Host(mode: ColorPickerMode.grid));
+      final grid = find.byWidgetPredicate(
+        (w) => w is CustomPaint && '${w.painter.runtimeType}' == '_GridPainter',
+      );
+      final rect = tester.getRect(grid);
+      // The first cell of the grey row: white.
+      await tester.tapAt(rect.topLeft + const Offset(4, 4));
+      await tester.pump();
+      expect(colorToHex(host(tester).value), '#FFFFFF');
+      // The last: black.
+      await tester.tapAt(rect.topRight + const Offset(-4, 4));
+      await tester.pump();
+      expect(colorToHex(host(tester).value), '#000000');
+      // A hue lower down: not grey.
+      await tester.tapAt(rect.center);
+      await tester.pump();
+      final hsv = HSVColor.fromColor(host(tester).value);
+      expect(hsv.saturation, greaterThan(.5));
+    });
+
+    testWidgets('a slider changes only its channel', (tester) async {
+      await pumpUna(tester, const _Host(mode: ColorPickerMode.sliders));
+      final before = host(tester).value;
+      final red = find.bySemanticsLabel('Red');
+      final rect = tester.getRect(red);
+      await tester.tapAt(rect.centerRight - const Offset(2, 0));
+      await tester.pump();
+      final after = host(tester).value;
+      expect(after.r, greaterThan(.9));
+      expect(after.g, closeTo(before.g, .01));
+      expect(after.b, closeTo(before.b, .01));
+    });
+
+    testWidgets('with no onChanged it is disabled', (tester) async {
+      await pumpUna(tester, const _Host(enabled: false));
+      expect(find.byType(Disabled), findsWidgets);
+      final disabled = tester.widget<Disabled>(
+        find
+            .ancestor(
+              of: find.byType(SegmentedControl<ColorPickerMode>),
+              matching: find.byType(Disabled),
+            )
+            .first,
+      );
+      expect(disabled.enabled, isFalse);
     });
   });
 }

@@ -113,6 +113,7 @@ CollapsibleTriggerBuilder
 ColorPicker
 ColorPickerButton
 ColorPickerFormField
+ColorPickerMode
 ColorScheme
 Command
 CommandFilter
