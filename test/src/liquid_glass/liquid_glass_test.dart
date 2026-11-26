@@ -238,6 +238,40 @@ void main() {
       });
     }
 
+    testWidgets('a glass bottom bar with no action stays at the bottom', (
+      tester,
+    ) async {
+      await onPlatform(TargetPlatform.iOS, () async {
+        await pump(
+          tester,
+          Scaffold(
+            bottomNavigationBar: BottomNavigationBar(
+              selectedIndex: 0,
+              onDestinationSelected: (_) {},
+              destinations: const [
+                NavigationDestination(
+                  icon: SizedBox.square(dimension: 20),
+                  label: 'Home',
+                ),
+                NavigationDestination(
+                  icon: SizedBox.square(dimension: 20),
+                  label: 'Jobs',
+                ),
+              ],
+            ),
+            body: const SizedBox.expand(),
+          ),
+        );
+        // Centred across, at its own height: a `Center` took the whole
+        // slot and put the capsule mid-screen.
+        final bar = tester.getRect(find.byType(lg.GlassTabBar));
+        final screen = tester.getRect(find.byType(Scaffold));
+        expect(bar.height, lessThan(screen.height / 3));
+        expect(bar.bottom, greaterThan(screen.bottom - 60));
+        expect(tester.takeException(), isNull);
+      });
+    });
+
     testWidgets('a glass slider in a short row keeps its thumb on its track', (
       tester,
     ) async {

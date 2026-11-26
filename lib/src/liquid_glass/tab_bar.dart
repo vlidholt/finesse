@@ -182,8 +182,11 @@ class LiquidGlassTabBar extends StatelessWidget {
     );
     if (action == null) {
       // The package puts the capsule at the start of the width it is
-      // given; given only the capsule's, it is centred.
-      bar = Center(
+      // given; given only the capsule's, it is centred — across, and no
+      // taller than it is: a `Center` took the whole height of the bar's
+      // slot and put the capsule in the middle of the screen.
+      bar = Align(
+        heightFactor: 1,
         child: SizedBox(
           width: tabWidth * tabs.length + 2 * horizontalMargin,
           child: bar,
