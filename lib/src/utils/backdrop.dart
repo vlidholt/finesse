@@ -377,28 +377,34 @@ class _BackdropSurfaceState extends State<BackdropSurface> {
     // when a filter comes or goes.
     Widget surface = BackdropFade.none(child: widget.child);
     if (filter != null) {
-      if (fade == null) {
-        surface = BackdropFilter(filter: filter, child: surface);
-      } else {
-        surface = AnimatedBuilder(
-          animation: fade,
-          child: FadeTransition(opacity: fade, child: surface),
-          builder: (context, child) {
-            // At fade t the tint covers t·tint of the backdrop. For the
-            // rest to be the page fading into its filtered self, the
-            // filter's share of what still shows has to be this.
-            final t = fade.value;
-            final tint = widget.tintOpacity.clamp(0.0, 1.0);
-            final share = t >= 1 ? 1.0 : t * (1 - tint) / (1 - t * tint);
-            final faded = Backdrop.faded(filter, share);
-            return BackdropFilter(
-              filter: faded ?? filter,
-              enabled: faded != null,
-              child: child,
-            );
-          },
-        );
-      }
+      // One tree shape whether or not the fade is claimed: a claim starts
+      // with the exit and ends with the entrance, and a wrapper that came
+      // and went with it rebuilt everything inside the surface from scratch
+      // — a dialog's form, a search view's query — just as it left. Not
+      // claimed, the fade is complete and the FadeTransition paints no
+      // layer.
+      surface = AnimatedBuilder(
+        animation: fade ?? kAlwaysCompleteAnimation,
+        child: FadeTransition(
+          opacity: fade ?? kAlwaysCompleteAnimation,
+          child: surface,
+        ),
+        builder: (context, child) {
+          if (fade == null) return BackdropFilter(filter: filter, child: child);
+          // At fade t the tint covers t·tint of the backdrop. For the
+          // rest to be the page fading into its filtered self, the
+          // filter's share of what still shows has to be this.
+          final t = fade.value;
+          final tint = widget.tintOpacity.clamp(0.0, 1.0);
+          final share = t >= 1 ? 1.0 : t * (1 - tint) / (1 - t * tint);
+          final faded = Backdrop.faded(filter, share);
+          return BackdropFilter(
+            filter: faded ?? filter,
+            enabled: faded != null,
+            child: child,
+          );
+        },
+      );
       surface = widget.clipper != null
           ? ClipPath(clipper: widget.clipper, child: surface)
           : ClipRRect(borderRadius: widget.borderRadius, child: surface);
@@ -411,8 +417,10 @@ class _BackdropSurfaceState extends State<BackdropSurface> {
     // difference to what overlaps what — but a backdrop filter samples
     // everything painted before it, and a blur that reaches past the edge
     // would pull a shadow painted first back into the glass as a grey rim.
-    Widget cast = DecoratedBox(decoration: shadow);
-    if (fade != null) cast = FadeTransition(opacity: fade, child: cast);
+    final Widget cast = FadeTransition(
+      opacity: fade ?? kAlwaysCompleteAnimation,
+      child: DecoratedBox(decoration: shadow),
+    );
     return Stack(
       fit: StackFit.passthrough,
       clipBehavior: Clip.none,

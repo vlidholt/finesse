@@ -36,7 +36,8 @@ export 'src/components/accordion.dart';
 export 'src/components/action_sheet.dart';
 export 'src/components/alert.dart';
 export 'src/components/app_bar.dart';
-export 'src/components/autocomplete.dart' hide AutocompleteOptionRow;
+export 'src/components/autocomplete.dart'
+    hide AutocompleteOptionRow, OptionsPointers;
 export 'src/components/avatar.dart';
 export 'src/components/avatar_group.dart';
 export 'src/components/back_button.dart';

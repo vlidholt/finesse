@@ -235,6 +235,13 @@ class _AutocompleteState<T extends Object> extends State<Autocomplete<T>> {
   String _display(T option) =>
       widget.displayStringForOption?.call(option) ?? option.toString();
 
+  final _pointers = OptionsPointers();
+
+  /// What the list last showed while it was open: what it keeps showing
+  /// while it leaves, rather than emptying under the user's eyes as an
+  /// option is chosen.
+  ({_Panel? panel, List<T> options}) _shown = (panel: null, options: const []);
+
   @override
   void initState() {
     super.initState();
@@ -300,6 +307,12 @@ class _AutocompleteState<T extends Object> extends State<Autocomplete<T>> {
       if (widget.openOnFocus && !_answered) _ask();
     } else {
       _debounce?.cancel();
+      // A finger on an option: the list stays until it lifts, so the tap
+      // it ends still lands (see [OptionsPointers]).
+      if (_pointers.any) {
+        _pointers.afterUp = _sync;
+        return;
+      }
     }
     _sync();
   }
@@ -441,7 +454,8 @@ class _AutocompleteState<T extends Object> extends State<Autocomplete<T>> {
       _options = const [];
       _loading = false;
     });
-    _highlight.value = (index: null, byKeyboard: false);
+    // The highlight stays on the chosen row while the list leaves; the
+    // next answer resets it.
     _sync();
     widget.onChanged?.call(text);
     widget.onSelected?.call(option);
@@ -579,12 +593,14 @@ class _AutocompleteState<T extends Object> extends State<Autocomplete<T>> {
           color: theme.colorScheme.popoverForeground,
         );
 
-    final content = switch (_panel) {
+    if (_popover.isOpen) _shown = (panel: _panel, options: _options);
+    final shown = _shown;
+    final content = switch (shown.panel) {
       _Panel.options => Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          for (final (index, option) in _options.indexed)
+          for (final (index, option) in shown.options.indexed)
             AutocompleteOptionRow(
               index: index,
               highlight: _highlight,
@@ -601,7 +617,7 @@ class _AutocompleteState<T extends Object> extends State<Autocomplete<T>> {
       ),
       _Panel.loading => widget.loadingBuilder!(context),
       _Panel.empty => widget.emptyBuilder!(context),
-      // Closing: the last frame of the exit has nothing to show.
+      // Nothing to show, and nothing shown before.
       null => const SizedBox.shrink(),
     };
 
@@ -614,10 +630,12 @@ class _AutocompleteState<T extends Object> extends State<Autocomplete<T>> {
       // The focus stays in the field: the rows are chosen with the arrow
       // keys and Enter, or with the pointer, and Tab goes on to whatever
       // follows the field rather than into the list.
-      child: ExcludeFocus(
-        child: DefaultTextStyle(
-          style: textStyle,
-          child: SingleChildScrollView(padding: padding, child: content),
+      child: _pointers.wrap(
+        ExcludeFocus(
+          child: DefaultTextStyle(
+            style: textStyle,
+            child: SingleChildScrollView(padding: padding, child: content),
+          ),
         ),
       ),
     );
@@ -763,5 +781,47 @@ class _AutocompleteOptionRowState extends State<AutocompleteOptionRow> {
         ),
       ),
     );
+  }
+}
+
+/// The pointers down on a suggestion list, for the field that shows it.
+///
+/// A field with a list under it gives up the focus at odd moments while a
+/// finger is on an option: in Safari on iOS the hidden text input is
+/// blurred a tenth of a second after the touch lands, and the engine closes
+/// the field's connection, which takes its focus. A field that closed its
+/// list and emptied its options there and then took the row away before its
+/// tap — on the pointer's way up — could land, so the option was lost with
+/// everything else. While [any] is true the field leaves its list alone,
+/// and hands what it would have done to [afterUp].
+///
+/// Internal: shared by `Autocomplete` and `TagField`, and not exported.
+class OptionsPointers {
+  final _down = <int>{};
+  VoidCallback? _afterUp;
+
+  /// Whether a pointer is down on the list.
+  bool get any => _down.isNotEmpty;
+
+  /// What to run once the last pointer is up, after the tap it ended has
+  /// been delivered. Run once; a later one replaces an earlier one.
+  // ignore: avoid_setters_without_getters
+  set afterUp(VoidCallback action) => _afterUp = action;
+
+  /// Wraps the list so its pointers are counted.
+  Widget wrap(Widget child) => Listener(
+    onPointerDown: (event) => _down.add(event.pointer),
+    onPointerUp: _end,
+    onPointerCancel: _end,
+    child: child,
+  );
+
+  void _end(PointerEvent event) {
+    if (!_down.remove(event.pointer) || _down.isNotEmpty) return;
+    final action = _afterUp;
+    _afterUp = null;
+    // The tap is delivered after every listener on the hit path has heard
+    // the pointer go up: a microtask runs after both.
+    if (action != null) scheduleMicrotask(action);
   }
 }

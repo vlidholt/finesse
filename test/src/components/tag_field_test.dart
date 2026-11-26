@@ -489,6 +489,71 @@ void main() {
     });
   });
 
+  group('choosing a suggestion with a finger', () {
+    const options = ['Data', 'Design', 'Development', 'Motion'];
+
+    testWidgets('it is still taken when the field loses the focus while the '
+        'finger is down, as in Safari on iOS', (tester) async {
+      final changes = <List<String>>[];
+      await tester.pumpWidget(
+        _app(_Host(options: options, changes: changes)),
+      );
+      await _type(tester, 'de');
+      await _settle(tester);
+      final finger = await tester.startGesture(
+        tester.getCenter(find.text('Design')),
+      );
+      // Safari blurs the hidden input a tenth of a second into the touch,
+      // and the engine closes the connection, which takes the focus.
+      await tester.pump(const Duration(milliseconds: 150));
+      tester.testTextInput.closeConnection();
+      await tester.pump();
+      expect(find.text('Design').hitTestable(), findsOneWidget);
+      expect(changes, isEmpty);
+      await finger.up();
+      await _settle(tester);
+      // The suggestion, not what was typed.
+      expect(changes, [
+        ['Design'],
+      ]);
+      expect(_input(tester), isEmpty);
+    });
+
+    testWidgets('a finger that leaves without choosing lets the field '
+        'take what was typed', (tester) async {
+      final changes = <List<String>>[];
+      await tester.pumpWidget(
+        _app(_Host(options: options, changes: changes)),
+      );
+      await _type(tester, 'de');
+      await _settle(tester);
+      final finger = await tester.startGesture(
+        tester.getCenter(find.text('Design')),
+      );
+      await tester.pump(const Duration(milliseconds: 150));
+      tester.testTextInput.closeConnection();
+      await tester.pump();
+      await finger.cancel();
+      await _settle(tester);
+      expect(changes, [
+        ['de'],
+      ]);
+      expect(find.text('Design'), findsNothing);
+    });
+
+    testWidgets('the list keeps its options while it leaves', (tester) async {
+      await tester.pumpWidget(_app(const _Host(options: options)));
+      await _type(tester, 'd');
+      await _settle(tester);
+      await tester.tap(find.text('Design'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 16));
+      expect(find.text('Development'), findsOneWidget);
+      await _settle(tester);
+      expect(find.text('Development'), findsNothing);
+    });
+  });
+
   testWidgets('many tags wrap onto further lines and the field grows; a tap '
       'anywhere in it focuses the input', (tester) async {
     final focusNode = FocusNode();

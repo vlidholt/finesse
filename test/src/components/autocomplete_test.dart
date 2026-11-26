@@ -368,6 +368,83 @@ void main() {
     });
   });
 
+  group('choosing with a finger', () {
+    testWidgets('an option is still taken when the field loses the focus '
+        'while the finger is down, as in Safari on iOS', (tester) async {
+      final selected = <String>[];
+      await tester.pumpWidget(
+        _app(
+          Autocomplete<String>(
+            optionsBuilder: _filter,
+            onSelected: selected.add,
+          ),
+        ),
+      );
+      await _type(tester, 'ap');
+      final finger = await tester.startGesture(
+        tester.getCenter(find.text('Apricot')),
+      );
+      // Safari blurs the hidden input a tenth of a second into the touch,
+      // and the engine closes the connection, which takes the focus.
+      await tester.pump(const Duration(milliseconds: 150));
+      tester.testTextInput.closeConnection();
+      await tester.pump();
+      expect(find.text('Apricot').hitTestable(), findsOneWidget);
+      await finger.up();
+      await _settle(tester);
+      expect(selected, ['Apricot']);
+      expect(
+        tester.widget<EditableText>(find.byType(EditableText)).controller.text,
+        'Apricot',
+      );
+      expect(_shown(tester), isEmpty);
+    });
+
+    testWidgets('a finger that leaves without choosing lets the list close', (
+      tester,
+    ) async {
+      final selected = <String>[];
+      await tester.pumpWidget(
+        _app(
+          Autocomplete<String>(
+            optionsBuilder: _filter,
+            onSelected: selected.add,
+          ),
+        ),
+      );
+      await _type(tester, 'ap');
+      final finger = await tester.startGesture(
+        tester.getCenter(find.text('Apricot')),
+      );
+      await tester.pump(const Duration(milliseconds: 150));
+      tester.testTextInput.closeConnection();
+      await tester.pump();
+      // Dragged off and cancelled: no tap.
+      await finger.cancel();
+      await _settle(tester);
+      expect(selected, isEmpty);
+      expect(_shown(tester), isEmpty);
+    });
+
+    testWidgets('the list keeps its options while it leaves', (tester) async {
+      await tester.pumpWidget(
+        _app(const Autocomplete<String>(optionsBuilder: _filter)),
+      );
+      await _type(tester, 'ap');
+      await tester.tap(find.text('Apricot'));
+      // The exit's first frames: the options fade out where they were
+      // rather than the list emptying first.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 16));
+      expect(
+        find.descendant(of: _rows, matching: find.text('Apple')),
+        findsOneWidget,
+      );
+      await _settle(tester);
+      expect(_rows, findsNothing);
+    });
+  });
+
   group('asynchronous options', () {
     testWidgets('a late answer to an old question is dropped', (tester) async {
       final answers = <String, Completer<Iterable<String>>>{};

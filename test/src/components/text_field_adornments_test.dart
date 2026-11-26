@@ -191,6 +191,9 @@ void main() {
       bool obscured() =>
           tester.widget<EditableText>(find.byType(EditableText)).obscureText;
       expect(obscured(), isTrue);
+      // The icon shows the state: crossed out while hidden.
+      expect(find.byIcon(PhosphorIconsRegular.eyeSlash), findsOneWidget);
+      expect(find.byIcon(PhosphorIconsRegular.eye), findsNothing);
       expect(
         tester.getSemantics(_reveal),
         isSemantics(
@@ -209,6 +212,8 @@ void main() {
       await tester.tap(_reveal);
       await _settle(tester);
       expect(obscured(), isFalse);
+      expect(find.byIcon(PhosphorIconsRegular.eye), findsOneWidget);
+      expect(find.byIcon(PhosphorIconsRegular.eyeSlash), findsNothing);
       expect(
         tester.getSemantics(_reveal).flagsCollection.isToggled.toString(),
         contains('isTrue'),
