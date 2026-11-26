@@ -399,6 +399,12 @@ was measured from (Strand, until it moved), is its own repository,
   `leading`, also inside an `IndicatorBadge`, `Tooltip` or
   `RepaintBoundary` — stands with its glyph, not its box, on the bar's
   margin; a button with a surface, and a capsule of glass, with its edge.
+- **The default palette is `BlueColorScheme`**: a standard blue
+  (`#2563EB` buttons, a `#1D4ED8` tint in the light; `#6EB0FB` in the
+  dark) on a cool grey page, setting every optional token as the teal
+  did. `TealColorScheme` is gone from the package: it was measured for
+  the Demo, which keeps it. The base palettes are `blue`, `neutral`,
+  `zinc` and `stone`.
 - **`SliverAppBar.pinBackground`** (default true): a large bar's picture
   stays behind the collapsed toolbar, as a profile's cover does, blurred
   and veiled in the page colour as the bar collapses so the small title

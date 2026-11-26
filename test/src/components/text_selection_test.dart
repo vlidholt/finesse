@@ -596,7 +596,7 @@ void main() {
       );
       expect(theme.textSelectionTheme.handleSize, 16);
       final dark = theme.copyWith(
-        colorScheme: const TealColorScheme.dark(),
+        colorScheme: const BlueColorScheme.dark(),
         brightness: Brightness.dark,
       );
       expect(dark.textSelectionTheme.handleSize, 16);

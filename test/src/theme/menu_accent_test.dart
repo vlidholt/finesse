@@ -26,7 +26,7 @@ void main() {
   Color over(Color color, Color backdrop) => Color.alphaBlend(color, backdrop);
 
   const palettes = <String, (ColorScheme light, ColorScheme dark)>{
-    'teal': (TealColorScheme.light(), TealColorScheme.dark()),
+    'blue': (BlueColorScheme.light(), BlueColorScheme.dark()),
     'neutral': (NeutralColorScheme.light(), NeutralColorScheme.dark()),
     'zinc': (ZincColorScheme.light(), ZincColorScheme.dark()),
     'stone': (StoneColorScheme.light(), StoneColorScheme.dark()),

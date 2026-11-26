@@ -34,8 +34,8 @@ void main() {
     menuAccent: accent,
     menuColorScheme: inverted
         ? (brightness == Brightness.light
-              ? const TealColorScheme.dark()
-              : const TealColorScheme.light())
+              ? const BlueColorScheme.dark()
+              : const BlueColorScheme.light())
         : null,
   );
 
@@ -326,8 +326,8 @@ void main() {
       // its own brightness.
       final inverted = themeOf(brightness, inverted: true);
       final other = brightness == Brightness.light
-          ? const TealColorScheme.dark()
-          : const TealColorScheme.light();
+          ? const BlueColorScheme.dark()
+          : const BlueColorScheme.light();
       expect(
         inverted.contextMenuTheme.selectedBackgroundColor,
         other.foreground.withValues(

@@ -157,7 +157,7 @@ void main() {
         }
       }
       // The defaults, as the rows show them.
-      expect(find.text('Teal'), findsOneWidget);
+      expect(find.text('Blue'), findsOneWidget);
       expect(find.text('Geist'), findsOneWidget);
       expect(find.text('Una'), findsOneWidget);
       expect(find.text('Auto'), findsOneWidget);

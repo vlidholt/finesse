@@ -189,9 +189,9 @@ export 'src/raw_components/roving_focus.dart';
 // App Themes & Color Schemes
 export 'src/theme/color_scheme/accent.dart';
 export 'src/theme/color_scheme/base.dart';
+export 'src/theme/color_scheme/blue.dart';
 export 'src/theme/color_scheme/neutral.dart';
 export 'src/theme/color_scheme/stone.dart';
-export 'src/theme/color_scheme/teal.dart';
 export 'src/theme/color_scheme/zinc.dart';
 // Component Themes
 export 'src/theme/components/accordion.dart';

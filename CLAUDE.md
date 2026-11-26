@@ -77,12 +77,14 @@ own default look and its own rules.
     the subtree.
 - **No deprecation shims.** The fork is pre-1.0; a rename is a changelog
   entry under "Changed from shad", not a `@Deprecated` typedef.
-- **The default look** is `StyleTokens.una` on `TealColorScheme`, measured
-  from the Demo designs (four screens, desktop and mobile, light and dark)
-  that [`una_demo`](https://github.com/vlidholt/una_demo), a
-  repository of its own, replicates. Until the split it was "Strand", in
-  `example/lib/strand/`. `nova`, `maia` and `lyra` are the
-  shadcn styles that remain; `neutral`, `zinc` and `stone` the base palettes.
+- **The default look** is `StyleTokens.una` on `BlueColorScheme`. The
+  style was measured from the Demo designs (four screens, desktop and
+  mobile, light and dark) that [`una_demo`](https://github.com/vlidholt/una_demo),
+  a repository of its own, replicates; the Demo keeps the designs' own
+  `TealColorScheme`, which used to be the package default. Until the split
+  it was "Strand", in `example/lib/strand/`. `nova`, `maia` and `lyra` are
+  the shadcn styles that remain; `blue`, `neutral`, `zinc` and `stone` the
+  base palettes.
   `reference/ui/` (below) is still the source of truth for those three.
 - **Icons are Phosphor**, vendored into this package (see "Fonts" below) and
   exported from the barrel: `PhosphorIconsRegular`, `PhosphorIconsFill`,
@@ -681,8 +683,8 @@ weight, another font, at or above the reference — is a plain `Icon`.
 - The dark card and popover are a step lighter than the page.
 - Overlays are `bg-black/10` with `backdrop-blur-xs` in both modes — the blur is
   what lets the tint stay that light.
-- The base palettes are `teal` (the default, measured from the Demo
-  designs), and `neutral`, `stone` and `zinc`, generated from `themes.ts`.
+- The base palettes are `blue` (the default, a standard blue that keeps
+  4.5:1 for white text), and `neutral`, `stone` and `zinc`, generated from `themes.ts`.
   shadcn's v3 palettes and the other bases were dropped in the fork;
   `AccentScheme` recolours any base. `applyAccentScheme` also sets the
   **tint**: the accent's primary is tuned as a button fill and is often too

@@ -18,7 +18,7 @@ void main() {
     });
 
     test('the kept palettes are reachable by name', () {
-      for (final name in ['teal', 'neutral', 'stone', 'zinc']) {
+      for (final name in ['blue', 'neutral', 'stone', 'zinc']) {
         expect(
           ColorScheme.fromName(name),
           isNotNull,
@@ -30,18 +30,18 @@ void main() {
         );
       }
       expect(
-        ColorScheme.fromName('teal'),
-        const TealColorScheme.light(),
+        ColorScheme.fromName('blue'),
+        const BlueColorScheme.light(),
       );
       expect(
-        ColorScheme.fromName('teal', brightness: Brightness.dark),
-        const TealColorScheme.dark(),
+        ColorScheme.fromName('blue', brightness: Brightness.dark),
+        const BlueColorScheme.dark(),
       );
     });
 
     test('the palettes una dropped are no longer reachable', () {
       for (final name in [
-        'blue',
+        'teal',
         'gray',
         'green',
         'mauve',
@@ -137,7 +137,7 @@ void main() {
     test('every accent applies to every base without error', () {
       for (final name in AccentScheme.all.keys) {
         for (final brightness in Brightness.values) {
-          for (final baseName in ['teal', 'neutral', 'stone', 'zinc']) {
+          for (final baseName in ['blue', 'neutral', 'stone', 'zinc']) {
             final scheme =
                 ColorScheme.fromName(
                   baseName,

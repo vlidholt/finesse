@@ -931,7 +931,7 @@ class StyleTokens {
 
   /// How much of the scheme's `muted` colour a hovered table row is washed
   /// with. shadcn's `hover:bg-muted/50` is the default; a scheme whose
-  /// `muted` is already a faint wash, like teal's, takes all of it.
+  /// `muted` is already a faint wash, like blue's, takes all of it.
   final double tableHoverOpacity;
 
   /// Whether a selected table row is tinted with the scheme's `tint` rather
@@ -1227,7 +1227,7 @@ class StyleTokens {
     BoxShadow(color: Color(0x14000000), offset: Offset(0, 1), blurRadius: 2),
   ];
 
-  /// Una's default style: soft teal glass.
+  /// Una's default style: soft glass.
   ///
   /// Controls round to 10, cards to 18; cards and outline buttons are
   /// translucent, and bars, popovers, menus and tooltips are glass over a

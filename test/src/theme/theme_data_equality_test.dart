@@ -465,7 +465,7 @@ void main() {
         base,
         ThemeData(
           style: StyleTokens.una,
-          colorScheme: const TealColorScheme.light(),
+          colorScheme: const BlueColorScheme.light(),
           formFactor: FormFactor.desktop,
           brightness: Brightness.light,
           radius: const BorderRadius.all(Radius.circular(10)),

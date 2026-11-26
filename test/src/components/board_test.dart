@@ -241,8 +241,8 @@ void main() {
         StyleTokens.lyra,
       ]) {
         for (final scheme in const [
-          TealColorScheme.light(),
-          TealColorScheme.dark(),
+          BlueColorScheme.light(),
+          BlueColorScheme.dark(),
         ]) {
           final theme = ThemeData(style: style, colorScheme: scheme);
           expect(theme.boardTheme.itemColor!.a, 1, reason: style.name);

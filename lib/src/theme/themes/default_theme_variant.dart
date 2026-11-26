@@ -646,7 +646,7 @@ class DefaultThemeVariant extends ThemeVariant {
     return ButtonTheme(
       textStyle: style.label.apply(effectiveTextTheme.small),
       backgroundColor: fill,
-      // A scheme whose hover colour is a wash (teal's `muted` is 4% of the
+      // A scheme whose hover colour is a wash (blue's `muted` is 4% of the
       // foreground) would turn an opaque button see-through on hover — over
       // a photograph the picture shows through. The wash goes over the
       // button's own fill instead.
@@ -1788,7 +1788,7 @@ class DefaultThemeVariant extends ThemeVariant {
       cellHeaderStyle: _tableHeaderStyle,
       cellFooterStyle: _tableHeaderStyle,
       // `hover:bg-muted/50`: a wash *of* the muted colour, which in a
-      // scheme like teal is itself only a few percent of the foreground.
+      // scheme like blue is itself only a few percent of the foreground.
       rowHoverColor: _wash(colorScheme.muted, style.tableHoverOpacity),
       // `data-[state=selected]:bg-muted`, or one clear step past the hover
       // in the scheme's tint: 8% of it on a light surface, 14% on a dark

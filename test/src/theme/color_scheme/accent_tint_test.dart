@@ -23,8 +23,8 @@ const _light = Color(0xfffafafa);
 
 void main() {
   const bases = <String, ColorScheme>{
-    'teal light': TealColorScheme.light(),
-    'teal dark': TealColorScheme.dark(),
+    'teal light': BlueColorScheme.light(),
+    'teal dark': BlueColorScheme.dark(),
     'neutral light': NeutralColorScheme.light(),
     'neutral dark': NeutralColorScheme.dark(),
     'zinc light': ZincColorScheme.light(),
@@ -259,10 +259,10 @@ void main() {
       "a scheme that names its own tint has it replaced by the accent's",
       () {
         for (final (base, accent) in [
-          (const TealColorScheme.light(), AccentScheme.violetLight),
-          (const TealColorScheme.dark(), AccentScheme.violetDark),
-          (const TealColorScheme.light(), AccentScheme.orangeLight),
-          (const TealColorScheme.dark(), AccentScheme.orangeDark),
+          (const BlueColorScheme.light(), AccentScheme.violetLight),
+          (const BlueColorScheme.dark(), AccentScheme.violetDark),
+          (const BlueColorScheme.light(), AccentScheme.orangeLight),
+          (const BlueColorScheme.dark(), AccentScheme.orangeDark),
         ]) {
           // Teal sets `tint` itself rather than leaving it to fall back to
           // the primary, so changing the primary alone would leave a teal
@@ -291,7 +291,7 @@ void main() {
 
     test("the dark teal scheme's tint is not its primary, and is replaced "
         'all the same', () {
-      const base = TealColorScheme.dark();
+      const base = BlueColorScheme.dark();
       expect(base.tint, isNot(base.primary));
       final result = base.applyAccentScheme(AccentScheme.violetDark);
       expect(result.tint, isNot(base.tint));
@@ -299,7 +299,7 @@ void main() {
     });
 
     test('the tint reaches the theme', () {
-      final scheme = const TealColorScheme.dark().applyAccentScheme(
+      final scheme = const BlueColorScheme.dark().applyAccentScheme(
         AccentScheme.roseDark,
       );
       final theme = ThemeData(colorScheme: scheme);
@@ -421,8 +421,8 @@ void main() {
     test('the default teal scheme no longer keeps a teal tint under a '
         'legible accent, in either brightness', () {
       for (final (base, colour) in [
-        (const TealColorScheme.light(), const Color(0xff6d28d9)),
-        (const TealColorScheme.dark(), const Color(0xffc4b5fd)),
+        (const BlueColorScheme.light(), const Color(0xff6d28d9)),
+        (const BlueColorScheme.dark(), const Color(0xffc4b5fd)),
       ]) {
         expect(legibility(colour, base), greaterThanOrEqualTo(4.5));
         final result = base.applyAccent(colour);
@@ -442,7 +442,7 @@ void main() {
 
     test('a yellow on light teal is too faint: the primary changes and the '
         'teal tint stays', () {
-      const base = TealColorScheme.light();
+      const base = BlueColorScheme.light();
       const yellow = Color(0xfffacc15);
       expect(legibility(yellow, base), lessThan(4.5));
       final result = base.applyAccent(yellow);
@@ -500,7 +500,7 @@ void main() {
     test('a supplied foreground is the tint foreground too', () {
       const colour = Color(0xff6d28d9);
       const foreground = Color(0xfffff7ed);
-      final result = const TealColorScheme.light().applyAccent(
+      final result = const BlueColorScheme.light().applyAccent(
         colour,
         accentForeground: foreground,
       );
@@ -510,7 +510,7 @@ void main() {
     });
 
     test('tintSelection does not decide the tint', () {
-      const base = TealColorScheme.light();
+      const base = BlueColorScheme.light();
       const colour = Color(0xff6d28d9);
       final result = base.applyAccent(colour, tintSelection: false);
       expect(result.selection, base.selection);
@@ -520,7 +520,7 @@ void main() {
 
     test('the tint reaches the theme', () {
       const colour = Color(0xffc4b5fd);
-      final scheme = const TealColorScheme.dark().applyAccent(colour);
+      final scheme = const BlueColorScheme.dark().applyAccent(colour);
       final theme = ThemeData(colorScheme: scheme);
       expect(theme.colorScheme.tint, colour);
       expect(theme.progressBarTheme.color, colour);

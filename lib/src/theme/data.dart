@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 import 'package:una/src/liquid_glass/liquid_glass_theme.dart';
 import 'package:una/src/theme/color_scheme/base.dart';
-import 'package:una/src/theme/color_scheme/teal.dart';
+import 'package:una/src/theme/color_scheme/blue.dart';
 import 'package:una/src/theme/components/accordion.dart';
 import 'package:una/src/theme/components/action_sheet.dart';
 import 'package:una/src/theme/components/alert.dart';
@@ -105,7 +105,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
   /// is true.
   factory ThemeData({
     /// The color scheme to use for the theme.
-    /// Defaults to [TealColorScheme] based on the [brightness].
+    /// Defaults to [BlueColorScheme] based on the [brightness].
     ColorScheme? colorScheme,
 
     /// The overall brightness of the theme, defaults to [Brightness.light].
@@ -304,8 +304,8 @@ class ThemeData extends BaseTheme with _$ThemeData {
         colorScheme ??
         variant?.colorScheme ??
         switch (effectiveBrightness) {
-          Brightness.light => const TealColorScheme.light(),
-          Brightness.dark => const TealColorScheme.dark(),
+          Brightness.light => const BlueColorScheme.light(),
+          Brightness.dark => const BlueColorScheme.dark(),
         };
 
     // A supplied variant already baked the colour scheme, radius and text

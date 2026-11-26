@@ -58,8 +58,8 @@ ThemeData imageTheme({
     colorScheme:
         colorScheme ??
         (brightness == Brightness.light
-            ? const TealColorScheme.light()
-            : const TealColorScheme.dark()),
+            ? const BlueColorScheme.light()
+            : const BlueColorScheme.dark()),
     textTheme: TextTheme(family: fontFamily),
   );
 }

@@ -26,7 +26,7 @@ final installationDoc = ComponentDoc(
           DocParagraph(
             '`UnaApp` takes the place of `MaterialApp`. It installs the '
             'theme, localizations, navigation, and the overlay layer the '
-            'floating components use. With no arguments it uses the teal '
+            'floating components use. With no arguments it uses the blue '
             'color scheme and the una style, and lays itself out for '
             'a desktop or a phone from the window width.',
           ),

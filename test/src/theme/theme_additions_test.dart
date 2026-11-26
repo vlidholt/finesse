@@ -57,8 +57,8 @@ void main() {
 
     test('follows the scheme of each base palette', () {
       for (final scheme in const <ColorScheme>[
-        TealColorScheme.light(),
-        TealColorScheme.dark(),
+        BlueColorScheme.light(),
+        BlueColorScheme.dark(),
         NeutralColorScheme.light(),
         NeutralColorScheme.dark(),
         ZincColorScheme.light(),
@@ -959,7 +959,7 @@ void main() {
       FormFactor formFactor = FormFactor.desktop,
       ColorScheme? menuColorScheme,
       bool menuTranslucent = false,
-      ColorScheme colorScheme = const TealColorScheme.light(),
+      ColorScheme colorScheme = const BlueColorScheme.light(),
     }) {
       return DefaultThemeVariant(
         colorScheme: colorScheme,
@@ -978,13 +978,13 @@ void main() {
       final full = variant(
         style: StyleTokens.nova,
         formFactor: FormFactor.mobile,
-        menuColorScheme: const TealColorScheme.dark(),
+        menuColorScheme: const BlueColorScheme.dark(),
         menuTranslucent: true,
       );
       final same = variant(
         style: StyleTokens.nova,
         formFactor: FormFactor.mobile,
-        menuColorScheme: const TealColorScheme.dark(),
+        menuColorScheme: const BlueColorScheme.dark(),
         menuTranslucent: true,
       );
       expect(full, same);
@@ -1029,7 +1029,7 @@ void main() {
 
     test('the menu colour scheme tells two variants apart', () {
       final plain = variant();
-      final inverted = variant(menuColorScheme: const TealColorScheme.dark());
+      final inverted = variant(menuColorScheme: const BlueColorScheme.dark());
       expect(inverted, isNot(plain));
       expect(inverted.hashCode, isNot(plain.hashCode));
       expect(
@@ -1039,7 +1039,7 @@ void main() {
       // Null is "follow the page", which is not the same as naming the
       // page's own scheme.
       expect(
-        variant(menuColorScheme: const TealColorScheme.light()),
+        variant(menuColorScheme: const BlueColorScheme.light()),
         isNot(plain),
       );
     });
@@ -1054,7 +1054,7 @@ void main() {
     test('rebuild with nothing changed is equal; with any of the four '
         'changed it is not', () {
       final base = variant(
-        menuColorScheme: const TealColorScheme.dark(),
+        menuColorScheme: const BlueColorScheme.dark(),
         menuTranslucent: true,
       );
       expect(base.rebuild(), base);
@@ -1075,7 +1075,7 @@ void main() {
     test('the two variant classes are never equal to each other', () {
       final secondary = variant();
       final none = DefaultThemeNoSecondaryBorderVariant(
-        colorScheme: const TealColorScheme.light(),
+        colorScheme: const BlueColorScheme.light(),
         radius: const BorderRadius.all(Radius.circular(8)),
         effectiveTextTheme: TextTheme(),
       );
@@ -1084,7 +1084,7 @@ void main() {
       expect(
         none,
         DefaultThemeNoSecondaryBorderVariant(
-          colorScheme: const TealColorScheme.light(),
+          colorScheme: const BlueColorScheme.light(),
           radius: const BorderRadius.all(Radius.circular(8)),
           effectiveTextTheme: TextTheme(),
         ),
@@ -1095,7 +1095,7 @@ void main() {
       final plain = ThemeData();
       expect(ThemeData(menuTranslucent: true), isNot(plain));
       expect(
-        ThemeData(menuColorScheme: const TealColorScheme.dark()),
+        ThemeData(menuColorScheme: const BlueColorScheme.dark()),
         isNot(plain),
       );
       expect(
@@ -1103,8 +1103,8 @@ void main() {
         ThemeData(menuTranslucent: true),
       );
       expect(
-        ThemeData(menuColorScheme: const TealColorScheme.dark()),
-        ThemeData(menuColorScheme: const TealColorScheme.dark()),
+        ThemeData(menuColorScheme: const BlueColorScheme.dark()),
+        ThemeData(menuColorScheme: const BlueColorScheme.dark()),
       );
     });
   });

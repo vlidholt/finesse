@@ -2,10 +2,10 @@ import 'package:example/common/theme_editor/fonts.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/una.dart';
 
-/// The package's *base colours*: Una's own teal, and the three shadcn/ui
+/// The package's *base colours*: Una's own blue, and the three shadcn/ui
 /// neutrals it kept.
 enum BaseColor {
-  teal('Teal'),
+  blue('Blue'),
   neutral('Neutral'),
   stone('Stone'),
   zinc('Zinc');
@@ -25,9 +25,9 @@ enum BaseColor {
   ///
   /// Not `primary` for the neutrals: there it is near-black, which
   /// disappears against the customizer's dark surface. The muted foreground is
-  /// the same hue at a lightness that reads on either background. Teal's
+  /// the same hue at a lightness that reads on either background. Blue's
   /// primary is the brand colour itself.
-  Color get swatch => this == BaseColor.teal
+  Color get swatch => this == BaseColor.blue
       ? scheme(Brightness.light).primary
       : scheme(Brightness.light).mutedForeground;
 }
@@ -235,7 +235,7 @@ class ThemeEditorConfig {
   const ThemeEditorConfig({
     this.brightness = Brightness.light,
     this.style = StylePreset.una,
-    this.baseColor = BaseColor.teal,
+    this.baseColor = BaseColor.blue,
     this.accentColor = AccentColor.base,
     this.headingFontTitle,
     this.fontTitle = 'Geist',
@@ -660,7 +660,7 @@ class ThemeEditorConfig {
     final dark = brightness == Brightness.dark;
     final lines = <String>[
       if (dark) 'brightness: Brightness.dark,',
-      if (baseColor != BaseColor.teal || accentColor != AccentColor.base)
+      if (baseColor != BaseColor.blue || accentColor != AccentColor.base)
         ..._prefixed('colorScheme: ', _schemeCode(brightness)),
       if (!usesStyleRadius)
         'radius: BorderRadius.circular(${_number(effectiveRadius)}),',

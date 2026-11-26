@@ -159,9 +159,9 @@ void main() {
 
   test('copyWith(colorScheme:) recolours the una component themes', () {
     final copy = ThemeData().copyWith(
-      colorScheme: const TealColorScheme.dark(),
+      colorScheme: const BlueColorScheme.dark(),
     );
-    const dark = TealColorScheme.dark();
+    const dark = BlueColorScheme.dark();
     expect(copy.brightness, Brightness.dark);
     expect(copy.navigationBarTheme.selectedIconColor, dark.tint);
     expect(copy.navigationRailTheme.selectedIconColor, dark.tint);
@@ -170,7 +170,7 @@ void main() {
     // The dark-only opacities are picked up with the scheme.
     expect(copy.glassTheme.opacity, .66);
     expect(copy.cardTheme.backgroundColor, dark.card.withValues(alpha: .82));
-    expect(copy, ThemeData(colorScheme: const TealColorScheme.dark()));
+    expect(copy, ThemeData(colorScheme: const BlueColorScheme.dark()));
   });
 
   test('copyWith(disableSecondaryBorder: true) switches the variant', () {
@@ -212,7 +212,7 @@ void main() {
       base.floatingActionButtonTheme.size,
     );
     // Recoloured with the scheme, resized with the form factor.
-    const dark = TealColorScheme.dark();
+    const dark = BlueColorScheme.dark();
     expect(
       base
           .copyWith(colorScheme: dark)

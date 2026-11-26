@@ -367,7 +367,7 @@ void main() {
     test('a variant built for mobile makes a mobile theme', () {
       final theme = ThemeData(
         variant: DefaultThemeVariant(
-          colorScheme: const TealColorScheme.light(),
+          colorScheme: const BlueColorScheme.light(),
           radius: const BorderRadius.all(Radius.circular(10)),
           effectiveTextTheme: DefaultThemeVariant.defaultTextTheme,
           formFactor: FormFactor.mobile,
@@ -698,7 +698,7 @@ void main() {
         ),
       );
       expect(seen.brightness, Brightness.dark);
-      expect(seen.colorScheme, const TealColorScheme.dark());
+      expect(seen.colorScheme, const BlueColorScheme.dark());
       expect(seen.formFactor, FormFactor.mobile);
     });
 

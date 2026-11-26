@@ -9,7 +9,7 @@ import 'common.dart';
 const heroSize = Size(1440, 860);
 
 /// The hero: a desktop dashboard in light, a phone conversation in dark,
-/// over a wash of the teal palette.
+/// over a wash of the blue palette.
 class HeroScene extends StatelessWidget {
   /// Creates the hero.
   const HeroScene({super.key});

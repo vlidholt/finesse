@@ -27,7 +27,7 @@ See it in a whole app in [Demo](https://vlidholt.github.io/una_demo/), a small p
 - **Liquid Glass on Apple platforms.** On iOS and macOS, natively and on the web, the bars, menus, popovers, dialogs, sheets, toasts, switches, sliders and segmented controls are drawn with Liquid Glass through [`liquid_glass_widgets`](https://pub.dev/packages/liquid_glass_widgets), with no change to your code; `ThemeData(liquidGlass: LiquidGlassTheme(mode: ...))` turns it on everywhere or off. Call `await LiquidGlass.initialize()` in `main()` to load its shaders before the first frame.
 - **Motion from the theme.** Durations, curves and springs come from one `Motion` on the style: overlays grow from their anchor, selections travel, controls respond to a press, and the platform's reduced-motion setting is honoured everywhere. No component takes its own effects or durations.
 - **Spacing from the theme.** A named gap scale (`Gap.md()`, `UnaRow(gap: GapSize.lg)`) and `PageContainer` keep screens consistent and let a theme change their rhythm.
-- **Styles and colour schemes.** Four styles (`una`, `nova`, `maia`, `lyra`) and four base palettes (`teal`, `neutral`, `zinc`, `stone`) in light and dark, 17 accent overlays, and every token overridable through `copyWith`.
+- **Styles and colour schemes.** Four styles (`una`, `nova`, `maia`, `lyra`) and four base palettes (`blue`, `neutral`, `zinc`, `stone`) in light and dark, 17 accent overlays, and every token overridable through `copyWith`.
 - **Icons included.** The [Phosphor](https://phosphoricons.com) icon set ships in the package in six weights.
 - **Forms.** `UnaForm` and a `*FormField` widget for every input, with per-field validation.
 - **Localization.** 82 locales, built on `slang`.
@@ -92,7 +92,7 @@ Widgets have no prefix: `Button`, `Card`, `Theme`, `ThemeData`. A name that woul
 
 ## Theming
 
-`ThemeData()` is the default look: the `una` style on the teal palette. A theme is a style, a colour scheme and a text theme, and each can be replaced on its own:
+`ThemeData()` is the default look: the `una` style on the blue palette. A theme is a style, a colour scheme and a text theme, and each can be replaced on its own:
 
 ```dart
 ThemeData(
@@ -110,7 +110,7 @@ Four styles ship with the package. `una` is the default; `nova`, `maia` and `lyr
 
 Four base palettes, each in light and dark:
 
-![The teal, neutral, zinc and stone palettes, light and dark](https://raw.githubusercontent.com/vlidholt/una/main/doc/images/palettes.webp)
+![The blue, neutral, zinc and stone palettes, light and dark](https://raw.githubusercontent.com/vlidholt/una/main/doc/images/palettes.webp)
 
 And accents that recolour any palette:
 

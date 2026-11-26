@@ -8,7 +8,7 @@ import 'package:example/common/theme_editor/editor_config.dart';
 /// contrast of every one of them in both.
 enum ThemePreset {
   /// The package default, and the look the Demo app was designed in: soft
-  /// teal glass, set in Geist.
+  /// blue glass, set in Geist.
   original('Original', ThemeEditorConfig()),
 
   /// Classic shadcn/ui: compact Nova on true neutrals, opaque cards, Inter,

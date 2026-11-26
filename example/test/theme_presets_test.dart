@@ -205,7 +205,7 @@ void main() {
     });
 
     test('an accent carries the tint with it, and keeps it legible', () {
-      // TealColorScheme names its own tint; `applyAccentScheme` leaves it,
+      // BlueColorScheme names its own tint; `applyAccentScheme` leaves it,
       // which would put a teal selected-tab icon beside rose buttons.
       const onTeal = ThemeEditorConfig(accentColor: AccentColor.rose);
       expect(onTeal.colorScheme.primary, AccentScheme.roseLight.primary);
@@ -712,12 +712,12 @@ ThemeData(
       const config = ThemeEditorConfig(accentColor: AccentColor.rose);
       expect(config.toDartSnippet(), '''
 ThemeData(
-  colorScheme: const TealColorScheme.light().applyAccentScheme(
+  colorScheme: const BlueColorScheme.light().applyAccentScheme(
     AccentScheme.roseLight,
   ),
   textTheme: TextTheme.fromGoogleFont(GoogleFonts.geist),
 )''');
-      final exported = const TealColorScheme.light().applyAccentScheme(
+      final exported = const BlueColorScheme.light().applyAccentScheme(
         AccentScheme.roseLight,
       );
       expect(config.colorScheme, exported);

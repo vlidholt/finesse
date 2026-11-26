@@ -47,8 +47,8 @@ void main() {
         final theme = ThemeData(
           style: style,
           colorScheme: brightness == Brightness.dark
-              ? const TealColorScheme.dark()
-              : const TealColorScheme.light(),
+              ? const BlueColorScheme.dark()
+              : const BlueColorScheme.light(),
         );
         final scheme = theme.colorScheme;
 

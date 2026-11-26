@@ -114,7 +114,7 @@ void main() {
             child: Glass(level: level, child: const Text('Hi')),
           ),
           theme: ThemeData(
-            colorScheme: const TealColorScheme.light().copyWith(card: card),
+            colorScheme: const BlueColorScheme.light().copyWith(card: card),
           ),
         );
         final theme = themeOf(tester, find.byType(Glass));

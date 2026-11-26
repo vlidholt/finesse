@@ -64,7 +64,7 @@ void main() {
     test('the default config is the package default look', () {
       const config = ThemeEditorConfig();
       expect(config.style, StylePreset.una);
-      expect(config.baseColor, BaseColor.teal);
+      expect(config.baseColor, BaseColor.blue);
       expect(config.accentColor, AccentColor.base);
       expect(config.fontTitle, 'Geist');
       // The radius is left to the style, which is 10 for Una.
@@ -85,8 +85,8 @@ void main() {
         expect(
           theme.colorScheme,
           brightness == Brightness.light
-              ? const TealColorScheme.light()
-              : const TealColorScheme.dark(),
+              ? const BlueColorScheme.light()
+              : const BlueColorScheme.dark(),
         );
         expect(theme, packageDefault, reason: '$brightness');
       }
@@ -125,7 +125,7 @@ void main() {
       const config = ThemeEditorConfig(accentColor: AccentColor.base);
       expect(
         config.colorScheme.primary,
-        BaseColor.teal.scheme(Brightness.light).primary,
+        BaseColor.blue.scheme(Brightness.light).primary,
       );
     });
 
@@ -241,7 +241,7 @@ void main() {
       for (final base in BaseColor.values) {
         final snippet = ThemeEditorConfig(baseColor: base).toDartSnippet();
         final name = '${base.name[0].toUpperCase()}${base.name.substring(1)}';
-        if (base == BaseColor.teal) {
+        if (base == BaseColor.blue) {
           // The package default: `ThemeData` picks it by itself.
           expect(snippet, isNot(contains('colorScheme:')));
         } else {
@@ -361,7 +361,7 @@ void main() {
       }
       // The defaults, as the pickers show them.
       expect(find.text('Una'), findsOneWidget);
-      expect(find.text('Teal'), findsOneWidget);
+      expect(find.text('Blue'), findsOneWidget);
       expect(find.text('Geist'), findsOneWidget);
       // Light/dark and direction are app-wide switches, not settings this
       // panel duplicates.

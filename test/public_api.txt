@@ -34,6 +34,7 @@ Badge
 BadgeTheme
 BadgeVariant
 BaseTheme
+BlueColorScheme
 Board
 BoardColumn
 BoardController
@@ -435,7 +436,6 @@ TabsController
 TabsTheme
 TagField
 TagFormField
-TealColorScheme
 TextDefaultTheme
 TextField
 TextFieldState

@@ -31,7 +31,7 @@ theme.formFactor;            // desktop or mobile''',
         title: 'Color schemes',
         children: [
           DocParagraph(
-            'Four base schemes ship in light and dark: `teal` (the '
+            'Four base schemes ship in light and dark: `blue` (the '
             'default), `neutral`, `zinc` and `stone`. A base scheme '
             'supplies the whole palette: backgrounds, borders, muted '
             'tones and a primary.',
@@ -109,7 +109,7 @@ const NeutralColorScheme.light().applyAccent(const Color(0xFF3B82F6));''',
           CodeBlock(
             code: '''
 ThemeData(
-  colorScheme: const TealColorScheme.light(
+  colorScheme: const BlueColorScheme.light(
     primary: Color(0xFF16A34A),
     custom: {
       'highlight': Color(0xFFFACC15),
@@ -187,7 +187,7 @@ ThemeData(
           CodeBlock(
             code: '''
 ThemeData(
-  menuColorScheme: const TealColorScheme.dark(),
+  menuColorScheme: const BlueColorScheme.dark(),
   menuTranslucent: true,
   menuAccent: MenuAccent.bold,
 )''',

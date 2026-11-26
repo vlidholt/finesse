@@ -4,7 +4,7 @@ import 'package:una/una.dart';
 
 /// Pins the una palette and the tokens it added to [ColorScheme].
 ///
-/// The teal scheme is the first to set every optional token; every other
+/// The blue scheme sets every optional token; every other
 /// scheme — and any scheme an app wrote by hand — leaves them unset and gets
 /// the fallbacks, which is why both halves are locked here.
 void main() {
@@ -32,46 +32,46 @@ void main() {
     selection: Color(0x402040c0),
   );
 
-  group('TealColorScheme', () {
+  group('BlueColorScheme', () {
     test('is the default scheme of a theme, per brightness', () {
-      expect(ThemeData().colorScheme, const TealColorScheme.light());
+      expect(ThemeData().colorScheme, const BlueColorScheme.light());
       expect(ThemeData().brightness, Brightness.light);
       expect(
         ThemeData(brightness: Brightness.dark).colorScheme,
-        const TealColorScheme.dark(),
+        const BlueColorScheme.dark(),
       );
       // And a theme given only the dark scheme reads its brightness off it.
       expect(
-        ThemeData(colorScheme: const TealColorScheme.dark()).brightness,
+        ThemeData(colorScheme: const BlueColorScheme.dark()).brightness,
         Brightness.dark,
       );
     });
 
-    test('light: a deep teal on a cool grey page', () {
-      const s = TealColorScheme.light();
-      expect(s.background, const Color(0xfff3f5f7));
-      expect(s.foreground, const Color(0xff193c4a));
+    test('light: a standard blue on a cool grey page', () {
+      const s = BlueColorScheme.light();
+      expect(s.background, const Color(0xfff4f5f7));
+      expect(s.foreground, const Color(0xff161a22));
       expect(s.card, const Color(0xffffffff));
-      expect(s.cardForeground, const Color(0xff193c4a));
+      expect(s.cardForeground, const Color(0xff161a22));
       expect(s.popover, const Color(0xffffffff));
-      expect(s.primary, const Color(0xff176b83));
+      expect(s.primary, const Color(0xff2563eb));
       expect(s.primaryForeground, const Color(0xffffffff));
-      expect(s.mutedForeground, const Color(0xff5b7079));
-      expect(s.accent, const Color(0xffeaf4f6));
-      expect(s.accentForeground, const Color(0xff176b83));
-      expect(s.destructive, const Color(0xffc8432f));
-      expect(s.ring, const Color(0xff176b83));
+      expect(s.mutedForeground, const Color(0xff5f6775));
+      expect(s.accent, const Color(0xffeaf1fe));
+      expect(s.accentForeground, const Color(0xff1d4ed8));
+      expect(s.destructive, const Color(0xffdc2626));
+      expect(s.ring, const Color(0xff2563eb));
     });
 
     test('light: fills and hairlines are washes of the foreground', () {
-      const s = TealColorScheme.light();
+      const s = BlueColorScheme.light();
       // 8%, 4.3% and 9% of #193c4a — translucent, so they sit correctly on
       // glass rather than painting an opaque grey over it.
-      expect(s.secondary, const Color(0x14193c4a));
-      expect(s.muted, const Color(0x0b193c4a));
-      expect(s.border, const Color(0x17193c4a));
-      expect(s.input, const Color(0x17193c4a));
-      expect(s.borderStrong, const Color(0x2e193c4a));
+      expect(s.secondary, const Color(0x14161a22));
+      expect(s.muted, const Color(0x0b161a22));
+      expect(s.border, const Color(0x17161a22));
+      expect(s.input, const Color(0x17161a22));
+      expect(s.borderStrong, const Color(0x2e161a22));
       for (final wash in [s.secondary, s.muted, s.border, s.input]) {
         expect(wash.a, lessThan(.2));
         expect(wash.withValues(alpha: 1), s.foreground);
@@ -79,69 +79,74 @@ void main() {
     });
 
     test('light: the optional tokens are all stated', () {
-      const s = TealColorScheme.light();
-      expect(s.foregroundSubtle, const Color(0xff3b5864));
-      expect(s.tint, const Color(0xff176b83));
+      const s = BlueColorScheme.light();
+      expect(s.foregroundSubtle, const Color(0xff3a414e));
+      expect(s.tint, const Color(0xff1d4ed8));
       expect(s.tintForeground, const Color(0xffffffff));
-      expect(s.success, const Color(0xff2b6a4c));
-      expect(s.successMuted, const Color(0xffe8f2ec));
+      expect(s.success, const Color(0xff13753a));
+      expect(s.successMuted, const Color(0xffe7f3ec));
       expect(s.warning, const Color(0xffb45309));
-      expect(s.accentBorder, const Color(0x52176b83));
+      expect(s.accentBorder, const Color(0x522563eb));
       expect(s.bar, const Color(0xffffffff));
-      expect(s.chart1, const Color(0xff176b83));
-      expect(s.chart5, const Color(0xffc8432f));
+      expect(s.chart1, const Color(0xff2563eb));
+      expect(s.chart5, const Color(0xffdc2626));
       expect(s.sidebar, const Color(0xffffffff));
-      expect(s.sidebarPrimary, const Color(0xff176b83));
+      expect(s.sidebarPrimary, const Color(0xff2563eb));
     });
 
-    test('dark: the same teal on a deep blue-green page', () {
-      const s = TealColorScheme.dark();
-      expect(s.background, const Color(0xff0e1e25));
-      expect(s.foreground, const Color(0xffeef4f5));
+    test('dark: the same blue on a deep blue-grey page', () {
+      const s = BlueColorScheme.dark();
+      expect(s.background, const Color(0xff141a26));
+      expect(s.foreground, const Color(0xffeef1f5));
       // The card and popover are a step lighter than the page.
-      expect(s.card, const Color(0xff142a33));
-      expect(s.popover, const Color(0xff142a33));
+      expect(s.card, const Color(0xff1c222e));
+      expect(s.popover, const Color(0xff1c222e));
       expect(
         s.card.computeLuminance(),
         greaterThan(s.background.computeLuminance()),
       );
-      // The button fill is the same teal in both modes…
-      expect(s.primary, const TealColorScheme.light().primary);
+      // The button fill is the same blue in both modes…
+      expect(s.primary, const BlueColorScheme.light().primary);
       expect(s.primaryForeground, const Color(0xffffffff));
-      expect(s.mutedForeground, const Color(0xff8fa5ad));
-      expect(s.accent, const Color(0x52176b83));
-      expect(s.accentForeground, const Color(0xff6cc0d6));
-      expect(s.destructive, const Color(0xffc8432f));
-      expect(s.ring, const Color(0xff6cc0d6));
+      expect(s.mutedForeground, const Color(0xff97a1af));
+      expect(s.accent, const Color(0x522563eb));
+      expect(s.accentForeground, const Color(0xff93c5fd));
+      expect(s.destructive, const Color(0xffdc2626));
+      expect(s.ring, const Color(0xff6eb0fb));
       // …and the hairlines are translucent near-whites.
-      expect(s.border, const Color(0x14eaf4f6));
-      expect(s.input, const Color(0x14eaf4f6));
-      expect(s.secondary, const Color(0x1aeaf4f6));
-      expect(s.muted, const Color(0x0feaf4f6));
+      expect(s.border, const Color(0x14e8edf5));
+      expect(s.input, const Color(0x14e8edf5));
+      expect(s.secondary, const Color(0x1ae8edf5));
+      expect(s.muted, const Color(0x0fe8edf5));
     });
 
     test('dark: the optional tokens are all stated', () {
-      const s = TealColorScheme.dark();
-      expect(s.foregroundSubtle, const Color(0xffc5d3d7));
-      expect(s.tint, const Color(0xff6cc0d6));
-      expect(s.tintForeground, const Color(0xff0e1e25));
-      expect(s.success, const Color(0xff9ed3b6));
-      expect(s.successMuted, const Color(0x2e3e8e67));
+      const s = BlueColorScheme.dark();
+      expect(s.foregroundSubtle, const Color(0xffc6ccd6));
+      expect(s.tint, const Color(0xff6eb0fb));
+      expect(s.tintForeground, const Color(0xff141a26));
+      expect(s.success, const Color(0xff86d3a8));
+      expect(s.successMuted, const Color(0x243e8e67));
       expect(s.warning, const Color(0xfffbbf24));
-      expect(s.borderStrong, const Color(0x29eaf4f6));
-      expect(s.accentBorder, const Color(0x666cc0d6));
-      expect(s.bar, const Color(0xff10222a));
-      expect(s.sidebarPrimary, const Color(0xff6cc0d6));
-      expect(s.sidebarPrimaryForeground, const Color(0xff0e1e25));
+      expect(s.borderStrong, const Color(0x29e8edf5));
+      expect(s.accentBorder, const Color(0x666eb0fb));
+      expect(s.bar, const Color(0xff171d29));
+      expect(s.sidebarPrimary, const Color(0xff6eb0fb));
+      expect(s.sidebarPrimaryForeground, const Color(0xff141a26));
     });
 
     test('dark: the tint is lighter than the primary so it reads on the '
         'page', () {
-      const light = TealColorScheme.light();
-      const dark = TealColorScheme.dark();
-      // In the light, things drawn on the page can use the button colour.
-      expect(light.tint, light.primary);
-      // In the dark that teal sinks into the page, so the tint is lifted.
+      const light = BlueColorScheme.light();
+      const dark = BlueColorScheme.dark();
+      // In the light, the tint is a step deeper than the button fill, so
+      // text and selection washes in it read on white.
+      expect(light.tint, isNot(light.primary));
+      expect(
+        _contrast(light.tint, light.background),
+        greaterThan(_contrast(light.primary, light.background)),
+      );
+      // In the dark that blue sinks into the page, so the tint is lifted.
       expect(dark.tint, isNot(dark.primary));
       expect(
         _contrast(dark.tint, dark.background),
@@ -151,8 +156,8 @@ void main() {
 
     test('text reads on every surface it is paired with', () {
       for (final s in const [
-        TealColorScheme.light(),
-        TealColorScheme.dark(),
+        BlueColorScheme.light(),
+        BlueColorScheme.dark(),
       ]) {
         final dark = s.background.computeLuminance() < .5;
         final label = dark ? 'dark' : 'light';
@@ -225,22 +230,22 @@ void main() {
     });
 
     test('light and dark are different schemes, each equal to itself', () {
-      expect(const TealColorScheme.light(), const TealColorScheme.light());
+      expect(const BlueColorScheme.light(), const BlueColorScheme.light());
       expect(
-        const TealColorScheme.light().hashCode,
-        const TealColorScheme.light().hashCode,
+        const BlueColorScheme.light().hashCode,
+        const BlueColorScheme.light().hashCode,
       );
       expect(
-        const TealColorScheme.light(),
-        isNot(const TealColorScheme.dark()),
+        const BlueColorScheme.light(),
+        isNot(const BlueColorScheme.dark()),
       );
     });
 
     test('a named constructor argument overrides one token', () {
-      const s = TealColorScheme.light(tint: Color(0xff112233));
+      const s = BlueColorScheme.light(tint: Color(0xff112233));
       expect(s.tint, const Color(0xff112233));
-      expect(s.primary, const TealColorScheme.light().primary);
-      expect(s, isNot(const TealColorScheme.light()));
+      expect(s.primary, const BlueColorScheme.light().primary);
+      expect(s, isNot(const BlueColorScheme.light()));
     });
   });
 
@@ -345,10 +350,10 @@ void main() {
     });
 
     test('copyWith keeps the tokens it is not given', () {
-      final copy = const TealColorScheme.dark().copyWith(
+      final copy = const BlueColorScheme.dark().copyWith(
         primary: const Color(0xff000001),
       );
-      const dark = TealColorScheme.dark();
+      const dark = BlueColorScheme.dark();
       expect(copy.tint, dark.tint);
       expect(copy.foregroundSubtle, dark.foregroundSubtle);
       expect(copy.borderStrong, dark.borderStrong);
@@ -359,19 +364,19 @@ void main() {
 
     test("merge takes the other scheme's tokens and keeps its own where "
         'the other has none', () {
-      const teal = TealColorScheme.light();
+      const blue = BlueColorScheme.light();
       // The override states the tokens: they win.
-      final overTeal = bare.merge(teal);
-      expect(overTeal.tint, teal.tint);
-      expect(overTeal.bar, teal.bar);
-      expect(overTeal.borderStrong, teal.borderStrong);
+      final overBlue = bare.merge(blue);
+      expect(overBlue.tint, blue.tint);
+      expect(overBlue.bar, blue.bar);
+      expect(overBlue.borderStrong, blue.borderStrong);
       // The override leaves them unset: the base's survive.
-      final overBare = teal.merge(bare);
+      final overBare = blue.merge(bare);
       expect(overBare.primary, bare.primary);
-      expect(overBare.tint, teal.tint);
-      expect(overBare.foregroundSubtle, teal.foregroundSubtle);
-      expect(overBare.success, teal.success);
-      expect(overBare.accentBorder, teal.accentBorder);
+      expect(overBare.tint, blue.tint);
+      expect(overBare.foregroundSubtle, blue.foregroundSubtle);
+      expect(overBare.success, blue.success);
+      expect(overBare.accentBorder, blue.accentBorder);
     });
 
     test('lerp interpolates explicit tokens', () {
@@ -382,9 +387,9 @@ void main() {
       expect(mid.tint.a, 1);
     });
 
-    test('lerp between light and dark teal stays opaque where both are', () {
-      const light = TealColorScheme.light();
-      const dark = TealColorScheme.dark();
+    test('lerp between light and dark blue stays opaque where both are', () {
+      const light = BlueColorScheme.light();
+      const dark = BlueColorScheme.dark();
       for (final t in [0.0, .25, .5, .75, 1.0]) {
         final mid = ColorScheme.lerp(light, dark, t);
         expect(mid.tint.a, 1, reason: 't=$t');
@@ -403,24 +408,24 @@ void main() {
       // the raw nullable fields instead fades the stated colour in from
       // nothing, which shows as every tinted icon flashing translucent
       // during a theme change.
-      const teal = TealColorScheme.light();
-      final mid = ColorScheme.lerp(bare, teal, .5);
+      const blue = BlueColorScheme.light();
+      final mid = ColorScheme.lerp(bare, blue, .5);
 
-      expect(mid.tint, Color.lerp(bare.tint, teal.tint, .5));
+      expect(mid.tint, Color.lerp(bare.tint, blue.tint, .5));
       expect(mid.tint.a, 1);
-      expect(mid.bar, Color.lerp(bare.bar, teal.bar, .5));
+      expect(mid.bar, Color.lerp(bare.bar, blue.bar, .5));
       expect(
         mid.foregroundSubtle,
-        Color.lerp(bare.foregroundSubtle, teal.foregroundSubtle, .5),
+        Color.lerp(bare.foregroundSubtle, blue.foregroundSubtle, .5),
       );
-      expect(mid.success, Color.lerp(bare.success, teal.success, .5));
-      expect(mid.warning, Color.lerp(bare.warning, teal.warning, .5));
+      expect(mid.success, Color.lerp(bare.success, blue.success, .5));
+      expect(mid.warning, Color.lerp(bare.warning, blue.warning, .5));
       // The same holds in the other direction…
-      final back = ColorScheme.lerp(teal, bare, .5);
-      expect(back.tint, Color.lerp(teal.tint, bare.tint, .5));
+      final back = ColorScheme.lerp(blue, bare, .5);
+      expect(back.tint, Color.lerp(blue.tint, bare.tint, .5));
       // …and for the chart and sidebar tokens, which work the same way.
-      expect(mid.chart1, Color.lerp(bare.chart1, teal.chart1, .5));
-      expect(mid.sidebar, Color.lerp(bare.sidebar, teal.sidebar, .5));
+      expect(mid.chart1, Color.lerp(bare.chart1, blue.chart1, .5));
+      expect(mid.sidebar, Color.lerp(bare.sidebar, blue.sidebar, .5));
     });
 
     test('lerp between two schemes that both rely on a fallback keeps '

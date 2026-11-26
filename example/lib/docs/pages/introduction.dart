@@ -12,7 +12,7 @@ final introductionDoc = ComponentDoc(
         'una is a Flutter implementation of a complete design system. '
         'It began as a port of shadcn/ui and still carries its component '
         'set and three of its styles, measured from the reference CSS. On '
-        'top of that it has its own default look, soft teal glass, and '
+        'top of that it has its own default look, soft blue glass, and '
         'the pieces an app needs beyond a web component kit: app and '
         'navigation bars, a scaffold, list rows, chat bubbles, and a '
         'theme that knows whether it is on a phone.',
@@ -42,7 +42,7 @@ final introductionDoc = ComponentDoc(
               'Two form factors per style. The same widgets come out '
                   'with 36-point buttons in a desktop window and '
                   '44-point ones on a phone.',
-              'Four base color schemes (`teal`, the default, `neutral`, '
+              'Four base color schemes (`blue`, the default, `neutral`, '
                   '`zinc` and `stone`), each in light and dark, with '
                   'seventeen accent overlays and three menu finishes: '
                   'inverted, translucent, and bold accent.',

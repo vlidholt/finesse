@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/src/theme/color_scheme/accent.dart';
+import 'package:una/src/theme/color_scheme/blue.dart';
 import 'package:una/src/theme/color_scheme/neutral.dart';
 import 'package:una/src/theme/color_scheme/stone.dart';
-import 'package:una/src/theme/color_scheme/teal.dart';
 import 'package:una/src/theme/color_scheme/zinc.dart';
 
 /// The colour tokens of a theme, one field per shadcn/ui CSS variable.
@@ -88,7 +88,7 @@ class ColorScheme {
        _accentBorder = accentBorder,
        _bar = bar;
 
-  /// Returns the light or dark scheme called [name]: `teal`, `neutral`,
+  /// Returns the light or dark scheme called [name]: `blue`, `neutral`,
   /// `stone` or `zinc`.
   ///
   /// Throws an [Exception] for an unknown name.
@@ -97,10 +97,10 @@ class ColorScheme {
     Brightness brightness = Brightness.light,
   }) {
     return switch (name) {
-      'teal' =>
+      'blue' =>
         brightness == Brightness.light
-            ? const TealColorScheme.light()
-            : const TealColorScheme.dark(),
+            ? const BlueColorScheme.light()
+            : const BlueColorScheme.dark(),
       'neutral' =>
         brightness == Brightness.light
             ? const NeutralColorScheme.light()
@@ -572,7 +572,7 @@ class ColorScheme {
   /// * If [accent] has a contrast of at least 4.5:1 against both [background]
   ///   and [card], it becomes the [tint]; [tintForeground] becomes the new
   ///   [primaryForeground] and [accentBorder] the tint at 32% opacity. A
-  ///   scheme that names its own tint, as `TealColorScheme` does, has it
+  ///   scheme that names its own tint, as `BlueColorScheme` does, has it
   ///   replaced.
   /// * Otherwise the three are left as they are. A scheme that names no tint
   ///   still follows the new [primary], because that is what [tint] falls

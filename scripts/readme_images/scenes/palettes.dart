@@ -17,7 +17,7 @@ class PalettesScene extends StatelessWidget {
   const PalettesScene({super.key});
 
   static const _palettes = [
-    ('teal', TealColorScheme.light(), TealColorScheme.dark()),
+    ('blue', BlueColorScheme.light(), BlueColorScheme.dark()),
     ('neutral', NeutralColorScheme.light(), NeutralColorScheme.dark()),
     ('zinc', ZincColorScheme.light(), ZincColorScheme.dark()),
     ('stone', StoneColorScheme.light(), StoneColorScheme.dark()),

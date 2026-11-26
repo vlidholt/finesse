@@ -496,8 +496,8 @@ void main() {
         'every style and brightness', (tester) async {
       for (final style in [StyleTokens.una, StyleTokens.nova]) {
         for (final scheme in <ColorScheme>[
-          const TealColorScheme.light(),
-          const TealColorScheme.dark(),
+          const BlueColorScheme.light(),
+          const BlueColorScheme.dark(),
         ]) {
           await pumpUna(tester, const SizedBox());
           await pumpUna(
