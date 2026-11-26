@@ -4,7 +4,7 @@ A row with actions behind it, uncovered by swiping it sideways: archive or delet
 
 ## An inbox
 
-Swipe a row with a finger or a trackpad. Let go past half of the actions and they stay open; swipe across most of the row and the outer one runs. An action that returns true removes the row: it slides out, the gap closes and `onRemoved` is called. A mouse does not drag rows: right-click one, or press the menu key while it has the focus, for the same actions as a menu. `SwipeActionsScope` keeps one row open at a time.
+Swipe a row with a finger, drag it with the mouse or swipe two fingers sideways on a trackpad. Let go past half of the actions and they stay open; swipe across most of the row and the outer one runs. An action that returns true removes the row: it slides out, the gap closes and `onRemoved` is called. Right-click a row, or press the menu key while it has the focus, for the same actions as a menu. `SwipeActionsScope` keeps one row open at a time.
 
 ```dart
 import 'package:flutter/widgets.dart';
@@ -12,7 +12,7 @@ import 'package:una/una.dart';
 
 /// An inbox: swipe a message towards the start to archive or delete it,
 /// towards the end to mark it unread. A full swipe runs the outer action.
-/// With a mouse, right-click a message for the same actions.
+/// A mouse drags a row too, and a right-click shows the same actions.
 class SwipeActionsInboxExample extends StatefulWidget {
   const SwipeActionsInboxExample({super.key});
 

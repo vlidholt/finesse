@@ -202,6 +202,87 @@ void main() {
       expect(tester.getRect(largeTitle('Library')).top, start);
     });
 
+    testWidgets('the large title goes under the toolbar, which takes its '
+        'surface over it as it does, instead of being cut off at the '
+        "toolbar's edge", (tester) async {
+      await pump(tester, page(large(subtitle: const Text('128 albums'))));
+      final theme = themeOf(tester, bar());
+      final toolbar = toolbarHeight(tester);
+      final title = tester.getRect(largeTitle('Library'));
+      // The title's top line six points under the toolbar.
+      final under = title.top - toolbar + 6;
+      await scrollTo(tester, under);
+      final inBand = await sampler.pixel(
+        tester,
+        Offset(title.left + 4, toolbar - 3),
+      );
+      // Not the bare page there, nor the bar's surface alone: the title,
+      // under the surface coming in.
+      expect(inBand, isNot(_page));
+      expect(inBand, isNot(_fill));
+      final band = await sampler.pixel(tester, const Offset(300, 20));
+      expect(band.r, greaterThan(_page.r));
+      expect(band, isNot(_fill));
+      // The small title is not in yet: the large one is not half under.
+      expect(smallTitleOpacity(tester), 0);
+      // Below the toolbar the titles still stand on the bare page.
+      expect(await sampler.pixel(tester, Offset(300, toolbar + 4)), _page);
+
+      // Once the title line is under, the toolbar is the bar's surface,
+      // and the small title is coming in.
+      await scrollTo(tester, under - 6 + title.height + 2);
+      expect(await sampler.pixel(tester, const Offset(300, 20)), _fill);
+      expect(smallTitleOpacity(tester), greaterThan(0));
+      // The fill is laid on once: the toolbar reads as the collapsed bar.
+      await scrollTo(tester, 400);
+      expect(await sampler.pixel(tester, const Offset(300, 20)), _fill);
+      expect(theme.appBarTheme.height, toolbar);
+    });
+
+    testWidgets('over a pinned picture the titles dissolve before the '
+        'toolbar, and the picture is blurred only as they go', (
+      tester,
+    ) async {
+      const picture = Color(0xff00ff00);
+      await pump(
+        tester,
+        page(
+          large(
+            expandedHeight: 200,
+            background: const ColoredBox(color: picture),
+          ),
+        ),
+      );
+      bool blurred() {
+        var found = false;
+        void visit(Layer? first) {
+          for (var layer = first; layer != null; layer = layer.nextSibling) {
+            if (layer is ImageFilterLayer) found = true;
+            if (layer is ContainerLayer) visit(layer.firstChild);
+          }
+        }
+
+        visit(tester.binding.renderViews.first.debugLayer);
+        return found;
+      }
+
+      final toolbar = toolbarHeight(tester);
+      final title = tester.getRect(largeTitle('Library'));
+      // Most of the way, with the titles not yet at the toolbar: sharp.
+      await scrollTo(tester, title.top - toolbar - 4);
+      expect(blurred(), isFalse);
+      // The title halfway under where the toolbar's edge is: nothing of it
+      // above that edge, where the picture stays.
+      await scrollTo(tester, title.top - toolbar + title.height / 2);
+      final above = await sampler.pixel(
+        tester,
+        Offset(title.left + 4, toolbar - 2),
+      );
+      expect(above.g, greaterThan(.5));
+      await scrollTo(tester, 400);
+      expect(blurred(), isTrue);
+    });
+
     testWidgets('scrolling builds nothing in the bar', (tester) async {
       var builds = 0;
       await pump(
