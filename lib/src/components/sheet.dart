@@ -533,9 +533,9 @@ class Sheet extends StatefulWidget {
   final bool? scrollable;
 
   /// {@template Sheet.showCloseButton}
-  /// Whether the sheet has a close button in its top end corner. A modal
-  /// sheet has one by default; an inline sheet has one when it is given
-  /// an [onDismissed].
+  /// Whether the sheet has a close button in its top end corner. None by
+  /// default (or as `SheetTheme.showCloseButton` says): a modal sheet is
+  /// dismissed by a tap outside it, a drag or the back gesture.
   /// {@endtemplate}
   final bool? showCloseButton;
 
@@ -1320,11 +1320,10 @@ class _SheetState extends State<Sheet> with TickerProviderStateMixin {
     final scrollable =
         widget.builder == null &&
         (widget.scrollable ?? sheetTheme.scrollable ?? true);
+    // No close button unless asked for: a modal sheet is dismissed by a
+    // tap outside it, a drag or the back gesture, and its actions.
     final showClose =
-        widget.showCloseButton ??
-        (modal
-            ? sheetTheme.showCloseButton ?? true
-            : widget.onDismissed != null);
+        widget.showCloseButton ?? sheetTheme.showCloseButton ?? false;
 
     Widget content = _SheetContent(
       side: side,

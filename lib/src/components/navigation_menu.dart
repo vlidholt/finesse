@@ -15,6 +15,7 @@ import 'package:una/src/raw_components/portal.dart';
 import 'package:una/src/raw_components/pressable.dart';
 import 'package:una/src/theme/components/layout.dart';
 import 'package:una/src/theme/components/navigation_menu.dart';
+import 'package:una/src/theme/data.dart';
 import 'package:una/src/theme/form_factor.dart';
 import 'package:una/src/theme/motion.dart';
 import 'package:una/src/theme/theme.dart';
@@ -1036,7 +1037,9 @@ class NavigationMenuLink extends StatelessWidget {
                     : 0,
               ),
               child: Padding(
-                padding: menu.linkPadding ?? const EdgeInsets.all(8),
+                padding: inSheet
+                    ? _sheetLinkPadding(theme)
+                    : menu.linkPadding ?? const EdgeInsets.all(8),
                 child: Row(
                   crossAxisAlignment: description == null
                       ? CrossAxisAlignment.center
@@ -1090,6 +1093,16 @@ class NavigationMenuLink extends StatelessWidget {
       },
     );
   }
+}
+
+/// The padding of a link in a phone's sheet: the panel's padding, with
+/// the room a row needs between its fill and its text on a phone.
+EdgeInsetsGeometry _sheetLinkPadding(ThemeData theme) {
+  final link =
+      (theme.navigationMenuTheme.linkPadding ?? const EdgeInsets.all(8))
+          .resolve(TextDirection.ltr);
+  final side = math.max(link.left, theme.layoutTheme.gap(GapSize.md));
+  return EdgeInsets.fromLTRB(side, link.top, side, link.bottom);
 }
 
 /// A navigation menu on a phone: one button, and a sheet with every entry.
@@ -1149,9 +1162,8 @@ class _MenuSheet extends StatelessWidget {
     final theme = Theme.of(context);
     final menu = theme.navigationMenuTheme;
     final gap = theme.layoutTheme.gap(GapSize.md);
-    final inset = (menu.linkPadding ?? const EdgeInsets.all(8)).resolve(
-      Directionality.of(context),
-    );
+    // The labels line up with the links' text.
+    final inset = _sheetLinkPadding(theme).resolve(Directionality.of(context));
     final navigator = Navigator.of(context);
     final route = ModalRoute.of(context);
 

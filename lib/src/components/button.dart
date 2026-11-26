@@ -559,6 +559,23 @@ class _ButtonState extends State<Button> {
         // depress.
         final depressed = pressed && widget.onPressed != null;
 
+        // Disabled, a button is drawn at the theme's disabled opacity. In a
+        // group its outline is a hairline shared with its neighbours, so
+        // there only the fill and the content are dimmed: a disabled
+        // button's edge would otherwise be a paler stretch of the group's.
+        final dim = enabled ? 1.0 : theme.disabledOpacity;
+        final outerDim = group == null ? dim : 1.0;
+        final innerDim = group == null ? 1.0 : dim;
+        Color? dimmed(Color? color) => color == null || innerDim == 1
+            ? color
+            : color.withValues(alpha: color.a * innerDim);
+        final shadows = innerDim == 1 || decoration.shadows == null
+            ? decoration.shadows
+            : [
+                for (final shadow in decoration.shadows!)
+                  shadow.copyWith(color: dimmed(shadow.color)),
+              ];
+
         return _PressShift(
           offset: depressed ? pressedOffset : Offset.zero,
           duration: pressDuration,
@@ -585,7 +602,7 @@ class _ButtonState extends State<Button> {
               ),
             ),
             child: Opacity(
-              opacity: enabled ? 1 : theme.disabledOpacity,
+              opacity: outerDim,
               child: AbsorbPointer(
                 absorbing: !enabled,
                 // The size constraints sit *outside* the decorator so the
@@ -605,32 +622,38 @@ class _ButtonState extends State<Button> {
                     maxHeight: height == 0 ? double.infinity : maxHeight,
                   ),
                   child: AnimatedColorBuilder(
-                    color: background ?? decoration.color,
+                    color: dimmed(background ?? decoration.color),
                     duration: transitionDuration,
                     curve: motion.standard,
                     builder: (context, color, child) => Decorator(
-                      decoration: color == null
+                      decoration: color == null && innerDim == 1
                           ? decoration
-                          : decoration.copyWith(color: color),
+                          : decoration.copyWith(
+                              color: color,
+                              shadows: shadows,
+                            ),
                       focused: states.contains(WidgetState.focused),
                       child: child,
                     ),
                     child: SelectionContainer.disabled(
-                      child: Padding(
-                        padding: padding,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment:
-                              style.crossAxisAlignment ??
-                              CrossAxisAlignment.center,
-                          mainAxisAlignment:
-                              style.mainAxisAlignment ??
-                              MainAxisAlignment.center,
-                          children: [
-                            ?leading,
-                            ?child,
-                            ?widget.trailing,
-                          ].separatedBy(SizedBox(width: gap)),
+                      child: Opacity(
+                        opacity: innerDim,
+                        child: Padding(
+                          padding: padding,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment:
+                                style.crossAxisAlignment ??
+                                CrossAxisAlignment.center,
+                            mainAxisAlignment:
+                                style.mainAxisAlignment ??
+                                MainAxisAlignment.center,
+                            children: [
+                              ?leading,
+                              ?child,
+                              ?widget.trailing,
+                            ].separatedBy(SizedBox(width: gap)),
+                          ),
                         ),
                       ),
                     ),

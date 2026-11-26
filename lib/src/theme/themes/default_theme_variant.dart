@@ -1453,9 +1453,11 @@ class DefaultThemeVariant extends ThemeVariant {
           .copyWith(
             color: colorScheme.popoverForeground.withValues(alpha: .9),
           ),
-      // Every variant shares the surface and says what it is with its
-      // icon, as sonner does without `richColors`.
+      // A status toast says what it is with its icon and a wash of its
+      // colour over the surface, as sonner's `richColors` does: stronger
+      // in dark, where a light wash on a dark surface is all but lost.
       iconSize: 18,
+      statusTintOpacity: _isDark ? .16 : .10,
       successColor: _toastIconColor(colorScheme.success),
       warningColor: _toastIconColor(colorScheme.warning),
       destructiveColor: _toastIconColor(colorScheme.destructive),
@@ -1676,8 +1678,8 @@ class DefaultThemeVariant extends ThemeVariant {
       actionsGap: 8,
       titleStyle: style.title.apply(effectiveTextTheme.large),
       descriptionStyle: style.body.apply(effectiveTextTheme.muted),
-      // A dialog has no close button by default; a sheet has one.
-      showCloseButton: true,
+      // Like a dialog, a sheet has no close button by default: a tap
+      // outside, a drag or the back gesture dismisses it.
       dragHandleColor: _wash(colorScheme.foreground, .2),
       dragHandleWidth: 36,
       dragHandleHeight: 4,

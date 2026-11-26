@@ -1,5 +1,9 @@
+import 'dart:math' as math;
+
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/bar_button_scope.dart';
 import 'package:una/src/components/bottom_bar_surface.dart';
+import 'package:una/src/theme/components/button.dart';
 import 'package:una/src/theme/components/layout.dart';
 import 'package:una/src/theme/theme.dart';
 import 'package:una/src/utils/arrow_key_focus.dart';
@@ -114,6 +118,27 @@ class Toolbar extends StatelessWidget {
           if (isFloating) row else Expanded(child: row),
           ?trailing,
         ],
+      );
+    }
+
+    // A floating bar is a capsule (or a rounded slab), and a button on it
+    // with the usual corners sits in it like a box in a tube: the buttons
+    // follow the bar's curve, concentric with it.
+    if (isFloating) {
+      final barHeight = bar.itemHeight ?? 48;
+      final surface = BottomBarSurface.radiusIn(
+        context,
+        floating: true,
+      ).topLeft.x;
+      final buttonHeight = theme.buttonSizesTheme.regular?.height ?? 36;
+      final inset = math.max<double>(0, (barHeight - buttonHeight) / 2);
+      final radius = surface >= barHeight / 2
+          ? theme.radii.full
+          : BorderRadius.circular(math.max(0, surface - inset));
+      row = BarButtonScope(
+        variant: BarButtonScope.maybeOf(context)?.variant,
+        style: ButtonTheme(decoration: theme.buttonDecoration(radius: radius)),
+        child: row,
       );
     }
 

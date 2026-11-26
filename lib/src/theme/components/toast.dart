@@ -12,8 +12,9 @@ part 'toast.g.theme.dart';
 /// The theme of a `Toast`: its surface, its text and the colours its
 /// variants give their icon.
 ///
-/// Every variant shares one surface — a toast is a popover surface, glass in
-/// a style whose popovers are — and differs only in the icon it leads with.
+/// Every variant is a popover surface — glass in a style whose popovers
+/// are — and the status variants wash it in their colour
+/// ([statusTintOpacity]) as well as leading with their icon.
 /// {@endtemplate}
 @themeGen
 @immutable
@@ -36,6 +37,7 @@ class ToastTheme with _$ToastTheme {
     this.warningColor,
     this.destructiveColor,
     this.loadingColor,
+    this.statusTintOpacity,
     this.duration,
   }) : _canMerge = canMerge;
 
@@ -91,6 +93,12 @@ class ToastTheme with _$ToastTheme {
 
   /// The colour of a loading toast's spinner.
   final Color? loadingColor;
+
+  /// How strongly a success, warning or destructive toast is washed in its
+  /// status colour (the scheme's `success`, `warning` and `destructive`):
+  /// the opacity of that colour over the toast's surface, and twice it on
+  /// the outline. Zero gives every variant the same surface.
+  final double? statusTintOpacity;
 
   /// How long a toast stays before it leaves by itself, when the toast does
   /// not say. `Duration.zero` keeps toasts until they are dismissed.

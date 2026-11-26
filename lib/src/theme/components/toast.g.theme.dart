@@ -45,6 +45,11 @@ mixin _$ToastTheme {
       warningColor: Color.lerp(a.warningColor, b.warningColor, t),
       destructiveColor: Color.lerp(a.destructiveColor, b.destructiveColor, t),
       loadingColor: Color.lerp(a.loadingColor, b.loadingColor, t),
+      statusTintOpacity: lerpDouble$(
+        a.statusTintOpacity,
+        b.statusTintOpacity,
+        t,
+      ),
       duration: lerpDuration$(a.duration, b.duration, t),
     );
   }
@@ -65,6 +70,7 @@ mixin _$ToastTheme {
     Color? warningColor,
     Color? destructiveColor,
     Color? loadingColor,
+    double? statusTintOpacity,
     Duration? duration,
   }) {
     final _this = (this as ToastTheme);
@@ -85,6 +91,7 @@ mixin _$ToastTheme {
       warningColor: warningColor ?? _this.warningColor,
       destructiveColor: destructiveColor ?? _this.destructiveColor,
       loadingColor: loadingColor ?? _this.loadingColor,
+      statusTintOpacity: statusTintOpacity ?? _this.statusTintOpacity,
       duration: duration ?? _this.duration,
     );
   }
@@ -118,6 +125,7 @@ mixin _$ToastTheme {
       warningColor: other.warningColor,
       destructiveColor: other.destructiveColor,
       loadingColor: other.loadingColor,
+      statusTintOpacity: other.statusTintOpacity,
       duration: other.duration,
     );
   }
@@ -150,6 +158,7 @@ mixin _$ToastTheme {
         _other.warningColor == _this.warningColor &&
         _other.destructiveColor == _this.destructiveColor &&
         _other.loadingColor == _this.loadingColor &&
+        _other.statusTintOpacity == _this.statusTintOpacity &&
         _other.duration == _this.duration;
   }
 
@@ -174,6 +183,7 @@ mixin _$ToastTheme {
       _this.warningColor,
       _this.destructiveColor,
       _this.loadingColor,
+      _this.statusTintOpacity,
       _this.duration,
     );
   }

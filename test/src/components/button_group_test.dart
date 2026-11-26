@@ -606,4 +606,92 @@ void main() {
       handle.dispose();
     });
   });
+
+  group('disabled', () {
+    /// The opacity everything above [decorator] is drawn at, up to [root].
+    double opacityAbove(WidgetTester tester, Finder decorator, Finder root) {
+      var opacity = 1.0;
+      for (final o in tester.widgetList<Opacity>(
+        find.ancestor(of: decorator, matching: find.byType(Opacity)),
+      )) {
+        opacity *= o.opacity;
+      }
+      return opacity;
+    }
+
+    testWidgets('a disabled button in a group keeps the outline of an '
+        'enabled one, and dims its content', (tester) async {
+      for (final style in styles) {
+        for (final brightness in Brightness.values) {
+          await pump(
+            tester,
+            ButtonGroup(
+              children: [
+                outline('On'),
+                const Button.outline(child: Text('Off')),
+              ],
+            ),
+            theme: themeOf(style, brightness: brightness),
+          );
+          final on = decorationOf(tester, buttonOf('On'));
+          final off = decorationOf(tester, buttonOf('Off'));
+          expect(off.border!.top?.color, on.border!.top?.color);
+          final decorator = find
+              .descendant(of: buttonOf('Off'), matching: find.byType(Decorator))
+              .first;
+          expect(opacityAbove(tester, decorator, buttonOf('Off')), 1);
+          // The label is still drawn dimmed.
+          final label = tester.widgetList<Opacity>(
+            find.ancestor(of: find.text('Off'), matching: find.byType(Opacity)),
+          );
+          final dim = label.fold<double>(1, (a, o) => a * o.opacity);
+          expect(dim, closeTo(ThemeData(style: style).disabledOpacity, 1e-9));
+        }
+      }
+    });
+
+    testWidgets('a standalone disabled button still dims as a whole', (
+      tester,
+    ) async {
+      await pump(tester, const Button.outline(child: Text('Off')));
+      final decorator = find
+          .descendant(of: buttonOf('Off'), matching: find.byType(Decorator))
+          .first;
+      expect(opacityAbove(tester, decorator, buttonOf('Off')), .5);
+    });
+
+    testWidgets('a disabled item of a joined toggle group keeps the outline', (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        ToggleGroup<int>.multiple(
+          variant: ToggleVariant.outline,
+          gap: 0,
+          values: const {},
+          onValuesChanged: (_) {},
+          items: const [
+            ToggleGroupItem(value: 0, child: Text('A')),
+            ToggleGroupItem(value: 1, enabled: false, child: Text('B')),
+          ],
+        ),
+      );
+      Finder decoratorOf(String label) => find
+          .ancestor(of: find.text(label), matching: find.byType(Decorator))
+          .first;
+      final a = tester.widget<Decorator>(decoratorOf('A')).decoration!;
+      final b = tester.widget<Decorator>(decoratorOf('B')).decoration!;
+      expect(b.border!.top?.color, a.border!.top?.color);
+      expect(
+        opacityAbove(tester, decoratorOf('B'), find.byType(ToggleGroup<int>)),
+        1,
+      );
+      final dim = tester
+          .widgetList<Opacity>(
+            find.ancestor(of: find.text('B'), matching: find.byType(Opacity)),
+          )
+          .fold<double>(1, (a, o) => a * o.opacity);
+      expect(dim, .5);
+    });
+  });
 }

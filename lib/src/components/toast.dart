@@ -163,6 +163,20 @@ class Toast extends StatelessWidget {
         toastTheme.destructiveColor ?? scheme.destructive,
       ToastVariant.loading => toastTheme.loadingColor ?? scheme.mutedForeground,
     };
+    // A status toast washes its surface and its outline in its colour.
+    final status = switch (variant) {
+      ToastVariant.success => scheme.success,
+      ToastVariant.warning => scheme.warning,
+      ToastVariant.destructive => scheme.destructive,
+      ToastVariant.neutral || ToastVariant.loading => null,
+    };
+    final tintOpacity = toastTheme.statusTintOpacity ?? 0;
+    final tint = status == null || tintOpacity == 0
+        ? null
+        : status.withValues(alpha: status.a * tintOpacity);
+    final edgeTint = tint == null
+        ? null
+        : status!.withValues(alpha: status.a * math.min(1, tintOpacity * 2));
     final effectiveLeading =
         leading ??
         switch (variant) {
@@ -177,32 +191,76 @@ class Toast extends StatelessWidget {
           ToastVariant.loading => Spinner(size: iconSize, color: accent),
         };
 
+    // The icon is centred on the first line of text, the title's when
+    // there is one, not on the whole block: beside a title and a two-line
+    // description it stays with the title.
+    final firstLine = TextPainter(
+      text: TextSpan(
+        text: ' ',
+        style: DefaultTextStyle.of(
+          context,
+        ).style.merge(title != null ? titleStyle : descriptionStyle),
+      ),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+    );
+    final lineHeight = firstLine.preferredLineHeight;
+    firstLine.dispose();
+
     Widget content = Padding(
       padding: toastTheme.padding ?? const EdgeInsets.all(16),
       child: Row(
         children: [
-          if (effectiveLeading != null) ...[
-            IconTheme.merge(
-              data: IconThemeData(size: iconSize, color: accent),
-              // A loading toast that turns into its result says so.
-              child: PopOnChange(value: variant, child: effectiveLeading),
-            ),
-            SizedBox(width: gap),
-          ],
           Expanded(
-            child: Column(
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
               children: [
-                if (title != null)
-                  DefaultTextStyle.merge(style: titleStyle, child: title!),
-                if (title != null && description != null)
-                  const SizedBox(height: 2),
-                if (description != null)
-                  DefaultTextStyle.merge(
-                    style: descriptionStyle,
-                    child: description!,
+                if (effectiveLeading != null) ...[
+                  SizedBox(
+                    height: math.max(lineHeight, iconSize),
+                    child: Center(
+                      widthFactor: 1,
+                      child: IconTheme.merge(
+                        data: IconThemeData(size: iconSize, color: accent),
+                        // A loading toast that turns into its result says
+                        // so.
+                        child: PopOnChange(
+                          value: variant,
+                          child: effectiveLeading,
+                        ),
+                      ),
+                    ),
                   ),
+                  SizedBox(width: gap),
+                ],
+                Expanded(
+                  child: Padding(
+                    // A line shorter than the icon is centred on it.
+                    padding: EdgeInsets.only(
+                      top: effectiveLeading == null
+                          ? 0
+                          : math.max(0, iconSize - lineHeight) / 2,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (title != null)
+                          DefaultTextStyle.merge(
+                            style: titleStyle,
+                            child: title!,
+                          ),
+                        if (title != null && description != null)
+                          const SizedBox(height: 2),
+                        if (description != null)
+                          DefaultTextStyle.merge(
+                            style: descriptionStyle,
+                            child: description!,
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -224,9 +282,12 @@ class Toast extends StatelessWidget {
         child: LiquidGlassSurface(
           radius: radius.resolve(Directionality.of(context)).topLeft.x,
           overlay: true,
-          child: Padding(
-            padding: border.toBorder().dimensions,
-            child: content,
+          child: DecoratedBox(
+            decoration: BoxDecoration(color: tint),
+            child: Padding(
+              padding: border.toBorder().dimensions,
+              child: content,
+            ),
           ),
         ),
       );
@@ -250,10 +311,21 @@ class Toast extends StatelessWidget {
             : ShadowDecoration.box(borderRadius: radius, shadows: shadows),
         child: DecoratedBox(
           decoration: ShadowDecoration.box(
-            border: border.toBorder(),
+            border:
+                (edgeTint == null
+                        ? border
+                        : border.copyWith(
+                            top: border.top?.copyWith(color: edgeTint),
+                            right: border.right?.copyWith(color: edgeTint),
+                            bottom: border.bottom?.copyWith(color: edgeTint),
+                            left: border.left?.copyWith(color: edgeTint),
+                          ))
+                    .toBorder(),
             borderRadius: radius,
             shadows: filter == null ? shadows : const [],
-            color: background,
+            color: tint == null
+                ? background
+                : Color.alphaBlend(tint, background),
           ),
           child: content,
         ),
