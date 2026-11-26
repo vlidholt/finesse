@@ -87,9 +87,11 @@ ThemeData(
           DocParagraph(
             '`copyWith` changes the set of metrics it is called on. '
             '`crisp`, `pebble` and `sharp` derive their phone metrics '
-            'from the result, so one call covers both. `fluid` has a '
-            'separate `fluidMobile`: to change it on a phone too, copy '
-            'that as well and pass it as `mobile`.',
+            'from the result, so one call covers both. `fluid` has its '
+            'own, `fluidMobile`: `copyWith` carries a change to them for '
+            'every field the two share, and a field the phone sets '
+            'differently (control heights, page margins) is changed '
+            'there by passing `mobile:` as well.',
           ),
         ],
       ),

@@ -131,6 +131,13 @@ final roomy = ThemeData(
 );
 ```
 
+`layoutTheme.gap(GapSize.x)` is how a padding, a `Wrap`'s `spacing` or a
+`Row`'s `spacing` stays on the scale: `EdgeInsets.only(top:
+layout.gap(GapSize.xs))`, `Wrap(spacing: layout.gap(GapSize.sm), ...)`.
+`ThemeData` itself has no `gap` method; an app that reaches for it often
+adds a one-line extension (`double gap(GapSize s) => layoutTheme.gap(s);`
+on `ThemeData`), as the Demo app does.
+
 An override on `ThemeData.layoutTheme` applies to both form factors. To change
 the scale for one only, set the style's tokens instead: `gapLg` and `gapXl` on
 `StyleTokens`, and on its `mobile` counterpart.
@@ -161,7 +168,120 @@ layer of its own, so scrolling repaints nothing. A long feed is a lazy
 list instead (a `ListView.builder` or slivers) with the same margins:
 `PageContainer` is the margins, a builder is the feed.
 
+- `PageContainer(maxWidth: 1200)` centres a page narrower than the app
+  bar (a profile, a form); `PageContainer(padding: ...)` replaces the page
+  margins, and the safe area is still added.
+- **A strip that runs to the screen edge** (a filter bar of chips that
+  scrolls sideways on a phone, a row of stories) cannot live inside the
+  side margins. Give the page only its vertical margins and let every
+  other child take the side margins itself:
+
+```dart
+Widget build(BuildContext context) {
+  final theme = Theme.of(context);
+  final margin = (theme.layoutTheme.pagePadding ?? EdgeInsets.zero)
+      .resolve(Directionality.of(context));
+  Widget inset(Widget child) => Padding(
+    padding: EdgeInsets.only(left: margin.left, right: margin.right),
+    child: child,
+  );
+  return PageContainer(
+    scrollable: true,
+    padding: EdgeInsets.only(top: margin.top, bottom: margin.bottom),
+    child: UnaColumn(
+      gap: GapSize.lg,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        inset(Text('Jobs', style: theme.textTheme.h1)),
+        ChipGroup<String>(
+          value: _filter,
+          onChanged: (value) => setState(() => _filter = value!),
+          allowDeselection: false,
+          wrap: false, // one row that scrolls, fading at its edges
+          padding: EdgeInsets.symmetric(horizontal: margin.left),
+          items: const [
+            ChipGroupItem(value: 'all', label: Text('All')),
+            ChipGroupItem(value: 'remote', label: Text('Remote')),
+            ChipGroupItem(value: 'hybrid', label: Text('Hybrid')),
+          ],
+        ),
+        inset(const Card(title: Text('Results'))),
+      ],
+    ),
+  );
+}
+```
+
 See [page-container.md](../components/page-container.md).
+
+## Columns that fit the window
+
+On a desktop, decide how many columns fit from the width the page
+actually has, not from the form factor, so a window between 800 and 1200
+wide degrades column by column. Read it with a `LayoutBuilder` inside the
+`PageContainer`, put `GapSize.xl` between the columns and `GapSize.lg`
+between the cards in each:
+
+```dart
+PageContainer(
+  scrollable: true,
+  child: LayoutBuilder(
+    builder: (context, constraints) {
+      final columnGap = Theme.of(context).layoutTheme.gap(GapSize.xl);
+      const railWidth = 320.0;
+      final main = UnaColumn(
+        gap: GapSize.lg,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: posts,
+      );
+      if (constraints.maxWidth < 560 + columnGap + railWidth) {
+        return main; // the rail drops away (or moves under the feed)
+      }
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: columnGap,
+        children: [
+          Expanded(child: main),
+          SizedBox(
+            width: railWidth,
+            child: UnaColumn(
+              gap: GapSize.lg,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: sideCards,
+            ),
+          ),
+        ],
+      );
+    },
+  ),
+)
+```
+
+A column's *width* is a design value (a 320-point rail) and can be a
+constant; the space between things never is. Key columns that come and go
+(`ValueKey`), so the one that stays keeps its state. The phone layout of
+the same screen is usually a different widget under `FormFactorBuilder`
+([form-factors.md](form-factors.md)).
+
+## Inside a card
+
+A `Card` already pads its content with `theme.cardTheme.padding`, gives its
+title and description their styles and spaces them; do not pad inside it
+again. Lay the content out with the same gap scale:
+
+- `GapSize.md` between the blocks of a card (header, body, media,
+  actions), `GapSize.xs` between a title and its muted line, `GapSize.sm`
+  between buttons.
+- A `Divider` between sections of a card passes `margin: EdgeInsets.zero`;
+  the shadcn-derived styles give a divider a margin of its own.
+- Change a card's padding or radius through its `style`, never by
+  wrapping it: `Card(style: CardTheme(padding: EdgeInsets.all(
+  theme.layoutTheme.gap(GapSize.xl))), child: ...)`.
+- A surface that is laid out like a card without being one (a panel in a
+  pane) takes `theme.cardTheme.padding` as its padding, so it lines up.
 
 ## Spacing steps
 

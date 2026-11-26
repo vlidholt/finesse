@@ -18,7 +18,8 @@ Scaffold(
   appBar: AppBar(
     title: const Text('Inbox'),
     actions: [
-      IconButton.ghost(
+      // No variant: the bar picks the look (see "Buttons in bars").
+      IconButton(
         icon: const PhosphorIcon(PhosphorIconsRegular.magnifyingGlass),
         semanticLabel: 'Search',
         onPressed: () {},
@@ -77,11 +78,98 @@ and its fill is the style's bar opacity over a blur.
   `TabBarView` in the body.
 - `surfaceBehavior: AppBarSurfaceBehavior.whenScrolled` keeps the bar clear
   until the page scrolls beneath it.
+- The bar's content is capped at the page width (`maxWidth`), so its title
+  lines up with a `PageContainer` below it. A full-bleed tool (a docs
+  browser, an editor) passes `maxWidth: double.infinity`.
+
+### Buttons in bars
+
+Write the buttons in a bar's `leading` and `actions` **with no variant**:
+`IconButton(icon: ..., semanticLabel: ..., onPressed: ...)`, `Button(...)`.
+The bar knows what it is drawn on and gives them the look that reads
+there: ghost on its own surface (the last icon's glyph, not its box, then
+lines up with the page margin), an outline disc over a `SliverAppBar`'s
+photograph, plain icons on a Liquid Glass capsule. `IconButton.ghost` in a
+bar pins one look and loses the others. Name a variant only to *mean*
+something: a pressed-in `IconButton.secondary` for a panel that is open,
+`Button(variant: ButtonVariant.primary, ...)` for the one call to action
+(a `Button` with no variant in a bar takes the bar's look, not primary).
+
+```dart
+AppBar(
+  title: const Text('Messages'),
+  actions: [
+    IconButton(
+      icon: const PhosphorIcon(PhosphorIconsRegular.notePencil),
+      semanticLabel: 'New message',
+      onPressed: () {},
+    ),
+    IndicatorBadge(
+      count: 3,
+      semanticLabel: '3 unread',
+      child: IconButton(
+        icon: const PhosphorIcon(PhosphorIconsRegular.bell),
+        semanticLabel: 'Notifications',
+        onPressed: () {},
+      ),
+    ),
+  ],
+)
+```
+
+Leave icon sizes, paddings and the gap between actions to the bar
+(`actionsGap` only where a design packs them tighter). A logo is a widget
+in `leading`; a logo and a search field together go in `title`, which is
+flexible, so they can give way in a narrow window.
 
 `SliverAppBar` lives in the scroll view instead: `SliverAppBar.large` has a
 large title that collapses into the toolbar, `floating: true` comes back
 when the reader scrolls up. Give the scaffold no `appBar` and make the
-sliver bar the first sliver of the body's `CustomScrollView`.
+sliver bar the first sliver of the body's `CustomScrollView`. It follows
+the scroll in paint, so a collapse builds and lays out nothing.
+
+- `SliverAppBar.large(title:, subtitle:)`: the title large at the page
+  margin under the toolbar, a muted line under it. As the page scrolls it
+  slides under the toolbar and comes back small there. The top-level
+  screen of a phone app (Settings, Library, Inbox).
+- `background:` fills the expanded area with a picture or a gradient,
+  which moves at half the page's speed; `expandedHeight:` sizes it. The
+  titles stand on the page colour rising into the picture, so they read
+  on any photo.
+- `pinBackground: true` (the default) keeps the picture behind the
+  collapsed toolbar, blurred and veiled, as a profile's cover does;
+  `false` fades it out and the collapsed bar takes the bar's surface.
+- In a browser on Liquid Glass the toolbar stays filled and the picture
+  starts below it. Nothing to handle.
+- Wrap each action of a large bar in a `RepaintBoundary` when the bar
+  collapses over a picture: the buttons then move instead of repainting.
+
+```dart
+CustomScrollView(
+  slivers: [
+    SliverAppBar.large(
+      title: const Text('Ada Lovelace'),
+      subtitle: const Text('Analyst, London'),
+      expandedHeight: 220,
+      background: const Image(
+        image: AssetImage('assets/cover.jpg'),
+        fit: BoxFit.cover,
+      ),
+      actions: [
+        IconButton(
+          icon: const PhosphorIcon(PhosphorIconsRegular.dotsThree),
+          semanticLabel: 'More options',
+          onPressed: () {},
+        ),
+      ],
+    ),
+    SliverList.builder(
+      itemCount: 20,
+      itemBuilder: (context, index) => ListTile(title: Text('Post $index')),
+    ),
+  ],
+)
+```
 
 ```dart
 Scaffold(
@@ -105,9 +193,9 @@ Scaffold(
 
 Along the bottom: `BottomNavigationBar` carries destinations (below), and
 `Toolbar` carries actions on what is showing (`children`, usually
-`IconButton.ghost`s, and a `trailing` one that stands apart). Both float as
-a glass pill in a style whose bottom bar floats, and span the edge
-otherwise.
+`IconButton.ghost`s, which a `Toolbar` does not pick for you, and a
+`trailing` one that stands apart). Both float as a glass pill in a style
+whose bottom bar floats, and span the edge otherwise.
 
 ## Many destinations: `NavigationScaffold`
 
@@ -165,14 +253,67 @@ class _ShellState extends State<Shell> {
   while another shows, so scroll positions and drafts survive a switch.
 - `action:` is a `NavigationAction`, the one prominent button (Create
   post) that sits in the bars; `showInTopBar`, `showInBottomBar` and
-  `showInRail` on a destination leave it out of one of them.
+  `showInRail` on a destination leave it out of one of them (Messages and
+  Notifications as app-bar buttons on a phone, a "Me" avatar only in the
+  bottom bar).
+- `title`, `leading` and `actions` are the desktop top bar's;
+  `mobileActions` replaces the actions on a phone, and `mobileAppBar` the
+  whole phone bar (a logo and three icon buttons). `showMobileAppBar:
+  false` drops it for a destination that draws its own (a profile whose
+  `SliverAppBar.large` cover runs under the status bar).
+- A destination's screen is page content, normally a `PageContainer`,
+  never a second `Scaffold`: the shell's bars are already laid over it and
+  its `MediaQuery` padding includes them. A view that needs the whole
+  screen (a conversation, a detail on a phone) is a pushed route with its
+  own `Scaffold` and `AppBar`.
+- The desktop top bar holds the destinations only while they fit. A
+  narrow desktop window (a tablet held upright) is better with
+  `layout: NavigationLayout.rail`, chosen from a `LayoutBuilder` around the
+  scaffold.
 - A site-style row of links with drop-down panels is a `NavigationMenu`
   (`NavigationMenuItem`, `NavigationMenuLink`); it becomes a sheet on a
   phone.
 - A collapsible side panel of navigation is a `Sidebar` inside a
   `SidebarScaffold` (an icon rail or off-canvas on a desktop, a sheet on a
   phone; `SidebarController` has `isOpen`, `open()`, `close()`,
-  `toggle()`, and `isMobileOpen`/`openMobile()` for the phone sheet).
+  `toggle()`, and `isMobileOpen`/`openMobile()` for the phone sheet). It
+  suits a tool with many sections (an admin, a docs browser);
+  `NavigationScaffold` suits an app with five or fewer.
+
+```dart
+SidebarScaffold(
+  sidebar: Sidebar(
+    header: const TextField(
+      placeholder: Text('Search'),
+      leading: PhosphorIcon(PhosphorIconsRegular.magnifyingGlass),
+    ),
+    children: [
+      SidebarGroup(
+        label: const Text('Workspace'),
+        children: [
+          SidebarMenu(
+            children: [
+              SidebarMenuButton(
+                selected: true,
+                onPressed: () {},
+                child: const Text('Projects'),
+              ),
+              SidebarMenuButton(
+                onPressed: () {},
+                child: const Text('Members'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ],
+  ),
+  child: const PageContainer(scrollable: true, child: Text('Projects')),
+)
+```
+
+`SidebarTrigger()` anywhere under the scaffold toggles it (as does
+Cmd/Ctrl+B).
 
 ## Pages and routes
 
@@ -194,8 +335,11 @@ Navigator.of(context).push(
   back preview on Android. `backGesture: false` turns them off for one
   route. `UnaPage` is the same route for a declarative page list
   (`Navigator.pages`, a router).
-- A list and the detail of what is chosen in it is a `ListDetailLayout`:
-  side by side on a desktop, the detail pushed over the list on a phone.
+- A list and the detail of what is chosen in it is a `ListDetailLayout`
+  (`list:`, `detail:`, `placeholder:`, `listWidth:`, `onDetailClosed:`):
+  side by side on a desktop, the detail pushed over the list on a phone,
+  where the back gesture and button call `onDetailClosed`. An inbox or a
+  file browser is one; do not build the two layouts yourself.
 
 ## Tabs and segments
 

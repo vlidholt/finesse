@@ -15,7 +15,7 @@ the other.
 | Text field height | 40 | 46 |
 | Chip height | 32 | 36 |
 | Body text | 14 | 15 |
-| App bar height | 64 | 60 |
+| App bar height | 64 | 44 (the derived phone metrics of the other styles: 60) |
 | Page margins | 24 | 16 |
 | `GapSize.lg` / `GapSize.xl` | 16 / 24 | 12 / 16 |
 
@@ -94,26 +94,26 @@ test window under `UnaApp` gives the phone form factor as well).
 ## Where the phone metrics come from
 
 A `StyleTokens` has a `mobile` field: a second, complete set of tokens for
-a touch screen. `StyleTokens.una` points it at
-`StyleTokens.unaMobile`; a style that leaves it null gets derived
+a touch screen. `StyleTokens.fluid` points it at
+`StyleTokens.fluidMobile`; a style that leaves it null gets derived
 metrics. `forFormFactor` resolves either:
 
 ```dart
-final phone = StyleTokens.una.forFormFactor(FormFactor.mobile);
-final novaPhone = StyleTokens.nova.forFormFactor(FormFactor.mobile);
+final phone = StyleTokens.fluid.forFormFactor(FormFactor.mobile);
+final crispPhone = StyleTokens.crisp.forFormFactor(FormFactor.mobile);
 ```
 
 The derivation only loosens a style: buttons, icon buttons and fields
 grow to at least 44 (small buttons 36, large 48), body and field text to
 15 on a 22 line, chips to 36, checkboxes and radios to 20, calendar cells
-to 40; the app bar is 60 tall, page margins 16, the `lg` gap 12 and `xl`
+to 40; the app bar at most 60 tall, page margins 16, the `lg` gap 12 and `xl`
 16.
 
 `copyWith` on a style carries each change to the phone set where the two
 had the same value. To set a phone value of its own, pass `mobile:`:
 
 ```dart
-final mine = StyleTokens.nova.copyWith(buttonHeight: 34);
+final mine = StyleTokens.crisp.copyWith(buttonHeight: 34);
 final theme = ThemeData(
   style: mine.copyWith(
     mobile: mine.forFormFactor(FormFactor.mobile).copyWith(buttonHeight: 48),

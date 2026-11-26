@@ -25,85 +25,128 @@ component themes. Building the app's themes in its root widget is fine;
 themes compare by value. A subtree that needs a re-themed copy derives it
 once per ambient theme and keeps it.
 
-Beyond shadcn's tokens, the color scheme has `tint` and `tintForeground` (the
-brand hue, for selected icons and outgoing chat bubbles), `foregroundSubtle`,
-`borderStrong`, `accentBorder`, `success`, `successMuted`, `warning` and `bar`
-(the solid color under app and navigation bars).
+## Which colour to use
+
+Pick a token by what the colour *does*, never by how it looks in the
+default scheme: six schemes ship, and in each the same role is a
+different colour.
+
+| Token | For |
+| --- | --- |
+| `background` / `foreground` | The page, and the default ink on it: titles, names, body text you want at full strength. |
+| `card` / `cardForeground`, `popover` / `popoverForeground` | Surfaces. Components paint them; read them only for a surface of your own. |
+| `mutedForeground` | Descriptions, metadata, placeholders, inactive icons. `textTheme.muted` and `caption` are already in it. |
+| `foregroundSubtle` | One step louder than muted: chip labels, ghost button labels, a secondary line that must still read. |
+| `tint` / `tintForeground` | The brand colour drawn *straight on a surface*: a selected icon, a link, a progress fill, a liked heart, a "Verified" glyph. |
+| `primary` / `primaryForeground` | A *fill* that carries text: primary buttons, checked controls, badges. Too dark or too light to read as ink on some pages. |
+| `accent` / `accentForeground` | The wash of a selected chip, card or menu row, and the ink *on that wash*. Not a brand ink for a card. |
+| `muted`, `secondary` | Quiet fills: a track, a skeleton, a hovered row, a secondary button. |
+| `border`, `borderStrong`, `input` | Hairlines; `borderStrong` for outline buttons and key caps on a surface of nearly the same colour; `input` for field outlines. |
+| `success` / `successMuted`, `warning`, `destructive` | Status ink and its soft fill. |
+| `bar` | The solid colour under app and navigation bars (the style makes it translucent). |
+| `chart1`...`chart5` | A data ramp. |
+
+```dart
+final theme = Theme.of(context);
+final scheme = theme.colorScheme;
+
+final verified = PhosphorIcon(PhosphorIconsFill.sealCheck, color: scheme.tint);
+final age = Text('3 days ago', style: theme.textTheme.caption); // already muted
+final author = Text(
+  'Ada Lovelace',
+  style: theme.textTheme.large.copyWith(color: scheme.foreground),
+);
+```
+
+Never write a hex colour in a screen. A colour of your own goes in the
+scheme's `custom` map (below), so it switches with light and dark.
 
 ## Color schemes
 
-Four base schemes ship in light and dark: `TealColorScheme` (the default),
-`NeutralColorScheme`, `ZincColorScheme` and `StoneColorScheme`. A base scheme
-supplies the whole palette: backgrounds, borders, muted tones and a primary.
-With no `colorScheme`, `ThemeData` uses teal in the theme's brightness.
+Six schemes ship, each a light and a dark palette made from one ladder of
+lightness, so none is louder than another:
+
+| `ColorSchemes` | Classes | Character |
+| --- | --- | --- |
+| `ocean` (the default) | `OceanColorScheme.light()` / `.dark()` | A standard blue on a cool grey page. |
+| `graphite` | `GraphiteColorScheme` | Monochrome: near-black ink as the primary, near-white in the dark. |
+| `forest` | `ForestColorScheme` | A deep green on greys with a breath of sage. |
+| `iris` | `IrisColorScheme` | A clear violet on cool, faintly violet greys. |
+| `ember` | `EmberColorScheme` | A burnt orange on warm stone greys. |
+| `rose` | `RoseColorScheme` | A rose red on soft, warm greys. |
+
+Each supplies the whole palette, every optional token included. With no
+`colorScheme`, `ThemeData` uses Ocean in the theme's brightness.
 
 ```dart
 UnaApp(
-  theme: ThemeData(
-    colorScheme: const ZincColorScheme.light(),
-  ),
+  theme: ThemeData(colorScheme: const IrisColorScheme.light()),
   darkTheme: ThemeData(
     brightness: Brightness.dark,
-    colorScheme: const ZincColorScheme.dark(),
+    colorScheme: const IrisColorScheme.dark(),
   ),
 )
 ```
 
-To let users pick a palette at runtime, resolve one by name with
-`ColorScheme.fromName`:
+For a picker, `ColorSchemes` lists them with a display name and both
+palettes, and `ColorScheme.fromName` looks one up:
 
 ```dart
-final scheme = ColorScheme.fromName(
-  'stone', // teal, neutral, stone or zinc
-  brightness: Brightness.dark,
-);
+for (final scheme in ColorSchemes.values) {
+  scheme.label; // 'Ocean', 'Graphite', ...
+  scheme.of(Brightness.dark); // its dark palette
+}
+final forest = ColorScheme.fromName('forest', brightness: Brightness.dark);
 ```
 
-## Accents
+There is no `TealColorScheme`, `NeutralColorScheme`, `ZincColorScheme`,
+`StoneColorScheme`, `BlueColorScheme` or `AccentScheme` any more, and no
+`applyAccentScheme`. A brand colour is `applyAccent` (below); any other
+change is `copyWith`.
 
-An `AccentScheme` is an overlay: it replaces only the tokens that carry the hue
-(the primary pair, the focus ring, the selection, the chart ramp) and leaves the
-base palette alone. Seventeen ship, each in light and dark: amber, blue, cyan,
-emerald, fuchsia, green, indigo, lime, orange, pink, purple, red, rose, sky,
-teal, violet and yellow.
+## An accent from one colour
+
+`applyAccent` re-colours a scheme from a single colour and leaves the
+neutral palette (page, surfaces, borders, muted tones) alone:
 
 ```dart
-final violet = ThemeData(
-  colorScheme: const ZincColorScheme.light()
-      .applyAccentScheme(AccentScheme.violetLight),
-);
-
-// By name, for a picker:
-final accent = AccentScheme.fromName('violet', brightness: Brightness.dark);
-
-// Or any one color, with a readable foreground derived for it:
-final blue = const NeutralColorScheme.light()
-    .applyAccent(const Color(0xFF3B82F6));
+ThemeData(
+  colorScheme: const GraphiteColorScheme.light()
+      .applyAccent(const Color(0xFF6D28D9)),
+)
 ```
 
-`applyAccent` re-colors the primary, the focus ring and the selection. It also
-moves the `tint` (selected icons, links, progress fills), `tintForeground` and
-`accentBorder` when the color has a contrast of at least 4.5:1 against both
-`background` and `card`; a color too faint for that leaves them alone, so set
-`tint` yourself with `copyWith` or use an `AccentScheme`, which picks a legible
-step from its ramp.
+It sets `primary`, a readable `primaryForeground`, the focus `ring` and the
+text `selection`. It also moves `tint`, `tintForeground` and
+`accentBorder` when the colour has a contrast of at least 4.5:1 against
+both `background` and `card`. A colour too faint for that (a light yellow,
+or a dark navy on a dark page) leaves the tint alone, so give the dark
+scheme a lighter tint yourself:
 
-There is no `BlueColorScheme`, `RoseColorScheme` or `SlateColorScheme`: a
-colored theme is a base scheme plus an accent.
+```dart
+const brand = Color(0xFF1D4ED8);
+final light = const OceanColorScheme.light().applyAccent(brand);
+final dark = const OceanColorScheme.dark()
+    .applyAccent(brand)
+    .copyWith(tint: const Color(0xFF93B4FF));
+```
 
 ## Customizing a scheme
 
-A scheme is a value. Override individual slots where you construct it, and carry
-your own colors in the `custom` map so they lerp and switch with the rest of the
-theme.
+A scheme is a value. Change any colour with `copyWith`, or where you
+construct it, and carry your own colours in the `custom` map so they lerp
+and switch with the rest of the theme.
 
 ```dart
+final scheme = const OceanColorScheme.light().copyWith(
+  background: const Color(0xFFF7F7F5),
+  custom: {'highlight': const Color(0xFFFACC15)},
+);
+
 final theme = ThemeData(
-  colorScheme: const TealColorScheme.light(
+  colorScheme: const OceanColorScheme.light(
     primary: Color(0xFF16A34A),
-    custom: {
-      'highlight': Color(0xFFFACC15),
-    },
+    custom: {'highlight': Color(0xFFFACC15)},
   ),
 );
 
@@ -118,6 +161,9 @@ extension AppColors on ColorScheme {
   Color get highlight => custom['highlight']!;
 }
 ```
+
+Define both palettes when you change one: a light-only override leaves
+dark mode on the stock colours.
 
 ## Component themes
 
@@ -138,8 +184,8 @@ ThemeData(
 
 The theme carries one base radius, the `md` step of the scale. Everything else
 derives from it through the style: in the default style the base is 10 and the
-scale runs sm 6, md 10, lg 12, xl 16, 2xl 18, 3xl 20, 4xl 24 (the shadcn styles
-use a base of 8 and Tailwind's factors). Each component picks the step its style
+scale runs sm 6, md 10, lg 12, xl 16, 2xl 18, 3xl 20, 4xl 24 (`crisp`, `pebble`
+and `sharp` use a base of 8 and Tailwind's factors). Each component picks the step its style
 prescribes. Read the scale with `Theme.of(context).radii` (`radii.lg`,
 `radii.xl2`, `radii.full`).
 
@@ -153,14 +199,14 @@ ThemeData(
 
 How menus look is a theme setting. `menuColorScheme` renders menu surfaces on
 another palette (pass the dark counterpart for the "Inverted" look).
-`menuTranslucent` is three-state: null follows the style (glass in `una`,
-solid in the shadcn styles), `true` is shadcn's blurred 70% finish, `false`
+`menuTranslucent` is three-state: null follows the style (glass in `fluid`,
+solid in `crisp`, `pebble` and `sharp`), `true` is shadcn's blurred 70% finish, `false`
 keeps menus solid. `menuAccent: MenuAccent.bold` fills a highlighted row with
 the primary colour; it changes menus only, never the scheme's `accent`.
 
 ```dart
 ThemeData(
-  menuColorScheme: const TealColorScheme.dark(),
+  menuColorScheme: const OceanColorScheme.dark(),
   menuTranslucent: true,
   menuAccent: MenuAccent.bold,
 )
@@ -246,7 +292,7 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.dark,
       darkTheme: ThemeData(
         brightness: Brightness.dark,
-        colorScheme: const TealColorScheme.dark(),
+        colorScheme: const OceanColorScheme.dark(),
       ),
       appBuilder: (context) {
         return m.MaterialApp(

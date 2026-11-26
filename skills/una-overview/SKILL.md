@@ -1,6 +1,6 @@
 ---
 name: una-overview
-description: How to build Flutter apps with una, a Material-free design system (a fork of shad, the Flutter port of shadcn/ui) whose widgets follow one ThemeData, four styles and a desktop and a phone form factor. Use when writing, reviewing or debugging Flutter code that imports package:una, or that uses UnaApp, Scaffold, AppBar, NavigationScaffold, Button, Card, TextField, Select, Popover, Sheet, Toaster, ListTile, Board, ChatList, PhosphorIcon or other una widgets; when theming a una app; or when looking up a una component's API and examples.
+description: How to build Flutter apps with una, a Material-free design system (a fork of shad, the Flutter port of shadcn/ui) whose widgets follow one ThemeData (four styles, six colour schemes), a desktop and a phone form factor, and Liquid Glass on Apple platforms. Use when writing, reviewing or debugging Flutter code that imports package:una, or that uses UnaApp, Scaffold, AppBar, NavigationScaffold, Button, Card, TextField, Select, Popover, Sheet, Toaster, ListTile, Board, ChatList, PhosphorIcon or other una widgets; when theming a una app or making its screens look finished; or when looking up a una component's API and examples.
 ---
 
 # una: a design system for Flutter
@@ -15,9 +15,14 @@ it is on a desktop or a phone.
 - **No Material, no Cupertino.** One import, `package:una/una.dart`,
   next to `package:flutter/widgets.dart`. Material widgets can be mixed in
   through `package:una/material.dart` ([theming.md](guides/theming.md)).
-- **Four styles**: `StyleTokens.una` (the default: soft teal glass,
-  lively motion), and shadcn's `nova`, `maia` and `lyra`
-  ([styles.md](guides/styles.md)).
+- **Four styles**: `StyleTokens.fluid` (the default: soft glass, lively
+  motion), and `crisp`, `pebble` and `sharp`, made from shadcn's styles
+  ([styles.md](guides/styles.md)). **Six colour schemes** in light and
+  dark: `ColorSchemes.ocean` (the default), `graphite`, `forest`, `iris`,
+  `ember`, `rose` ([theming.md](guides/theming.md)).
+- **Liquid Glass on iOS and macOS**, by itself: bars, sheets, menus and
+  some controls switch material; app code does not change
+  ([liquid-glass.md](guides/liquid-glass.md)).
 - **Two form factors**: below the `md` breakpoint (768) the same widgets
   get phone metrics (44-point controls, 15-point body text, 16-point
   margins) and present themselves as a phone expects (bottom sheets,
@@ -39,7 +44,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return UnaApp(
-      theme: ThemeData(), // StyleTokens.una on TealColorScheme
+      theme: ThemeData(), // StyleTokens.fluid on OceanColorScheme
       darkTheme: ThemeData(brightness: Brightness.dark),
       themeMode: ThemeMode.system,
       home: const CounterPage(),
@@ -92,6 +97,11 @@ screen is a `Scaffold` with an `AppBar`; its content is a `PageContainer`
 several sections uses `NavigationScaffold`
 ([app-structure.md](guides/app-structure.md)).
 
+**To make it look like the example and Demo apps, read
+[recipes.md](guides/recipes.md)** (finished screens: a shell, page
+headers, content cards, settings, two arrangements, empty states) **and
+check the result against [mistakes.md](guides/mistakes.md).**
+
 ## Rules to follow when writing una code
 
 **Names**
@@ -109,9 +119,12 @@ several sections uses `NavigationScaffold`
   `Select`, `Sheet`, `Popover`, `Textarea`, `Command`.
 - None of these exist: `Shad*`, `ShadApp`, `LucideIcons`, `Sonner`,
   `Button.raw` (or any `.raw`), `ButtonSize.icon`, `TooltipController`,
-  `HoverStrategies`, `EntranceEffect`, the `vega`/`mira`/`luma`/`sera`/
-  `rhea` styles, slate/gray/blue colour schemes, `flutter_animate`
-  effects.
+  `HoverStrategies`, `EntranceEffect`, `flutter_animate` effects; the
+  styles `StyleTokens.una`/`nova`/`maia`/`lyra` (now `fluid`/`crisp`/
+  `pebble`/`sharp`) and `vega`/`mira`/`luma`/`sera`/`rhea`; the schemes
+  `TealColorScheme`, `NeutralColorScheme`, `ZincColorScheme`,
+  `StoneColorScheme`, `BlueColorScheme`; `AccentScheme` and
+  `applyAccentScheme` (use `applyAccent(Color)` and `copyWith`).
 
 **Values and callbacks**
 
@@ -136,7 +149,13 @@ several sections uses `NavigationScaffold`
   shortcuts (`Button.outline`, `Badge.secondary`, `Dialog.alert`).
 - A button's look is one `style:` object (`ButtonTheme`, `ToggleTheme`
   for `Toggle`), merged over its variant's theme, not colour or size
-  parameters ([building-blocks.md](guides/building-blocks.md)).
+  parameters ([building-blocks.md](guides/building-blocks.md)). `Card`,
+  `Dialog` and `Sheet` likewise: `Card(style: CardTheme(padding: ...))`.
+- **Buttons in an `AppBar` or `SliverAppBar` name no variant**:
+  `IconButton(icon: ..., semanticLabel: ..., onPressed: ...)`. The bar
+  picks ghost on its surface, an outline disc over a photo and plain icons
+  on Liquid Glass. Elsewhere (cards, toolbars, content) name it:
+  `IconButton.ghost`, `Button.outline`.
 
 **Look and size come from the theme**
 
@@ -151,14 +170,23 @@ several sections uses `NavigationScaffold`
   ([layout.md](guides/layout.md)).
 - Never read the window width to pick a size. Branch on
   `Theme.of(context).formFactor` (or `FormFactorBuilder`) only where the
-  layout *rearranges*.
+  layout *rearranges*; a `LayoutBuilder` decides how many desktop columns
+  fit. Never branch on the platform (`Platform.isIOS`, `kIsWeb`).
+- Pages go in a `PageContainer` (margins, maximum width, the bars'
+  insets); a screen never pads itself by a bar's height. Read a gap as a
+  number with `theme.layoutTheme.gap(GapSize.md)`.
 - Icons: `PhosphorIcon(PhosphorIconsRegular.x)`, with no `size` inside a
   component (the component hands the size down); `PhosphorIconsFill.x` for
   the selected state. An icon-only control needs a `semanticLabel`.
-- Panels are `Card`, `Surface` or `Glass` ([surfaces.md](guides/surfaces.md)),
-  never a `Container` with a colour and a shadow. Outer shadows go through
-  `ShadowDecoration.box`, not `BoxDecoration.boxShadow`. Text and icons
-  drawn straight on a surface in the brand colour use `scheme.tint`.
+- Panels are `Card`, `ListSection`, `Surface` or `Glass`
+  ([surfaces.md](guides/surfaces.md)), never a `Container` with a colour
+  and a shadow. Outer shadows go through `ShadowDecoration.box`, not
+  `BoxDecoration.boxShadow`.
+- Colours are scheme tokens, never hex: `foreground` for what matters,
+  `mutedForeground` (`textTheme.muted`, `caption`) for what supports it,
+  `foregroundSubtle` between the two, `tint` for brand ink drawn on a
+  surface (links, selected icons), `primary` only as a fill under
+  `primaryForeground`.
 
 **Motion, haptics, strings**
 
@@ -182,15 +210,17 @@ several sections uses `NavigationScaffold`
 | Guide | Covers |
 | --- | --- |
 | [installation.md](guides/installation.md) | Adding the package, `UnaApp`, localizations, a first screen. |
-| [app-structure.md](guides/app-structure.md) | `Scaffold` slots and insets, `AppBar`, `SliverAppBar`, `NavigationScaffold`, destinations, drawers, routes and back gestures, tabs. |
+| [recipes.md](guides/recipes.md) | Finished screens in the Demo app's idiom: app root, shell, page header, content card, stats, settings, two arrangements, empty states, a detail page. |
+| [mistakes.md](guides/mistakes.md) | Wrong-and-right pairs for what compiles but looks or behaves off: names, spacing, colour, bars, glass, motion. |
+| [app-structure.md](guides/app-structure.md) | `Scaffold` slots and insets, `AppBar`, buttons in bars, `SliverAppBar` (large, cover pictures), `NavigationScaffold`, `SidebarScaffold`, `ListDetailLayout`, routes and back gestures, tabs. |
 | [form-factors.md](guides/form-factors.md) | Desktop and phone metrics, how the form factor is chosen, `FormFactorBuilder`, `withFormFactor`, breakpoints. |
-| [layout.md](guides/layout.md) | The gap scale, `UnaRow`/`UnaColumn`, `Gap`, `PageContainer`, `UnaPadding`, spacing steps. |
-| [theming.md](guides/theming.md) | Colour schemes, accents, component themes, radius, menus, focus rings, Material interop. |
+| [layout.md](guides/layout.md) | The gap scale, `UnaRow`/`UnaColumn`, `Gap`, `PageContainer`, edge-to-edge strips, columns that fit, inside a card, `UnaPadding`, spacing steps. |
+| [theming.md](guides/theming.md) | Which colour token to use, the six colour schemes, `applyAccent`, `copyWith`, component themes, radius, menus, focus rings, Material interop. |
 | [styles.md](guides/styles.md) | The four styles, custom styles, translucency tokens, spacing. |
 | [typography.md](guides/typography.md) | Text roles, weights, fonts, Google Fonts, custom styles. |
 | [icons.md](guides/icons.md) | Phosphor classes, `PhosphorIcon` and optical weight, selected states, duotone, sizing. |
-| [surfaces.md](guides/surfaces.md) | `Card`, `Surface`, `Glass`, `Backdrop`, `ShadowDecoration`: when each. |
-| [liquid-glass.md](guides/liquid-glass.md) | Liquid Glass on iOS and macOS: `LiquidGlassTheme`, what switches, sizes, fallbacks. |
+| [surfaces.md](guides/surfaces.md) | Choosing a panel; `Card`, `Surface`, `Glass`, `Backdrop`, `ShadowDecoration`. |
+| [liquid-glass.md](guides/liquid-glass.md) | Liquid Glass on iOS and macOS: what app code does (nothing), `LiquidGlassTheme`, per-component overrides, what switches, sizes, the web's solid bar. |
 | [overlays.md](guides/overlays.md) | Popovers, anchors, menus, tooltips, dialogs, sheets and detents, action sheets, toasts, command palette, `Portal`. |
 | [lists.md](guides/lists.md) | `ListTile`, sections, lazy lists, reordering, swipe actions, pull to refresh, tables. |
 | [forms.md](guides/forms.md) | Controlled values, pickers, `UnaForm` and every `*FormField`. |

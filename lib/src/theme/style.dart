@@ -1836,7 +1836,7 @@ class StyleTokens {
   /// Every built-in style, the default first.
   static const all = <StyleTokens>[fluid, crisp, pebble, sharp];
 
-  /// Returns the built-in style called [name], such as `una` or `nova`.
+  /// Returns the built-in style called [name], such as `fluid` or `crisp`.
   ///
   /// Throws an [ArgumentError] for an unknown name.
   static StyleTokens fromName(String name) => all.firstWhere(

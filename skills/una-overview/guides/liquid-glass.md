@@ -6,6 +6,46 @@ through the `liquid_glass_widgets` package. Everywhere else it draws its
 own frosted glass. App code does not change: the same widgets switch
 material.
 
+## What app code does about it: nothing
+
+Liquid Glass is a material, not a layout. The metrics of a phone screen are
+the same frosted or liquid, and every component that switches decides for
+itself at build time. So:
+
+- **Do not branch on the platform.** No `Platform.isIOS`,
+  `defaultTargetPlatform`, `kIsWeb` or `LiquidGlass.isActive` in a screen
+  to pick a widget, a padding or a colour. Write the una widget and the
+  theme decides. (The Demo app, which runs on all of them, has none.)
+- **Do not build glass yourself** for chrome: use `AppBar`,
+  `BottomNavigationBar`, `Toolbar`, `Glass`, `Surface`, `showSheet`,
+  `showDialog`. A hand-made `BackdropFilter` stays frosted on iOS and
+  looks wrong beside the real glass.
+- **Leave bar buttons without a variant** (`IconButton(icon: ...)`), so a
+  bar can put them on a glass capsule; see
+  [app-structure.md](app-structure.md).
+- **Let content scroll under the bars.** Use the `Scaffold` and a
+  `PageContainer`/`ListView`, which inset by the bars' heights; the glass
+  only looks like glass with the page moving beneath it.
+- **Never wrap glass in `Opacity`** or a `FadeTransition`; the shader
+  does not survive an opacity layer any better than a blur.
+
+To decide for the app or for one kind of component, set the theme:
+
+```dart
+// The whole app: always (preview it anywhere), never, or auto (default).
+ThemeData(liquidGlass: const LiquidGlassTheme(mode: LiquidGlassMode.always));
+
+// One component kind, over the theme's mode: a frosted app bar in a
+// Liquid Glass app, Liquid Glass on a desktop's top bar.
+ThemeData(
+  appBarTheme: const AppBarTheme(liquidGlass: LiquidGlassMode.never),
+  sheetTheme: const SheetTheme(liquidGlass: LiquidGlassMode.always),
+);
+```
+
+Build those themes once, beside the app's other themes, never in a
+`build`.
+
 ## Setup
 
 ```dart
@@ -65,7 +105,7 @@ ThemeData(
 
 ## Sizes
 
-`StyleTokens.unaMobile` uses Liquid Glass's metrics (app bar 44, tab bar
+`StyleTokens.fluidMobile` uses Liquid Glass's metrics (app bar 44, tab bar
 64, switch 58 × 26, slider thumb 28, popover and dialog radius 24), so a
 phone layout is the same frosted or liquid. Desktop (macOS included) keeps
 una's sizes.
@@ -76,7 +116,8 @@ The full material needs Impeller's shader filters (iOS, macOS, Android).
 On the web and Skia the package draws its `standard` tier by itself (blur,
 rim, highlights, no refraction). There a top bar that would be Liquid Glass
 is solid instead (the bar colour, opaque, with its hairline; no scroll edge
-and no capsules: the package's graduated blur would be uniform, ending on a
+and no capsules; a `SliverAppBar.large` keeps its toolbar filled and its
+picture starts below it: the package's graduated blur would be uniform, ending on a
 line, and one built from backdrop filters shows bands and costs every frame
 of a scroll), una drops the presets' invisible 0.6 blur so it costs
 no backdrop pass, and makes overlays legible: a stronger blur, a whitened body and

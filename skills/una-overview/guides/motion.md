@@ -9,8 +9,8 @@ dependency, and no component takes `effects:`, `duration:`, `curve:` or
 
 | Preset | Used by | Character |
 | --- | --- | --- |
-| `Motion.lively` | the `una` style | springs with a little bounce, a clear press, stretching indicators, shimmering skeletons |
-| `Motion.calm` | `nova`, `maia`, `lyra` (and the `Motion()` default) | the same movements, quieter |
+| `Motion.lively` | the `fluid` style | springs with a little bounce, a clear press, stretching indicators, shimmering skeletons |
+| `Motion.calm` | `crisp`, `pebble`, `sharp` (and the `Motion()` default) | the same movements, quieter |
 | `Motion.none` | opt-in | nothing moves; state changes are instant |
 
 ```dart

@@ -133,7 +133,7 @@ DropdownMenu(
 - `ContextMenuRegion(items:, child:)` opens a menu at the pointer on a
   right click and at the finger on a long press. `showMenu(context:,
   position:, items:)` opens one from code.
-- In the `una` style menus are glass; `ThemeData(menuTranslucent:
+- In the `fluid` style menus are glass; `ThemeData(menuTranslucent:
   false)` keeps them solid, and `menuColorScheme` / `menuAccent` restyle
   them (see [theming.md](theming.md)).
 

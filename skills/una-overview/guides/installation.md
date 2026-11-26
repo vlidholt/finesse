@@ -20,8 +20,8 @@ import 'package:flutter/widgets.dart';
 `UnaApp` takes the place of `MaterialApp`. It installs the theme, the
 localizations, the navigator with `UnaPageRoute` transitions, the
 scroll behaviour, the toaster and the overlay layer the floating
-components use. With no theme it uses the teal colour scheme and the
-`una` style, and lays itself out for a desktop or a phone from the
+components use. With no theme it uses the Ocean colour scheme and the
+`fluid` style, and lays itself out for a desktop or a phone from the
 window width (see [form-factors.md](form-factors.md)).
 
 ```dart

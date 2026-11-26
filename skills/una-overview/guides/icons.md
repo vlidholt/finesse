@@ -84,12 +84,12 @@ resolve into `ThemeData.phosphorIconTheme`:
 ```dart
 // For the app, through the style.
 final stronger = ThemeData(
-  style: StyleTokens.una.copyWith(iconOpticalStrength: .8),
+  style: StyleTokens.fluid.copyWith(iconOpticalStrength: .8),
 );
 
 // Off for the app: every regular icon is the font's own.
 final off = ThemeData(
-  style: StyleTokens.una.copyWith(iconOpticalStrength: 0),
+  style: StyleTokens.fluid.copyWith(iconOpticalStrength: 0),
 );
 
 // Or the component theme directly.
@@ -136,9 +136,9 @@ class _IconsSelectedExampleState extends State<IconsSelectedExample> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Row(
+    return UnaRow(
       mainAxisSize: MainAxisSize.min,
-      spacing: 8,
+      gap: GapSize.sm,
       children: [
         IconButton.ghost(
           icon: PhosphorIcon(
@@ -216,6 +216,30 @@ final bell = IconButton.ghost(
 ```
 
 Outside a component an icon takes the ambient `IconTheme`, 24 by default.
+An icon set inline with a line of text (a pin before a place, a caret
+after a label) is sized from that text, not from a constant, so it follows
+the text role on every form factor and text scale:
+
+```dart
+final theme = Theme.of(context);
+final style = theme.textTheme.muted;
+final place = UnaRow(
+  gap: GapSize.xs,
+  mainAxisSize: MainAxisSize.min,
+  children: [
+    PhosphorIcon(
+      PhosphorIconsRegular.mapPin,
+      size: ((style.fontSize ?? 14) * 1.15).roundToDouble(),
+      color: theme.colorScheme.mutedForeground,
+    ),
+    Text('Copenhagen', style: style),
+  ],
+);
+```
+
+A glyph that stands alone in a row of your own takes the size the theme's
+buttons use, `theme.style.buttonIconSize` (or `iconButtonIconSize` for a
+larger one).
 
 ## Direction
 

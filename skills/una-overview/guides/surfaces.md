@@ -11,6 +11,22 @@ three (see [styles.md](styles.md)). Never hand-build a panel out of a
 | `Surface` | The skin of something that floats: the popover's or the menu's colours, hairline, shadow and glass, exactly as `Popover` and the menus paint them. | An overlay you place yourself: a search panel under a field, a custom menu, a hover preview. `Popover` already wraps its content in one. |
 | `Glass` | The raw material: a tint over the blurred, saturated backdrop, with a hairline. No padding rules, no text style. | Floating chrome over moving content: a toolbar, a pill, a label on a photo. |
 
+## Choosing a panel
+
+| The content is... | Use |
+| --- | --- |
+| a block on the page: a post, a stat, a form, a summary | `Card` |
+| rows of settings or links, with hairlines between them | `ListSection` of `ListTile`s / `SwitchListTile`s (it is a card already: do not put it in one) |
+| a figure and its label in a grid of numbers | `StatTile` (an icon in a rounded square: `IconTile`) |
+| nothing yet, a load that failed, a search with no results | `Empty(icon:, title:, description:, actions:)`, inside the card or page that would hold the content |
+| a small panel tied to a control | `Popover`, or `Surface` placed with `showPopover` |
+| a task the user does and returns from: filters, a picker, details | `showSheet` + `Sheet`, at detents on a phone |
+| a question that must be answered | `showDialog` + `Dialog` / `Dialog.alert` |
+| chrome floating over moving content: a pill on the bar, a label on a photo | `Glass` |
+
+See [overlays.md](overlays.md) for the floating ones and
+[lists.md](lists.md) for rows.
+
 ## Card
 
 ```dart
@@ -35,9 +51,26 @@ Card(
   press response); `selected: true` gives it the accent fill, for the open
   item of a list.
 - Padding, radius, border and shadow come from `CardTheme`; leave them
-  alone unless the design says otherwise.
+  alone unless the design says otherwise, and then change them through
+  `style:` (merged over the theme's), never by wrapping the card in a
+  `Padding` or a `ClipRRect`:
+
+```dart
+final theme = Theme.of(context);
+final detail = Card(
+  style: CardTheme(
+    borderRadius: theme.radii.xl3,
+    padding: EdgeInsets.all(theme.layoutTheme.gap(GapSize.xl)),
+  ),
+  child: const Text('Senior product designer'),
+);
+```
+
+- A list of cards is a `UnaColumn(gap: GapSize.lg, crossAxisAlignment:
+  CrossAxisAlignment.stretch)`. Cards stretch to the column; give a card a
+  width only in a grid or a rail.
 - Cards do not blur what is behind them in any built-in style. A theme opts
-  in with `StyleTokens.una.copyWith(cardBlur: true)` or
+  in with `StyleTokens.fluid.copyWith(cardBlur: true)` or
   `CardTheme(blur: ...)`, and pays a backdrop filter per card per frame.
 
 ## Surface
@@ -55,12 +88,16 @@ Place it with `showPopover` or a `Popover` (see [overlays.md](overlays.md));
 ## Glass
 
 ```dart
-Glass(
+final theme = Theme.of(context);
+final nowPlaying = Glass(
   level: GlassLevel.strong, // GlassLevel.regular shows more backdrop
-  borderRadius: Theme.of(context).radii.full,
-  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+  borderRadius: theme.radii.full,
+  padding: EdgeInsets.symmetric(
+    horizontal: theme.layoutTheme.gap(GapSize.md),
+    vertical: theme.layoutTheme.gap(GapSize.xs),
+  ),
   child: const Text('Now playing'),
-)
+);
 ```
 
 - `GlassLevel.strong` for a surface that carries text, `regular` for one
@@ -70,6 +107,8 @@ Glass(
   repainted whenever what is behind it moves. A handful on screen is fine;
   one per row of a list is not. Inside scrolling content, or over a flat
   fill, pass `frosted: false`: the tint and hairline stay, the blur goes.
+- Glass on a bar that is already glass (a pill among an `AppBar`'s
+  actions) is `frosted: false` too: the bar has blurred the page once.
 - A label over a photograph is a plain scrim (`Glass(frosted: false,
   color: ...)` or a gradient), not frosted glass: a blur samples the page
   around the photo as well and turns grey.
