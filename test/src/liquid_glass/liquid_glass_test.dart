@@ -6,6 +6,7 @@ import 'package:una/src/liquid_glass/liquid_glass.dart'
     show
         LiquidGlassBarGroup,
         LiquidGlassScrollEdge,
+        LiquidGlassSurface,
         glassThemeDataOf,
         legibleOverlaySettings,
         overlayEdgeColor,
@@ -710,6 +711,41 @@ void main() {
         expect(
           find.descendant(
             of: find.byType(SliverAppBar),
+            matching: find.byType(BackdropFilter),
+          ),
+          findsNothing,
+        );
+      });
+    });
+
+    testWidgets("a docked bottom bar is the page's scroll edge, not a slab", (
+      tester,
+    ) async {
+      Widget page() => Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Toolbar(
+            floating: false,
+            children: [IconButton(icon: const SizedBox(), onPressed: () {})],
+          ),
+        ],
+      );
+      await onPlatform(TargetPlatform.iOS, () async {
+        await pump(tester, page());
+        final edge = tester.widget<LiquidGlassScrollEdge>(
+          find.byType(LiquidGlassScrollEdge),
+        );
+        expect(edge.fromBottom, isTrue);
+        expect(find.byType(LiquidGlassSurface), findsNothing);
+      });
+      // Without shader filters, solid with its hairline, as the top bar is.
+      await onPlatform(TargetPlatform.iOS, shaderFilters: false, () async {
+        await pump(tester, page());
+        expect(find.byType(LiquidGlassScrollEdge), findsNothing);
+        expect(find.byType(LiquidGlassSurface), findsNothing);
+        expect(
+          find.descendant(
+            of: find.byType(Toolbar),
             matching: find.byType(BackdropFilter),
           ),
           findsNothing,

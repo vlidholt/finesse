@@ -265,6 +265,11 @@ componentTheme.liquidGlass)` at build: never a window width, never cached.
   `IndicatorBadge`, `Tooltip` and `KeyedSubtree` to find it
   (`app_bar_buttons_test.dart`). A widget it cannot see through (a
   `builder`) is not a bare button and not put on a capsule as a leading.
+- **A docked bottom bar on glass is the page's scroll edge**, as the top
+  bar is: `BottomBarSurface` puts a `LiquidGlassScrollEdge(fromBottom:
+  true)` behind the controls instead of a rectangle of glass whose rim
+  ran along the screen's sides; without shader filters it is solid with
+  its hairline. A floating bar stays a capsule.
 - **Invisible blurs are not paid for off Impeller.** The iOS presets blur
   by 0.6 and leave the frosting to `frost`; the package's lighter tier
   still pushes a `BackdropFilterLayer` for that 0.6 under every glass

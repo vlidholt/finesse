@@ -55,7 +55,8 @@ ThemeData(
 | --- | --- |
 | `AppBar` (phone and tablet) | No fill, no hairline; the content under it is blurred more the nearer the top and faded into the page, a little past the bar. A leading button and the actions sit on glass capsules; a logo or title stands bare. The capsule does not clip, so a badge on a button hangs over its edge; the buttons on it are round. Write buttons in a bar with no variant (`IconButton(icon: …)`) and the bar picks the look: plain on glass, ghost on a solid or frosted bar, outline over a picture. A desktop top bar stays solid unless `AppBarTheme(liquidGlass: LiquidGlassMode.always)`. |
 | `BottomNavigationBar` (floating, with a selection) | The package's `GlassTabBar.bottom`: a lens slides between tabs; `action` floats beside the tabs on its own capsule. |
-| `Toolbar`, docked bottom bar, `NavigationRail` | Glass material, una layout. |
+| `Toolbar` and a docked bottom bar | No slab: the page under them blurred and faded into the page colour from the bottom up, the controls standing on it (without shader filters, solid with a hairline). A floating `Toolbar` is a glass capsule. |
+| `NavigationRail` | Glass material, una layout. |
 | `Glass` (frosted, no custom `color`) | Glass material. Scrims and `frosted: false` stay. |
 | `DropdownMenu`, a root `ContextMenu` (phone and tablet) | Morphs out of its trigger on a spring (the package's `GlassPopover`), driven by its `PopoverController`. Desktop, right-click, long-press and submenus stay una popovers. |
 | `Popover`, menus, `Select` list, `Surface`, `Command` in a dialog, `Dialog`, `Sheet`, toasts | Glass material, una layout and behaviour; the entrance fade drives the glass's visibility. A popover with an arrow stays frosted. |

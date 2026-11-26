@@ -577,6 +577,7 @@ class LiquidGlassScrollEdge extends StatelessWidget {
     this.visibility,
     this.maxSigma = 12,
     this.overhang = 24,
+    this.fromBottom = false,
     super.key,
   });
 
@@ -589,8 +590,13 @@ class LiquidGlassScrollEdge extends StatelessWidget {
   /// The sigma of the blur at the screen's edge.
   final double maxSigma;
 
-  /// How far the edge reaches below the box it is given.
+  /// How far the edge reaches past the box it is given: below it, or
+  /// above it when [fromBottom].
   final double overhang;
+
+  /// Whether this is the bottom edge of the screen — under a docked bottom
+  /// bar — blurred most at the bottom and fading upwards.
+  final bool fromBottom;
 
   Widget _build(double t) {
     if (t <= 0) return const SizedBox.expand();
@@ -598,12 +604,17 @@ class LiquidGlassScrollEdge extends StatelessWidget {
     return Stack(
       fit: StackFit.expand,
       children: [
-        lg.ProgressiveBlur(maxSigma: maxSigma * t),
+        lg.ProgressiveBlur(
+          maxSigma: maxSigma * t,
+          direction: fromBottom
+              ? lg.ProgressiveBlurDirection.bottomToTop
+              : lg.ProgressiveBlurDirection.topToBottom,
+        ),
         DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+              begin: fromBottom ? Alignment.bottomCenter : Alignment.topCenter,
+              end: fromBottom ? Alignment.topCenter : Alignment.bottomCenter,
               // Eased, so the fade has no knee where it ends.
               stops: const [0, .4, .75, 1],
               colors: [
@@ -627,9 +638,9 @@ class LiquidGlassScrollEdge extends StatelessWidget {
       children: [
         Positioned(
           left: 0,
-          top: 0,
+          top: fromBottom ? -overhang : 0,
           right: 0,
-          bottom: -overhang,
+          bottom: fromBottom ? 0 : -overhang,
           child: IgnorePointer(
             child: visibility == null
                 ? _build(1)

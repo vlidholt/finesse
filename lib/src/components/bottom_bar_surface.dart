@@ -134,7 +134,8 @@ class BottomBarSurface extends StatelessWidget {
 
 extension on BottomBarSurface {
   /// The bar on Liquid Glass: the same layout — the outline's point is
-  /// kept as padding — with the glass's own tint, rim and shadow.
+  /// kept as padding. Floating, it is a capsule of glass with the glass's
+  /// own tint, rim and shadow; docked, the page's scroll edge.
   Widget _buildLiquid(
     BuildContext context,
     double bottomInset,
@@ -147,14 +148,53 @@ extension on BottomBarSurface {
           .add(EdgeInsets.only(bottom: floating ? 0 : bottomInset)),
       child: child,
     );
+    if (!floating) {
+      final theme = Theme.of(context);
+      // Docked, the bar is drawn as the top bar is on Liquid Glass: no slab
+      // of glass with a rim along the screen's edges, but the page under it
+      // blurred and faded into the page colour, rising from the bottom,
+      // with the controls standing on it (iOS 26's scroll edge). Without
+      // shader filters that blur shows bands, so the bar is solid there,
+      // with its hairline, as the top bar is.
+      final Widget docked;
+      if (LiquidGlass.hasShaderFilters) {
+        docked = Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Positioned.fill(
+              child: LiquidGlassScrollEdge(
+                color: theme.colorScheme.background,
+                fromBottom: true,
+              ),
+            ),
+            content,
+          ],
+        );
+      } else {
+        final fill = bar.backgroundColor ?? theme.colorScheme.card;
+        docked = DecoratedBox(
+          decoration: BoxDecoration(
+            color: fill.withValues(alpha: 1),
+            border: Border(
+              top: BorderSide(
+                color: bar.borderColor ?? theme.colorScheme.border,
+              ),
+            ),
+          ),
+          child: content,
+        );
+      }
+      return Semantics(
+        container: true,
+        explicitChildNodes: true,
+        child: docked,
+      );
+    }
     final surface = Semantics(
       container: true,
       explicitChildNodes: true,
-      child: floating
-          ? LiquidGlassSurface(capsule: true, child: content)
-          : LiquidGlassSurface(child: content),
+      child: LiquidGlassSurface(capsule: true, child: content),
     );
-    if (!floating) return surface;
     return Padding(
       padding: (bar.margin ?? const EdgeInsets.only(bottom: 22)).add(
         EdgeInsets.only(bottom: bottomInset),

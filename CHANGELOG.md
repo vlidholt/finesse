@@ -405,6 +405,9 @@ was measured from (Strand, until it moved), is its own repository,
   did. `TealColorScheme` is gone from the package: it was measured for
   the Demo, which keeps it. The base palettes are `blue`, `neutral`,
   `zinc` and `stone`.
+- **A docked bottom bar on Liquid Glass is the page's scroll edge**
+  (blurred and faded from the bottom up, the controls standing on it), not
+  a slab of glass; without shader filters it is solid, as the top bar is.
 - **`SliverAppBar.pinBackground`** (default true): a large bar's picture
   stays behind the collapsed toolbar, as a profile's cover does, blurred
   and veiled in the page colour as the bar collapses so the small title
