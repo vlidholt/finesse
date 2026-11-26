@@ -22,9 +22,10 @@ final dropdownMenuDoc = ComponentDoc(
       id: 'dropdown_menu_checkable',
       title: 'Checkbox and radio items',
       description:
-          'Checkable rows are controlled and keep the menu open, so several '
-          'can be set in one visit. Every row of the menu keeps the column '
-          'of the check marks free and the labels line up.',
+          'Checkable rows are controlled. A click toggles one and closes the '
+          'menu like any row; Space toggles it and keeps the menu open, so '
+          'several can be set in one visit. Every row of the menu keeps the '
+          'column of the check marks free and the labels line up.',
       minPreviewHeight: 380,
       builder: (_) => const DropdownMenuCheckableExample(),
     ),

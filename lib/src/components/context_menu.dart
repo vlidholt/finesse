@@ -437,6 +437,11 @@ class _ContextMenuState extends State<ContextMenu> {
   /// The root menu above this one, if this is a submenu.
   _ContextMenuState? _root;
 
+  /// The row of this menu, or of one of its submenus, that was chosen and
+  /// is showing that it was before the menu closes. Another row is not
+  /// chosen meanwhile.
+  _MenuItemState? _confirming;
+
   /// The menu's content, which takes focus when a root menu opens so that
   /// arrow keys, Home/End and type-ahead work straight away, as in Radix.
   final _contentFocusNode = FocusNode(debugLabel: 'ContextMenu content');
@@ -1144,6 +1149,67 @@ class _MenuItemState extends State<MenuItem> {
     }
   }
 
+  /// Whether the row is showing that it was chosen: its highlight blinks
+  /// off and on again, as a macOS menu's does, before the menu closes.
+  bool _confirming = false;
+
+  /// Whether the highlight is in the off half of the blink.
+  bool _blinkOff = false;
+
+  Timer? _confirmTimer;
+
+  /// The root menu told that this row is confirming.
+  _ContextMenuState? _confirmRoot;
+
+  /// What the row does once its blink is over: its callback, and closing
+  /// the menu.
+  VoidCallback? _pendingAction;
+
+  /// Shows that the row was chosen, then runs [action]: the highlight goes
+  /// off for a moment and comes back, and only then does the menu close and
+  /// the row's callback run, so the choice is seen to be made. It takes
+  /// `Motion.fast`, and nothing under `Motion.none`.
+  void _confirm(_ContextMenuState contextMenu, VoidCallback action) {
+    final root = contextMenu._root ?? contextMenu;
+    if (root._confirming != null) return;
+    final duration = Motion.of(context).fast;
+    if (duration <= Duration.zero) {
+      action();
+      return;
+    }
+    root._confirming = this;
+    _confirmRoot = root;
+    _pendingAction = action;
+    setState(() {
+      _confirming = true;
+      _blinkOff = true;
+    });
+    _confirmTimer = Timer(duration * .4, () {
+      if (!mounted) return;
+      setState(() => _blinkOff = false);
+      _confirmTimer = Timer(duration * .6, () {
+        if (!mounted) return;
+        _finishConfirm(root);
+      });
+    });
+  }
+
+  void _finishConfirm(_ContextMenuState root) {
+    final action = _pendingAction;
+    _pendingAction = null;
+    _confirmTimer?.cancel();
+    _confirmTimer = null;
+    if (identical(root._confirming, this)) root._confirming = null;
+    _confirmRoot = null;
+    if (mounted && _confirming) {
+      setState(() {
+        _confirming = false;
+        _blinkOff = false;
+      });
+    }
+    action?.call();
+  }
+
   /// Closes the whole menu after this row was chosen, handing its value to
   /// [showMenu] when that is what opened the menu.
   void _close(_ContextMenuState contextMenu) {
@@ -1155,6 +1221,20 @@ class _MenuItemState extends State<MenuItem> {
   @override
   void dispose() {
     _unhoverTimer?.cancel();
+    _confirmTimer?.cancel();
+    // A row taken away while it shows its choice still makes it: the
+    // callback runs once the tree is done being torn down.
+    final pending = _pendingAction;
+    if (pending != null) {
+      _pendingAction = null;
+      final root = _confirmRoot;
+      if (root != null && identical(root._confirming, this)) {
+        root._confirming = null;
+      }
+      scheduleMicrotask(() {
+        widget.onPressed?.call();
+      });
+    }
     final registeredWith = _registeredWith;
     if (registeredWith != null && registeredWith.mounted) {
       registeredWith._checkableUnmounted();
@@ -1310,14 +1390,18 @@ class _MenuItemState extends State<MenuItem> {
     Widget child = ListenableBuilder(
       listenable: Listenable.merge([controller, statesController]),
       builder: (context, _) {
-        final hovered = statesController.value.contains(WidgetState.hovered);
-        final selected = controller.selected;
+        // While the row shows that it was chosen, its highlight is the
+        // blink's and nothing else's.
+        final hovered = _confirming
+            ? !_blinkOff
+            : statesController.value.contains(WidgetState.hovered);
+        final selected = _confirming ? !_blinkOff : controller.selected;
         // Rest vs highlight, resolved here because a leaf item's hover lives
         // in the button's own states — selection alone cannot see it.
         final highlighted = selected || hovered;
 
         return ContextMenu.internal(
-          open: selected && !_submenuDismissed,
+          open: controller.selected && !_submenuDismissed,
           onDismissed: _onSubmenuDismissed,
           anchor: effectiveAnchor,
           constraints: widget.style?.constraints,
@@ -1342,7 +1426,9 @@ class _MenuItemState extends State<MenuItem> {
                   backgroundColor: selected
                       ? effectiveSelectedBackgroundColor
                       : effectiveBackgroundColor,
-                  hoverBackgroundColor: effectiveSelectedBackgroundColor,
+                  hoverBackgroundColor: _confirming && _blinkOff
+                      ? effectiveBackgroundColor
+                      : effectiveSelectedBackgroundColor,
                   // Through the button rather than a wrapping
                   // DefaultTextStyle, so its IconTheme recolours leading and
                   // trailing icons with the text — shadcn's
@@ -1350,7 +1436,9 @@ class _MenuItemState extends State<MenuItem> {
                   foregroundColor: selected
                       ? selectedForegroundColor
                       : foregroundColor,
-                  hoverForegroundColor: selectedForegroundColor,
+                  hoverForegroundColor: _confirming && _blinkOff
+                      ? foregroundColor
+                      : selectedForegroundColor,
                   // A menu's highlight follows the pointer and the arrow
                   // keys row by row: it is there or it is not, with no fade
                   // and no glide between rows.
@@ -1370,8 +1458,15 @@ class _MenuItemState extends State<MenuItem> {
                       HardwareKeyboard.instance.isLogicalKeyPressed(
                         LogicalKeyboardKey.space,
                       );
-                  widget.onPressed?.call();
-                  if (effectiveCloseOnTap && !stays) _close(contextMenu);
+                  if (!effectiveCloseOnTap || stays) {
+                    widget.onPressed?.call();
+                    return;
+                  }
+                  // A row that closes the menu shows the choice first.
+                  _confirm(contextMenu, () {
+                    widget.onPressed?.call();
+                    if (mounted) _close(contextMenu);
+                  });
                 },
                 child: Expanded(
                   child: Row(
@@ -1529,14 +1624,33 @@ class MenuEdge extends InheritedWidget {
   /// Whether the row is the last of its menu.
   final bool bottom;
 
-  /// [items] with the first and the last marked.
-  static List<Widget> mark(List<Widget> items) => [
+  /// [items] with the first and the last marked, and every other one
+  /// marked as at neither edge, so a row inside a group among them (a
+  /// [MenuRadioGroup]) does not take the edge of the group's own mark.
+  ///
+  /// [top] and [bottom] say whether the list itself is at that edge of its
+  /// menu: a group marks its rows with its own place, from [of].
+  static List<Widget> mark(
+    List<Widget> items, {
+    bool top = true,
+    bool bottom = true,
+  }) => [
     for (final (i, item) in items.indexed)
-      if (i == 0 || i == items.length - 1)
-        MenuEdge(top: i == 0, bottom: i == items.length - 1, child: item)
-      else
-        item,
+      MenuEdge(
+        // The item's own key, so keyed rows keep their state as they move.
+        key: item.key == null ? null : ValueKey(item.key),
+        top: top && i == 0,
+        bottom: bottom && i == items.length - 1,
+        child: item,
+      ),
   ];
+
+  /// The edges of its menu that [context] is at, or null outside a marked
+  /// list.
+  static ({bool top, bool bottom})? of(BuildContext context) {
+    final edge = context.dependOnInheritedWidgetOfExactType<MenuEdge>();
+    return edge == null ? null : (top: edge.top, bottom: edge.bottom);
+  }
 
   /// [decoration], a row's, with the corners it has at an edge of its menu
   /// rounded to [menu]'s radius less [inset].
@@ -1569,7 +1683,9 @@ class MenuEdge extends InheritedWidget {
     required double inset,
   }) {
     final edge = context.dependOnInheritedWidgetOfExactType<MenuEdge>();
-    if (edge == null || menu == null) return own;
+    if (edge == null || menu == null || !(edge.top || edge.bottom)) {
+      return own;
+    }
     Radius inner(Radius r, Radius current) => Radius.elliptical(
       math.max(current.x, r.x - inset),
       math.max(current.y, r.y - inset),

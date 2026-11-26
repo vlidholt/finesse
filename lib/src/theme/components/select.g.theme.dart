@@ -42,12 +42,6 @@ mixin _$SelectTheme {
         b.optionsPadding,
         t,
       ),
-      showScrollToTopChevron: t < 0.5
-          ? a.showScrollToTopChevron
-          : b.showScrollToTopChevron,
-      showScrollToBottomChevron: t < 0.5
-          ? a.showScrollToBottomChevron
-          : b.showScrollToBottomChevron,
       anchor: t < 0.5 ? a.anchor : b.anchor,
       searchPadding: EdgeInsetsGeometry.lerp(
         a.searchPadding,
@@ -74,8 +68,6 @@ mixin _$SelectTheme {
     double? minHeight,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? optionsPadding,
-    bool? showScrollToTopChevron,
-    bool? showScrollToBottomChevron,
     AnchorBase? anchor,
     EdgeInsetsGeometry? searchPadding,
     bool? clearSearchOnClose,
@@ -94,10 +86,6 @@ mixin _$SelectTheme {
       minHeight: minHeight ?? _this.minHeight,
       padding: padding ?? _this.padding,
       optionsPadding: optionsPadding ?? _this.optionsPadding,
-      showScrollToTopChevron:
-          showScrollToTopChevron ?? _this.showScrollToTopChevron,
-      showScrollToBottomChevron:
-          showScrollToBottomChevron ?? _this.showScrollToBottomChevron,
       anchor: anchor ?? _this.anchor,
       searchPadding: searchPadding ?? _this.searchPadding,
       clearSearchOnClose: clearSearchOnClose ?? _this.clearSearchOnClose,
@@ -129,8 +117,6 @@ mixin _$SelectTheme {
       minHeight: other.minHeight,
       padding: other.padding,
       optionsPadding: other.optionsPadding,
-      showScrollToTopChevron: other.showScrollToTopChevron,
-      showScrollToBottomChevron: other.showScrollToBottomChevron,
       anchor: other.anchor,
       searchPadding: other.searchPadding,
       clearSearchOnClose: other.clearSearchOnClose,
@@ -163,8 +149,6 @@ mixin _$SelectTheme {
         _other.minHeight == _this.minHeight &&
         _other.padding == _this.padding &&
         _other.optionsPadding == _this.optionsPadding &&
-        _other.showScrollToTopChevron == _this.showScrollToTopChevron &&
-        _other.showScrollToBottomChevron == _this.showScrollToBottomChevron &&
         _other.anchor == _this.anchor &&
         _other.searchPadding == _this.searchPadding &&
         _other.clearSearchOnClose == _this.clearSearchOnClose &&
@@ -187,8 +171,6 @@ mixin _$SelectTheme {
       _this.minHeight,
       _this.padding,
       _this.optionsPadding,
-      _this.showScrollToTopChevron,
-      _this.showScrollToBottomChevron,
       _this.anchor,
       _this.searchPadding,
       _this.clearSearchOnClose,

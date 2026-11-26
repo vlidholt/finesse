@@ -77,7 +77,7 @@ class DropdownMenuBasicExample extends StatelessWidget {
 
 ## Checkbox and radio items
 
-Checkable rows are controlled and keep the menu open, so several can be set in one visit. Every row of the menu keeps the column of the check marks free and the labels line up.
+Checkable rows are controlled. A click toggles one and closes the menu like any row; Space toggles it and keeps the menu open, so several can be set in one visit. Every row of the menu keeps the column of the check marks free and the labels line up.
 
 ```dart
 import 'package:flutter/widgets.dart';

@@ -23,6 +23,7 @@ import 'package:una/src/raw_components/portal.dart';
 import 'package:una/src/theme/components/decorator.dart';
 import 'package:una/src/theme/components/layout.dart';
 import 'package:una/src/theme/components/sheet.dart';
+import 'package:una/src/theme/motion.dart';
 import 'package:una/src/theme/theme.dart';
 import 'package:una/src/utils/arrow_key_focus.dart';
 import 'package:una/src/utils/debug_check.dart';
@@ -93,8 +94,6 @@ class Select<T> extends StatefulWidget {
     this.trailing,
     this.padding,
     this.optionsPadding,
-    this.showScrollToBottomChevron,
-    this.showScrollToTopChevron,
     this.scrollController,
     this.anchor,
     this.shadows,
@@ -172,8 +171,6 @@ class Select<T> extends StatefulWidget {
     this.trailing,
     this.padding,
     this.optionsPadding,
-    this.showScrollToBottomChevron,
-    this.showScrollToTopChevron,
     this.scrollController,
     this.anchor,
     this.shadows,
@@ -236,8 +233,6 @@ class Select<T> extends StatefulWidget {
     this.trailing,
     this.padding,
     this.optionsPadding,
-    this.showScrollToBottomChevron,
-    this.showScrollToTopChevron,
     this.scrollController,
     this.anchor,
     this.shadows,
@@ -316,8 +311,6 @@ class Select<T> extends StatefulWidget {
     this.trailing,
     this.padding,
     this.optionsPadding,
-    this.showScrollToBottomChevron,
-    this.showScrollToTopChevron,
     this.scrollController,
     this.anchor,
     this.shadows,
@@ -565,18 +558,6 @@ class Select<T> extends StatefulWidget {
   /// {@endtemplate}
   final EdgeInsetsGeometry? optionsPadding;
 
-  /// {@template Select.showScrollToTopChevron}
-  /// Whether to display a chevron icon at the top of the popover when
-  /// scrollable. Defaults to `true`.
-  /// {@endtemplate}
-  final bool? showScrollToTopChevron;
-
-  /// {@template Select.showScrollToBottomChevron}
-  /// Whether to display a chevron icon at the bottom of the popover when
-  /// scrollable. Defaults to `true`.
-  /// {@endtemplate}
-  final bool? showScrollToBottomChevron;
-
   /// {@template Select.scrollController}
   /// The scroll controller for the options list in the popover.
   ///
@@ -745,6 +726,10 @@ class Select<T> extends StatefulWidget {
 
 /// The state of a [Select].
 class SelectState<T> extends State<Select<T>> {
+  /// Whether an option was chosen and is showing it before the list closes:
+  /// no other option is chosen meanwhile.
+  bool _choosing = false;
+
   /// The focus node created when [Select.focusNode] is null.
   @protected
   FocusNode? internalFocusNode;
@@ -799,35 +784,7 @@ class SelectState<T> extends State<Select<T>> {
   PopoverController get popoverController =>
       widget.controller ?? (_popoverController ??= PopoverController());
 
-  VoidCallback? _scrollControllerListener;
-
   ScrollController? _scrollController;
-
-  /// Whether the option list can scroll down, which shows the bottom chevron.
-  @protected
-  final showScrollToBottom = ValueNotifier(false);
-
-  /// Whether the option list can scroll up, which shows the top chevron.
-  @protected
-  final showScrollToTop = ValueNotifier(false);
-
-  /// Guards the post-frame callback that seeds [showScrollToTop] and
-  /// [showScrollToBottom], so a rebuilt popover does not queue one per build.
-  bool _scrollChevronSyncScheduled = false;
-
-  /// Invalidation token for the chevron auto-scroll loop. Bumping it retires
-  /// the running loop and any start still sitting in its opening delay.
-  int _autoScrollToken = 0;
-
-  /// Whether an auto-scroll loop currently owns [scrollController].
-  ///
-  /// Only one may run. A second `animateTo` on a scroll position disposes the
-  /// first one's activity, and `DrivenScrollActivity.dispose` completes its
-  /// future synchronously — so two loops cancel each other as microtasks with
-  /// the offset never moving, and neither exit condition ever becomes true.
-  /// Dart drains the whole microtask queue before returning to the embedder,
-  /// so that chain freezes the app outright: no frames, no input, no resize.
-  bool _autoScrolling = false;
 
   /// The focus node of the trigger: [Select.focusNode], or an internal one.
   FocusNode get focusNode => widget.focusNode ?? internalFocusNode!;
@@ -858,19 +815,6 @@ class SelectState<T> extends State<Select<T>> {
       _scrollController = ScrollController();
     }
     if (widget.focusNode == null) internalFocusNode = FocusNode();
-
-    // react to the scroll position
-    void scrollControllerListener() {
-      if (!context.mounted) return;
-
-      if (!scrollController.hasClients) return;
-      showScrollToBottom.value =
-          scrollController.offset < scrollController.position.maxScrollExtent;
-      showScrollToTop.value = scrollController.offset > 0;
-    }
-
-    _scrollControllerListener = scrollControllerListener;
-    scrollController.addListener(scrollControllerListener);
 
     if (isSearchVariant()) {
       void popoverListener() {
@@ -944,18 +888,10 @@ class SelectState<T> extends State<Select<T>> {
 
   @override
   void dispose() {
-    stopAutoScroll();
-
     final popoverControllerListener = _popoverControllerListener;
     if (popoverControllerListener != null) {
       popoverController.removeListener(popoverControllerListener);
       _popoverControllerListener = null;
-    }
-
-    final scrollControllerListener = _scrollControllerListener;
-    if (scrollControllerListener != null) {
-      scrollController.removeListener(scrollControllerListener);
-      _scrollControllerListener = null;
     }
 
     _internalSearchFocusNode?.dispose();
@@ -963,56 +899,7 @@ class SelectState<T> extends State<Select<T>> {
     _popoverController?.dispose();
     internalFocusNode?.dispose();
     _scrollController?.dispose();
-    showScrollToBottom.dispose();
-    showScrollToTop.dispose();
     super.dispose();
-  }
-
-  /// Starts scrolling the option list while a chevron is hovered.
-  ///
-  /// A no-op while a loop is already running, so hovering off and back on
-  /// within the opening delay cannot leave two of them fighting over
-  /// [scrollController]. See [_autoScrolling].
-  void startAutoScroll({required bool toTop}) {
-    if (_autoScrolling) return;
-    _autoScrolling = true;
-    final token = ++_autoScrollToken;
-    unawaited(_autoScroll(toTop: toTop, token: token));
-  }
-
-  /// Retires the running loop, and any start still in its opening delay.
-  void stopAutoScroll() => _autoScrollToken++;
-
-  /// Whether the auto-scroll loop is running.
-  @visibleForTesting
-  bool get isAutoScrolling => _autoScrolling;
-
-  Future<void> _autoScroll({required bool toTop, required int token}) async {
-    try {
-      await Future<void>.delayed(const Duration(milliseconds: 200));
-      while (mounted &&
-          token == _autoScrollToken &&
-          scrollController.hasClients) {
-        final position = scrollController.position;
-        final target = toTop
-            ? max(position.pixels - 30, position.minScrollExtent)
-            : min(position.pixels + 30, position.maxScrollExtent);
-        // Already at the end: `animateTo` would resolve without moving.
-        if (target == position.pixels) break;
-        await scrollController.animateTo(
-          target,
-          duration: const Duration(milliseconds: 20),
-          curve: Curves.easeInOutCubic,
-        );
-        // Yield to the event loop rather than only to the microtask queue.
-        // `animateTo` resolves synchronously when its activity is cancelled,
-        // and a loop that only ever awaits microtasks starves frames, input
-        // and resize.
-        await Future<void>.delayed(Duration.zero);
-      }
-    } finally {
-      _autoScrolling = false;
-    }
   }
 
   /// Whether the select takes input: [Select.enabled], and a callback to
@@ -1078,16 +965,6 @@ class SelectState<T> extends State<Select<T>> {
             : EdgeInsets.symmetric(horizontal: metrics.paddingX)) ??
         theme.selectTheme.padding ??
         const EdgeInsets.symmetric(horizontal: 12, vertical: 8);
-
-    final effectiveShowScrollToTopChevron =
-        widget.showScrollToTopChevron ??
-        theme.selectTheme.showScrollToTopChevron ??
-        true;
-
-    final effectiveShowScrollToBottomChevron =
-        widget.showScrollToBottomChevron ??
-        theme.selectTheme.showScrollToBottomChevron ??
-        true;
 
     final effectiveAnchor =
         widget.anchor ??
@@ -1287,8 +1164,11 @@ class SelectState<T> extends State<Select<T>> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisSize: MainAxisSize.min,
-                    // The first and last option follow the list's corners.
-                    children: MenuEdge.mark(widget.options!.toList()),
+                    // The first and last option follow the list's corners;
+                    // a sheet's list has none to follow.
+                    children: sheet
+                        ? widget.options!.toList()
+                        : MenuEdge.mark(widget.options!.toList()),
                   ),
                 );
               }
@@ -1301,7 +1181,14 @@ class SelectState<T> extends State<Select<T>> {
                     widget.shrinkWrap ??
                     (sheet && (widget.itemCount ?? 1000) <= 40),
                 itemBuilder: (context, index) {
-                  return widget.optionsBuilder?.call(context, index);
+                  final option = widget.optionsBuilder?.call(context, index);
+                  final count = widget.itemCount;
+                  if (option == null || sheet) return option;
+                  return MenuEdge(
+                    top: index == 0,
+                    bottom: count != null && index == count - 1,
+                    child: option,
+                  );
                 },
               );
             }
@@ -1368,62 +1255,6 @@ class SelectState<T> extends State<Select<T>> {
                 ),
               ),
             );
-
-            final scrollToTopChild = effectiveShowScrollToTopChevron
-                ? ValueListenableBuilder(
-                    valueListenable: showScrollToTop,
-                    builder: (context, show, child) {
-                      return AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        child: show
-                            ? MouseRegion(
-                                onEnter: (_) => startAutoScroll(toTop: true),
-                                onExit: (_) => stopAutoScroll(),
-                                child: Container(
-                                  width: calculatedMinWidth,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 4,
-                                  ),
-                                  child: PhosphorIcon(
-                                    PhosphorIconsRegular.caretUp,
-                                    size: 16,
-                                    color: menuForeground,
-                                  ),
-                                ),
-                              )
-                            : const SizedBox(),
-                      );
-                    },
-                  )
-                : null;
-
-            final scrollToBottomChild = effectiveShowScrollToBottomChevron
-                ? ValueListenableBuilder(
-                    valueListenable: showScrollToBottom,
-                    builder: (context, show, child) {
-                      return AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        child: show
-                            ? MouseRegion(
-                                onEnter: (_) => startAutoScroll(toTop: false),
-                                onExit: (_) => stopAutoScroll(),
-                                child: Container(
-                                  width: calculatedMinWidth,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 4,
-                                  ),
-                                  child: PhosphorIcon(
-                                    PhosphorIconsRegular.caretDown,
-                                    size: 16,
-                                    color: menuForeground,
-                                  ),
-                                ),
-                              )
-                            : const SizedBox(),
-                      );
-                    },
-                  )
-                : null;
 
             return Provider(
               data: this as SelectState<dynamic>,
@@ -1498,24 +1329,6 @@ class SelectState<T> extends State<Select<T>> {
                   ),
                 ),
                 popoverBuilder: (_, _) {
-                  // Seed showScrollToBottom/showScrollToTop once the popover
-                  // has been laid out. Guarded: this builder can run many
-                  // times per open, and an unguarded callback queued one
-                  // closure per build.
-                  if (!_scrollChevronSyncScheduled) {
-                    _scrollChevronSyncScheduled = true;
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      _scrollChevronSyncScheduled = false;
-                      if (!mounted) return;
-                      if (scrollController.hasClients) {
-                        showScrollToBottom.value =
-                            scrollController.offset <
-                            scrollController.position.maxScrollExtent;
-                        showScrollToTop.value = scrollController.offset > 0;
-                      }
-                    });
-                  }
-
                   Widget effectiveColumn = Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisSize: MainAxisSize.min,
@@ -1523,9 +1336,7 @@ class SelectState<T> extends State<Select<T>> {
                       if (search != null) Flexible(child: search),
                       if (widget.header != null)
                         Flexible(child: widget.header!),
-                      ?scrollToTopChild,
                       Flexible(child: buildOptions()),
-                      ?scrollToBottomChild,
                       if (widget.footer != null)
                         Flexible(child: widget.footer!),
                     ],
@@ -1628,6 +1439,46 @@ class _OptionState<T> extends State<SelectOption<T>> {
   final hovered = ValueNotifier(false);
   final focusNode = FocusNode();
 
+  /// Whether the option was chosen and its highlight is blinking before
+  /// the list closes, as a menu row's does.
+  bool _confirming = false;
+
+  Timer? _confirmTimer;
+
+  /// The select the blinking choice is for.
+  SelectState<T>? _confirmSelect;
+
+  /// Chooses the option. When that closes the list, the highlight blinks
+  /// off and on first (`Motion.fast`), so the choice is seen to be made; a
+  /// list that stays open, a sheet's list and a theme without motion
+  /// choose at once.
+  void _choose(SelectState<T> select) {
+    if (select._choosing) return;
+    final duration = Motion.of(context).fast;
+    if (!select.widget.closeOnSelect ||
+        _SelectSheetScope.isAround(context) ||
+        duration <= Duration.zero) {
+      select.select(widget.value);
+      return;
+    }
+    select._choosing = true;
+    _confirming = true;
+    _confirmSelect = select;
+    hovered.value = false;
+    void finish() {
+      _confirmTimer = null;
+      _confirming = false;
+      select._choosing = false;
+      if (select.mounted) select.select(widget.value);
+    }
+
+    _confirmTimer = Timer(duration * .4, () {
+      if (!mounted) return finish();
+      hovered.value = true;
+      _confirmTimer = Timer(duration * .6, finish);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -1651,6 +1502,20 @@ class _OptionState<T> extends State<SelectOption<T>> {
 
   @override
   void dispose() {
+    // An option taken away while it shows its choice still makes it.
+    final timer = _confirmTimer;
+    if (timer != null) {
+      timer.cancel();
+      _confirmTimer = null;
+      final select = _confirmSelect;
+      if (select != null) {
+        select._choosing = false;
+        final value = widget.value;
+        scheduleMicrotask(() {
+          if (select.mounted) select.select(value);
+        });
+      }
+    }
     focusNode
       ..removeListener(onFocusChange)
       ..dispose();
@@ -1659,6 +1524,7 @@ class _OptionState<T> extends State<SelectOption<T>> {
   }
 
   void onFocusChange() {
+    if (_confirming) return;
     hovered.value = focusNode.hasFocus;
   }
 
@@ -1719,9 +1585,12 @@ class _OptionState<T> extends State<SelectOption<T>> {
       widget.borderRadius ??
           theme.selectOptionTheme.borderRadius ??
           theme.radius,
-      menu: theme.popoverTheme.decoration?.border?.borderRadius?.resolve(
-        Directionality.of(context),
-      ),
+      // The list's own surface: a select's, else a popover's.
+      menu:
+          (theme.selectTheme.popoverDecoration ?? theme.popoverTheme.decoration)
+              ?.border
+              ?.borderRadius
+              ?.resolve(Directionality.of(context)),
       inset: (theme.selectTheme.optionsPadding ?? const EdgeInsets.all(4))
           .resolve(Directionality.of(context))
           .top,
@@ -1753,7 +1622,7 @@ class _OptionState<T> extends State<SelectOption<T>> {
     return CallbackShortcuts(
       bindings: {
         const SingleActivator(LogicalKeyboardKey.enter): () {
-          inheritedSelect.select(widget.value);
+          _choose(inheritedSelect);
         },
       },
       child: Focus(
@@ -1762,9 +1631,10 @@ class _OptionState<T> extends State<SelectOption<T>> {
           behavior: HitTestBehavior.opaque,
           mouseCursor: SystemMouseCursors.click,
           onHover: (value) {
+            if (_confirming) return;
             hovered.value = value;
           },
-          onTap: () => inheritedSelect.select(widget.value),
+          onTap: () => _choose(inheritedSelect),
           child: ValueListenableBuilder(
             valueListenable: hovered,
             builder: (context, hovered, child) {

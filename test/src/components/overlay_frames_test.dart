@@ -363,6 +363,9 @@ void main() {
     await tester.tap(find.text('Pick'));
     _check('select in', await _record(tester, find.text('Apple'), 45));
     await tester.tap(find.text('Banana'));
+    // The chosen option blinks before the list closes (`Motion.fast`); the
+    // exit is recorded from the frame that closes it.
+    await tester.binding.delayed(const Duration(milliseconds: 130));
     _check('select out', await _record(tester, find.text('Apple'), 24));
   });
 
