@@ -3,7 +3,9 @@ import 'package:example/common/theme_editor/color_tokens.dart';
 import 'package:example/common/theme_editor/customizer_panel.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/theme_editor/fonts.dart';
-import 'package:example/common/theme_editor/presets.dart';
+
+import 'theme_fixtures.dart';
+
 import 'package:example/common/theme_editor/style_field.dart';
 import 'package:example/common/theme_editor/style_fields.g.dart';
 import 'package:example/main.dart';
@@ -483,41 +485,18 @@ void main() {
       matching: finder,
     );
 
-    /// Opens the picker labelled [label] and chooses [option].
-    ///
-    /// The value lives inside a popover, so it has to be opened first. Fixed
-    /// pumps are used throughout rather than pumpAndSettle, which never
-    /// returns once a spinner or a skeleton is on screen.
-    Future<void> choose(
-      WidgetTester tester,
-      String label,
-      String option,
-    ) async {
-      await tester.ensureVisible(find.text(label));
-      await tester.pump();
-      await tester.tap(find.text(label));
-      // Popover wraps its content in an IgnorePointer while the entrance
-      // animation runs, so the option is not tappable until it finishes.
-      for (var i = 0; i < 12; i++) {
-        await tester.pump(const Duration(milliseconds: 50));
-      }
-      await tester.tap(find.text(option).last);
-      for (var i = 0; i < 12; i++) {
-        await tester.pump(const Duration(milliseconds: 50));
-      }
-    }
-
-    testWidgets('shows the presets and every open section', (tester) async {
+    testWidgets('shows the looks and every open section', (tester) async {
       await pump(tester);
 
-      for (final preset in ThemePreset.values) {
-        expect(inPanel(find.text(preset.label)), findsOneWidget);
+      for (final style in StylePreset.values) {
+        expect(inPanel(find.text(style.label)), findsOneWidget);
       }
+      expect(inPanel(find.text('Liquid Glass')), findsOneWidget);
       for (final label in [
-        'Palette',
+        'Color',
+        'Neutral',
         'Heading',
         'Font',
-        'Style',
         'Radius',
         'Focus Ring',
         'Form Factor',
@@ -525,9 +504,9 @@ void main() {
       ]) {
         expect(find.text(label), findsOneWidget, reason: 'missing $label');
       }
-      // The defaults, as the pickers show them.
-      expect(find.text('Fluid'), findsOneWidget);
+      // The defaults, as the rows show them.
       expect(find.text('Ocean'), findsOneWidget);
+      expect(find.text('Follows the color'), findsOneWidget);
       expect(find.text('Geist'), findsOneWidget);
       // Light/dark and direction are app-wide switches, not settings this
       // panel duplicates.
@@ -540,32 +519,12 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('offers exactly the styles and base colours the package has', (
-      tester,
-    ) async {
+    testWidgets('offers exactly the looks the package has', (tester) async {
       await pump(tester);
-
-      await tester.tap(find.text('Style'));
-      await settle(tester);
       for (final style in StylePreset.values) {
-        expect(
-          find.text(style.label),
-          findsWidgets,
-          reason: 'missing ${style.label}',
-        );
+        expect(inPanel(find.text(style.label)), findsOneWidget);
       }
-      for (final gone in ['Vega', 'Mira', 'Luma', 'Sera', 'Rhea']) {
-        expect(find.text(gone), findsNothing, reason: gone);
-      }
-      await tester.tapAt(const Offset(20, 20));
-      await settle(tester);
-
-      await tester.tap(inPanel(find.text('Palette')));
-      await settle(tester);
-      for (final colors in ColorSchemes.values) {
-        expect(find.text(colors.label), findsWidgets, reason: colors.label);
-      }
-      for (final gone in ['Zinc', 'Stone', 'Neutral', 'Slate', 'Gray']) {
+      for (final gone in ['Vega', 'Mira', 'Luma', 'Sera', 'Rhea', 'Nova']) {
         expect(find.text(gone), findsNothing, reason: gone);
       }
       expect(tester.takeException(), isNull);
@@ -582,10 +541,12 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('picking colours re-colours the page', (tester) async {
+    testWidgets('a colour re-colours the page', (tester) async {
       await pump(tester);
 
-      await choose(tester, 'Palette', 'Forest');
+      themeConfigProvider.of(appContext(tester)).value = ColorPalette.forest
+          .applyTo(const ThemeEditorConfig());
+      await settle(tester);
 
       expect(
         pageTheme(tester).colorScheme,
@@ -596,15 +557,18 @@ void main() {
     testWidgets('takes over a narrow viewport', (tester) async {
       await pump(tester, size: const Size(600, 1400));
 
-      expect(find.text('Style'), findsOneWidget);
+      expect(find.text('Liquid Glass'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
 
     testWidgets('re-themes the component library', (tester) async {
       await pump(tester);
 
-      await choose(tester, 'Palette', 'Iris');
-      await choose(tester, 'Style', 'Sharp');
+      await tester.tap(inPanel(find.text('Sharp')));
+      await settle(tester);
+      final config = themeConfigProvider.of(appContext(tester));
+      config.value = ColorPalette.iris.applyTo(config.value);
+      await settle(tester);
 
       final docsTheme = Theme.of(
         tester.element(find.byType(ComponentsScreen)),
@@ -619,43 +583,17 @@ void main() {
 
     testWidgets('Reset returns to the package default look', (tester) async {
       await pump(tester);
-      await choose(tester, 'Style', 'Crisp');
+      await tester.tap(inPanel(find.text('Crisp')));
+      await settle(tester);
       expect(pageTheme(tester).style, StyleTokens.crisp);
 
-      await tester.tap(find.text('Reset'));
+      await tester.tap(find.text('Reset').last);
       await settle(tester);
       expect(
         themeConfigProvider.of(appContext(tester)).value,
         const ThemeEditorConfig(),
       );
       expect(pageTheme(tester).style, StyleTokens.fluid);
-    });
-
-    testWidgets('a preset re-themes the app, and a change after it is Custom', (
-      tester,
-    ) async {
-      await pump(tester);
-      expect(inPanel(find.text('Custom')), findsNothing);
-
-      await tester.tap(inPanel(find.text('Classic')));
-      // Its font loads first; offline that ends at the load's timeout.
-      await tester.pump(const Duration(seconds: 6));
-      await settle(tester);
-
-      final config = themeConfigProvider.of(appContext(tester));
-      expect(ThemePreset.of(config.value), ThemePreset.classic);
-      final theme = pageTheme(tester);
-      expect(theme.colorScheme, const GraphiteColorScheme.light());
-      expect(theme.cardTheme.backgroundColor!.a, 1);
-      expect(theme.bottomNavigationBarTheme.floating, isFalse);
-      expect(theme.textTheme.p.fontFamily, contains('Inter'));
-      expect(inPanel(find.text('Custom')), findsNothing);
-
-      await choose(tester, 'Radius', 'Large');
-      expect(ThemePreset.of(config.value), isNull);
-      expect(inPanel(find.text('Custom')), findsOneWidget);
-      expect(pageTheme(tester).radius, BorderRadius.circular(14 * .8));
-      expect(tester.takeException(), isNull);
     });
 
     testWidgets('every preset themes the docs in light and dark, desktop and '

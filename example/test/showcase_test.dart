@@ -1,6 +1,5 @@
 import 'package:example/common/app_state.dart';
 import 'package:example/common/theme_editor/customizer_panel.dart';
-import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/screens/components_screen.dart';
 import 'package:example/showcase/showcase_screen.dart';
 import 'package:flutter/widgets.dart';
@@ -54,22 +53,19 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets("the header's style and palette restyle the whole app", (
+  testWidgets("the header's buttons open the editor and the reference", (
     tester,
   ) async {
     await pumpApp(tester, startOn: AppSection.showcase);
-    final config = themeConfigProvider.of(appContext(tester));
-
-    await tester.tap(find.text('Pebble').first);
+    await tester.tap(find.text('Customize the theme'));
     await settle(tester);
-    expect(config.value.style, StylePreset.pebble);
+    expect(find.byType(ThemeCustomizerPanel), findsOneWidget);
 
-    await tester.tap(find.bySemanticsLabel('Forest').first);
+    await tester.tap(find.text('Browse components'));
     await settle(tester);
-    expect(config.value.colors, ColorSchemes.forest);
     expect(
-      Theme.of(tester.element(find.byType(ShowcaseScreen))).colorScheme,
-      const ForestColorScheme.light(),
+      appSectionProvider.of(appContext(tester)).value,
+      AppSection.components,
     );
     expect(tester.takeException(), isNull);
   });

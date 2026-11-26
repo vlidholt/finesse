@@ -413,79 +413,57 @@ class ComponentsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // A Column, not a Scaffold: the docs browser is a sidebar layout that
-    // fills its box and does not inset itself for a bar laid over it.
-    final theme = Theme.of(context);
-    final mobile = theme.formFactor == FormFactor.mobile;
-    final margin = theme.layoutTheme.gap(GapSize.lg);
+    // The app's two halves are destinations, as in any app: tabs in the
+    // top bar on a desktop, the floating bar at the bottom on a phone.
     return SignalBuilder(
       builder: (context, _) {
         final section = appSectionProvider.of(context);
         final current = section.value;
-        final switcher = SegmentedControl<AppSection>(
-          expand: mobile,
-          size: mobile ? ControlSize.regular : ControlSize.sm,
-          value: current,
-          onChanged: (value) => section.value = value,
-          segments: [
-            for (final s in AppSection.values)
-              Segment(value: s, label: Text(s.label)),
-          ],
-        );
-        return Column(
-          children: [
-            AppBar(
-              // The docs browser is full-bleed, so its bar is too.
-              maxWidth: double.infinity,
-              // The page is the app's first route: there is nowhere to go
-              // back to, and nothing should be implied.
-              automaticallyImplyLeading: false,
-              // On a phone the mark alone: the switch needs the room.
-              leading: UnaLogo(showWordmark: !mobile),
-              // Centred, at its own width: two choices, not a title. On a
-              // phone it takes a row of its own under the bar, which has no
-              // room left beside its buttons.
-              middle: mobile ? null : switcher,
-              bottom: mobile
-                  ? Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        margin,
-                        0,
-                        margin,
-                        theme.layoutTheme.gap(GapSize.sm),
-                      ),
-                      child: switcher,
-                    )
-                  : null,
-              actions: const [
-                _ThemeModeButton(),
-                _DirectionButton(),
-                _ThemeEditorButton(),
-              ],
+        return NavigationScaffold(
+          selectedIndex: current.index,
+          onDestinationSelected: (index) =>
+              section.value = AppSection.values[index],
+          destinations: const [
+            NavigationDestination(
+              icon: PhosphorIcon(PhosphorIconsRegular.sparkle),
+              selectedIcon: PhosphorIcon(PhosphorIconsFill.sparkle),
+              label: 'Showcase',
             ),
-            Expanded(
-              child: MediaQuery.removePadding(
-                context: context,
-                removeTop: true,
-                // Both stay built, so switching keeps the page you were on
-                // and the showcase's scroll; the hidden one is off stage
-                // and its tickers stop.
-                child: IndexedStack(
-                  index: current.index,
-                  children: [
-                    for (final s in AppSection.values)
-                      TickerMode(
-                        enabled: s == current,
-                        child: switch (s) {
-                          AppSection.showcase => const ShowcaseScreen(),
-                          AppSection.components => const ComponentsScreen(),
-                        },
-                      ),
-                  ],
+            NavigationDestination(
+              icon: PhosphorIcon(PhosphorIconsRegular.squaresFour),
+              selectedIcon: PhosphorIcon(PhosphorIconsFill.squaresFour),
+              label: 'Components',
+            ),
+          ],
+          // Leading, not the title: a phone's bar keeps the leading widget
+          // and its actions only.
+          leading: const UnaLogo(),
+          actions: const [
+            _ThemeModeButton(),
+            _DirectionButton(),
+            _ThemeEditorButton(),
+          ],
+          // Both stay built, so switching keeps the page you were on and
+          // the showcase's scroll; the hidden one is off stage and its
+          // tickers stop.
+          body: IndexedStack(
+            index: current.index,
+            children: [
+              for (final s in AppSection.values)
+                TickerMode(
+                  enabled: s == current,
+                  child: switch (s) {
+                    AppSection.showcase => const ShowcaseScreen(),
+                    // The docs browser fills its box and does not inset
+                    // itself for bars laid over it: it starts below the top
+                    // bar and ends above the bottom one.
+                    AppSection.components => const _UnderBars(
+                      child: ComponentsScreen(),
+                    ),
+                  },
                 ),
-              ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );
@@ -567,6 +545,28 @@ class _DirectionButton extends StatelessWidget {
           },
         );
       },
+    );
+  }
+}
+
+/// [child] inset by the bars the scaffold lays over it, which it is then
+/// told nothing of.
+class _UnderBars extends StatelessWidget {
+  const _UnderBars({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final padding = MediaQuery.paddingOf(context);
+    return Padding(
+      padding: EdgeInsets.only(top: padding.top, bottom: padding.bottom),
+      child: MediaQuery.removePadding(
+        context: context,
+        removeTop: true,
+        removeBottom: true,
+        child: child,
+      ),
     );
   }
 }

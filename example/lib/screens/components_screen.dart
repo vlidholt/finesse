@@ -239,6 +239,10 @@ class ComponentsScreenState extends State<ComponentsScreen> {
       controller: _sidebarController,
       sidebar: Sidebar(
         scrollController: _sidebarScrollController,
+        // On a phone the sheet takes most of the screen: the categories and
+        // their pages need the width, and the page behind is not read
+        // while the sheet is open.
+        mobileWidth: math.min(MediaQuery.sizeOf(context).width * .88, 400),
         header: TextField(
           controller: _searchController,
           placeholder: const Text('Search docs'),

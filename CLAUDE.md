@@ -1927,11 +1927,14 @@ come from it.
   (`AppShell.formFactorFor`), so docking the editor beside a narrow window
   gives the docs the phone layout. The editor can also pin it; pinned
   Mobile on a wide page is shown in a centred 390×844 frame.
-- **Presets** (`presets.dart`): Original is `const ThemeEditorConfig()` and
-  must build to exactly the package default `ThemeData` with Geist — a test
-  holds that. Choosing a preset loads its fonts first; any later change to
-  the look shows "Custom". Form factor and text scale are *preview* settings
-  and survive a preset change.
+- **No presets: a look and a colour, picked apart.** The panel opens on
+  the four looks (a `StylePreset` each) with Liquid Glass under them, then
+  Color (a palette's swatch, or any colour as a seed) and Neutral (the
+  greys' colour, `NeutralPreset` or any). `const ThemeEditorConfig()` must
+  build to exactly the package default `ThemeData` with Geist — a test
+  holds that. The five old presets live on as test fixtures
+  (`example/test/theme_fixtures.dart`), for the export and contrast tests
+  that want rich configurations.
 - Style overrides (glass, layout, bottom bar) are applied as
   `baseStyle.copyWith(...)`. `StyleTokens.copyWith` carries an override to
   the phone metrics only where they equalled the desktop ones; page margin
@@ -1940,14 +1943,19 @@ come from it.
   configuration: building the same configuration twice must give `==`
   themes, or every rebuild of the shell is a theme change (see "Theme
   equality is load-bearing").
-- **The app opens on the showcase** (`example/lib/showcase/`), switched
-  from the top bar (`appSectionProvider`; an `IndexedStack` keeps both
-  sections, the hidden one under `TickerMode(false)`), with the editor
+- **The app opens on the showcase** (`example/lib/showcase/`). Showcase and
+  Components are a `NavigationScaffold`'s destinations — tabs in the top
+  bar on a desktop, the floating bar on a phone (`appSectionProvider`; an
+  `IndexedStack` keeps both, the hidden one under `TickerMode(false)`; the
+  docs browser is inset by the bars, `_UnderBars`, as it does not inset
+  itself), with the editor
   opening by itself in a window at least 1100 wide. Tests start on the
   reference with the editor closed: `pumpApp` sets `initialAppSection`
   and `openEditorOnDesktop` (and puts them back).
 - **Palettes** (`ColorPalette`): the six schemes and fifteen seeds for
-  `ColorScheme.fromSeed`; `seed` stands in for `colors` when set. A colour
+  `ColorScheme.fromSeed`, offered as the Color row's swatches; `seed`
+  stands in for `colors` when set, and `neutral` makes the scheme a seeded
+  one too (from the scheme's own primary when no seed is set). A colour
   or a style field set back to the value it has without the edit is no
   edit (`withColor`/`withStyleValue` drop it), so nothing shows as changed.
   The panel's chrome has Liquid Glass off: in a browser on a Mac the
@@ -1972,8 +1980,7 @@ come from it.
   `mobileStyleEdits` on the phone's alone; the panel edits the form factor
   the app shows.
 - **Liquid Glass (Auto / On / Off) is a preview setting** like form factor
-  and text scale: outside `look`, kept by `ThemePreset.applyTo`, so it
-  never turns a preset into "Custom"; but it is exported in the snippet
+  and text scale: outside `look`; but it is exported in the snippet
   when not Auto, since an app can set it too. On is `LiquidGlassMode.always`
   and previews the glass on any platform; off Apple platforms (and in
   every browser) the package draws its `standard` tier.

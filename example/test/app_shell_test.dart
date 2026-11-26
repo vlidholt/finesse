@@ -151,7 +151,7 @@ void main() {
 
       await toggleEditor(tester);
       expect(panel, findsOneWidget);
-      expect(find.text('Style'), findsOneWidget);
+      expect(find.text('Focus Ring'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
 

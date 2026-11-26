@@ -1,7 +1,9 @@
 import 'package:example/common/theme_editor/color_tokens.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/theme_editor/fonts.dart';
-import 'package:example/common/theme_editor/presets.dart';
+
+import 'theme_fixtures.dart';
+
 import 'package:example/common/theme_editor/style_field.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';

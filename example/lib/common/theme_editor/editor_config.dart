@@ -54,6 +54,8 @@ enum ColorPalette {
   }
 
   /// [config] on this palette, with no colour picked by hand.
+  ///
+  /// The neutral is kept: colour and neutral are picked independently.
   ThemeEditorConfig applyTo(ThemeEditorConfig config) => config.copyWith(
     colors: scheme ?? config.colors,
     seed: () => seed,
@@ -69,6 +71,31 @@ enum ColorPalette {
         ? ColorScheme.fromSeed(seed!, brightness: Brightness.dark)
         : scheme!.dark;
     return light.primary == light.foreground ? dark.primary : light.primary;
+  }
+}
+
+/// The neutrals the editor offers: the colour the greys — page, cards,
+/// borders, muted text — lean towards, as far as it leans itself.
+enum NeutralPreset {
+  grey('Grey', Color(0xFF808080)),
+  slate('Slate', Color(0xFF64748B)),
+  steel('Steel', Color(0xFF5F7383)),
+  stone('Stone', Color(0xFF78716C)),
+  sand('Sand', Color(0xFF8C8170)),
+  olive('Olive', Color(0xFF6E7260)),
+  mauve('Mauve', Color(0xFF7A6F7D));
+
+  const NeutralPreset(this.label, this.color);
+
+  final String label;
+  final Color color;
+
+  /// The preset [color] is, or null for one picked by hand.
+  static NeutralPreset? of(Color? color) {
+    for (final preset in values) {
+      if (preset.color == color) return preset;
+    }
+    return null;
   }
 }
 
@@ -226,7 +253,8 @@ enum EditorFormFactor {
 /// Three kinds of fields:
 ///
 /// * the **look** — style, colours, fonts, radius, the glass and layout
-///   overrides, the menu options. A `ThemePreset` is a set of these, and
+///   overrides, the menu options. The tests' fixtures are sets of these,
+///   and
 ///   [toDartSnippet] exports them;
 /// * the **preview** — [formFactor] and [textScale], which belong to the
 ///   device rather than to the theme;
@@ -239,6 +267,7 @@ class ThemeEditorConfig {
     this.style = StylePreset.fluid,
     this.colors = ColorSchemes.ocean,
     this.seed,
+    this.neutral,
     this.lightColors = const ColorEdits(),
     this.darkColors = const ColorEdits(),
     this.styleEdits = const StyleEdits(),
@@ -273,6 +302,10 @@ class ThemeEditorConfig {
   /// A seed colour the scheme is made from (`ColorScheme.fromSeed`); when
   /// set it stands in for [colors].
   final Color? seed;
+
+  /// The colour the greys lean towards (`ColorScheme.fromSeed`'s
+  /// `neutral`), or null to follow the colour.
+  final Color? neutral;
 
   /// The colours picked by hand in light mode, and in dark. A colour picked
   /// in one only is carried over to the other (see [applyColorEdits]).
@@ -395,6 +428,7 @@ class ThemeEditorConfig {
     StylePreset? style,
     ColorSchemes? colors,
     ValueGetter<Color?>? seed,
+    ValueGetter<Color?>? neutral,
     ColorEdits? lightColors,
     ColorEdits? darkColors,
     StyleEdits? styleEdits,
@@ -426,6 +460,7 @@ class ThemeEditorConfig {
       style: style ?? this.style,
       colors: colors ?? this.colors,
       seed: seed == null ? this.seed : seed(),
+      neutral: neutral == null ? this.neutral : neutral(),
       lightColors: lightColors ?? this.lightColors,
       darkColors: darkColors ?? this.darkColors,
       styleEdits: styleEdits ?? this.styleEdits,
@@ -481,6 +516,7 @@ class ThemeEditorConfig {
         other.style == style &&
         other.colors == colors &&
         other.seed == seed &&
+        other.neutral == neutral &&
         other.lightColors == lightColors &&
         other.darkColors == darkColors &&
         other.styleEdits == styleEdits &&
@@ -512,6 +548,7 @@ class ThemeEditorConfig {
     style,
     colors,
     seed,
+    neutral,
     lightColors,
     darkColors,
     styleEdits,
@@ -543,7 +580,7 @@ class ThemeEditorConfig {
 
   ColorScheme _scheme(Brightness b) {
     final dark = b == Brightness.dark;
-    final key = (colors, seed, lightColors, darkColors, dark);
+    final key = (colors, seed, neutral, lightColors, darkColors, dark);
     final cached = _schemes[key];
     if (cached != null) return cached;
     if (_schemes.length >= _maxCachedStyles) {
@@ -558,15 +595,27 @@ class ThemeEditorConfig {
   }
 
   static final _schemes =
-      <(ColorSchemes, Color?, ColorEdits, ColorEdits, bool), ColorScheme>{};
+      <
+        (ColorSchemes, Color?, Color?, ColorEdits, ColorEdits, bool),
+        ColorScheme
+      >{};
 
   /// The scheme before any colour picked by hand: the seed's, or the
   /// colour theme's.
-  ColorScheme baseScheme(Brightness b) => seed != null
-      ? _seeded[(seed!, b)] ??= ColorScheme.fromSeed(seed!, brightness: b)
-      : colors.of(b);
+  ColorScheme baseScheme(Brightness b) {
+    if (seed == null && neutral == null) return colors.of(b);
+    return _seeded[(seedColor, neutral, b)] ??= ColorScheme.fromSeed(
+      seedColor,
+      brightness: b,
+      neutral: neutral,
+    );
+  }
 
-  static final _seeded = <(Color, Brightness), ColorScheme>{};
+  /// The colour the scheme is made from: the seed, or the colour theme's
+  /// primary when only a neutral is set.
+  Color get seedColor => seed ?? colors.light.primary;
+
+  static final _seeded = <(Color, Color?, Brightness), ColorScheme>{};
 
   /// The colour picked by hand for [token] in [b], or null.
   ColorEdits colorEditsFor(Brightness b) =>
@@ -822,6 +871,7 @@ class ThemeEditorConfig {
       if (dark) 'brightness: Brightness.dark,',
       if (colors != ColorSchemes.ocean ||
           seed != null ||
+          neutral != null ||
           !lightColors.isEmpty ||
           !darkColors.isEmpty)
         ..._prefixed('colorScheme: ', _schemeCode(brightness)),
@@ -872,12 +922,15 @@ class ThemeEditorConfig {
   /// theme's, with every colour that differs from it.
   List<String> _schemeCode(Brightness b) {
     final name = colors.name;
-    final hex = seed == null
-        ? null
-        : '0x${seed!.toARGB32().toRadixString(16).padLeft(8, '0').toUpperCase()}';
-    final base = hex != null
-        ? 'ColorScheme.fromSeed(const Color($hex)'
-              '${b == Brightness.dark ? ', brightness: Brightness.dark' : ''})'
+    String hexOf(Color c) =>
+        '0x${c.toARGB32().toRadixString(16).padLeft(8, '0').toUpperCase()}';
+    final neutralArg = neutral == null
+        ? ''
+        : ', neutral: const Color(${hexOf(neutral!)})';
+    final darkArg = b == Brightness.dark ? ', brightness: Brightness.dark' : '';
+    final base = seed != null || neutral != null
+        ? 'ColorScheme.fromSeed(const Color(${hexOf(seedColor)})'
+              '$neutralArg$darkArg)'
         : 'const ${name[0].toUpperCase()}${name.substring(1)}ColorScheme'
               '.${b.name}()';
     final theme = baseScheme(b);

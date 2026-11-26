@@ -1,3 +1,4 @@
+import 'package:example/showcase/showcase_media_cards.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/una.dart';
 
@@ -8,11 +9,15 @@ import 'package:una/una.dart';
 /// the few cards that arrange themselves differently in a narrow one.
 List<Widget> showcaseCards({required int columns}) => const [
   _ActivityCard(),
+  ShowcaseEventCard(),
   _TeamCard(),
+  ShowcaseArticleCard(),
   _ChatCard(),
   _BookingCard(),
+  ShowcaseGalleryCard(),
   _PlayerCard(),
   _NotificationsCard(),
+  ShowcaseJobsCard(),
   _CheckoutCard(),
   _GoalCard(),
   _PricingCard(),
@@ -292,7 +297,9 @@ class _ChatCard extends StatelessWidget {
         line: 'Active now',
         avatar: 'avatar_freya_holm',
       ),
-      trailing: IconButton.ghost(
+      // In the header, not beside the body: a trailing widget takes a
+      // column of its own and the bubbles stopped short of the edge.
+      action: IconButton.ghost(
         icon: const PhosphorIcon(PhosphorIconsRegular.phone),
         semanticLabel: 'Call',
         onPressed: () {},
@@ -675,6 +682,8 @@ class _GoalCard extends StatelessWidget {
       description: const Text('Three days left in the sprint.'),
       child: UnaRow(
         gap: GapSize.lg,
+        // The ring's foot on the last bar's: the two read as one block.
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           ProgressRing(
             value: .72,
@@ -874,8 +883,8 @@ class _ShortcutsCard extends StatelessWidget {
   }
 }
 
-/// The analytics row under the figures: revenue over the year and where
-/// the visitors came from, side by side on a desktop.
+/// The analytics row under the figures: revenue over the year and the
+/// pages read most, side by side on a desktop.
 class ShowcaseAnalytics extends StatelessWidget {
   const ShowcaseAnalytics({super.key});
 
@@ -890,14 +899,14 @@ class ShowcaseAnalytics extends StatelessWidget {
                 spacing: gap,
                 children: const [
                   Expanded(flex: 2, child: _RevenueCard()),
-                  Expanded(child: _TrafficCard()),
+                  Expanded(child: _TopPagesCard()),
                 ],
               ),
             )
           : Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: gap,
-              children: const [_RevenueCard(), _TrafficCard()],
+              children: const [_RevenueCard(), _TopPagesCard()],
             ),
     );
   }
@@ -994,47 +1003,29 @@ class _RevenueCardState extends State<_RevenueCard> {
   }
 }
 
-class _TrafficCard extends StatelessWidget {
-  const _TrafficCard();
+/// The pages visitors open most, as bars in one colour: a ranking reads
+/// at a glance where a chart of many colours asks for a legend.
+class _TopPagesCard extends StatelessWidget {
+  const _TopPagesCard();
 
-  static const _sources = [
-    ChartSegment(label: 'Search', value: 4820),
-    ChartSegment(label: 'Direct', value: 3150),
-    ChartSegment(label: 'Social', value: 2210),
-    ChartSegment(label: 'Referral', value: 1240),
+  static const _pages = ['/pricing', '/docs', '/blog', '/changelog', '/about'];
+  static const _views = [
+    ChartSeries(label: 'Views', values: [9840, 7320, 4180, 2650, 1730]),
   ];
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Card(
-      title: const Text('Traffic'),
-      description: const Text('Where visitors came from this month.'),
-      child: UnaColumn(
-        gap: GapSize.lg,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(
-            height: 200,
-            child: DonutChart(
-              segments: _sources,
-              semanticLabel: 'Visitors by source',
-              // Scaled down rather than cut off where a style's larger
-              // type, or large text, does not fit the hole.
-              center: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('11.4k', style: theme.textTheme.h3),
-                    Text('visitors', style: theme.textTheme.caption),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          const ChartLegend(entries: _sources),
-        ],
+      title: const Text('Top pages'),
+      description: const Text('Views this month.'),
+      child: SizedBox(
+        height: 260,
+        child: BarChart(
+          labels: _pages,
+          series: _views,
+          direction: Axis.horizontal,
+          semanticLabel: 'Views of the top pages this month',
+        ),
       ),
     );
   }

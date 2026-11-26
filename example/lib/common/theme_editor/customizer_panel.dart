@@ -9,7 +9,6 @@ import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/theme_editor/editor_rows.dart';
 import 'package:example/common/theme_editor/fonts.dart';
 import 'package:example/common/theme_editor/picker.dart';
-import 'package:example/common/theme_editor/presets.dart';
 import 'package:flutter/material.dart'
     hide Dialog, DialogTheme, Divider, IconButton, Theme, ThemeData, showDialog;
 import 'package:flutter/services.dart';
@@ -22,9 +21,9 @@ import 'package:una/una.dart';
 /// because a panel that followed the configuration becomes unreadable while
 /// editing a light, menu-inverted or heavily scaled theme.
 ///
-/// From the top: the curated [ThemePreset]s, then every option one of them
-/// sets, grouped into sections that fold away. Changing any option leaves
-/// the preset, and the grid says so with a "Custom" tile.
+/// From the top: the look (a style) and whether it is drawn in Liquid
+/// Glass, the colour and the neutral, then every other option, grouped
+/// into sections that fold away.
 class ThemeCustomizerPanel extends StatelessWidget {
   const ThemeCustomizerPanel({
     super.key,
@@ -145,7 +144,7 @@ class ThemeCustomizerPanel extends StatelessWidget {
 
 /// The panel's sections, in the order they are listed.
 enum _SectionId {
-  theme('Theme'),
+  look('Look'),
   color('Color'),
   fonts('Fonts'),
   shape('Shape'),
@@ -215,28 +214,24 @@ class _SettingsState extends State<_Settings> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _section(_SectionId.theme, [
-            _PresetGrid(config: config, onChanged: onChanged),
+          _section(_SectionId.look, [
+            _LookGrid(config: config, onChanged: onChanged),
+            // Auto draws Liquid Glass on iOS and macOS only; On shows it on
+            // whatever this runs on. A way of looking at the theme, kept
+            // whatever else changes.
+            ThemeSegments<EditorLiquidGlass>(
+              label: 'Liquid Glass',
+              value: config.liquidGlass,
+              options: [
+                for (final m in EditorLiquidGlass.values)
+                  PickerOption(value: m, label: m.label),
+              ],
+              onChanged: (v) => onChanged(config.copyWith(liquidGlass: v)),
+            ),
           ]),
           _section(_SectionId.color, [
-            ThemePicker<ColorPalette?>(
-              label: 'Palette',
-              value: ColorPalette.of(config),
-              options: [
-                for (final p in ColorPalette.values)
-                  PickerOption(value: p, label: p.label, swatch: p.swatch),
-                if (ColorPalette.of(config) == null)
-                  PickerOption(
-                    value: null,
-                    label: 'Custom seed',
-                    swatch: config.seed,
-                  ),
-              ],
-              onChanged: (p) {
-                if (p != null) onChanged(p.applyTo(config));
-              },
-            ),
-            _SeedRow(config: config, onChanged: onChanged),
+            _ColorRow(config: config, onChanged: onChanged),
+            _NeutralRow(config: config, onChanged: onChanged),
             ColorTokenList(
               config: config,
               brightness: widget.brightness,
@@ -263,16 +258,6 @@ class _SettingsState extends State<_Settings> {
             ),
           ]),
           _section(_SectionId.shape, [
-            ThemePicker<StylePreset>(
-              label: 'Style',
-              icon: PhosphorIconsRegular.shapes,
-              value: config.style,
-              options: [
-                for (final s in StylePreset.values)
-                  PickerOption(value: s, label: s.label),
-              ],
-              onChanged: (v) => onChanged(config.copyWith(style: v)),
-            ),
             ThemePicker<RadiusPreset>(
               label: 'Radius',
               icon: PhosphorIconsRegular.square,
@@ -481,18 +466,6 @@ class _SettingsState extends State<_Settings> {
                   ? null
                   : () => onChanged(config.copyWith(textScale: 1)),
             ),
-            // Auto draws Liquid Glass on iOS and macOS only; On shows it on
-            // whatever this runs on. Kept across presets, like the preview
-            // settings below.
-            ThemeSegments<EditorLiquidGlass>(
-              label: 'Liquid Glass',
-              value: config.liquidGlass,
-              options: [
-                for (final m in EditorLiquidGlass.values)
-                  PickerOption(value: m, label: m.label),
-              ],
-              onChanged: (v) => onChanged(config.copyWith(liquidGlass: v)),
-            ),
           ]),
           // Every field of the style, for what the sections above do not
           // reach. Applied over them.
@@ -581,202 +554,6 @@ class _Section extends StatelessWidget {
           ),
         const Divider(margin: EdgeInsets.zero),
       ],
-    );
-  }
-}
-
-/// The presets, two to a row, with a "Custom" tile once the configuration
-/// has left them.
-class _PresetGrid extends StatefulWidget {
-  const _PresetGrid({required this.config, required this.onChanged});
-
-  final ThemeEditorConfig config;
-  final ValueChanged<ThemeEditorConfig> onChanged;
-
-  @override
-  State<_PresetGrid> createState() => _PresetGridState();
-}
-
-class _PresetGridState extends State<_PresetGrid> {
-  /// The preset whose fonts are being fetched. A newer pick supersedes it.
-  ThemePreset? _loading;
-
-  /// Applies [preset] once its fonts are in, for the same reason the font
-  /// pickers wait: applying first lays the whole app out in the fallback
-  /// face and again when the real one arrives.
-  Future<void> _select(ThemePreset preset) async {
-    setState(() => _loading = preset);
-    await Future.wait([for (final font in preset.config.fonts) font.load()]);
-    if (!mounted || _loading != preset) return;
-    setState(() => _loading = null);
-    widget.onChanged(preset.applyTo(widget.config));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final current = ThemePreset.of(widget.config);
-    const gap = 8.0;
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final tileWidth = ((constraints.maxWidth - gap) / 2).floorToDouble();
-        return Wrap(
-          spacing: gap,
-          runSpacing: gap,
-          children: [
-            for (final preset in ThemePreset.values)
-              SizedBox(
-                width: tileWidth,
-                child: _PresetTile(
-                  label: preset.label,
-                  config: preset.config,
-                  selected: preset == current && _loading == null,
-                  busy: preset == _loading,
-                  onTap: () => _select(preset),
-                ),
-              ),
-            if (current == null)
-              SizedBox(
-                width: tileWidth,
-                child: _PresetTile(
-                  label: 'Custom',
-                  config: widget.config,
-                  selected: _loading == null,
-                ),
-              ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _PresetTile extends StatefulWidget {
-  const _PresetTile({
-    required this.label,
-    required this.config,
-    required this.selected,
-    this.busy = false,
-    this.onTap,
-  });
-
-  final String label;
-
-  /// The configuration the tile's swatch is drawn from.
-  final ThemeEditorConfig config;
-  final bool selected;
-  final bool busy;
-
-  /// Null for the "Custom" tile, which is a state and not a choice.
-  final VoidCallback? onTap;
-
-  @override
-  State<_PresetTile> createState() => _PresetTileState();
-}
-
-class _PresetTileState extends State<_PresetTile> {
-  bool hovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final touch = theme.formFactor == FormFactor.mobile;
-
-    return Semantics(
-      button: widget.onTap != null,
-      selected: widget.selected,
-      child: UnaGestureDetector(
-        mouseCursor: widget.onTap == null
-            ? SystemMouseCursors.basic
-            : SystemMouseCursors.click,
-        behavior: HitTestBehavior.opaque,
-        onTap: widget.selected ? null : widget.onTap,
-        onHover: (v) => setState(() => hovered = v),
-        child: Container(
-          height: touch ? 48 : 42,
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          decoration: BoxDecoration(
-            color: hovered && widget.onTap != null && !widget.selected
-                ? colors.accent
-                : colors.card,
-            borderRadius: theme.radius,
-            // The selected tile takes the foreground as its outline. Same
-            // width either way, so selecting does not move the content.
-            border: Border.all(
-              color: widget.selected ? colors.foreground : colors.border,
-            ),
-          ),
-          child: Row(
-            children: [
-              if (widget.busy)
-                SizedBox.square(
-                  dimension: 26,
-                  child: Center(
-                    child: Spinner(size: 15, color: colors.mutedForeground),
-                  ),
-                )
-              else
-                _PresetSwatch(config: widget.config),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  widget.label,
-                  style: theme.textTheme.small.copyWith(
-                    fontSize: 13,
-                    height: 18 / 13,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// A preset in 26 pixels: its page colour, with a button in its primary
-/// colour and its corner shape.
-class _PresetSwatch extends StatelessWidget {
-  const _PresetSwatch({required this.config});
-
-  final ThemeEditorConfig config;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = config.copyWith(brightness: Brightness.light).colorScheme;
-    // Square stays square and a pill stays a pill; everything between is a
-    // softened corner at this size.
-    final tokens = config.style.tokens;
-    final buttonRadius = config.effectiveRadius == 0
-        ? 0.0
-        : tokens.buttonRadius == RadiusToken.xl4
-        ? 5.0
-        : 2.5;
-
-    return Container(
-      width: 26,
-      height: 26,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: scheme.background,
-        borderRadius: BorderRadius.circular(
-          config.effectiveRadius == 0 ? 0 : 6,
-        ),
-        border: Border.all(color: Theme.of(context).colorScheme.border),
-      ),
-      child: Container(
-        width: 14,
-        height: 10,
-        decoration: BoxDecoration(
-          color: scheme.primary,
-          borderRadius: BorderRadius.circular(buttonRadius),
-        ),
-      ),
     );
   }
 }
@@ -954,36 +731,217 @@ class _FontPickerState extends State<_FontPicker> {
   }
 }
 
-/// The seed the palette is made from, with a picker to start from any
-/// colour: `ColorScheme.fromSeed` builds the whole scheme around it.
-class _SeedRow extends StatelessWidget {
-  const _SeedRow({required this.config, required this.onChanged});
+/// The four looks, two to a row: a style each, with a small picture of
+/// its shapes in the current colours.
+class _LookGrid extends StatelessWidget {
+  const _LookGrid({required this.config, required this.onChanged});
 
   final ThemeEditorConfig config;
   final ValueChanged<ThemeEditorConfig> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    final seed = config.seed;
-    final shown =
-        seed ?? ColorPalette.of(config)?.swatch ?? config.colorScheme.primary;
-    return ThemeColorPicker(
-      label: 'Seed',
-      value: seed,
-      current: shown,
-      emptyLabel: 'From the palette',
-      swatches: [for (final p in ColorPalette.values) p.swatch],
-      // A new seed starts the colours afresh: ones picked by hand were
-      // picked against the old palette.
-      onChanged: (color) => onChanged(
-        color == null
-            ? ColorPalette.ocean.applyTo(config)
-            : config.copyWith(
-                seed: () => color,
-                lightColors: const ColorEdits(),
-                darkColors: const ColorEdits(),
+    const gap = 8.0;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = ((constraints.maxWidth - gap) / 2).floorToDouble();
+        return Wrap(
+          spacing: gap,
+          runSpacing: gap,
+          children: [
+            for (final style in StylePreset.values)
+              SizedBox(
+                width: width,
+                child: _LookTile(
+                  style: style,
+                  config: config.copyWith(style: style),
+                  selected: config.style == style,
+                  onTap: () => onChanged(config.copyWith(style: style)),
+                ),
               ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _LookTile extends StatefulWidget {
+  const _LookTile({
+    required this.style,
+    required this.config,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final StylePreset style;
+
+  /// The configuration the tile's picture is drawn from.
+  final ThemeEditorConfig config;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  State<_LookTile> createState() => _LookTileState();
+}
+
+class _LookTileState extends State<_LookTile> {
+  bool hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final touch = theme.formFactor == FormFactor.mobile;
+    return Semantics(
+      button: true,
+      selected: widget.selected,
+      child: UnaGestureDetector(
+        mouseCursor: SystemMouseCursors.click,
+        behavior: HitTestBehavior.opaque,
+        onTap: widget.selected ? null : widget.onTap,
+        onHover: (v) => setState(() => hovered = v),
+        child: Container(
+          height: touch ? 48 : 42,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            color: hovered && !widget.selected ? colors.accent : colors.card,
+            borderRadius: theme.radius,
+            // The selected tile takes the foreground as its outline. Same
+            // width either way, so selecting does not move the content.
+            border: Border.all(
+              color: widget.selected ? colors.foreground : colors.border,
+            ),
+          ),
+          child: Row(
+            children: [
+              _LookSwatch(config: widget.config),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  widget.style.label,
+                  style: theme.textTheme.small.copyWith(
+                    fontSize: 13,
+                    height: 18 / 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
+    );
+  }
+}
+
+/// A look in 26 pixels: the page, with a button in the primary colour and
+/// the look's corner shape.
+class _LookSwatch extends StatelessWidget {
+  const _LookSwatch({required this.config});
+
+  final ThemeEditorConfig config;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = config.copyWith(brightness: Brightness.light).colorScheme;
+    final tokens = config.style.tokens;
+    // Square stays square and a pill stays a pill; everything between is a
+    // softened corner at this size.
+    final buttonRadius = config.effectiveRadius == 0
+        ? 0.0
+        : tokens.buttonRadius == RadiusToken.xl4
+        ? 5.0
+        : 2.5;
+    return Container(
+      width: 26,
+      height: 26,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: scheme.background,
+        borderRadius: BorderRadius.circular(
+          config.effectiveRadius == 0 ? 0 : 6,
+        ),
+        border: Border.all(color: Theme.of(context).colorScheme.border),
+      ),
+      child: Container(
+        width: 14,
+        height: 10,
+        decoration: BoxDecoration(
+          color: scheme.primary,
+          borderRadius: BorderRadius.circular(buttonRadius),
+        ),
+      ),
+    );
+  }
+}
+
+/// The colour the scheme is made from, picked from the palettes' swatches
+/// or by hand. A built-in scheme's own colour gives that scheme; any other
+/// is a seed for `ColorScheme.fromSeed`.
+class _ColorRow extends StatelessWidget {
+  const _ColorRow({required this.config, required this.onChanged});
+
+  final ThemeEditorConfig config;
+  final ValueChanged<ThemeEditorConfig> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = ColorPalette.of(config);
+    final current = config.seed ?? config.colors.light.primary;
+    return ThemeColorPicker(
+      label: 'Color',
+      value: current,
+      valueLabel: palette?.label,
+      current: current,
+      swatches: [for (final p in ColorPalette.values) p.swatch],
+      clearLabel: 'Default',
+      // Back to the package default's.
+      clearable: config.seed != null || config.colors != ColorSchemes.ocean,
+      onClear: () => onChanged(ColorPalette.ocean.applyTo(config)),
+      onChanged: (color) {
+        if (color == null) return;
+        // A swatch of a palette is that palette; a colour of its own a
+        // seed. Colours picked by hand start afresh either way.
+        for (final p in ColorPalette.values) {
+          if (p.swatch == color) {
+            onChanged(p.applyTo(config));
+            return;
+          }
+        }
+        onChanged(
+          config.copyWith(
+            seed: () => color,
+            lightColors: const ColorEdits(),
+            darkColors: const ColorEdits(),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// The colour the greys lean towards: a preset, one picked by hand, or none
+/// (they follow the colour).
+class _NeutralRow extends StatelessWidget {
+  const _NeutralRow({required this.config, required this.onChanged});
+
+  final ThemeEditorConfig config;
+  final ValueChanged<ThemeEditorConfig> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final neutral = config.neutral;
+    return ThemeColorPicker(
+      label: 'Neutral',
+      value: neutral,
+      valueLabel: NeutralPreset.of(neutral)?.label,
+      emptyLabel: 'Follows the color',
+      current: neutral ?? config.colorScheme.mutedForeground,
+      swatches: [for (final n in NeutralPreset.values) n.color],
+      onChanged: (color) => onChanged(config.copyWith(neutral: () => color)),
     );
   }
 }

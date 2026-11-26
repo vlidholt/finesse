@@ -764,11 +764,27 @@ class ThemeColorPicker extends StatelessWidget {
     required this.onChanged,
     this.emptyLabel = 'None',
     this.swatches = _swatches,
+    this.valueLabel,
+    this.clearLabel = 'Clear',
+    this.clearable = true,
+    this.onClear,
     super.key,
   });
 
   /// What the row reads while no colour is chosen.
   final String emptyLabel;
+
+  /// A name for [value], read instead of its hex (a palette's, a preset's).
+  final String? valueLabel;
+
+  /// The clear button's label.
+  final String clearLabel;
+
+  /// Whether the row offers to clear what is chosen.
+  final bool clearable;
+
+  /// What clearing does; by default it reports a null colour.
+  final VoidCallback? onClear;
 
   /// The swatches the picker offers.
   final List<Color> swatches;
@@ -799,16 +815,16 @@ class ThemeColorPicker extends StatelessWidget {
     final value = this.value;
     return _SettingBox(
       label: label,
-      value: value == null ? emptyLabel : colorToHex(value),
+      value: value == null ? emptyLabel : valueLabel ?? colorToHex(value),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         spacing: 4,
         children: [
-          if (value != null)
+          if (clearable && (onClear != null || value != null))
             Button.ghost(
               size: ButtonSize.sm,
-              onPressed: () => onChanged(null),
-              child: const Text('Clear'),
+              onPressed: onClear ?? () => onChanged(null),
+              child: Text(clearLabel),
             ),
           ColorPickerButton(
             semanticLabel: label,

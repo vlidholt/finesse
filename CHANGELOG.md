@@ -425,9 +425,18 @@ was measured from (Strand, until it moved), is its own repository,
   and every field of the style under "All settings", grouped and
   searchable, for the form factor the app shows. Liquid Glass Auto / On /
   Off sits with the other preview settings.
+- **The selected tab shows in every style.** Crisp, Pebble and Sharp drew
+  the selected segment in the page colour, a grey here nearly the strip's
+  own; it takes the card colour in light and a lifted wash in dark.
+- **A menu's first and last rows follow its corners**, so a phone's menu,
+  rounded to 24, has no square highlight at its ends; a `Select`'s option
+  list too.
+- **A Liquid Glass bottom bar with no `action` stays at the bottom**; it
+  took the whole height of its slot and sat mid-screen.
 - **`ColorScheme.fromSeed`**: a whole scheme from one colour, made the
   way the six built-in schemes are (Ocean's lightness, the seed's hue), so
-  any seed gets their contrast; a grey seed gives a monochrome scheme.
+  any seed gets their contrast; a grey seed gives a monochrome scheme. A
+  `neutral` sets the greys' colour on its own.
 - **`ControlSize.sm`** on `NumberField`, `Select` and `SegmentedControl`:
   a small button's height, padding and text, for dense panels. A small
   number field puts its minus and plus at the two ends on every form
@@ -436,8 +445,10 @@ was measured from (Strand, until it moved), is its own repository,
   open (a search typed into it, a group opened in it).
 - **The example opens on a showcase** — the components as pieces of real
   screens, under a header that restyles the app — with the editor open
-  beside it on a desktop. The reference is grouped into categories. The
-  editor offers twenty-one palettes and a seed of your own, shows the key
+  beside it on a desktop; Showcase and Components are tabs in the top bar,
+  the floating bar on a phone. The reference is grouped into categories.
+  The editor opens on the four looks and Liquid Glass, then a colour
+  (twenty-one swatches, or any) and a neutral; it shows the key
   colours with the rest a fold away, uses the small controls, treats a
   value set back to its original as no edit, and shows its code
   highlighted.

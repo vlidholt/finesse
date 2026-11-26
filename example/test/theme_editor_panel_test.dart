@@ -2,7 +2,9 @@ import 'package:example/common/theme_editor/color_tokens.dart';
 import 'package:example/common/theme_editor/customizer_panel.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/theme_editor/picker.dart';
-import 'package:example/common/theme_editor/presets.dart';
+
+import 'theme_fixtures.dart';
+
 import 'package:example/common/theme_editor/style_field.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -20,7 +22,7 @@ void main() {
 
   /// Every section, by the title its header shows.
   const sections = [
-    'THEME',
+    'LOOK',
     'COLOR',
     'FONTS',
     'SHAPE',
@@ -33,13 +35,14 @@ void main() {
 
   /// Every setting, by section.
   const settings = {
-    'COLOR': ['Palette', 'Seed', 'Primary', 'All colors'],
+    'LOOK': ['Fluid', 'Crisp', 'Pebble', 'Sharp', 'Liquid Glass'],
+    'COLOR': ['Color', 'Neutral', 'Primary', 'All colors'],
     'FONTS': ['Heading', 'Font'],
-    'SHAPE': ['Style', 'Radius', 'Focus Ring'],
+    'SHAPE': ['Radius', 'Focus Ring'],
     'GLASS': ['Card Opacity', 'Card Blur', 'Bar Opacity', 'Blur Strength'],
     'LAYOUT': ['Density', 'Page Margin', 'Card Padding', 'Bottom Bar'],
     'MENUS': ['Menu', 'Menu Accent'],
-    'PREVIEW': ['Form Factor', 'Text Scale', 'Liquid Glass'],
+    'PREVIEW': ['Form Factor', 'Text Scale'],
     'ALL SETTINGS': ['Buttons', 'Fields'],
   };
 
@@ -128,22 +131,6 @@ void main() {
     await settle(tester);
   }
 
-  /// Taps the middle of the track of the slider labelled [label].
-  ///
-  /// The row is the label line above the track; the track is its bottom
-  /// 24 pixels.
-  Future<void> tapSliderMiddle(WidgetTester tester, String label) async {
-    final row = find.ancestor(
-      of: find.text(label),
-      matching: find.byType(ThemeSlider),
-    );
-    await tester.ensureVisible(row);
-    await tester.pump();
-    final rect = tester.getRect(row);
-    await tester.tapAt(Offset(rect.center.dx, rect.bottom - 12));
-    await settle(tester);
-  }
-
   group('sections', () {
     testWidgets('are all listed, the finer ones folded away', (tester) async {
       await pumpPanel(tester);
@@ -193,10 +180,10 @@ void main() {
       }
 
       await tapInPanel(tester, find.text('COLOR'));
-      expect(find.text('Palette'), findsNothing);
+      expect(find.text('Neutral'), findsNothing);
       expect(find.text('All colors'), findsNothing);
       await tapInPanel(tester, find.text('COLOR'));
-      expect(find.text('Palette'), findsOneWidget);
+      expect(find.text('Neutral'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   });
@@ -208,6 +195,10 @@ void main() {
     /// a locked picker, and a custom configuration (a sixth tile).
     final configs = <String, ThemeEditorConfig>{
       for (final preset in ThemePreset.values) preset.label: preset.config,
+      'a seed and a neutral': const ThemeEditorConfig(
+        seed: Color(0xFF0EA5E9),
+        neutral: Color(0xFF78716C),
+      ),
       'long labels': const ThemeEditorConfig(
         fontTitle: 'Playfair Display',
         headingFontTitle: 'Instrument Serif',
@@ -279,10 +270,8 @@ void main() {
         // Each picker, and an option its popover has to show. A choice of
         // two or three is a segmented control, with no popover.
         const pickers = {
-          'Palette': 'Ember',
           'Heading': 'Inter',
           'Font': 'Inter',
-          'Style': 'Sharp',
           'Radius': 'Large',
           'Density': 'Spacious',
           'Menu': 'Translucent',
@@ -335,8 +324,7 @@ void main() {
       expect(MediaQuery.textScalerOf(scroll), TextScaler.noScaling);
 
       // Editing changes the configuration, not the panel.
-      await choose(tester, 'Style', 'Sharp');
-      await choose(tester, 'Palette', 'Ember');
+      await tapInPanel(tester, inPanel(find.text('Sharp')));
       expect(config.style, StylePreset.sharp);
       expect(
         Theme.of(tester.element(inPanel(find.byType(Scrollable)).first)),
@@ -375,152 +363,76 @@ void main() {
     });
   });
 
-  group('presets', () {
-    testWidgets('are offered by name, Original selected', (tester) async {
+  group('the look and the colours', () {
+    testWidgets('the four looks are offered, the current one selected, and '
+        'a tap picks one', (tester) async {
       await pumpPanel(tester);
-      for (final preset in ThemePreset.values) {
-        expect(inPanel(find.text(preset.label)), findsOneWidget);
+      for (final style in StylePreset.values) {
+        expect(inPanel(find.text(style.label)), findsOneWidget);
       }
-      expect(find.text('Custom'), findsNothing);
       expect(
-        tester.getSemantics(inPanel(find.text('Original'))),
+        tester.getSemantics(inPanel(find.text('Fluid'))),
         isSemantics(isSelected: true, hasSelectedState: true, isButton: true),
       );
+      await tapInPanel(tester, inPanel(find.text('Pebble')));
+      expect(config.style, StylePreset.pebble);
       expect(
-        tester.getSemantics(inPanel(find.text('Classic'))),
-        isSemantics(isSelected: false, hasSelectedState: true, isButton: true),
+        tester.getSemantics(inPanel(find.text('Pebble'))),
+        isSemantics(isSelected: true, hasSelectedState: true, isButton: true),
       );
+      expect(tester.takeException(), isNull);
     });
 
-    testWidgets('selecting one replaces the configuration', (tester) async {
+    testWidgets('Liquid Glass is in view as the panel opens', (tester) async {
+      await pumpPanel(tester);
+      final row = inPanel(find.text('Liquid Glass'));
+      expect(row, findsOneWidget);
+      expect(
+        tester.getRect(row).bottom,
+        lessThan(tester.getRect(find.byType(ThemeCustomizerPanel)).height / 2),
+      );
+      await tapInPanel(tester, inPanel(find.text('On')));
+      expect(config.liquidGlass, EditorLiquidGlass.on);
+    });
+
+    testWidgets('the colour reads its palette by name, and resets to the '
+        'default', (tester) async {
+      await pumpPanel(
+        tester,
+        initial: ColorPalette.forest.applyTo(const ThemeEditorConfig()),
+      );
+      expect(inPanel(find.text('Forest')), findsOneWidget);
+      // The colour row's button, above the Radius row's own "Default".
+      await tapInPanel(tester, inPanel(find.text('Default')).first);
+      expect(config.colors, ColorSchemes.ocean);
+      expect(config.seed, isNull);
+    });
+
+    testWidgets('the neutral follows the colour until one is picked, and '
+        'clears back', (tester) async {
+      await pumpPanel(tester);
+      expect(inPanel(find.text('Follows the color')), findsOneWidget);
+
+      await pumpPanel(
+        tester,
+        initial: ThemeEditorConfig(neutral: NeutralPreset.stone.color),
+      );
+      expect(inPanel(find.text('Stone')), findsOneWidget);
+      await tapInPanel(tester, inPanel(find.text('Clear')).first);
+      expect(config.neutral, isNull);
+    });
+
+    testWidgets('Reset returns to the package default', (tester) async {
       await pumpPanel(
         tester,
         initial: const ThemeEditorConfig(
-          colors: ColorSchemes.rose,
+          style: StylePreset.sharp,
+          seed: Color(0xFFDB2777),
           formFactor: EditorFormFactor.mobile,
-          textScale: 1.2,
         ),
       );
-      expect(find.text('Custom'), findsOneWidget);
-
-      for (final preset in ThemePreset.values.reversed) {
-        await tapInPanel(tester, inPanel(find.text(preset.label)));
-        await waitForFonts(tester);
-        expect(ThemePreset.of(config), preset, reason: preset.label);
-        // Everything the preset sets, and nothing left over from before…
-        expect(config.look, preset.config, reason: preset.label);
-        // …except how the theme is being viewed.
-        expect(config.formFactor, EditorFormFactor.mobile);
-        expect(config.textScale, 1.2);
-        expect(find.text('Custom'), findsNothing, reason: preset.label);
-        expect(
-          tester.getSemantics(inPanel(find.text(preset.label))),
-          isSemantics(isSelected: true, hasSelectedState: true, isButton: true),
-        );
-      }
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('changing any option afterwards shows Custom', (tester) async {
-      await pumpPanel(tester);
-      await tapInPanel(tester, inPanel(find.text('Classic')));
-      // Not before its font is in: the tile shows a spinner meanwhile.
+      await tapInPanel(tester, find.text('Reset').last);
       expect(config, const ThemeEditorConfig());
-      expect(inPanel(find.byType(Spinner)), findsOneWidget);
-      await waitForFonts(tester);
-      expect(inPanel(find.byType(Spinner)), findsNothing);
-      expect(ThemePreset.of(config), ThemePreset.classic);
-      expect(find.text('Custom'), findsNothing);
-
-      await choose(tester, 'Palette', 'Iris');
-      expect(config.colors, ColorSchemes.iris);
-      // The rest of Classic is still there: the change was one option.
-      expect(config.style, StylePreset.crisp);
-      expect(config.fontTitle, 'Inter');
-      expect(ThemePreset.of(config), isNull);
-      expect(find.text('Custom'), findsOneWidget);
-      expect(
-        tester.getSemantics(inPanel(find.text('Custom'))),
-        isSemantics(isSelected: true, hasSelectedState: true),
-      );
-      expect(
-        tester.getSemantics(inPanel(find.text('Classic'))),
-        isSemantics(isSelected: false, hasSelectedState: true, isButton: true),
-      );
-
-      // Undoing the change is the preset again.
-      await choose(tester, 'Palette', 'Graphite');
-      expect(ThemePreset.of(config), ThemePreset.classic);
-      expect(find.text('Custom'), findsNothing);
-    });
-
-    testWidgets('each kind of control leaves the preset', (tester) async {
-      await pumpPanel(tester);
-      await unfoldAll(tester);
-
-      // A segmented control…
-      await tapInPanel(tester, find.text('Docked'));
-      expect(config.bottomBarFloating, isFalse);
-      expect(find.text('Custom'), findsOneWidget);
-      // …which is the preset again when set back.
-      await tapInPanel(tester, find.text('Floating'));
-      expect(config.bottomBarFloating, isNull);
-      expect(find.text('Custom'), findsNothing);
-
-      // A switch.
-      await tapInPanel(tester, find.text('Card Blur'));
-      expect(config.cardBlur, isTrue);
-      expect(find.text('Custom'), findsOneWidget);
-      await tapInPanel(tester, find.text('Card Blur'));
-      expect(config.cardBlur, isNull);
-      expect(find.text('Custom'), findsNothing);
-
-      // A slider.
-      await tapSliderMiddle(tester, 'Card Opacity');
-      expect(config.cardOpacity, closeTo(.7, .02));
-      expect(find.text('Custom'), findsOneWidget);
-      // Its reset button hands the value back to the style.
-      await tapInPanel(
-        tester,
-        find.bySemanticsLabel('Use the style\'s Card Opacity'),
-      );
-      expect(config.cardOpacity, isNull);
-      expect(find.text('88%'), findsOneWidget);
-      expect(find.text('Custom'), findsNothing);
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('how the theme is viewed does not', (tester) async {
-      await pumpPanel(tester);
-
-      await choose(tester, 'Form Factor', 'Mobile');
-      expect(config.formFactor, EditorFormFactor.mobile);
-      expect(find.text('Custom'), findsNothing);
-      expect(ThemePreset.of(config), ThemePreset.original);
-
-      await tapSliderMiddle(tester, 'Text Scale');
-      expect(config.textScale, closeTo(1.2, .001));
-      expect(find.text('Custom'), findsNothing);
-    });
-
-    testWidgets('Reset returns to Original, viewed the default way', (
-      tester,
-    ) async {
-      await pumpPanel(
-        tester,
-        initial: ThemePreset.press.config.copyWith(
-          formFactor: EditorFormFactor.mobile,
-          textScale: 1.3,
-          cardOpacity: () => .5,
-        ),
-      );
-      expect(find.text('Custom'), findsOneWidget);
-
-      await tester.tap(find.text('Reset'));
-      await settle(tester);
-      expect(config, const ThemeEditorConfig());
-      expect(ThemePreset.of(config), ThemePreset.original);
-      expect(find.text('Custom'), findsNothing);
     });
   });
 
@@ -657,8 +569,6 @@ void main() {
       expect(config.radius, RadiusPreset.large);
       await choose(tester, 'Form Factor', 'Desktop');
       expect(config.formFactor, EditorFormFactor.desktop);
-      await choose(tester, 'Palette', 'Forest');
-      expect(config.colors, ColorSchemes.forest);
       expect(tester.takeException(), isNull);
     });
 
