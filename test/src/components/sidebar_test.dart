@@ -440,6 +440,43 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
+    testWidgets('the mobile sheet follows a sidebar that changes while it '
+        'is open', (tester) async {
+      tester.view.physicalSize = const Size(500, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final controller = SidebarController();
+      addTearDown(controller.dispose);
+      final label = ValueNotifier('First');
+      addTearDown(label.dispose);
+      await tester.pumpWidget(
+        ValueListenableBuilder<String>(
+          valueListenable: label,
+          builder: (context, text, _) => createTestWidget(
+            controller: controller,
+            children: [Text(text)],
+          ),
+        ),
+      );
+      controller.openMobile();
+      for (var i = 0; i < 12; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      expect(find.byType(Sheet), findsOneWidget);
+      expect(find.text('First'), findsOneWidget);
+
+      // The scaffold is rebuilt with another sidebar: the sheet, a route of
+      // its own, shows it once the frame is done.
+      label.value = 'Second';
+      await tester.pump();
+      await tester.pump();
+      expect(find.text('Second'), findsOneWidget);
+      expect(find.text('First'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('tapping the barrier closes the mobile drawer', (
       tester,
     ) async {

@@ -297,6 +297,15 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
   /// pushed on top of it — and removed if this scaffold is disposed first.
   ModalRoute<void>? _sheetRoute;
 
+  /// The sidebar the phone's sheet shows. The sheet is a route of its own,
+  /// built apart from this scaffold, so it follows a sidebar that changes
+  /// (a search typed into it, a group opened) through this, not through
+  /// the widget it was opened with. It outlives this State as the route
+  /// does, and goes with it.
+  late final ValueNotifier<Sidebar> _sheetSidebar = ValueNotifier(
+    widget.sidebar,
+  );
+
   @override
   void initState() {
     super.initState();
@@ -324,6 +333,14 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
           ? FocusManager.instance.addLateKeyEventHandler(_onKeyEvent)
           : FocusManager.instance.removeLateKeyEventHandler(_onKeyEvent);
     }
+    if (widget.sidebar != oldWidget.sidebar && _sheetShowing) {
+      // After the frame: the sheet is another route, and changing what it
+      // listens to while this one builds would mark it dirty mid-build.
+      final sidebar = widget.sidebar;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _sheetSidebar.value = sidebar;
+      });
+    }
   }
 
   @override
@@ -336,10 +353,14 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
     // reference unmounts it with the provider. Removed post-frame, since
     // dispose runs mid-teardown when the navigator cannot be mutated.
     final route = _sheetRoute;
+    final sheetSidebar = _sheetSidebar;
     if (route != null && route.isActive) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (route.isActive) route.navigator?.removeRoute(route);
+        sheetSidebar.dispose();
       });
+    } else {
+      sheetSidebar.dispose();
     }
     _internalController?.dispose();
     super.dispose();
@@ -428,6 +449,8 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
 
   void _showMobileSheet() {
     final sidebar = widget.sidebar;
+    _sheetSidebar.value = sidebar;
+    final sheetSidebar = _sheetSidebar;
     final theme = Theme.of(context).sidebarTheme;
     final effectiveMobileWidth =
         sidebar.mobileWidth ?? theme.mobileWidth ?? 288;
@@ -470,7 +493,10 @@ class _SidebarScaffoldState extends State<SidebarScaffold> {
             // The sidebar owns its scrolling; the sheet's own scroll view
             // would hand it unbounded height and break its Expanded column.
             scrollable: false,
-            child: sidebar,
+            child: ValueListenableBuilder<Sidebar>(
+              valueListenable: sheetSidebar,
+              builder: (context, current, _) => current,
+            ),
           ),
         );
       },
