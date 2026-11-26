@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/src/components/button.dart';
+import 'package:una/src/components/context_menu.dart' show MenuEdge;
 import 'package:una/src/components/control_size.dart';
 import 'package:una/src/components/decorator.dart';
 import 'package:una/src/components/disabled.dart';
@@ -1286,7 +1287,8 @@ class SelectState<T> extends State<Select<T>> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisSize: MainAxisSize.min,
-                    children: widget.options!.toList(),
+                    // The first and last option follow the list's corners.
+                    children: MenuEdge.mark(widget.options!.toList()),
                   ),
                 );
               }
@@ -1712,10 +1714,18 @@ class _OptionState<T> extends State<SelectOption<T>> {
     final effectiveBackgroundColor =
         widget.backgroundColor ?? theme.selectOptionTheme.backgroundColor;
 
-    final effectiveRadius =
-        widget.borderRadius ??
-        theme.selectOptionTheme.borderRadius ??
-        theme.radius;
+    final effectiveRadius = MenuEdge.roundRadius(
+      context,
+      widget.borderRadius ??
+          theme.selectOptionTheme.borderRadius ??
+          theme.radius,
+      menu: theme.popoverTheme.decoration?.border?.borderRadius?.resolve(
+        Directionality.of(context),
+      ),
+      inset: (theme.selectTheme.optionsPadding ?? const EdgeInsets.all(4))
+          .resolve(Directionality.of(context))
+          .top,
+    );
 
     final effectiveSelectedIconColor = inSheet
         ? theme.colorScheme.tint

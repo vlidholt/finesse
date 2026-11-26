@@ -746,7 +746,7 @@ class _ContextMenuState extends State<ContextMenu> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
-                        children: items,
+                        children: MenuEdge.mark(items),
                       ),
                     ),
                   ),
@@ -1232,10 +1232,15 @@ class _MenuItemState extends State<MenuItem> {
     final effectiveButtonVariant =
         menuTheme.buttonVariant ?? ButtonVariant.ghost;
 
-    final effectiveDecoration = const UnaDecoration(
-      secondaryBorder: UnaBorder.none,
-      secondaryFocusedBorder: UnaBorder.none,
-    ).merge(menuTheme.itemDecoration);
+    final effectiveDecoration = MenuEdge.round(
+      context,
+      const UnaDecoration(
+        secondaryBorder: UnaBorder.none,
+        secondaryFocusedBorder: UnaBorder.none,
+      ).merge(menuTheme.itemDecoration),
+      menu: menuTheme.decoration,
+      inset: menuTheme.padding?.resolve(Directionality.of(context)).top ?? 4,
+    );
 
     // Menu rows draw their colours from the menu palette slots. shadcn's
     // states, per `cn-dropdown-menu-item`: rest is the popover foreground,
@@ -1498,4 +1503,88 @@ class _MenuLevel extends InheritedWidget {
   @override
   bool updateShouldNotify(_MenuLevel oldWidget) =>
       menu != oldWidget.menu || indicatorColumn != oldWidget.indicatorColumn;
+}
+
+/// Marks the first and the last row of a menu, so that their highlight
+/// follows the menu's own corners.
+///
+/// A row's highlight is rounded to the item radius, which sits well inside
+/// a menu with large corners (a phone's, 24): at the top and bottom of the
+/// menu its corners stood square against the curve. The rows at the ends
+/// round their outer corners concentrically instead — the menu's radius
+/// less the padding between them.
+@internal
+class MenuEdge extends InheritedWidget {
+  /// Marks [child] as at the [top] or the [bottom] of its menu, or both.
+  const MenuEdge({
+    required this.top,
+    required this.bottom,
+    required super.child,
+    super.key,
+  });
+
+  /// Whether the row is the first of its menu.
+  final bool top;
+
+  /// Whether the row is the last of its menu.
+  final bool bottom;
+
+  /// [items] with the first and the last marked.
+  static List<Widget> mark(List<Widget> items) => [
+    for (final (i, item) in items.indexed)
+      if (i == 0 || i == items.length - 1)
+        MenuEdge(top: i == 0, bottom: i == items.length - 1, child: item)
+      else
+        item,
+  ];
+
+  /// [decoration], a row's, with the corners it has at an edge of its menu
+  /// rounded to [menu]'s radius less [inset].
+  static UnaDecoration round(
+    BuildContext context,
+    UnaDecoration decoration, {
+    required UnaDecoration? menu,
+    required double inset,
+  }) {
+    final border = decoration.border;
+    if (border == null) return decoration;
+    final direction = Directionality.of(context);
+    final own = (border.borderRadius ?? BorderRadius.zero).resolve(direction);
+    final rounded = roundRadius(
+      context,
+      own,
+      menu: menu?.border?.borderRadius?.resolve(direction),
+      inset: inset,
+    );
+    if (rounded == own) return decoration;
+    return decoration.copyWith(border: border.copyWith(borderRadius: rounded));
+  }
+
+  /// [own], a row's corners, with those at an edge of its menu rounded to
+  /// [menu] less [inset]: the menu's curve, carried in by the padding.
+  static BorderRadius roundRadius(
+    BuildContext context,
+    BorderRadius own, {
+    required BorderRadius? menu,
+    required double inset,
+  }) {
+    final edge = context.dependOnInheritedWidgetOfExactType<MenuEdge>();
+    if (edge == null || menu == null) return own;
+    Radius inner(Radius r, Radius current) => Radius.elliptical(
+      math.max(current.x, r.x - inset),
+      math.max(current.y, r.y - inset),
+    );
+    return own.copyWith(
+      topLeft: edge.top ? inner(menu.topLeft, own.topLeft) : null,
+      topRight: edge.top ? inner(menu.topRight, own.topRight) : null,
+      bottomLeft: edge.bottom ? inner(menu.bottomLeft, own.bottomLeft) : null,
+      bottomRight: edge.bottom
+          ? inner(menu.bottomRight, own.bottomRight)
+          : null,
+    );
+  }
+
+  @override
+  bool updateShouldNotify(MenuEdge oldWidget) =>
+      top != oldWidget.top || bottom != oldWidget.bottom;
 }
