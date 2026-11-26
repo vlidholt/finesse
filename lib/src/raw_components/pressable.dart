@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:una/src/theme/motion.dart';
 import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/focus_visibility.dart';
 import 'package:una/src/utils/motion_color.dart';
 import 'package:una/src/utils/spring.dart';
 
@@ -44,8 +45,10 @@ typedef PressableBuilder = Widget Function(
 ///
 /// [WidgetState.focused] is reported while the focus should *show*: when
 /// the region has the focus and the keyboard is what the user is steering
-/// with, as CSS's `:focus-visible`. A region focused from code on a touch
-/// screen reports nothing; [onFocusChange] hears of every change.
+/// with, as CSS's `:focus-visible`. A region focused after a click — the
+/// first action of a sheet a button opened, the button once the sheet has
+/// closed — or from code on a touch screen reports nothing (see
+/// `FocusVisibility`); [onFocusChange] hears of every change.
 ///
 /// For a gesture this has no callback for — a double tap, a secondary tap,
 /// the start of a long press — wrap the region in a `GestureDetector` or a
@@ -198,6 +201,8 @@ class _PressableState extends State<Pressable> {
   @override
   void initState() {
     super.initState();
+    // A click does not make the focus show; see [FocusVisibility].
+    FocusVisibility.ensureInstalled();
     if (widget.statesController == null) {
       _ownController = WidgetStatesController();
     }

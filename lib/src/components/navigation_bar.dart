@@ -11,7 +11,7 @@ import 'package:una/src/utils/moving_indicator.dart';
 import 'package:una/src/utils/spring.dart';
 
 /// One place a [NavigationBar], a [BottomNavigationBar] or a
-/// `NavigationRail` can take the user.
+/// rail of a `NavigationScaffold` can take the user.
 @immutable
 class NavigationDestination {
   /// Creates a destination.
@@ -57,7 +57,7 @@ class NavigationDestination {
 }
 
 /// The primary action in the middle of a [BottomNavigationBar] or at the
-/// top of a `NavigationRail`: compose, create, scan.
+/// top of a `NavigationScaffold`'s rail: compose, create, scan.
 @immutable
 class NavigationAction {
   /// Creates an action.

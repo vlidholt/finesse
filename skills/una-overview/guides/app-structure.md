@@ -202,7 +202,9 @@ whose bottom bar floats, and span the edge otherwise.
 An app with several top-level sections gives `NavigationScaffold` one list
 of `NavigationDestination`s. On a desktop they sit in the app bar (a
 `NavigationBar`); on a phone in a `BottomNavigationBar`; with
-`layout: NavigationLayout.rail` down the start edge in a `NavigationRail`.
+`layout: NavigationLayout.rail` down the start edge, an icon over a small
+label (`ThemeData.navigationRailTheme`; there is no rail widget to place
+yourself — for a panel of sections beside the page, use a `Sidebar`).
 The default, `NavigationLayout.auto`, follows the form factor.
 
 ```dart
@@ -380,7 +382,6 @@ See also: [scaffold.md](../components/scaffold.md),
 [app-bar.md](../components/app-bar.md),
 [sliver-app-bar.md](../components/sliver-app-bar.md),
 [navigation-bar.md](../components/navigation-bar.md),
-[navigation-rail.md](../components/navigation-rail.md),
 [page-route.md](../components/page-route.md),
 [list-detail-layout.md](../components/list-detail-layout.md),
 [tab-bar.md](../components/tab-bar.md).

@@ -266,7 +266,6 @@ NavigationMenu
 NavigationMenuItem
 NavigationMenuLink
 NavigationMenuTheme
-NavigationRail
 NavigationRailTheme
 NavigationScaffold
 NumberField

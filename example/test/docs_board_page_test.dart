@@ -93,10 +93,13 @@ void main() {
 
     // By its grip: the rest of the card does not drag here.
     final grip = find.descendant(
-      of: find.ancestor(
-        of: inExample('Export a board as CSV'),
-        matching: find.byType(Card),
-      ),
+      // The nearest card: the example's preview is a card too.
+      of: find
+          .ancestor(
+            of: inExample('Export a board as CSV'),
+            matching: find.byType(Card),
+          )
+          .first,
       matching: find.byType(BoardDragHandle),
     );
     final home = tester.getCenter(inExample('Export a board as CSV'));

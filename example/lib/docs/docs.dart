@@ -3,9 +3,11 @@
 // deprecated it in 3.47 in favour of the `material_ui` package.
 // ignore_for_file: deprecated_member_use
 
+import 'dart:math' as math;
+
 import 'package:example/common/code_style.dart';
 import 'package:flutter/material.dart'
-    hide ButtonTheme, IconButton, SelectionArea, Tab, Theme;
+    hide ButtonTheme, Card, CardTheme, IconButton, SelectionArea, Tab, Theme;
 import 'package:flutter/services.dart';
 import 'package:syntax_highlight/syntax_highlight.dart';
 import 'package:una/una.dart';
@@ -470,7 +472,9 @@ class DocProse extends StatelessWidget {
   }
 }
 
-/// The bordered live-preview area of an example.
+/// The live-preview area of an example: a card, so the component stands on
+/// the surface it is usually placed on (white in the default light theme)
+/// rather than blending into the page around it.
 class ExamplePreview extends StatelessWidget {
   const ExamplePreview({
     super.key,
@@ -491,18 +495,25 @@ class ExamplePreview extends StatelessWidget {
     final effectivePadding = theme.formFactor == FormFactor.mobile
         ? padding.clamp(EdgeInsets.zero, const EdgeInsets.all(16))
         : padding;
-    return Container(
+    final vertical = effectivePadding
+        .resolve(Directionality.of(context))
+        .vertical;
+    return SizedBox(
       width: double.infinity,
-      constraints: BoxConstraints(minHeight: minHeight),
-      decoration: BoxDecoration(
-        border: Border.all(color: theme.colorScheme.border),
-        borderRadius: theme.radii.lg,
-      ),
-      padding: effectivePadding,
-      // The preview must not inherit the page's text selection: interactive
-      // examples handle their own gestures.
-      child: SelectionContainer.disabled(
-        child: Center(child: child),
+      child: Card(
+        // Nothing an example draws at its edge — a focus ring, a shadow —
+        // is cut off by the card.
+        style: CardTheme(padding: effectivePadding, clipBehavior: Clip.none),
+        // The preview must not inherit the page's text selection:
+        // interactive examples handle their own gestures.
+        child: SelectionContainer.disabled(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: math.max(0, minHeight - vertical),
+            ),
+            child: Center(child: child),
+          ),
+        ),
       ),
     );
   }

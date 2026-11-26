@@ -4,8 +4,9 @@ import 'package:una/src/liquid_glass/liquid_glass_theme.dart';
 
 part 'navigation_rail.g.theme.dart';
 
-/// The look of a `NavigationRail`: the destinations down the start edge of
-/// a wide screen.
+/// The look of `NavigationScaffold`'s rail layout
+/// (`NavigationLayout.rail`): the destinations down the start edge of a
+/// wide screen.
 @themeGen
 @immutable
 class NavigationRailTheme with _$NavigationRailTheme {

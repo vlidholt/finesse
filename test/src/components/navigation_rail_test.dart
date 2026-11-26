@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/src/components/navigation_rail.dart';
 import 'package:una/src/utils/moving_indicator.dart';
 import 'package:una/una.dart';
 

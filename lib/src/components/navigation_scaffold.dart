@@ -18,8 +18,9 @@ enum NavigationLayout {
   /// factor.
   topBar,
 
-  /// A `NavigationRail` down the start edge, under the app bar: a tablet,
-  /// or a desktop app whose top bar is needed for other things.
+  /// A rail down the start edge, under the app bar — an icon over a small
+  /// label, styled by `ThemeData.navigationRailTheme`: a tablet, or a
+  /// desktop app whose top bar is needed for other things.
   rail,
 }
 
@@ -29,7 +30,8 @@ enum NavigationLayout {
 /// [leading], [title] and [actions]. On a phone the app bar shrinks to
 /// [leading] and [mobileActions], and the destinations move to a
 /// [BottomNavigationBar] with [action] in its middle. [layout] overrides the
-/// choice, or picks a third: a [NavigationRail] down the start edge.
+/// choice, or picks a third: a rail down the start edge
+/// ([NavigationLayout.rail]).
 ///
 /// ```dart
 /// NavigationScaffold(
@@ -121,11 +123,13 @@ class NavigationScaffold extends StatelessWidget {
   /// screen that needs the whole height, such as a conversation.
   final bool showBottomNavigationBar;
 
-  /// Whether the rail shows its labels beside the icons; see
-  /// [NavigationRail.extended].
+  /// Whether the rail shows its labels beside the icons, in a wider rail,
+  /// rather than under them. A change is animated on the theme's
+  /// `Motion.smooth`.
   final bool railExtended;
 
-  /// Shown at the bottom of the rail; see [NavigationRail.trailing].
+  /// Shown at the bottom of the rail, centred under the icons: settings,
+  /// an avatar.
   final Widget? railTrailing;
 
   /// The page's colour. Defaults to the theme's background.

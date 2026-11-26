@@ -243,8 +243,8 @@ a description, then every example's real source. Regenerate with
 - [App Bar](components/app-bar.md), [Sliver App
   Bar](components/sliver-app-bar.md):
   the bar over a page; the one that scrolls and collapses.
-- [Navigation Bar](components/navigation-bar.md) (top and bottom),
-  [Navigation Rail](components/navigation-rail.md),
+- [Navigation Bar](components/navigation-bar.md) (top and bottom; a
+  rail down the side is `NavigationScaffold`'s `NavigationLayout.rail`),
   [Navigation Menu](components/navigation-menu.md) (site-style links),
   [Sidebar](components/sidebar.md).
 - [Toolbar](components/toolbar.md): actions along the bottom.

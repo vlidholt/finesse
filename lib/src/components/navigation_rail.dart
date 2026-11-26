@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui' show lerpDouble;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/src/components/navigation_bar.dart';
 import 'package:una/src/liquid_glass/liquid_glass.dart';
@@ -17,23 +18,12 @@ import 'package:una/src/utils/spring.dart';
 /// The destinations of an app down the start edge of a wide screen: an
 /// icon over a small label, with a line beside the selected one.
 ///
-/// ```dart
-/// Row(
-///   children: [
-///     NavigationRail(
-///       selectedIndex: index,
-///       onDestinationSelected: (i) => setState(() => index = i),
-///       destinations: destinations,
-///     ),
-///     Expanded(child: pages[index]),
-///   ],
-/// )
-/// ```
-///
-/// It is the middle ground between a `BottomNavigationBar` on a phone and
-/// a `NavigationBar` across the top of a desktop window: a tablet, or a
-/// desktop app whose top bar is busy. `NavigationScaffold` places one with
-/// `NavigationLayout.rail`.
+/// `NavigationScaffold` builds it for `NavigationLayout.rail` — the middle
+/// ground between a `BottomNavigationBar` on a phone and a `NavigationBar`
+/// across the top of a desktop window — and it is not part of the
+/// package's public API: for a panel of sections down the side of a page,
+/// use a `Sidebar`, which also collapses to icons. Its look is
+/// `ThemeData.navigationRailTheme`.
 ///
 /// With [extended] the labels sit beside the icons and the rail is as wide
 /// as a narrow sidebar; changing it morphs one arrangement into the other
@@ -46,6 +36,7 @@ import 'package:una/src/utils/spring.dart';
 /// the safe area. Destinations that do not fit scroll; [leading], [action]
 /// and [trailing] stay put. Up and Down move the focus between the
 /// destinations.
+@internal
 class NavigationRail extends StatelessWidget {
   /// Creates a navigation rail.
   const NavigationRail({

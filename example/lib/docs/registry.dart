@@ -57,7 +57,6 @@ import 'package:example/docs/pages/menubar.dart';
 import 'package:example/docs/pages/motion.dart';
 import 'package:example/docs/pages/navigation_bar.dart';
 import 'package:example/docs/pages/navigation_menu.dart';
-import 'package:example/docs/pages/navigation_rail.dart';
 import 'package:example/docs/pages/number_field.dart';
 import 'package:example/docs/pages/otp_field.dart';
 import 'package:example/docs/pages/overview.dart';
@@ -203,7 +202,6 @@ final componentDocs = [
   menubarDoc,
   navigationBarDoc,
   navigationMenuDoc,
-  navigationRailDoc,
   numberFieldDoc,
   otpFieldDoc,
   pageContainerDoc,
@@ -346,7 +344,6 @@ final componentCategories = <DocCategory>[
       breadcrumbDoc,
       navigationBarDoc,
       navigationMenuDoc,
-      navigationRailDoc,
       pageIndicatorDoc,
       pageRouteDoc,
       paginationDoc,

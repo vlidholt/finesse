@@ -234,7 +234,7 @@ abstract class BaseTheme {
   /// The theme of `NavigationMenu`.
   final NavigationMenuTheme navigationMenuTheme;
 
-  /// The theme of `NavigationRail`.
+  /// The theme of `NavigationScaffold`'s rail layout.
   final NavigationRailTheme navigationRailTheme;
 
   /// The theme of the matching widget.
