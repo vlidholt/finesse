@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart' show NumberFormat;
+import 'package:una/src/components/control_size.dart';
 import 'package:una/src/components/decorator.dart';
 import 'package:una/src/components/text_field.dart';
 import 'package:una/src/icons/phosphor_icon.dart';
@@ -95,6 +96,7 @@ class NumberField extends StatefulWidget {
     this.decoration,
     this.onSubmitted,
     this.semanticLabel,
+    this.size = ControlSize.regular,
   }) : assert(step > 0, 'The step has to be positive.'),
        assert(decimalDigits >= 0, 'A number has no fewer than 0 decimals.'),
        assert(
@@ -119,6 +121,7 @@ class NumberField extends StatefulWidget {
     this.focusNode,
     this.decoration,
     this.semanticLabel,
+    this.size = ControlSize.regular,
   }) : variant = NumberFieldVariant.stepper,
        placeholder = null,
        leading = null,
@@ -189,6 +192,12 @@ class NumberField extends StatefulWidget {
 
   /// What assistive technology calls the field.
   final String? semanticLabel;
+
+  /// How large the field is drawn. [ControlSize.sm] is a small button's
+  /// height with its text a size down, for a dense panel, and puts the
+  /// minus and the plus at the two ends on every form factor, so the value
+  /// keeps its room between them.
+  final ControlSize size;
 
   @override
   State<NumberField> createState() => _NumberFieldState();
@@ -455,11 +464,14 @@ class _NumberFieldState extends State<NumberField> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final current = _current;
-    final height = theme.textFieldTheme.constraints?.minHeight ?? 36;
+    final metrics = ControlMetrics.of(theme, widget.size);
+    final height =
+        metrics?.height ?? theme.textFieldTheme.constraints?.minHeight ?? 36;
 
     Widget segment(int direction, IconData icon, _SegmentShape shape) {
       return _Segment(
         icon: icon,
+        iconSize: metrics?.iconSize ?? 14,
         shape: shape,
         enabled: _canStep(direction),
         onDown: (event) => _press(direction, event),
@@ -500,12 +512,16 @@ class _NumberFieldState extends State<NumberField> {
     Widget Function(int, IconData, _SegmentShape) segment,
   ) {
     final theme = Theme.of(context);
-    final mobile = theme.formFactor == FormFactor.mobile;
+    final metrics = ControlMetrics.of(theme, widget.size);
+    // A minus at the start and a plus at the end: on a phone, and wherever
+    // the field is small, where stacked carets are too fine to hit.
+    final mobile = theme.formFactor == FormFactor.mobile || metrics != null;
     final direction = Directionality.of(context);
-    final base =
-        (theme.textFieldTheme.padding ??
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 8))
-            .resolve(direction);
+    final base = metrics != null
+        ? EdgeInsets.symmetric(horizontal: metrics.paddingX)
+        : (theme.textFieldTheme.padding ??
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8))
+              .resolve(direction);
     final border = theme.textFieldTheme.decoration?.border;
     final borderWidth = border?.top?.width ?? 1;
     final radius = (border?.borderRadius ?? theme.radius).resolve(direction);
@@ -529,7 +545,7 @@ class _NumberFieldState extends State<NumberField> {
       bottom: base.bottom,
     );
 
-    return Stack(
+    final stack = Stack(
       children: [
         Focus(
           canRequestFocus: false,
@@ -557,8 +573,8 @@ class _NumberFieldState extends State<NumberField> {
             onChanged: _onTyped,
             onSubmitted: (_) => widget.onSubmitted?.call(_commit()),
             // Digits of one width: the text does not jiggle as it steps.
-            style: const TextStyle(
-              fontFeatures: [FontFeature.tabularFigures()],
+            style: (metrics?.textStyle ?? const TextStyle()).copyWith(
+              fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),
         ),
@@ -628,6 +644,9 @@ class _NumberFieldState extends State<NumberField> {
         ],
       ],
     );
+    // A small field is held to its height; the text field inside would
+    // otherwise keep the theme's taller one.
+    return metrics == null ? stack : SizedBox(height: height, child: stack);
   }
 
   /// The buttons are the field's: they dim with it, and assistive
@@ -655,10 +674,14 @@ class _NumberFieldState extends State<NumberField> {
     final border = decoration.border;
     final borderWidth = border?.top?.width ?? 1;
     final radius = (border?.borderRadius ?? theme.radius).resolve(direction);
-    final textStyle = theme.textTheme.muted
-        .copyWith(color: theme.colorScheme.foreground)
-        .merge(theme.textFieldTheme.style)
-        .copyWith(fontFeatures: const [FontFeature.tabularFigures()]);
+    final metrics = ControlMetrics.of(theme, widget.size);
+    final textStyle =
+        (metrics?.textStyle ??
+                theme.textTheme.muted.merge(theme.textFieldTheme.style))
+            .copyWith(
+              color: theme.colorScheme.foreground,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            );
     final value = widget.value;
     final scale = MediaQuery.textScalerOf(context).scale(1);
 
@@ -666,7 +689,10 @@ class _NumberFieldState extends State<NumberField> {
       opacity: _enabled ? 1 : theme.disabledOpacity,
       child: ConstrainedBox(
         // The height is the field's, border included.
-        constraints: BoxConstraints(minHeight: height),
+        constraints: BoxConstraints(
+          minHeight: height,
+          maxHeight: metrics == null ? double.infinity : height,
+        ),
         child: Decorator(
           decoration: decoration,
           focused: _showFocus,
@@ -840,6 +866,7 @@ class _SegmentShape {
 class _Segment extends StatefulWidget {
   const _Segment({
     required this.icon,
+    required this.iconSize,
     required this.shape,
     required this.enabled,
     required this.onDown,
@@ -847,6 +874,7 @@ class _Segment extends StatefulWidget {
   });
 
   final IconData icon;
+  final double iconSize;
   final _SegmentShape shape;
   final bool enabled;
   final ValueChanged<PointerDownEvent> onDown;
@@ -926,7 +954,7 @@ class _SegmentState extends State<_Segment> {
                 opacity: widget.enabled ? 1 : .35,
                 child: PhosphorIcon(
                   widget.icon,
-                  size: 14,
+                  size: widget.iconSize,
                   color: lit ? colors.foreground : colors.mutedForeground,
                 ),
               ),

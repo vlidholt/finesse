@@ -59,6 +59,7 @@ export 'src/components/command.dart';
 export 'src/components/context_menu.dart';
 export 'src/components/control_affinity.dart' show ControlAffinity;
 export 'src/components/control_list_tiles.dart';
+export 'src/components/control_size.dart' hide ControlMetrics;
 export 'src/components/data_table.dart';
 export 'src/components/date_field.dart';
 export 'src/components/date_picker.dart';

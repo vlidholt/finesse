@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/src/components/button.dart';
+import 'package:una/src/components/control_size.dart';
 import 'package:una/src/components/decorator.dart';
 import 'package:una/src/components/disabled.dart';
 import 'package:una/src/components/divider.dart';
@@ -86,6 +87,7 @@ class Select<T> extends StatefulWidget {
     this.maxWidth,
     this.maxHeight,
     this.minHeight,
+    this.size = ControlSize.regular,
     this.decoration,
     this.trailing,
     this.padding,
@@ -164,6 +166,7 @@ class Select<T> extends StatefulWidget {
     this.maxWidth,
     this.maxHeight,
     this.minHeight,
+    this.size = ControlSize.regular,
     this.decoration,
     this.trailing,
     this.padding,
@@ -227,6 +230,7 @@ class Select<T> extends StatefulWidget {
     this.maxWidth,
     this.maxHeight,
     this.minHeight,
+    this.size = ControlSize.regular,
     this.decoration,
     this.trailing,
     this.padding,
@@ -306,6 +310,7 @@ class Select<T> extends StatefulWidget {
     this.maxWidth,
     this.maxHeight,
     this.minHeight,
+    this.size = ControlSize.regular,
     this.decoration,
     this.trailing,
     this.padding,
@@ -525,6 +530,11 @@ class Select<T> extends StatefulWidget {
   /// field height.
   /// {@endtemplate}
   final double? minHeight;
+
+  /// How large the trigger is drawn: [ControlSize.sm] is a small button's
+  /// height, padding and text, for a dense panel. The options keep their
+  /// own size.
+  final ControlSize size;
 
   /// {@template Select.decoration}
   /// The visual decoration of the select input.
@@ -1059,8 +1069,12 @@ class SelectState<T> extends State<Select<T>> {
         (effectiveDecoration.border?.padding?.horizontal ?? 0.0) +
         (effectiveDecoration.secondaryBorder?.padding?.horizontal ?? 0.0);
 
+    final metrics = ControlMetrics.of(theme, widget.size);
     final effectivePadding =
         widget.padding ??
+        (metrics == null
+            ? null
+            : EdgeInsets.symmetric(horizontal: metrics.paddingX)) ??
         theme.selectTheme.padding ??
         const EdgeInsets.symmetric(horizontal: 12, vertical: 8);
 
@@ -1111,9 +1125,10 @@ class SelectState<T> extends State<Select<T>> {
           // It is a value in a field, so it is set as a text field sets
           // what is typed into it: the field's text role in the foreground,
           // not the muted role a placeholder uses.
-          resultDefaultTextStyle = theme.textTheme.muted
-              .copyWith(color: theme.colorScheme.foreground)
-              .merge(theme.textFieldTheme.style);
+          resultDefaultTextStyle =
+              (metrics?.textStyle ??
+                      theme.textTheme.muted.merge(theme.textFieldTheme.style))
+                  .copyWith(color: theme.colorScheme.foreground);
           switch (isMultiSelect) {
             case true:
               result =
@@ -1147,8 +1162,10 @@ class SelectState<T> extends State<Select<T>> {
           resultDefaultTextStyle =
               widget.placeholderStyle ??
               theme.selectTheme.placeholderStyle ??
-              theme.textTheme.muted
-                  .merge(theme.textFieldTheme.placeholderStyle)
+              (metrics?.textStyle ??
+                      theme.textTheme.muted.merge(
+                        theme.textFieldTheme.placeholderStyle,
+                      ))
                   .fallback(color: theme.colorScheme.mutedForeground);
           result = widget.placeholder!;
         }
@@ -1161,7 +1178,7 @@ class SelectState<T> extends State<Select<T>> {
         widget.trailing ??
         PhosphorIcon(
           PhosphorIconsRegular.caretDown,
-          size: 16,
+          size: metrics?.iconSize ?? 16,
           color: theme.colorScheme.mutedForeground,
         );
 
@@ -1173,7 +1190,8 @@ class SelectState<T> extends State<Select<T>> {
         widget.maxHeight ??
         theme.selectTheme.maxHeight ??
         Select.defaultMaxHeight;
-    final effectiveMinHeight = widget.minHeight ?? theme.selectTheme.minHeight;
+    final effectiveMinHeight =
+        widget.minHeight ?? metrics?.height ?? theme.selectTheme.minHeight;
     final effectiveOptionsPadding =
         widget.optionsPadding ??
         theme.selectTheme.optionsPadding ??
@@ -1305,7 +1323,14 @@ class SelectState<T> extends State<Select<T>> {
                   // it. Constraining outside the decorator counts the
                   // border's implicit padding in, like CSS border-box.
                   return ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: effectiveMinHeight),
+                    constraints: BoxConstraints(
+                      minHeight: effectiveMinHeight,
+                      // A small trigger is that height, not a floor under
+                      // the field's own.
+                      maxHeight: metrics == null
+                          ? double.infinity
+                          : effectiveMinHeight,
+                    ),
                     child: decorated,
                   );
                 },

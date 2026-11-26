@@ -124,6 +124,7 @@ ContextMenu
 ContextMenuRegion
 ContextMenuTheme
 ControlAffinity
+ControlSize
 CrossFadeTheme
 DataTable
 DataTableColumn

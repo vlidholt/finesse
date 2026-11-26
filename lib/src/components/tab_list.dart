@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/src/components/button.dart';
+import 'package:una/src/components/control_size.dart';
 import 'package:una/src/components/decorator.dart';
 import 'package:una/src/components/tooltip.dart';
 import 'package:una/src/raw_components/pressable.dart';
@@ -86,6 +87,7 @@ class TabList extends StatefulWidget {
     this.slide = false,
     this.alignment,
     this.shrinkWrap = true,
+    this.size = ControlSize.regular,
     super.key,
   });
 
@@ -128,6 +130,10 @@ class TabList extends StatefulWidget {
   /// Whether a segmented strip that does not [expand] makes the list as
   /// narrow as itself where its parent allows.
   final bool shrinkWrap;
+
+  /// The size of a segmented list's pills: [ControlSize.sm] fits the
+  /// strip to a small button's height, with its text a size down.
+  final ControlSize size;
 
   @override
   State<TabList> createState() => _TabListState();
@@ -468,6 +474,20 @@ class _TabListState extends State<TabList> {
     const clear = Color(0x00000000);
     final item = widget.items[index];
     final tabsTheme = theme.tabsTheme;
+    final metrics = ControlMetrics.of(theme, widget.size);
+    // Small, the whole strip is a small button's height: the pills are
+    // that less the strip's own padding.
+    final small = metrics == null
+        ? null
+        : (
+            height:
+                metrics.height -
+                (tabsTheme.padding ?? EdgeInsets.zero)
+                    .resolve(Directionality.of(context))
+                    .vertical,
+            textStyle: metrics.textStyle,
+            paddingX: metrics.paddingX,
+          );
     final expand = widget.expand && !widget.scrollable;
 
     final background = tabsTheme.tabBackgroundColor ?? clear;
@@ -567,15 +587,17 @@ class _TabListState extends State<TabList> {
           trailing: item.trailing,
           focusNode: _nodes[index],
           style: ButtonTheme(
-            height: tabsTheme.tabHeight ?? 32,
+            height: small?.height ?? tabsTheme.tabHeight ?? 32,
+            textStyle: small?.textStyle,
             width: tabsTheme.tabWidth ?? (expand ? double.infinity : null),
             backgroundColor: selected ? clear : background,
             hoverBackgroundColor: selected
                 ? (selectedHover == selectedFill ? clear : selectedHover)
                 : hoverBackground,
-            padding:
-                tabsTheme.tabPadding ??
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: small != null
+                ? EdgeInsets.symmetric(horizontal: small.paddingX)
+                : tabsTheme.tabPadding ??
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: decoration,
             foregroundColor: selected ? selectedForeground : foreground,
             shadows: selected ? const <BoxShadow>[] : tabsTheme.tabShadows,

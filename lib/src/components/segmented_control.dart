@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/control_size.dart';
 import 'package:una/src/components/tab_list.dart';
 import 'package:una/src/liquid_glass/controls.dart';
 import 'package:una/src/liquid_glass/liquid_glass.dart';
@@ -84,6 +85,7 @@ class SegmentedControl<T> extends StatelessWidget {
     required this.onChanged,
     this.expand = false,
     this.enabled = true,
+    this.size = ControlSize.regular,
     super.key,
   });
 
@@ -101,6 +103,10 @@ class SegmentedControl<T> extends StatelessWidget {
   /// Whether the segments share the width there is. By default the control
   /// is as wide as its segments.
   final bool expand;
+
+  /// How large the control is drawn: [ControlSize.sm] is a small button's
+  /// height with its text a size down, for a dense panel.
+  final ControlSize size;
 
   /// Whether the value can be changed.
   final bool enabled;
@@ -136,7 +142,10 @@ class SegmentedControl<T> extends StatelessWidget {
         onSelected: onChanged == null
             ? null
             : (index) => onChanged(segments[index].value),
-        height: theme.style.tabHeight ?? 32,
+        height:
+            ControlMetrics.of(theme, size)?.height ??
+            theme.style.tabHeight ??
+            32,
         expand: expand,
       );
     }
@@ -159,6 +168,7 @@ class SegmentedControl<T> extends StatelessWidget {
       expand: expand,
       radioGroup: true,
       slide: true,
+      size: size,
     );
   }
 }
