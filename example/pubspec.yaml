@@ -46,6 +46,7 @@ flutter:
     - lib/docs/examples/calendar/
     - lib/docs/examples/card/
     - lib/docs/examples/carousel/
+    - lib/docs/examples/charts/
     - lib/docs/examples/checkbox/
     - lib/docs/examples/collapsible/
     - lib/docs/examples/color_picker/

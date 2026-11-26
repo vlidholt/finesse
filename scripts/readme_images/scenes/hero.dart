@@ -234,7 +234,7 @@ class _Dashboard extends StatelessWidget {
       ),
       child: const SizedBox(
         height: 200,
-        child: BarChart(
+        child: MiniBarChart(
           values: [.42, .64, .5, .78, .58, .92, .7],
           labels: ['Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue'],
           highlight: 5,

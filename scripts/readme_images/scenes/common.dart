@@ -81,9 +81,9 @@ class LogoMark extends StatelessWidget {
 }
 
 /// A small bar chart: seven bars, the last highlighted.
-class BarChart extends StatelessWidget {
+class MiniBarChart extends StatelessWidget {
   /// Creates a chart of [values] (0 to 1) labelled by [labels].
-  const BarChart({
+  const MiniBarChart({
     required this.values,
     required this.labels,
     this.highlight,

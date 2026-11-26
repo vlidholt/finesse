@@ -88,6 +88,7 @@ mixin _$ThemeData {
         t,
       )!,
       timelineTheme: TimelineTheme.lerp(a.timelineTheme, b.timelineTheme, t)!,
+      chartTheme: ChartTheme.lerp(a.chartTheme, b.chartTheme, t)!,
       boardTheme: BoardTheme.lerp(a.boardTheme, b.boardTheme, t)!,
       layoutTheme: LayoutTheme.lerp(a.layoutTheme, b.layoutTheme, t)!,
       scrollAreaTheme: ScrollAreaTheme.lerp(
@@ -322,6 +323,7 @@ mixin _$ThemeData {
     IconTileTheme? iconTileTheme,
     PhosphorIconTheme? phosphorIconTheme,
     TimelineTheme? timelineTheme,
+    ChartTheme? chartTheme,
     BoardTheme? boardTheme,
     LayoutTheme? layoutTheme,
     ScrollAreaTheme? scrollAreaTheme,
@@ -420,6 +422,7 @@ mixin _$ThemeData {
       iconTileTheme: iconTileTheme ?? _this.iconTileTheme,
       phosphorIconTheme: phosphorIconTheme ?? _this.phosphorIconTheme,
       timelineTheme: timelineTheme ?? _this.timelineTheme,
+      chartTheme: chartTheme ?? _this.chartTheme,
       boardTheme: boardTheme ?? _this.boardTheme,
       layoutTheme: layoutTheme ?? _this.layoutTheme,
       scrollAreaTheme: scrollAreaTheme ?? _this.scrollAreaTheme,
@@ -547,6 +550,7 @@ mixin _$ThemeData {
       iconTileTheme: _this.iconTileTheme.merge(other.iconTileTheme),
       phosphorIconTheme: _this.phosphorIconTheme.merge(other.phosphorIconTheme),
       timelineTheme: _this.timelineTheme.merge(other.timelineTheme),
+      chartTheme: _this.chartTheme.merge(other.chartTheme),
       boardTheme: _this.boardTheme.merge(other.boardTheme),
       layoutTheme: _this.layoutTheme.merge(other.layoutTheme),
       scrollAreaTheme: _this.scrollAreaTheme.merge(other.scrollAreaTheme),
@@ -679,6 +683,7 @@ mixin _$ThemeData {
         _other.iconTileTheme == _this.iconTileTheme &&
         _other.phosphorIconTheme == _this.phosphorIconTheme &&
         _other.timelineTheme == _this.timelineTheme &&
+        _other.chartTheme == _this.chartTheme &&
         _other.boardTheme == _this.boardTheme &&
         _other.layoutTheme == _this.layoutTheme &&
         _other.scrollAreaTheme == _this.scrollAreaTheme &&
@@ -779,6 +784,7 @@ mixin _$ThemeData {
       _this.iconTileTheme,
       _this.phosphorIconTheme,
       _this.timelineTheme,
+      _this.chartTheme,
       _this.boardTheme,
       _this.layoutTheme,
       _this.scrollAreaTheme,

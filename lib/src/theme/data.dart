@@ -17,6 +17,7 @@ import 'package:una/src/theme/components/button_sizes.dart';
 import 'package:una/src/theme/components/calendar.dart';
 import 'package:una/src/theme/components/card.dart';
 import 'package:una/src/theme/components/carousel.dart';
+import 'package:una/src/theme/components/chart.dart';
 import 'package:una/src/theme/components/chat_bubble.dart';
 import 'package:una/src/theme/components/chat_list.dart';
 import 'package:una/src/theme/components/checkbox.dart';
@@ -183,6 +184,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     IconTileTheme? iconTileTheme,
     PhosphorIconTheme? phosphorIconTheme,
     TimelineTheme? timelineTheme,
+    ChartTheme? chartTheme,
     BoardTheme? boardTheme,
     LayoutTheme? layoutTheme,
     ScrollAreaTheme? scrollAreaTheme,
@@ -462,6 +464,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
         iconTileTheme: iconTileTheme,
         phosphorIconTheme: phosphorIconTheme,
         timelineTheme: timelineTheme,
+        chartTheme: chartTheme,
         boardTheme: boardTheme,
         layoutTheme: layoutTheme,
         scrollAreaTheme: scrollAreaTheme,
@@ -650,6 +653,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
         phosphorIconTheme,
       ),
       timelineTheme: effectiveVariant.timelineTheme().merge(timelineTheme),
+      chartTheme: effectiveVariant.chartTheme().merge(chartTheme),
       boardTheme: effectiveVariant.boardTheme().merge(boardTheme),
       layoutTheme: effectiveVariant.layoutTheme().merge(layoutTheme),
       scrollAreaTheme: effectiveVariant.scrollAreaTheme().merge(
@@ -755,6 +759,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     required super.iconTileTheme,
     required super.phosphorIconTheme,
     required super.timelineTheme,
+    required super.chartTheme,
     required super.boardTheme,
     required super.layoutTheme,
     required super.scrollAreaTheme,
@@ -851,6 +856,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     IconTileTheme? iconTileTheme,
     PhosphorIconTheme? phosphorIconTheme,
     TimelineTheme? timelineTheme,
+    ChartTheme? chartTheme,
     BoardTheme? boardTheme,
     LayoutTheme? layoutTheme,
     ScrollAreaTheme? scrollAreaTheme,
@@ -957,6 +963,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
       iconTileTheme: iconTileTheme ?? i.iconTileTheme,
       phosphorIconTheme: phosphorIconTheme ?? i.phosphorIconTheme,
       timelineTheme: timelineTheme ?? i.timelineTheme,
+      chartTheme: chartTheme ?? i.chartTheme,
       boardTheme: boardTheme ?? i.boardTheme,
       layoutTheme: layoutTheme ?? i.layoutTheme,
       scrollAreaTheme: scrollAreaTheme ?? i.scrollAreaTheme,
@@ -1158,6 +1165,7 @@ final class _ThemeInputs {
     this.iconTileTheme,
     this.phosphorIconTheme,
     this.timelineTheme,
+    this.chartTheme,
     this.boardTheme,
     this.layoutTheme,
     this.scrollAreaTheme,
@@ -1259,6 +1267,7 @@ final class _ThemeInputs {
   final IconTileTheme? iconTileTheme;
   final PhosphorIconTheme? phosphorIconTheme;
   final TimelineTheme? timelineTheme;
+  final ChartTheme? chartTheme;
   final BoardTheme? boardTheme;
   final LayoutTheme? layoutTheme;
   final ScrollAreaTheme? scrollAreaTheme;

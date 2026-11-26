@@ -364,6 +364,7 @@ void main() {
       t.indicatorBadgeTheme,
       t.iconTileTheme,
       t.timelineTheme,
+      t.chartTheme,
       t.layoutTheme,
       t.stepperTheme,
       t.toastTheme,

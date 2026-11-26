@@ -1756,6 +1756,49 @@ through one (`animateSize`, `ChatBubbleTheme.sizeSpring`).
   bubble shows a flat bottom edge for a frame or two; a scroll offset far
   back in a lazy list is an estimate.
 
+## Charts
+
+`LineChart` and `BarChart` are thin shells over the internal
+`CartesianChart` (`cartesian_chart.dart`); `DonutChart`, `Sparkline` and
+`ChartLegend` stand alone. What they share — the round ticks
+(`niceScale`, d3's `tickIncrement`), number formats, the monotone line
+(d3's `curveMonotoneX`), the tooltip and the hover/touch/keyboard/semantics
+layer (`ChartInteraction`) — is in `chart_support.dart`, not exported.
+
+- **Painted, not built.** The entrance and a change of data run one
+  `SpringController` from 0 to 1, and the painter lerps from the values
+  (and the value range) on screen when the change began to the new ones;
+  a frame of either repaints the chart's `RepaintBoundary` and builds
+  nothing (`chart_test.dart` counts). A new change snapshots the values
+  where they are, so an interrupted move continues from there.
+  `ChartSeries` and `ChartSegment` compare by value: a parent that
+  rebuilds with an equal new list starts nothing.
+- **The tooltip glides by layout.** `ChartTooltipLayer` is a
+  `CustomSingleChildLayout` whose delegate relayouts on two springs; it is
+  a sibling *over* the painter in the chart's own `Stack`, not a portal,
+  so the popover `Surface` (glass in `fluid`, Liquid Glass where active)
+  blurs the chart under it. A consequence: a parent that clips (a
+  `ClipRRect`) clips the tooltip too. Off to the side when it fits, above
+  or below the point when the chart is narrower than the tooltip.
+- **Logical coordinates, mirrored once.** Geometry is computed left to
+  right; the painter mirrors the canvas for RTL and places the text
+  afterwards, unmirrored, with its alignment flipped. Hit-testing mirrors
+  the pointer the same way, and Left/Right step visually.
+- **Size.** A chart fills a bounded width (it asserts on an unbounded
+  one) and takes `ChartTheme.height` unless its height is *tight*: a
+  loose height (under an `Align`) would otherwise make it as tall as the
+  screen. A donut is square on the same rule; a sparkline keeps
+  `sparklineSize` unless held to one.
+- **Keys.** Tab in shows the first point; arrows, Home and End step;
+  Escape is handled only while a point is shown, so it still reaches a
+  dialog around the chart. Semantics are one adjustable node: `value` is
+  the point (or a summary), with `increasedValue`/`decreasedValue`, as
+  Flutter requires both or neither.
+- **A donut's gaps are gaps**, parallel-edged and cut out of each segment
+  (`donutSegmentPath`, with corner circles tangent to the edges and
+  arcs), not strokes in the background colour, which would show on a
+  translucent card.
+
 ## The sidebar component
 
 - `SidebarScaffold` owns the responsive behaviour; `Sidebar` carries

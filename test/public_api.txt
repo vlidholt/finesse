@@ -32,6 +32,7 @@ BackdropSurface
 Badge
 BadgeTheme
 BadgeVariant
+BarChart
 BaseTheme
 Board
 BoardColumn
@@ -82,6 +83,12 @@ CardTheme
 Carousel
 CarouselController
 CarouselTheme
+ChartEntry
+ChartLegend
+ChartSegment
+ChartSeries
+ChartTheme
+ChartValueFormatter
 ChatBubble
 ChatBubbleDirection
 ChatBubbleTheme
@@ -159,6 +166,7 @@ DismissShortcut
 Divider
 DividerTheme
 DividerVariant
+DonutChart
 DropdownMenu
 DropdownMenuTriggerBuilder
 EmberColorScheme
@@ -210,6 +218,8 @@ KbdTheme
 KeyboardToolbar
 LayoutTheme
 LicensePage
+LineChart
+LineInterpolation
 LiquidGlass
 LiquidGlassMode
 LiquidGlassTheme
@@ -397,6 +407,7 @@ SortDirection
 Spacing
 SpanDecoration
 SpanPadding
+Sparkline
 Spinner
 SpinnerTheme
 SpringBuilder
