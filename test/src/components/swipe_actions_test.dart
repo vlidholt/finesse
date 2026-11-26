@@ -610,9 +610,68 @@ void main() {
   });
 
   group('SwipeActions mouse and keyboard', () {
-    testWidgets('a mouse drag does not move the row', (tester) async {
+    testWidgets('a mouse drag moves the row', (tester) async {
       await pumpUna(tester, host(row()));
       await swipe(tester, -120, kind: PointerDeviceKind.mouse, release: false);
+      expect(shiftOf(tester), lessThan(-50));
+    });
+
+    testWidgets('a mouse click that wobbles is still a click', (tester) async {
+      var taps = 0;
+      await pumpUna(tester, host(row(onTap: () => taps++)));
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.text('Message')),
+        kind: PointerDeviceKind.mouse,
+      );
+      await gesture.moveBy(const Offset(-1.5, 0));
+      await tester.pump();
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(shiftOf(tester), 0);
+      expect(taps, 1);
+    });
+
+    testWidgets('inside a SelectionArea a mouse drag moves the row and '
+        'selects nothing', (tester) async {
+      await pumpUna(tester, SelectionArea(child: host(row())));
+      await swipe(tester, -120, kind: PointerDeviceKind.mouse, release: false);
+      expect(shiftOf(tester), lessThan(-50));
+    });
+
+    testWidgets('two fingers sideways in a browser (scroll events) drag the '
+        'row, and it settles once they stop', (tester) async {
+      await pumpUna(tester, host(row()));
+      final pointer = TestPointer(1, PointerDeviceKind.trackpad);
+      await tester.sendEventToBinding(
+        pointer.hover(tester.getCenter(find.text('Message'))),
+      );
+      for (var i = 0; i < 12; i++) {
+        await tester.sendEventToBinding(
+          pointer.scroll(const Offset(10, 1)),
+        );
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      expect(shiftOf(tester), lessThan(-100));
+      await tester.pump(const Duration(milliseconds: 200));
+      await tester.pumpAndSettle();
+      // Past half of the actions: it stays open.
+      expect(shiftOf(tester), lessThan(-50));
+      expect(find.text('Delete'), findsOneWidget);
+    });
+
+    testWidgets('a vertical scroll is left to the list', (tester) async {
+      await pumpUna(tester, host(row()));
+      final pointer = TestPointer(1, PointerDeviceKind.trackpad);
+      await tester.sendEventToBinding(
+        pointer.hover(tester.getCenter(find.text('Message'))),
+      );
+      for (var i = 0; i < 6; i++) {
+        await tester.sendEventToBinding(
+          pointer.scroll(const Offset(2, 12)),
+        );
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      await tester.pump(const Duration(milliseconds: 200));
       expect(shiftOf(tester), 0);
     });
 

@@ -1,6 +1,7 @@
 import 'package:example/docs/docs.dart';
 import 'package:example/docs/examples/reorderable_list_view/reorderable_list_view_basic.dart';
 import 'package:example/docs/examples/reorderable_list_view/reorderable_list_view_handles.dart';
+import 'package:example/docs/examples/reorderable_list_view/reorderable_list_view_no_handles.dart';
 import 'package:example/docs/examples/reorderable_list_view/reorderable_list_view_sliver.dart';
 
 final reorderableListViewDoc = ComponentDoc(
@@ -25,6 +26,17 @@ final reorderableListViewDoc = ComponentDoc(
           '`list.insert(to, list.removeAt(from))` is all there is to do.',
       minPreviewHeight: 340,
       builder: (_) => const ReorderableListViewBasicExample(),
+    ),
+    ComponentExample(
+      id: 'reorderable_list_view_no_handles',
+      title: 'No handles: the row is the grip',
+      description:
+          'A row without a `ReorderableDragHandle` is dragged by the row '
+          'itself, as a card on a `Board` is: a mouse picks it up once a '
+          'press moves, a finger once it has been held, and a click or a '
+          'tap still goes to the row. The row is its own Tab stop: Space '
+          'picks it up for the keyboard.',
+      builder: (_) => const ReorderableListViewNoHandlesExample(),
     ),
     ComponentExample(
       id: 'reorderable_list_view_handles',

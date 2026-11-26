@@ -270,8 +270,8 @@ void main() {
       expect(items, ['B', 'A', 'C', 'D', 'E']);
     });
 
-    testWidgets('a finger held on a row picks it up; a mouse held there '
-        'does not', (tester) async {
+    testWidgets('a finger held on a row picks it up; a mouse held on a '
+        'row with a handle does not', (tester) async {
       await pumpUna(tester, list());
       final rowHeight = tester.getSize(rowOf('A')).height;
       await drag(
@@ -319,6 +319,65 @@ void main() {
         kind: PointerDeviceKind.mouse,
       );
       expect(moves, [(1, 3)]);
+    });
+
+    testWidgets('a mouse drags a row with no handle from anywhere on it, '
+        'as on a board', (tester) async {
+      await pumpUna(tester, list(handles: false));
+      final rowHeight = tester.getSize(rowOf('A')).height;
+      await drag(
+        tester,
+        tester.getCenter(textOf('B')),
+        rowHeight * 2 + 20,
+        kind: PointerDeviceKind.mouse,
+      );
+      expect(moves, [(1, 3)]);
+    });
+
+    testWidgets('with no handle a click is still a click', (tester) async {
+      var taps = 0;
+      await pumpUna(
+        tester,
+        Center(
+          child: SizedBox(
+            width: 360,
+            height: 300,
+            child: ReorderableListView(
+              onReorder: (from, to) => moves.add((from, to)),
+              children: [
+                for (final item in ['A', 'B'])
+                  ListTile(
+                    key: ValueKey(item),
+                    title: Text(item),
+                    onTap: () => taps++,
+                  ),
+              ],
+            ),
+          ),
+        ),
+      );
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.text('A')),
+        kind: PointerDeviceKind.mouse,
+      );
+      await gesture.moveBy(const Offset(0, 1));
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(taps, 1);
+      expect(moves, isEmpty);
+    });
+
+    testWidgets('with longPressToDrag off a mouse does not drag a row with '
+        'no handle either', (tester) async {
+      await pumpUna(tester, list(handles: false, longPressToDrag: false));
+      final rowHeight = tester.getSize(rowOf('A')).height;
+      await drag(
+        tester,
+        tester.getCenter(textOf('B')),
+        rowHeight * 2 + 20,
+        kind: PointerDeviceKind.mouse,
+      );
+      expect(moves, isEmpty);
     });
 
     testWidgets('a quick vertical drag on a row scrolls the list', (

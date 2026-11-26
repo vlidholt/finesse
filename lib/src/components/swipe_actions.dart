@@ -87,15 +87,16 @@ class SwipeAction {
 /// )
 /// ```
 ///
-/// With a finger, a stylus or a trackpad the row follows a horizontal drag
-/// and uncovers [leading] actions at its start or [trailing] ones at its
-/// end. Let go past half of them and they stay open; a tap on one runs it.
-/// With [fullSwipe], dragging on across most of the row stretches the
-/// first action of that side over the others and letting go runs it.
+/// With a finger, a stylus, a mouse or two fingers on a trackpad the row
+/// follows a horizontal drag and uncovers [leading] actions at its start or
+/// [trailing] ones at its end. Let go past half of them and they stay open;
+/// a tap on one runs it. With [fullSwipe], dragging on across most of the
+/// row stretches the first action of that side over the others and letting
+/// go runs it.
 ///
-/// A mouse does not drag rows. With [contextMenu] the same actions are a
-/// menu on a secondary click and on the keyboard's menu key (or Shift+F10)
-/// while the focus is in the row; assistive technology gets every action
+/// With [contextMenu] the same actions are also a menu on a secondary click
+/// and on the keyboard's menu key (or Shift+F10) while the focus is in the
+/// row; assistive technology gets every action
 /// as a custom action of the row either way.
 ///
 /// When an action reports that the row is gone it slides out, the gap
@@ -254,6 +255,7 @@ class _SwipeActionsState extends State<SwipeActions>
 
   @override
   void dispose() {
+    _scrollSwipeEnd?.cancel();
     _scope?._release(this);
     _stopWatchingScroll();
     _shift.dispose();
@@ -351,17 +353,26 @@ class _SwipeActionsState extends State<SwipeActions>
   }
 
   void _onDragStart(DragStartDetails details) {
-    _dragTouch = switch (details.kind) {
-      PointerDeviceKind.mouse || PointerDeviceKind.trackpad => false,
-      _ => true,
-    };
+    _beginDrag(
+      touch: switch (details.kind) {
+        PointerDeviceKind.mouse || PointerDeviceKind.trackpad => false,
+        _ => true,
+      },
+    );
+  }
+
+  void _beginDrag({required bool touch}) {
+    _dragTouch = touch;
     _scope?._claim(this);
     _shift.stop();
     _dragStart = _shift.value;
   }
 
-  void _onDragUpdate(DragUpdateDetails details) {
-    _dragStart += details.primaryDelta ?? 0;
+  void _onDragUpdate(DragUpdateDetails details) =>
+      _dragBy(details.primaryDelta ?? 0);
+
+  void _dragBy(double delta) {
+    _dragStart += delta;
     var shift = _dragStart;
     // No actions on that side: the row does not go there.
     if (shift > 0 && _leftActions.isEmpty) shift = 0;
@@ -404,6 +415,49 @@ class _SwipeActionsState extends State<SwipeActions>
     } else {
       _close(velocity: velocity);
     }
+  }
+
+  // --- Two fingers on a trackpad, as scroll events --------------------------
+
+  /// Whether a horizontal scroll (two fingers on a trackpad in a browser,
+  /// or a horizontal wheel) is dragging the row. A browser reports such a
+  /// swipe as scroll events, not as a pan: there is no lift, so the drag
+  /// ends once the events have stopped for [_scrollSwipeIdle].
+  bool _scrollSwiping = false;
+  Timer? _scrollSwipeEnd;
+
+  static const _scrollSwipeIdle = Duration(milliseconds: 120);
+
+  void _onPointerSignal(PointerSignalEvent event) {
+    if (event is! PointerScrollEvent) return;
+    final delta = event.scrollDelta;
+    if (!_scrollSwiping) {
+      // Mostly sideways, towards somewhere the row can go, and not at the
+      // back swipe's edge: anything else is the list's.
+      if (delta.dx.abs() <= delta.dy.abs() * 1.5 || delta.dx == 0) return;
+      if (!_allowPointer(event) || !_canDrag(-delta.dx)) return;
+    }
+    GestureBinding.instance.pointerSignalResolver.register(event, (event) {
+      if (!mounted) return;
+      if (!_scrollSwiping) {
+        _scrollSwiping = true;
+        _beginDrag(touch: false);
+        _shift.stop();
+        _dragStart = _shift.value;
+      }
+      // Content follows the fingers: a scroll to the right moves the row
+      // to the left.
+      _dragBy(-(event as PointerScrollEvent).scrollDelta.dx);
+      _scrollSwipeEnd?.cancel();
+      _scrollSwipeEnd = Timer(_scrollSwipeIdle, _endScrollSwipe);
+    });
+  }
+
+  void _endScrollSwipe() {
+    _scrollSwipeEnd = null;
+    if (!_scrollSwiping || !mounted) return;
+    _scrollSwiping = false;
+    _onDragEnd(DragEndDetails(primaryVelocity: 0));
   }
 
   // --- Running an action ----------------------------------------------------
@@ -543,6 +597,12 @@ class _SwipeActionsState extends State<SwipeActions>
       ),
     );
 
+    row = Listener(
+      behavior: HitTestBehavior.translucent,
+      onPointerSignal: _onPointerSignal,
+      child: row,
+    );
+
     row = TapRegion(
       enabled: _open,
       onTapOutside: (_) => _close(),
@@ -614,6 +674,7 @@ class _SwipeRecognizer extends HorizontalDragGestureRecognizer {
           PointerDeviceKind.touch,
           PointerDeviceKind.stylus,
           PointerDeviceKind.invertedStylus,
+          PointerDeviceKind.mouse,
           PointerDeviceKind.trackpad,
           PointerDeviceKind.unknown,
         },
@@ -638,10 +699,16 @@ class _SwipeRecognizer extends HorizontalDragGestureRecognizer {
     PointerDeviceKind pointerDeviceKind,
     double? deviceTouchSlop,
   ) =>
-      super.hasSufficientGlobalDistanceToAccept(
-        pointerDeviceKind,
-        deviceTouchSlop,
-      ) &&
+      (pointerDeviceKind == PointerDeviceKind.mouse
+          // A mouse waits for the pan slop: a click that wobbles by a
+          // pixel is still a click. A `SelectionArea` around the row waits
+          // as long, and the row, being deeper, is asked first.
+          ? globalDistanceMoved.abs() >
+                computePanSlop(pointerDeviceKind, gestureSettings)
+          : super.hasSufficientGlobalDistanceToAccept(
+              pointerDeviceKind,
+              deviceTouchSlop,
+            )) &&
       canDrag(globalDistanceMoved);
 }
 

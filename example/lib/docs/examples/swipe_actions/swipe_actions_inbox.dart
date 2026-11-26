@@ -3,7 +3,7 @@ import 'package:una/una.dart';
 
 /// An inbox: swipe a message towards the start to archive or delete it,
 /// towards the end to mark it unread. A full swipe runs the outer action.
-/// With a mouse, right-click a message for the same actions.
+/// A mouse drags a row too, and a right-click shows the same actions.
 class SwipeActionsInboxExample extends StatefulWidget {
   const SwipeActionsInboxExample({super.key});
 

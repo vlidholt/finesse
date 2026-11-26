@@ -231,6 +231,10 @@ class _SliverAppBarState extends State<SliverAppBar>
     Listenable.merge([_scroll, _scrolledUnder]),
     () => _scroll.expandedExtent <= 0 ? _scrolledUnder.value : _scroll.surface,
   );
+  late final Animation<double> _cover = _ScrollAnimation(
+    _scroll,
+    () => _scroll.cover,
+  );
   late final Animation<double> _smallTitle = _ScrollAnimation(
     _scroll,
     () => _scroll.smallTitle,
@@ -405,30 +409,39 @@ class _SliverAppBarState extends State<SliverAppBar>
       final gap = theme.layoutTheme.gapMd ?? 12;
       titleInset = direction == TextDirection.ltr ? margin.left : margin.right;
       final height = widget.expandedHeight ?? bar.expandedHeight;
-      final titles = Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // The title is read once, from the toolbar, where it always is.
-          ExcludeSemantics(
-            child: DefaultTextStyle.merge(
-              style: bar.largeTitleStyle ?? theme.textTheme.h3,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              child: title!,
-            ),
-          ),
-          if (widget.subtitle case final subtitle?)
-            Padding(
-              padding: EdgeInsets.only(top: theme.layoutTheme.gapXs ?? 4),
-              child: DefaultTextStyle.merge(
-                style: theme.textTheme.muted,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                child: subtitle,
+      // Marked, so the bar knows where the titles are: the bar's surface
+      // and its small title come in as the large one goes under the
+      // toolbar.
+      final titles = _TitleMark(
+        part: _TitlePart.block,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // The title is read once, from the toolbar, where it always is.
+            _TitleMark(
+              part: _TitlePart.line,
+              child: ExcludeSemantics(
+                child: DefaultTextStyle.merge(
+                  style: bar.largeTitleStyle ?? theme.textTheme.h3,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  child: title!,
+                ),
               ),
             ),
-        ],
+            if (widget.subtitle case final subtitle?)
+              Padding(
+                padding: EdgeInsets.only(top: theme.layoutTheme.gapXs ?? 4),
+                child: DefaultTextStyle.merge(
+                  style: theme.textTheme.muted,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  child: subtitle,
+                ),
+              ),
+          ],
+        ),
       );
       final page = scheme.background;
       Widget block = Align(
@@ -511,6 +524,8 @@ class _SliverAppBarState extends State<SliverAppBar>
         backgroundBelowToolbar: filledOverPicture,
         fadeBackground: liquid,
         veil: scheme.background,
+        // On Liquid Glass the scroll edge covers the titles instead.
+        cover: liquid ? null : fill,
         children: [
           // On Liquid Glass: the page under the collapsed bar, blurred and
           // faded into the page colour, reaching [_edgeOverhang] below it.
@@ -522,7 +537,8 @@ class _SliverAppBarState extends State<SliverAppBar>
               slot: _BarSlot.edge,
               child: LiquidGlassScrollEdge(
                 color: scheme.background,
-                visibility: always ? null : _surface,
+                // Over a large title, as it goes under the toolbar.
+                visibility: always ? null : (large ? _cover : _surface),
               ),
             ),
           if (background != null)
@@ -601,13 +617,54 @@ class _BarScroll extends ChangeNotifier {
   /// they paint depends on them as much as on the scroll.
   bool _measured = false;
 
+  /// Where a large bar's title line starts and how tall it is, and where
+  /// its titles (title and subtitle) end, in the expanded area; zero
+  /// without them.
+  double titleTop = 0;
+  double titleLine = 0;
+  double titlesBottom = 0;
+
+  /// How much of the bar's top its body covers with the bar's surface
+  /// itself, over the titles going under it: the fill leaves that much
+  /// out, or it would be laid on twice.
+  double coverTop = 0;
+
   /// Records what the bar's layout measured.
-  void measure({required double expanded, required double pinned}) {
-    if (expanded == expandedExtent && pinned == pinnedExtent) return;
+  void measure({
+    required double expanded,
+    required double pinned,
+    double titleTop = 0,
+    double titleLine = 0,
+    double titlesBottom = 0,
+    double coverTop = 0,
+  }) {
+    if (expanded == expandedExtent &&
+        pinned == pinnedExtent &&
+        titleTop == this.titleTop &&
+        titleLine == this.titleLine &&
+        titlesBottom == this.titlesBottom &&
+        coverTop == this.coverTop) {
+      return;
+    }
     expandedExtent = expanded;
     pinnedExtent = pinned;
+    this.titleTop = titleTop;
+    this.titleLine = titleLine;
+    this.titlesBottom = titlesBottom;
+    this.coverTop = coverTop;
     _measured = true;
   }
+
+  /// From 0 to 1 as [collapse] goes from [from] to [to], which is never
+  /// past the end of the collapse.
+  double _ramp(double from, double to) {
+    final end = math.min(to, expandedExtent);
+    final start = math.min(from, end);
+    if (end <= start) return collapse >= end ? 1 : 0;
+    return ((collapse - start) / (end - start)).clamp(0.0, 1.0);
+  }
+
+  bool get _titled => titleLine > 0;
 
   double get fullExtent => expandedExtent + pinnedExtent;
 
@@ -621,14 +678,38 @@ class _BarScroll extends ChangeNotifier {
   /// the end of the collapse.
   static const _fade = 28.0;
 
-  /// How much of the bar's surface shows.
+  /// How much of the bar's surface shows: once the page is under it.
   double get surface {
     if (expandedExtent <= 0) return scrolled ? 1 : 0;
     return ((collapse - (expandedExtent - _fade)) / _fade).clamp(0.0, 1.0);
   }
 
-  /// How much of the small title shows.
-  double get smallTitle => expandedExtent <= 0 ? 1 : surface;
+  /// How much of the bar's surface shows over the toolbar of a large bar.
+  /// It comes in as the large title goes under the toolbar, so the title
+  /// goes under the bar rather than being cut off at the toolbar's edge.
+  double get cover {
+    if (expandedExtent > 0 && _titled) {
+      return _ramp(titleTop, titleTop + titleLine);
+    }
+    return surface;
+  }
+
+  /// How much of the small title shows: it comes in once the large one is
+  /// half under the bar.
+  double get smallTitle {
+    if (expandedExtent <= 0) return 1;
+    if (_titled) {
+      return _ramp(titleTop + titleLine * .5, titleTop + titleLine * 1.5);
+    }
+    return surface;
+  }
+
+  /// How much of the large titles shows: they thin out as they go under
+  /// the toolbar, and are gone once the last line is under it.
+  double get titles {
+    if (_titled) return 1 - _ramp(titleTop, titlesBottom);
+    return (1 - (progress - .35) / .5).clamp(0.0, 1.0);
+  }
 
   /// How far collapsed the expanded area is, from 0 to 1.
   double get progress =>
@@ -968,8 +1049,10 @@ class _RenderSliverBarFill extends RenderProxyBox {
     final height = math.max<double>(scroll.visibleExtent, 0);
     final rect = Rect.fromLTWH(offset.dx, offset.dy, size.width, height);
     if (shown > 0) {
+      // The top the body covers itself, over the titles under it.
+      final top = math.min(scroll.coverTop, height);
       context.canvas.drawRect(
-        rect,
+        Rect.fromLTRB(rect.left, rect.top + top, rect.right, rect.bottom),
         Paint()..color = _color.withValues(alpha: _color.a * shown),
       );
     }
@@ -1077,8 +1160,64 @@ _RenderTitleScrim? _scrimIn(RenderObject part) {
   return found;
 }
 
+/// Which part of a large bar's titles a [_TitleMark] marks.
+enum _TitlePart { line, block }
+
+/// Marks where a large bar's title line ([_TitlePart.line]) or its titles
+/// ([_TitlePart.block]) are, for the bar to measure. It paints nothing.
+class _TitleMark extends SingleChildRenderObjectWidget {
+  const _TitleMark({required this.part, required super.child});
+
+  final _TitlePart part;
+
+  @override
+  _RenderTitleMark createRenderObject(BuildContext context) =>
+      _RenderTitleMark(part);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderTitleMark mark) {
+    mark.part = part;
+  }
+}
+
+class _RenderTitleMark extends RenderProxyBox {
+  _RenderTitleMark(this.part);
+
+  _TitlePart part;
+
+  /// Its size, kept for the bar, which may not read a descendant's.
+  Size laidOutSize = Size.zero;
+
+  @override
+  void performLayout() {
+    super.performLayout();
+    laidOutSize = size;
+  }
+}
+
+/// The [_RenderTitleMark] of [part] in [root], a few boxes down.
+_RenderTitleMark? _markIn(RenderObject root, _TitlePart part) {
+  _RenderTitleMark? found;
+  void visit(RenderObject child) {
+    if (found != null) return;
+    if (child is _RenderTitleMark && child.part == part) {
+      found = child;
+    } else {
+      child.visitChildren(visit);
+    }
+  }
+
+  root.visitChildren(visit);
+  return found;
+}
+
 /// How far a bar's scroll edge reaches below it on Liquid Glass.
 const _edgeOverhang = 24.0;
+
+/// How far below the toolbar's lower edge titles that cannot go under the
+/// bar's surface (a pinned picture stays behind the toolbar instead)
+/// dissolve, so they never meet a line there.
+const _titleDissolve = 20.0;
 
 enum _BarSlot { edge, background, expanded, toolbar, bottom }
 
@@ -1115,6 +1254,7 @@ class _SliverBarBody extends MultiChildRenderObjectWidget {
     required this.backgroundBelowToolbar,
     required this.fadeBackground,
     required this.veil,
+    required this.cover,
     required super.children,
   });
 
@@ -1126,6 +1266,7 @@ class _SliverBarBody extends MultiChildRenderObjectWidget {
   final bool backgroundBelowToolbar;
   final bool fadeBackground;
   final Color veil;
+  final Color? cover;
 
   @override
   RenderObject createRenderObject(BuildContext context) => _RenderSliverBarBody(
@@ -1138,6 +1279,7 @@ class _SliverBarBody extends MultiChildRenderObjectWidget {
     backgroundBelowToolbar: backgroundBelowToolbar,
     fadeBackground: fadeBackground,
     veil: veil,
+    cover: cover,
   );
 
   @override
@@ -1153,7 +1295,8 @@ class _SliverBarBody extends MultiChildRenderObjectWidget {
       ..pinBackground = pinBackground
       ..backgroundBelowToolbar = backgroundBelowToolbar
       ..fadeBackground = fadeBackground
-      ..veil = veil;
+      ..veil = veil
+      ..cover = cover;
   }
 }
 
@@ -1171,7 +1314,9 @@ class _RenderSliverBarBody extends RenderBox
     required bool backgroundBelowToolbar,
     required bool fadeBackground,
     required Color veil,
-  }) : _hairline = hairline,
+    required Color? cover,
+  }) : _cover = cover,
+       _hairline = hairline,
        _reduceMotion = reduceMotion,
        _textDirection = textDirection,
        _titleInset = titleInset,
@@ -1186,8 +1331,28 @@ class _RenderSliverBarBody extends RenderBox
   set pinBackground(bool value) {
     if (value == _pinBackground) return;
     _pinBackground = value;
-    markNeedsPaint();
+    // Whether the titles go under the bar's surface depends on it.
+    markNeedsLayout();
   }
+
+  /// The bar's surface, laid over the toolbar's part of the titles as they
+  /// go under it; null where something else covers them (the scroll edge
+  /// on Liquid Glass).
+  Color? get cover => _cover;
+  Color? _cover;
+  set cover(Color? value) {
+    if (value == _cover) return;
+    _cover = value;
+    markNeedsLayout();
+  }
+
+  /// Whether the titles go under the toolbar, covered by the bar's surface
+  /// or its scroll edge, rather than dissolving at its edge over a picture
+  /// that stays behind it.
+  bool get _titlesGoUnder =>
+      !(_pinBackground && _part(_BarSlot.background) != null);
+
+  final _dissolve = LayerHandle<ShaderMaskLayer>();
 
   /// Whether the picture starts below the toolbar, which has a fill of
   /// its own, instead of reaching up behind it.
@@ -1229,6 +1394,7 @@ class _RenderSliverBarBody extends RenderBox
   void dispose() {
     _blur.layer = null;
     _mask.layer = null;
+    _dissolve.layer = null;
     super.dispose();
   }
 
@@ -1345,7 +1511,35 @@ class _RenderSliverBarBody extends RenderBox
       BoxConstraints.tightFor(width: width, height: toolbar + bottom),
     );
     (_part(_BarSlot.edge)?.parentData as _BarPartData?)?.offset = Offset.zero;
-    scroll.measure(expanded: expanded, pinned: toolbar + bottom + hairline);
+    // Where the titles are in the expanded area, unscaled.
+    var titleTop = 0.0;
+    var titleLine = 0.0;
+    var titlesBottom = 0.0;
+    if (_part(_BarSlot.expanded) case final part?) {
+      final line = _markIn(part, _TitlePart.line);
+      final block = _markIn(part, _TitlePart.block);
+      if (line != null && block != null) {
+        final lineRect = MatrixUtils.transformRect(
+          line.getTransformTo(part),
+          Offset.zero & line.laidOutSize,
+        );
+        final blockRect = MatrixUtils.transformRect(
+          block.getTransformTo(part),
+          Offset.zero & block.laidOutSize,
+        );
+        titleTop = lineRect.top;
+        titleLine = lineRect.height;
+        titlesBottom = blockRect.bottom;
+      }
+    }
+    scroll.measure(
+      expanded: expanded,
+      pinned: toolbar + bottom + hairline,
+      titleTop: titleTop,
+      titleLine: titleLine,
+      titlesBottom: titlesBottom,
+      coverTop: expanded > 0 && _titlesGoUnder && _cover != null ? toolbar : 0,
+    );
     size = constraints.constrain(
       Size(width, toolbar + expanded + bottom + hairline),
     );
@@ -1430,12 +1624,14 @@ class _RenderSliverBarBody extends RenderBox
       math.max(_expandedHeight + _lift, 0),
     );
 
-    if (_part(_BarSlot.edge) case final edge?) {
-      context.paintChild(edge, offset);
-    }
+    final goUnder = expanded != null && _titlesGoUnder;
+    final edge = _part(_BarSlot.edge);
+    // Behind a pinned picture; over titles that go under the bar, which it
+    // blurs and fades into the page as they do.
+    if (edge != null && !goUnder) context.paintChild(edge, offset);
 
-    // The large title goes under the toolbar and thins out as it does.
-    final titleFade = (1 - (progress - .35) / .5).clamp(0.0, 1.0);
+    // The large titles thin out as they go under the toolbar.
+    final titleFade = scroll.titles;
     final pin = _pinBackground;
     if (background != null && (pin || progress < 1)) {
       final top = _backgroundTop;
@@ -1456,7 +1652,9 @@ class _RenderSliverBarBody extends RenderBox
         ) {
           // Pinned, the picture is blurred as it collapses, so the toolbar
           // stands on its colours rather than on its detail.
-          final sigma = pin && !reduceMotion ? 10 * progress : 0.0;
+          // As the titles go: blurred while they were still on it, the
+          // picture read as a smeared block around them.
+          final sigma = pin && !reduceMotion ? 10 * (1 - titleFade) : 0.0;
           if (sigma > .5) {
             _blur.layer = (_blur.layer ?? ImageFilterLayer())
               ..imageFilter = ImageFilter.blur(
@@ -1529,24 +1727,77 @@ class _RenderSliverBarBody extends RenderBox
 
     if (expanded != null && window.height > 0) {
       final alpha = (titleFade * 255).round();
+      // Going under the bar, the titles are cut at its top, not at the
+      // toolbar's lower edge: the toolbar's part of them is covered below.
+      final clip = goUnder
+          ? Rect.fromLTRB(0, 0, size.width, window.bottom)
+          : window;
+      void paintMoved(PaintingContext context, Offset offset) => _paintMoved(
+        context,
+        offset,
+        expanded,
+        _expandedTransform(expanded),
+      );
+      void paintClipped(PaintingContext context, Offset offset) =>
+          context.pushClipRect(needsCompositing, offset, clip, paintMoved);
       void paintTitle(PaintingContext context, Offset offset) {
-        context.pushClipRect(
-          needsCompositing,
-          offset,
-          window,
-          (context, offset) => _paintMoved(
-            context,
-            offset,
-            expanded,
-            _expandedTransform(expanded),
-          ),
+        // Nothing to dissolve while the titles are clear of the toolbar:
+        // no layer for it at rest.
+        final near =
+            !scroll._titled ||
+            scroll.collapse - scroll.stretch > scroll.titleTop - _titleDissolve;
+        if (goUnder || !near) {
+          _dissolve.layer = null;
+          paintClipped(context, offset);
+          return;
+        }
+        // Over a pinned picture they dissolve as they near the toolbar,
+        // instead of meeting a line there.
+        final stop = (_titleDissolve / math.max(window.height, 1)).clamp(
+          0.0,
+          1.0,
         );
+        _dissolve.layer = (_dissolve.layer ?? ShaderMaskLayer())
+          ..maskRect = window.shift(offset)
+          ..blendMode = BlendMode.dstIn
+          ..shader = LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: const [
+              Color(0x00FFFFFF),
+              Color(0xFFFFFFFF),
+              Color(0xFFFFFFFF),
+            ],
+            stops: [0, stop, 1],
+          ).createShader(Offset.zero & window.size);
+        context.pushLayer(_dissolve.layer!, paintClipped, offset);
       }
 
       if (alpha >= 255) {
         paintTitle(context, offset);
       } else if (alpha > 0) {
         context.pushOpacity(offset, alpha, paintTitle);
+      }
+    }
+
+    if (goUnder) {
+      if (edge != null) {
+        context.paintChild(edge, offset);
+      } else if (_cover case final cover?) {
+        // The bar's surface over the toolbar's part of the titles, coming
+        // in as they go under it. The fill leaves this part out.
+        final shown = scroll.cover;
+        if (shown > 0 && _toolbarHeight > 0) {
+          context.canvas.drawRect(
+            Rect.fromLTWH(
+              offset.dx,
+              offset.dy,
+              size.width,
+              math.min(_toolbarHeight, math.max(scroll.visibleExtent, 0)),
+            ),
+            Paint()..color = cover.withValues(alpha: cover.a * shown),
+          );
+        }
       }
     }
 

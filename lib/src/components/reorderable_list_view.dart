@@ -41,7 +41,10 @@ part of 'board.dart';
 ///
 /// A finger picks a row up by pressing and holding anywhere on it
 /// ([longPressToDrag]), or at once by its [ReorderableDragHandle]. A mouse
-/// drags by the handle, which shows while the pointer is over its row. The
+/// drags a row by its handle, which shows while the pointer is over its
+/// row; a row with no handle it drags from anywhere, as it drags a card on
+/// a [Board]: a click is still a click, and a press that moves picks the
+/// row up. A list needs no handles at all. The
 /// row lifts off the list as a card does on a [Board] — a little larger,
 /// leaning into the movement, under the board's shadow — the others make
 /// way on springs, the list scrolls when the row is held near an edge, and
@@ -159,9 +162,10 @@ class ReorderableListView extends StatelessWidget {
   /// it is put down at.
   final ValueChanged<int>? onReorderEnd;
 
-  /// Whether a touch that is held on a row picks it up. Turn it off for
-  /// rows that have a long press of their own; they are then dragged by
-  /// their [ReorderableDragHandle] alone.
+  /// Whether a row can be picked up by the row itself: by a touch that is
+  /// held on it, and, for a row with no [ReorderableDragHandle], by a mouse
+  /// that presses and moves. Turn it off for rows that have a long press or
+  /// a drag of their own; they are then dragged by their handle alone.
   final bool longPressToDrag;
 
   /// Whether rows can be moved at all.
@@ -278,7 +282,8 @@ class SliverReorderableListView extends StatelessWidget {
   /// it is put down at.
   final ValueChanged<int>? onReorderEnd;
 
-  /// Whether a touch that is held on a row picks it up.
+  /// Whether a row can be picked up by the row itself; see
+  /// [ReorderableListView.longPressToDrag].
   final bool longPressToDrag;
 
   /// Whether rows can be moved at all.
@@ -382,12 +387,15 @@ class _ListBoardState extends _BoardState<Object> {
   }) {
     if (!immediate) {
       // A press on the row itself: a finger's picks it up once it has been
-      // held. A mouse has the handle, and its press on a row is a click.
-      final touch = switch (event.kind) {
-        PointerDeviceKind.mouse || PointerDeviceKind.trackpad => false,
-        _ => true,
+      // held. A mouse drags a row that has no handle as it drags a card on
+      // a board, once it has moved; a row with a handle is dragged by it,
+      // and a press elsewhere on the row is a click.
+      if (!_list.longPressToDrag) return;
+      final mouse = switch (event.kind) {
+        PointerDeviceKind.mouse || PointerDeviceKind.trackpad => true,
+        _ => false,
       };
-      if (!touch || !_list.longPressToDrag) return;
+      if (mouse && (_handles[id] ?? 0) > 0) return;
     }
     super._itemPointerDown(event, id, immediate: immediate);
   }
