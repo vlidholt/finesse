@@ -108,7 +108,11 @@ final _oceanAccentChroma = _toOklch(const OceanColorScheme.light().primary).$2;
 
 /// The scheme made from [seed] for [brightness]; see
 /// [ColorScheme.fromSeed].
-ColorScheme schemeFromSeed(Color seed, Brightness brightness) {
+ColorScheme schemeFromSeed(
+  Color seed,
+  Brightness brightness, {
+  Color? neutral,
+}) {
   final dark = brightness == Brightness.dark;
   final template = _tokens(
     dark ? const OceanColorScheme.dark() : const OceanColorScheme.light(),
@@ -118,12 +122,23 @@ ColorScheme schemeFromSeed(Color seed, Brightness brightness) {
   // primary its ink, as Graphite's is.
   final grey = chroma < .035;
   final accent = (chroma / _oceanAccentChroma).clamp(.45, 1.15);
-  final greys = grey ? (chroma / .035) * .35 : .6;
+  // The greys lean towards [neutral] as far as it leans itself (a pure
+  // grey not at all, a slate as far as Ocean's), or else a little towards
+  // the seed.
+  final (_, neutralChroma, neutralHue) = neutral == null
+      ? (0.0, 0.0, hue)
+      : _toOklch(neutral);
+  final greyHue = neutral == null ? hue : neutralHue;
+  final greys = neutral != null
+      ? (neutralChroma / .035).clamp(0.0, 1.5)
+      : grey
+      ? (chroma / .035) * .35
+      : .6;
   final out = <String, Color>{
     for (final MapEntry(key: name, value: color) in template.entries)
       name: switch (_roles[name]!) {
         _Role.fixed => color,
-        _Role.neutral => _shift(color, hue, greys),
+        _Role.neutral => _shift(color, greyHue, greys),
         _Role.accent => grey ? color : _shift(color, hue, accent),
       },
   };

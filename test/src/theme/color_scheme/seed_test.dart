@@ -68,6 +68,39 @@ void main() {
     }
   });
 
+  test('a neutral sets the greys, whatever the seed, and keeps their '
+      'contrast', () {
+    const seed = Color(0xffdc2626);
+    for (final neutral in const [
+      Color(0xff808080),
+      Color(0xff64748b),
+      Color(0xff78716c),
+      Color(0xffa8a29e),
+    ]) {
+      for (final brightness in Brightness.values) {
+        final s = ColorScheme.fromSeed(
+          seed,
+          brightness: brightness,
+          neutral: neutral,
+        );
+        expect(
+          _contrast(s.mutedForeground, s.background),
+          greaterThanOrEqualTo(4.5),
+        );
+        expect(_contrast(s.foreground, s.background), greaterThan(12));
+      }
+    }
+    // A pure grey gives true greys: the page has no tint of the red seed.
+    final pure = ColorScheme.fromSeed(seed, neutral: const Color(0xff808080));
+    final page = pure.background;
+    expect((page.r - page.b).abs(), lessThan(.01));
+    // A slate leans cool: blue over red on the page.
+    final slate = ColorScheme.fromSeed(seed, neutral: const Color(0xff64748b));
+    expect(slate.background.b, greaterThan(slate.background.r));
+    // The primary is the seed's either way.
+    expect(pure.primary, slate.primary);
+  });
+
   test("Ocean's own primary seeds a scheme close to Ocean", () {
     const ocean = OceanColorScheme.light();
     final seeded = ColorScheme.fromSeed(ocean.primary);

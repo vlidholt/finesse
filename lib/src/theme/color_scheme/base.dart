@@ -107,10 +107,16 @@ class ColorScheme {
   /// ```dart
   /// ThemeData(colorScheme: ColorScheme.fromSeed(const Color(0xFF0EA5E9)))
   /// ```
+  ///
+  /// [neutral] sets the greys — page, cards, borders, muted text: they take
+  /// its hue and lean as far as it does, so a pure grey gives true greys, a
+  /// slate cool ones and a stone warm ones, whatever the seed. Without one
+  /// they lean a little towards the seed.
   factory ColorScheme.fromSeed(
     Color seed, {
     Brightness brightness = Brightness.light,
-  }) => schemeFromSeed(seed, brightness);
+    Color? neutral,
+  }) => schemeFromSeed(seed, brightness, neutral: neutral);
 
   /// Returns the light or dark built-in scheme called [name] (see
   /// [ColorSchemes]).
