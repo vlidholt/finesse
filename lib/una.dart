@@ -119,7 +119,6 @@ export 'src/components/menubar.dart';
 export 'src/components/navigation_bar.dart'
     hide DestinationIcon, badgedDestinationIcon;
 export 'src/components/navigation_menu.dart';
-export 'src/components/navigation_rail.dart';
 export 'src/components/navigation_scaffold.dart';
 export 'src/components/number_field.dart';
 export 'src/components/otp_field.dart' hide kInvisibleCharCode;

@@ -746,7 +746,7 @@ class _ScaffoldBannerAlertExampleState
 
 ## NavigationScaffold
 
-On a desktop the destinations sit in the middle of the app bar. On a phone they move to a bottom bar with the `action` in its middle, and the app bar keeps `leading` and `mobileActions`. `layout` overrides the choice, or asks for the third: `NavigationLayout.rail` puts a `NavigationRail` down the start edge under the app bar, for a tablet. A destination can opt out of a bar: Notifications is `showInBottomBar: false` here, and is reached from the bell instead. The body is a `DestinationStack`: scroll a page, visit another, and come back to where you were.
+On a desktop the destinations sit in the middle of the app bar. On a phone they move to a bottom bar with the `action` in its middle, and the app bar keeps `leading` and `mobileActions`. `layout` overrides the choice, or asks for the third: `NavigationLayout.rail` puts the destinations down the start edge under the app bar, an icon over a small label, for a tablet (Tablet here). A destination can opt out of a bar: Notifications is `showInBottomBar: false` here, and is reached from the bell instead. The body is a `DestinationStack`: scroll a page, visit another, and come back to where you were.
 
 ```dart
 import 'package:flutter/widgets.dart';

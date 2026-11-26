@@ -12,8 +12,10 @@ final navigationBarDoc = ComponentDoc(
       'The destinations of an app. `NavigationBar` is the row of icons over '
       'labels for the top of a wide screen; `BottomNavigationBar` is the '
       'bar at the bottom of a phone, icons only unless it is asked for '
-      'labels. Both take the same `NavigationDestination`s, as does a '
-      '`NavigationRail`, and `NavigationScaffold` switches between them.',
+      'labels. Both take the same `NavigationDestination`s, and '
+      '`NavigationScaffold` switches between them — or puts them in a '
+      'rail down the start edge, for a tablet. For a sidebar of '
+      'sections, use `Sidebar`.',
   examples: [
     ComponentExample(
       id: 'navigation_bar_top',
