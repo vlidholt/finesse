@@ -29,10 +29,12 @@ pubspec.lock
 .packages
 build/
 
-# Ignore all the platform apps
+# Ignore all the platform apps, except the example's web folder, which
+# carries the Una title and icons the Pages site shows.
 ios
 macos
 web
+!example/web/
 android
 linux
 windows

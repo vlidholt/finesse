@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:example/common/app_state.dart';
 import 'package:example/common/theme_editor/customizer_panel.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
+import 'package:example/common/una_logo.dart';
 import 'package:example/screens/components_screen.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_solidart/flutter_solidart.dart';
@@ -394,6 +395,7 @@ class ComponentsSection extends StatelessWidget {
           // The page is the app's first route: there is nowhere to go back
           // to, and nothing should be implied.
           automaticallyImplyLeading: false,
+          leading: const UnaLogo(),
           title: const Text('Components'),
           actions: const [
             _ThemeModeButton(),

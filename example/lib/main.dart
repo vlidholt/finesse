@@ -102,6 +102,7 @@ class _AppState extends State<App> {
               // The editor can also pin one; `AppShell` then gives that
               // layout a box it fits in.
               return UnaApp(
+                title: 'Una',
                 debugShowCheckedModeBanner: false,
                 themeMode: themeMode,
                 theme: theme,
