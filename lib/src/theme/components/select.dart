@@ -25,8 +25,6 @@ class SelectTheme with _$SelectTheme {
     this.minHeight,
     this.padding,
     this.optionsPadding,
-    this.showScrollToTopChevron,
-    this.showScrollToBottomChevron,
     this.anchor,
     this.searchPadding,
     this.clearSearchOnClose,
@@ -64,12 +62,6 @@ class SelectTheme with _$SelectTheme {
 
   /// {@macro Select.optionsPadding}
   final EdgeInsetsGeometry? optionsPadding;
-
-  /// {@macro Select.showScrollToTopChevron}
-  final bool? showScrollToTopChevron;
-
-  /// {@macro Select.showScrollToBottomChevron}
-  final bool? showScrollToBottomChevron;
 
   /// {@macro Select.anchor}
   final AnchorBase? anchor;

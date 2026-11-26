@@ -114,9 +114,10 @@ class _MenuIndicator extends StatelessWidget {
 /// A menu row that is checked or not, shadcn's `DropdownMenuCheckboxItem`.
 ///
 /// It is controlled: [onChanged] reports the new value and the parent
-/// rebuilds the menu with it. A click toggles the row and leaves the menu
-/// open unless [closeOnTap] is true; from the keyboard Space always toggles
-/// and stays, and Enter does what a click does.
+/// rebuilds the menu with it. A click toggles the row and closes the menu,
+/// as any other row's does, unless [closeOnTap] is false; from the keyboard
+/// Space always toggles and stays, so several rows can be set in one visit,
+/// and Enter does what a click does.
 ///
 /// A menu with a checkable row keeps a column free for the check marks in
 /// every row, so the labels line up.
@@ -147,7 +148,7 @@ class MenuCheckboxItem extends StatelessWidget {
     this.leading,
     this.trailing,
     this.shortcut,
-    this.closeOnTap = false,
+    this.closeOnTap = true,
     this.enabled = true,
   });
 
@@ -173,7 +174,7 @@ class MenuCheckboxItem extends StatelessWidget {
   final MenuShortcut? shortcut;
 
   /// Whether a click or Enter closes the menu after toggling. Defaults to
-  /// false, so several rows can be toggled in one visit.
+  /// true; Space toggles and leaves the menu open either way.
   final bool closeOnTap;
 
   /// Whether the row can be toggled. Defaults to true.
@@ -241,11 +242,23 @@ class MenuRadioGroup<T> extends StatelessWidget {
     return _MenuRadioScope<T>(
       value: value,
       onChanged: onChanged,
-      // Laid out as the menu lays out its own rows.
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: children,
+      // Laid out as the menu lays out its own rows. The group's first and
+      // last rows are at the menu's edges only where the group is.
+      child: Builder(
+        builder: (context) {
+          final edge = MenuEdge.of(context);
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: edge == null
+                ? children
+                : MenuEdge.mark(
+                    children,
+                    top: edge.top,
+                    bottom: edge.bottom,
+                  ),
+          );
+        },
       ),
     );
   }

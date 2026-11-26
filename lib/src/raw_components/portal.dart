@@ -777,19 +777,24 @@ class _PortalState extends State<Portal> {
         controller: overlayPortalController,
         overlayChildBuilder: (context) {
           // Built under the anchor, but not part of it: a menu opened from
-          // a button in a bar does not take the bar's look for its buttons.
+          // a button in a bar does not take the bar's look for its buttons,
+          // and the text of a popover is not part of a `SelectionArea`
+          // around the page — the long press that opens a hover card, or a
+          // Select All, would otherwise paint the selection over it.
           return BarButtonScope.none(
-            child: Center(
-              widthFactor: 1,
-              heightFactor: 1,
-              child: switch (widget.anchor) {
-                final AnchorAuto anchor => buildAutoPosition(context, anchor),
-                final Anchor anchor => buildManualPosition(context, anchor),
-                final GlobalAnchor anchor => buildGlobalPosition(
-                  context,
-                  anchor,
-                ),
-              },
+            child: SelectionContainer.disabled(
+              child: Center(
+                widthFactor: 1,
+                heightFactor: 1,
+                child: switch (widget.anchor) {
+                  final AnchorAuto anchor => buildAutoPosition(context, anchor),
+                  final Anchor anchor => buildManualPosition(context, anchor),
+                  final GlobalAnchor anchor => buildGlobalPosition(
+                    context,
+                    anchor,
+                  ),
+                },
+              ),
             ),
           );
         },

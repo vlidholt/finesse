@@ -49,6 +49,63 @@ void main() {
     expect(edge.bottom, isTrue);
   });
 
+  test('every row is marked, so a group cannot pass its edge to all of '
+      'its rows', () {
+    final marked = MenuEdge.mark([
+      const SizedBox(),
+      const SizedBox(),
+      const SizedBox(),
+    ]).cast<MenuEdge>();
+    expect(
+      [for (final e in marked) (e.top, e.bottom)],
+      [
+        (true, false),
+        (false, false),
+        (false, true),
+      ],
+    );
+  });
+
+  testWidgets('a radio group at the end of a menu rounds only its last row', (
+    tester,
+  ) async {
+    final controller = PopoverController();
+    addTearDown(controller.dispose);
+    await pumpUna(
+      tester,
+      Align(
+        alignment: Alignment.topLeft,
+        child: DropdownMenu(
+          controller: controller,
+          items: [
+            const MenuItem(child: Text('Top')),
+            MenuRadioGroup<int>(
+              value: 1,
+              onChanged: (_) {},
+              children: const [
+                MenuRadioItem(value: 1, child: Text('One')),
+                MenuRadioItem(value: 2, child: Text('Two')),
+                MenuRadioItem(value: 3, child: Text('Three')),
+              ],
+            ),
+          ],
+          builder: (context, controller, _) => const Text('Anchor'),
+        ),
+      ),
+      formFactor: FormFactor.mobile,
+    );
+    controller.open();
+    for (var i = 0; i < 12; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    ({bool top, bool bottom})? edgeOf(String label) =>
+        MenuEdge.of(tester.element(find.text(label)));
+    expect(edgeOf('Top'), (top: true, bottom: false));
+    expect(edgeOf('One'), (top: false, bottom: false));
+    expect(edgeOf('Two'), (top: false, bottom: false));
+    expect(edgeOf('Three'), (top: false, bottom: true));
+  });
+
   testWidgets('a row never gets smaller corners than its own', (tester) async {
     await pumpUna(
       tester,

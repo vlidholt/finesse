@@ -1089,8 +1089,6 @@ class DefaultThemeVariant extends ThemeVariant {
         border: fieldBorder,
       ),
       optionsPadding: EdgeInsets.all(scaled(style.menuPadding)),
-      showScrollToTopChevron: true,
-      showScrollToBottomChevron: true,
       anchor: const AnchorAuto(
         offset: Offset(0, 4),
         fallback: AnchorAuto(

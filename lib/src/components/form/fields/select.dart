@@ -79,12 +79,6 @@ class SelectFormField<T> extends UnaFormField<T> {
     /// {@macro Select.optionsPadding}
     EdgeInsetsGeometry? optionsPadding,
 
-    /// {@macro Select.showScrollToTopChevron}
-    bool? showScrollToTopChevron,
-
-    /// {@macro Select.showScrollToBottomChevron}
-    bool? showScrollToBottomChevron,
-
     /// {@macro Select.scrollController}
     ScrollController? scrollController,
 
@@ -174,8 +168,6 @@ class SelectFormField<T> extends UnaFormField<T> {
              trailing: trailing,
              padding: padding,
              optionsPadding: optionsPadding,
-             showScrollToTopChevron: showScrollToTopChevron,
-             showScrollToBottomChevron: showScrollToBottomChevron,
              scrollController: scrollController,
              filter: filter,
              onSearchChanged: onSearchChanged,
@@ -235,8 +227,6 @@ class SelectFormField<T> extends UnaFormField<T> {
     Widget? trailing,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? optionsPadding,
-    bool? showScrollToTopChevron,
-    bool? showScrollToBottomChevron,
     ScrollController? scrollController,
     AnchorBase? anchor,
 
@@ -301,8 +291,6 @@ class SelectFormField<T> extends UnaFormField<T> {
              trailing: trailing,
              padding: padding,
              optionsPadding: optionsPadding,
-             showScrollToTopChevron: showScrollToTopChevron,
-             showScrollToBottomChevron: showScrollToBottomChevron,
              scrollController: scrollController,
              filter: filter,
              onSearchChanged: onSearchChanged,
@@ -405,12 +393,6 @@ class SelectMultipleFormField<T> extends UnaFormField<Set<T>> {
     /// {@macro Select.optionsPadding}
     EdgeInsetsGeometry? optionsPadding,
 
-    /// {@macro Select.showScrollToTopChevron}
-    bool? showScrollToTopChevron,
-
-    /// {@macro Select.showScrollToBottomChevron}
-    bool? showScrollToBottomChevron,
-
     /// {@macro Select.scrollController}
     ScrollController? scrollController,
 
@@ -495,8 +477,6 @@ class SelectMultipleFormField<T> extends UnaFormField<Set<T>> {
              trailing: trailing,
              padding: padding,
              optionsPadding: optionsPadding,
-             showScrollToTopChevron: showScrollToTopChevron,
-             showScrollToBottomChevron: showScrollToBottomChevron,
              scrollController: scrollController,
              filter: filter,
              onSearchChanged: onSearchChanged,
@@ -554,8 +534,6 @@ class SelectMultipleFormField<T> extends UnaFormField<Set<T>> {
     Widget? trailing,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? optionsPadding,
-    bool? showScrollToTopChevron,
-    bool? showScrollToBottomChevron,
     ScrollController? scrollController,
     AnchorBase? anchor,
 
@@ -615,8 +593,6 @@ class SelectMultipleFormField<T> extends UnaFormField<Set<T>> {
              trailing: trailing,
              padding: padding,
              optionsPadding: optionsPadding,
-             showScrollToTopChevron: showScrollToTopChevron,
-             showScrollToBottomChevron: showScrollToBottomChevron,
              scrollController: scrollController,
              filter: filter,
              onSearchChanged: onSearchChanged,

@@ -126,9 +126,12 @@ class _LiquidGlassMorphPopoverState extends State<LiquidGlassMorphPopover> {
             // The trigger opens the menu through the una controller.
             triggerBuilder: (context, _) => widget.child,
             contentBuilder: (context, _) {
-              // Not the bar's buttons, though the trigger may be in a bar.
+              // Not the bar's buttons, though the trigger may be in a bar,
+              // nor part of a selection area around the trigger.
               final content = BarButtonScope.none(
-                child: widget.builder(context),
+                child: SelectionContainer.disabled(
+                  child: widget.builder(context),
+                ),
               );
               if (!legible) return content;
               return DecoratedBox(

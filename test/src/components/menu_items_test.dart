@@ -106,7 +106,9 @@ void main() {
     expect(heightOf('Tall'), 48);
   });
   group('MenuCheckboxItem', () {
-    testWidgets('a click toggles it and leaves the menu open', (tester) async {
+    testWidgets('a click toggles it and closes the menu, as any row does', (
+      tester,
+    ) async {
       var checked = false;
       final menu = await pumpMenu(
         tester,
@@ -123,6 +125,26 @@ void main() {
       await tester.tap(find.text('Grid'));
       await settle(tester);
       expect(checked, isTrue);
+      expect(menu.isOpen, isFalse);
+    });
+
+    testWidgets('with closeOnTap: false a click toggles it and leaves the '
+        'menu open', (tester) async {
+      var checked = false;
+      final menu = await pumpMenu(
+        tester,
+        items: (setState) => [
+          MenuCheckboxItem(
+            checked: checked,
+            closeOnTap: false,
+            onChanged: (value) => setState(() => checked = value),
+            child: const Text('Grid'),
+          ),
+        ],
+      );
+      await tester.tap(find.text('Grid'));
+      await settle(tester);
+      expect(checked, isTrue);
       expect(menu.isOpen, isTrue);
       expect(check('Grid'), findsOneWidget);
 
@@ -133,15 +155,15 @@ void main() {
       expect(check('Grid'), findsNothing);
     });
 
-    testWidgets('with closeOnTap a click and Enter close the menu, and '
-        'Space still does not', (tester) async {
+    testWidgets('a click and Enter close the menu, and Space does not', (
+      tester,
+    ) async {
       var checked = false;
       final menu = await pumpMenu(
         tester,
         items: (setState) => [
           MenuCheckboxItem(
             checked: checked,
-            closeOnTap: true,
             onChanged: (value) => setState(() => checked = value),
             child: const Text('Grid'),
           ),
@@ -182,6 +204,7 @@ void main() {
         items: (setState) => [
           MenuCheckboxItem(
             checked: checked,
+            closeOnTap: false,
             onChanged: (value) => setState(() => checked = value),
             child: const Text('Grid'),
           ),
@@ -238,6 +261,7 @@ void main() {
         items: (setState) => [
           MenuCheckboxItem(
             checked: checked,
+            closeOnTap: false,
             onChanged: (value) => setState(() => checked = value),
             child: const Text('Grid'),
           ),
@@ -1015,6 +1039,7 @@ void main() {
           items: (setState) => [
             MenuCheckboxItem(
               checked: checked,
+              closeOnTap: false,
               onChanged: (value) => setState(() => checked = value),
               child: const Text('Grid'),
             ),
@@ -1061,6 +1086,7 @@ void main() {
         items: (setState) => [
           MenuCheckboxItem(
             checked: checked,
+            closeOnTap: false,
             onChanged: (value) => setState(() => checked = value),
             child: const Text('Grid'),
           ),
