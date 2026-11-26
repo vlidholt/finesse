@@ -329,6 +329,53 @@ void main() {
       expect(dark, contains('primary: const Color(0x'));
     });
 
+    test('picking the original colour back is no edit at all', () {
+      final original = const OceanColorScheme.light().primary;
+      final config = const ThemeEditorConfig()
+          .withColor(primary, Brightness.light, pink)
+          .withColor(primary, Brightness.light, original);
+      expect(config, const ThemeEditorConfig());
+      expect(config.colorSource(primary, Brightness.light), ColorSource.scheme);
+    });
+
+    test('a seed makes the scheme, light and dark, and is exported', () {
+      const seed = Color(0xFF0EA5E9);
+      final config = const ThemeEditorConfig().copyWith(seed: () => seed);
+      expect(config.colorScheme, ColorScheme.fromSeed(seed));
+      expect(
+        config.copyWith(brightness: Brightness.dark).colorScheme,
+        ColorScheme.fromSeed(seed, brightness: Brightness.dark),
+      );
+      expect(
+        config.toDartSnippet(),
+        contains('colorScheme: ColorScheme.fromSeed(const Color(0xFF0EA5E9)),'),
+      );
+      expect(
+        config.copyWith(brightness: Brightness.dark).toDartSnippet(),
+        contains(
+          'ColorScheme.fromSeed(const Color(0xFF0EA5E9), '
+          'brightness: Brightness.dark)',
+        ),
+      );
+    });
+
+    test('every palette builds, and a palette is found again from its '
+        'configuration', () {
+      expect(ColorPalette.values.length, greaterThan(15));
+      for (final palette in ColorPalette.values) {
+        final config = palette.applyTo(const ThemeEditorConfig());
+        expect(ColorPalette.of(config), palette, reason: palette.label);
+        for (final b in Brightness.values) {
+          expect(config.copyWith(brightness: b).build(), isNotNull);
+        }
+      }
+      // Ocean is the package default, with no seed.
+      expect(
+        ColorPalette.ocean.applyTo(const ThemeEditorConfig()),
+        const ThemeEditorConfig(),
+      );
+    });
+
     test('reset hands the token back to the scheme', () {
       final config = const ThemeEditorConfig()
           .withColor(primary, Brightness.light, pink)
@@ -383,6 +430,16 @@ void main() {
         expect(tall.tokensFor(FormFactor.desktop).buttonHeight, 30);
       },
     );
+
+    test('setting a field back to its original value is no edit', () {
+      final height = field('buttonHeight');
+      final original = StyleTokens.fluid.buttonHeight;
+      final config = const ThemeEditorConfig()
+          .withStyleValue(height, FormFactor.desktop, 30.0)
+          .withStyleValue(height, FormFactor.desktop, original);
+      expect(config, const ThemeEditorConfig());
+      expect(config.styleEdited(height, FormFactor.desktop), isFalse);
+    });
 
     test('are exported in the style\'s copyWith', () {
       final config = const ThemeEditorConfig()
@@ -457,7 +514,7 @@ void main() {
         expect(inPanel(find.text(preset.label)), findsOneWidget);
       }
       for (final label in [
-        'Colors',
+        'Palette',
         'Heading',
         'Font',
         'Style',
@@ -503,7 +560,7 @@ void main() {
       await tester.tapAt(const Offset(20, 20));
       await settle(tester);
 
-      await tester.tap(inPanel(find.text('Colors')));
+      await tester.tap(inPanel(find.text('Palette')));
       await settle(tester);
       for (final colors in ColorSchemes.values) {
         expect(find.text(colors.label), findsWidgets, reason: colors.label);
@@ -528,7 +585,7 @@ void main() {
     testWidgets('picking colours re-colours the page', (tester) async {
       await pump(tester);
 
-      await choose(tester, 'Colors', 'Forest');
+      await choose(tester, 'Palette', 'Forest');
 
       expect(
         pageTheme(tester).colorScheme,
@@ -546,7 +603,7 @@ void main() {
     testWidgets('re-themes the component library', (tester) async {
       await pump(tester);
 
-      await choose(tester, 'Colors', 'Iris');
+      await choose(tester, 'Palette', 'Iris');
       await choose(tester, 'Style', 'Sharp');
 
       final docsTheme = Theme.of(

@@ -33,7 +33,7 @@ void main() {
 
   /// Every setting, by section.
   const settings = {
-    'COLOR': ['Colors', 'Brand', 'Surfaces'],
+    'COLOR': ['Palette', 'Seed', 'Primary', 'All colors'],
     'FONTS': ['Heading', 'Font'],
     'SHAPE': ['Style', 'Radius', 'Focus Ring'],
     'GLASS': ['Card Opacity', 'Card Blur', 'Bar Opacity', 'Blur Strength'],
@@ -193,10 +193,10 @@ void main() {
       }
 
       await tapInPanel(tester, find.text('COLOR'));
-      expect(find.text('Colors'), findsNothing);
-      expect(find.text('Brand'), findsNothing);
+      expect(find.text('Palette'), findsNothing);
+      expect(find.text('All colors'), findsNothing);
       await tapInPanel(tester, find.text('COLOR'));
-      expect(find.text('Colors'), findsOneWidget);
+      expect(find.text('Palette'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   });
@@ -279,7 +279,7 @@ void main() {
         // Each picker, and an option its popover has to show. A choice of
         // two or three is a segmented control, with no popover.
         const pickers = {
-          'Colors': 'Ember',
+          'Palette': 'Ember',
           'Heading': 'Inter',
           'Font': 'Inter',
           'Style': 'Sharp',
@@ -336,7 +336,7 @@ void main() {
 
       // Editing changes the configuration, not the panel.
       await choose(tester, 'Style', 'Sharp');
-      await choose(tester, 'Colors', 'Ember');
+      await choose(tester, 'Palette', 'Ember');
       expect(config.style, StylePreset.sharp);
       expect(
         Theme.of(tester.element(inPanel(find.byType(Scrollable)).first)),
@@ -432,7 +432,7 @@ void main() {
       expect(ThemePreset.of(config), ThemePreset.classic);
       expect(find.text('Custom'), findsNothing);
 
-      await choose(tester, 'Colors', 'Iris');
+      await choose(tester, 'Palette', 'Iris');
       expect(config.colors, ColorSchemes.iris);
       // The rest of Classic is still there: the change was one option.
       expect(config.style, StylePreset.crisp);
@@ -449,7 +449,7 @@ void main() {
       );
 
       // Undoing the change is the preset again.
-      await choose(tester, 'Colors', 'Graphite');
+      await choose(tester, 'Palette', 'Graphite');
       expect(ThemePreset.of(config), ThemePreset.classic);
       expect(find.text('Custom'), findsNothing);
     });
@@ -657,7 +657,7 @@ void main() {
       expect(config.radius, RadiusPreset.large);
       await choose(tester, 'Form Factor', 'Desktop');
       expect(config.formFactor, EditorFormFactor.desktop);
-      await choose(tester, 'Colors', 'Forest');
+      await choose(tester, 'Palette', 'Forest');
       expect(config.colors, ColorSchemes.forest);
       expect(tester.takeException(), isNull);
     });
@@ -740,6 +740,7 @@ void main() {
         'reset', (tester) async {
       await pumpPanel(tester);
       expect(find.text('Primary foreground'), findsNothing);
+      await tapInPanel(tester, inPanel(find.text('All colors')));
       await tapInPanel(tester, inPanel(find.text('Brand')));
       expect(find.text('Primary foreground'), findsOneWidget);
       expect(inPanel(find.byType(ColorPickerButton)), findsWidgets);
@@ -755,7 +756,7 @@ void main() {
       // A fresh panel, so the group starts folded again.
       await tester.pumpWidget(const SizedBox.shrink());
       await pumpPanel(tester, initial: config);
-      await tapInPanel(tester, inPanel(find.text('Brand')));
+      // Primary is one of the colours in view without unfolding.
       expect(find.text('#DB2777'), findsOneWidget);
       await tapInPanel(tester, find.bySemanticsLabel('Reset Primary'));
       expect(config.lightColors.isEmpty, isTrue);

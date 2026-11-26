@@ -6,6 +6,72 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/una.dart';
 
+/// The colour options the editor offers: the six built-in schemes, and
+/// more made from a seed colour with `ColorScheme.fromSeed`, which builds
+/// them on the same ladder of lightness.
+enum ColorPalette {
+  ocean('Ocean', scheme: ColorSchemes.ocean),
+  graphite('Graphite', scheme: ColorSchemes.graphite),
+  forest('Forest', scheme: ColorSchemes.forest),
+  iris('Iris', scheme: ColorSchemes.iris),
+  ember('Ember', scheme: ColorSchemes.ember),
+  rose('Rose', scheme: ColorSchemes.rose),
+  sky('Sky', seed: Color(0xFF0EA5E9)),
+  cyan('Lagoon', seed: Color(0xFF0891B2)),
+  teal('Teal', seed: Color(0xFF0D9488)),
+  emerald('Emerald', seed: Color(0xFF059669)),
+  moss('Moss', seed: Color(0xFF65A30D)),
+  gold('Gold', seed: Color(0xFFCA8A04)),
+  amber('Amber', seed: Color(0xFFD97706)),
+  coral('Coral', seed: Color(0xFFF2643C)),
+  crimson('Crimson', seed: Color(0xFFDC2626)),
+  berry('Berry', seed: Color(0xFFDB2777)),
+  orchid('Orchid', seed: Color(0xFFC026D3)),
+  violet('Violet', seed: Color(0xFF7C3AED)),
+  indigo('Indigo', seed: Color(0xFF4F46E5)),
+  slate('Slate', seed: Color(0xFF64748B)),
+  sand('Sand', seed: Color(0xFF8A8178));
+
+  const ColorPalette(this.label, {this.scheme, this.seed});
+
+  final String label;
+
+  /// The built-in scheme, for the first six.
+  final ColorSchemes? scheme;
+
+  /// The seed, for the rest.
+  final Color? seed;
+
+  /// The palette [config] is on, or null for a seed picked by hand.
+  static ColorPalette? of(ThemeEditorConfig config) {
+    for (final palette in values) {
+      if (palette.seed == config.seed &&
+          (palette.seed != null || palette.scheme == config.colors)) {
+        return palette;
+      }
+    }
+    return null;
+  }
+
+  /// [config] on this palette, with no colour picked by hand.
+  ThemeEditorConfig applyTo(ThemeEditorConfig config) => config.copyWith(
+    colors: scheme ?? config.colors,
+    seed: () => seed,
+    lightColors: const ColorEdits(),
+    darkColors: const ColorEdits(),
+  );
+
+  /// The dot shown for it: its light primary — or, for a monochrome one,
+  /// its dark primary, which reads on the panel's dark surface.
+  Color get swatch {
+    final light = seed != null ? ColorScheme.fromSeed(seed!) : scheme!.light;
+    final dark = seed != null
+        ? ColorScheme.fromSeed(seed!, brightness: Brightness.dark)
+        : scheme!.dark;
+    return light.primary == light.foreground ? dark.primary : light.primary;
+  }
+}
+
 /// The radius presets. [style] follows the selected style's own radius —
 /// 10 for Fluid — which is what the package does when no radius is given.
 /// The others are shadcn/ui's `--radius` presets; components use
@@ -172,6 +238,7 @@ class ThemeEditorConfig {
     this.brightness = Brightness.light,
     this.style = StylePreset.fluid,
     this.colors = ColorSchemes.ocean,
+    this.seed,
     this.lightColors = const ColorEdits(),
     this.darkColors = const ColorEdits(),
     this.styleEdits = const StyleEdits(),
@@ -202,6 +269,10 @@ class ThemeEditorConfig {
 
   /// The colour theme every colour starts from.
   final ColorSchemes colors;
+
+  /// A seed colour the scheme is made from (`ColorScheme.fromSeed`); when
+  /// set it stands in for [colors].
+  final Color? seed;
 
   /// The colours picked by hand in light mode, and in dark. A colour picked
   /// in one only is carried over to the other (see [applyColorEdits]).
@@ -323,6 +394,7 @@ class ThemeEditorConfig {
     Brightness? brightness,
     StylePreset? style,
     ColorSchemes? colors,
+    ValueGetter<Color?>? seed,
     ColorEdits? lightColors,
     ColorEdits? darkColors,
     StyleEdits? styleEdits,
@@ -353,6 +425,7 @@ class ThemeEditorConfig {
       brightness: brightness ?? this.brightness,
       style: style ?? this.style,
       colors: colors ?? this.colors,
+      seed: seed == null ? this.seed : seed(),
       lightColors: lightColors ?? this.lightColors,
       darkColors: darkColors ?? this.darkColors,
       styleEdits: styleEdits ?? this.styleEdits,
@@ -407,6 +480,7 @@ class ThemeEditorConfig {
         other.brightness == brightness &&
         other.style == style &&
         other.colors == colors &&
+        other.seed == seed &&
         other.lightColors == lightColors &&
         other.darkColors == darkColors &&
         other.styleEdits == styleEdits &&
@@ -437,6 +511,7 @@ class ThemeEditorConfig {
     brightness,
     style,
     colors,
+    seed,
     lightColors,
     darkColors,
     styleEdits,
@@ -468,22 +543,30 @@ class ThemeEditorConfig {
 
   ColorScheme _scheme(Brightness b) {
     final dark = b == Brightness.dark;
-    final key = (colors, lightColors, darkColors, dark);
+    final key = (colors, seed, lightColors, darkColors, dark);
     final cached = _schemes[key];
     if (cached != null) return cached;
     if (_schemes.length >= _maxCachedStyles) {
       _schemes.remove(_schemes.keys.first);
     }
     return _schemes[key] = applyColorEdits(
-      base: colors.of(b),
-      otherBase: colors.of(dark ? Brightness.light : Brightness.dark),
+      base: baseScheme(b),
+      otherBase: baseScheme(dark ? Brightness.light : Brightness.dark),
       own: dark ? darkColors : lightColors,
       other: dark ? lightColors : darkColors,
     );
   }
 
   static final _schemes =
-      <(ColorSchemes, ColorEdits, ColorEdits, bool), ColorScheme>{};
+      <(ColorSchemes, Color?, ColorEdits, ColorEdits, bool), ColorScheme>{};
+
+  /// The scheme before any colour picked by hand: the seed's, or the
+  /// colour theme's.
+  ColorScheme baseScheme(Brightness b) => seed != null
+      ? _seeded[(seed!, b)] ??= ColorScheme.fromSeed(seed!, brightness: b)
+      : colors.of(b);
+
+  static final _seeded = <(Color, Brightness), ColorScheme>{};
 
   /// The colour picked by hand for [token] in [b], or null.
   ColorEdits colorEditsFor(Brightness b) =>
@@ -503,10 +586,18 @@ class ThemeEditorConfig {
 
   /// This configuration with [token] set to [color] in [b], or handed back
   /// to the scheme (and to the other brightness) with null.
-  ThemeEditorConfig withColor(ColorToken token, Brightness b, Color? color) =>
-      b == Brightness.dark
-      ? copyWith(darkColors: darkColors.withColor(token.name, color))
-      : copyWith(lightColors: lightColors.withColor(token.name, color));
+  ///
+  /// A colour equal to the one the token has without it is no edit at all:
+  /// picking the original back leaves the token as it was.
+  ThemeEditorConfig withColor(ColorToken token, Brightness b, Color? color) {
+    ThemeEditorConfig set(Color? value) => b == Brightness.dark
+        ? copyWith(darkColors: darkColors.withColor(token.name, value))
+        : copyWith(lightColors: lightColors.withColor(token.name, value));
+    final without = set(null);
+    if (color == null) return without;
+    final original = token.read(without._scheme(b));
+    return color == original ? without : set(color);
+  }
 
   /// The style tokens [formFactor] is laid out with.
   StyleTokens tokensFor(FormFactor formFactor) {
@@ -540,6 +631,16 @@ class ThemeEditorConfig {
     FormFactor formFactor,
     Object? value,
   ) {
+    if (value != null) {
+      // The value it has without this edit is no edit at all: setting a
+      // field back to the original leaves it as it was.
+      final without = withStyleValue(field, formFactor, null);
+      final original = field.read(without.tokensFor(formFactor));
+      final same = value is List && original is List
+          ? listEquals(value, original)
+          : value == original;
+      if (same) return without;
+    }
     if (formFactor == FormFactor.desktop) {
       return copyWith(styleEdits: styleEdits.withValue(field.name, value));
     }
@@ -720,6 +821,7 @@ class ThemeEditorConfig {
     final lines = <String>[
       if (dark) 'brightness: Brightness.dark,',
       if (colors != ColorSchemes.ocean ||
+          seed != null ||
           !lightColors.isEmpty ||
           !darkColors.isEmpty)
         ..._prefixed('colorScheme: ', _schemeCode(brightness)),
@@ -770,10 +872,15 @@ class ThemeEditorConfig {
   /// theme's, with every colour that differs from it.
   List<String> _schemeCode(Brightness b) {
     final name = colors.name;
-    final base =
-        'const ${name[0].toUpperCase()}${name.substring(1)}ColorScheme'
-        '.${b.name}()';
-    final theme = colors.of(b);
+    final hex = seed == null
+        ? null
+        : '0x${seed!.toARGB32().toRadixString(16).padLeft(8, '0').toUpperCase()}';
+    final base = hex != null
+        ? 'ColorScheme.fromSeed(const Color($hex)'
+              '${b == Brightness.dark ? ', brightness: Brightness.dark' : ''})'
+        : 'const ${name[0].toUpperCase()}${name.substring(1)}ColorScheme'
+              '.${b.name}()';
+    final theme = baseScheme(b);
     final resolved = _scheme(b);
     final changed = [
       for (final token in colorTokens)

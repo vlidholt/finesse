@@ -182,6 +182,17 @@ class _SettingLine extends StatelessWidget {
   }
 }
 
+/// The colours a scheme's look rests on, listed before the rest.
+const _keyColors = [
+  'primary',
+  'tint',
+  'background',
+  'card',
+  'foreground',
+  'mutedForeground',
+  'border',
+];
+
 /// Every colour of the scheme in [brightness], grouped, each with a
 /// picker. A colour picked here is pinned in [brightness]; the other
 /// brightness takes it over, adjusted to its own palette, until a colour
@@ -203,6 +214,13 @@ class ColorTokenList extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = config.copyWith(brightness: brightness).colorScheme;
     final other = brightness == Brightness.dark ? 'light' : 'dark';
+    Widget line(ColorToken token) => _ColorLine(
+      token: token,
+      color: token.read(scheme),
+      source: config.colorSource(token, brightness),
+      onChanged: (color) =>
+          onChanged(config.withColor(token, brightness, color)),
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
@@ -215,29 +233,45 @@ class ColorTokenList extends StatelessWidget {
             style: _noteStyle(theme),
           ),
         ),
-        for (final group in ColorTokenGroup.values)
-          EditorFoldOut(
-            title: group.label,
-            count: colorTokens.where((t) => t.group == group).length,
-            edited: colorTokens
-                .where(
-                  (t) =>
-                      t.group == group &&
-                      config.colorSource(t, brightness) == ColorSource.pinned,
-                )
-                .length,
-            children: [
-              for (final token in colorTokens)
-                if (token.group == group)
-                  _ColorLine(
-                    token: token,
-                    color: token.read(scheme),
-                    source: config.colorSource(token, brightness),
-                    onChanged: (color) =>
-                        onChanged(config.withColor(token, brightness, color)),
-                  ),
-            ],
-          ),
+        // The colours that set a scheme's look, in view…
+        for (final name in _keyColors) line(ColorToken.byName(name)),
+        // …and every one, a fold away.
+        EditorFoldOut(
+          title: 'All colors',
+          count: colorTokens.length,
+          edited: colorTokens
+              .where(
+                (t) => config.colorSource(t, brightness) == ColorSource.pinned,
+              )
+              .length,
+          children: [
+            for (final group in ColorTokenGroup.values)
+              EditorFoldOut(
+                title: group.label,
+                count: colorTokens.where((t) => t.group == group).length,
+                edited: colorTokens
+                    .where(
+                      (t) =>
+                          t.group == group &&
+                          config.colorSource(t, brightness) ==
+                              ColorSource.pinned,
+                    )
+                    .length,
+                children: [
+                  for (final token in colorTokens)
+                    if (token.group == group)
+                      _ColorLine(
+                        token: token,
+                        color: token.read(scheme),
+                        source: config.colorSource(token, brightness),
+                        onChanged: (color) => onChanged(
+                          config.withColor(token, brightness, color),
+                        ),
+                      ),
+                ],
+              ),
+          ],
+        ),
       ],
     );
   }
@@ -481,8 +515,9 @@ class _NumberControl extends StatelessWidget {
   Widget build(BuildContext context) {
     final range = field.range;
     return SizedBox(
-      width: 88,
+      width: _touch(context) ? 128 : 104,
       child: NumberField(
+        size: ControlSize.sm,
         value: value,
         min: range.min,
         max: range.max,
@@ -563,6 +598,7 @@ class _Choice<T> extends StatelessWidget {
     return SizedBox(
       width: 112,
       child: Select<T>(
+        size: ControlSize.sm,
         value: value,
         placeholder: const Text('Same as light'),
         onChanged: (next) {
@@ -652,8 +688,9 @@ class _TextRoleControlState extends State<_TextRoleControl> {
             part(
               'Size',
               SizedBox(
-                width: 96,
+                width: 112,
                 child: NumberField(
+                  size: ControlSize.sm,
                   value: role.fontSize,
                   min: 6,
                   max: 96,
@@ -668,8 +705,9 @@ class _TextRoleControlState extends State<_TextRoleControl> {
             part(
               'Line height',
               SizedBox(
-                width: 96,
+                width: 112,
                 child: NumberField(
+                  size: ControlSize.sm,
                   value: role.height ?? 1.4,
                   min: .8,
                   max: 2.5,
@@ -684,8 +722,9 @@ class _TextRoleControlState extends State<_TextRoleControl> {
             part(
               'Weight',
               SizedBox(
-                width: 96,
+                width: 112,
                 child: Select<int>(
+                  size: ControlSize.sm,
                   value: weight,
                   onChanged: (v) => v == null ? null : set(copy(weight: v)),
                   options: [
@@ -698,8 +737,9 @@ class _TextRoleControlState extends State<_TextRoleControl> {
             part(
               'Tracking',
               SizedBox(
-                width: 96,
+                width: 112,
                 child: NumberField(
+                  size: ControlSize.sm,
                   value: role.letterSpacing ?? 0,
                   min: -2,
                   max: 4,

@@ -3,7 +3,7 @@
 // deprecated it in 3.47 in favour of the `material_ui` package.
 // ignore_for_file: deprecated_member_use
 
-import 'package:example/common/code_style.dart';
+import 'package:example/docs/docs.dart' show CodeBlock;
 import 'package:example/common/theme_editor/color_tokens.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/theme_editor/editor_rows.dart';
@@ -11,7 +11,7 @@ import 'package:example/common/theme_editor/fonts.dart';
 import 'package:example/common/theme_editor/picker.dart';
 import 'package:example/common/theme_editor/presets.dart';
 import 'package:flutter/material.dart'
-    hide Dialog, Divider, IconButton, Theme, ThemeData, showDialog;
+    hide Dialog, DialogTheme, Divider, IconButton, Theme, ThemeData, showDialog;
 import 'package:flutter/services.dart';
 import 'package:una/una.dart';
 
@@ -68,6 +68,9 @@ class ThemeCustomizerPanel extends StatelessWidget {
     // Pinned too: the panel is laid out against the compact Crisp
     // metrics, and the package default — Fluid — is roomier.
     style: StyleTokens.crisp,
+    // The panel is the same chrome on every platform: no Liquid Glass
+    // capsules among its rows on Apple ones.
+    liquidGlass: const LiquidGlassTheme(mode: LiquidGlassMode.never),
   );
 
   /// [_chrome] with touch-sized controls, for when the panel covers a phone.
@@ -216,31 +219,24 @@ class _SettingsState extends State<_Settings> {
             _PresetGrid(config: config, onChanged: onChanged),
           ]),
           _section(_SectionId.color, [
-            ThemePicker<ColorSchemes>(
-              label: 'Colors',
-              value: config.colors,
+            ThemePicker<ColorPalette?>(
+              label: 'Palette',
+              value: ColorPalette.of(config),
               options: [
-                for (final c in ColorSchemes.values)
+                for (final p in ColorPalette.values)
+                  PickerOption(value: p, label: p.label, swatch: p.swatch),
+                if (ColorPalette.of(config) == null)
                   PickerOption(
-                    value: c,
-                    label: c.label,
-                    // Graphite's primary is near-black, lost on the
-                    // panel's dark surface: its dark primary shows instead.
-                    swatch: c == ColorSchemes.graphite
-                        ? c.dark.primary
-                        : c.light.primary,
+                    value: null,
+                    label: 'Custom seed',
+                    swatch: config.seed,
                   ),
               ],
-              // A new theme starts clean: colours picked for another one
-              // were picked against its palette.
-              onChanged: (v) => onChanged(
-                config.copyWith(
-                  colors: v,
-                  lightColors: const ColorEdits(),
-                  darkColors: const ColorEdits(),
-                ),
-              ),
+              onChanged: (p) {
+                if (p != null) onChanged(p.applyTo(config));
+              },
             ),
+            _SeedRow(config: config, onChanged: onChanged),
             ColorTokenList(
               config: config,
               brightness: widget.brightness,
@@ -248,6 +244,12 @@ class _SettingsState extends State<_Settings> {
             ),
           ]),
           _section(_SectionId.fonts, [
+            _FontPicker(
+              label: 'Font',
+              icon: PhosphorIconsRegular.textT,
+              value: config.fontTitle,
+              onLoaded: (v) => onChanged(config.copyWith(fontTitle: v)),
+            ),
             _FontPicker(
               label: 'Heading',
               icon: PhosphorIconsRegular.textH,
@@ -258,12 +260,6 @@ class _SettingsState extends State<_Settings> {
                     ? config.copyWith(clearHeadingFont: true)
                     : config.copyWith(headingFontTitle: v),
               ),
-            ),
-            _FontPicker(
-              label: 'Font',
-              icon: PhosphorIconsRegular.textT,
-              value: config.fontTitle,
-              onLoaded: (v) => onChanged(config.copyWith(fontTitle: v)),
             ),
           ]),
           _section(_SectionId.shape, [
@@ -306,8 +302,11 @@ class _SettingsState extends State<_Settings> {
               min: .4,
               max: 1,
               format: _percent,
-              onChanged: (v) =>
-                  onChanged(config.copyWith(cardOpacity: () => v)),
+              onChanged: (v) => onChanged(
+                config.copyWith(
+                  cardOpacity: () => v == tokens.cardOpacity ? null : v,
+                ),
+              ),
               onReset: config.cardOpacity == null
                   ? null
                   : () => onChanged(config.copyWith(cardOpacity: () => null)),
@@ -331,7 +330,11 @@ class _SettingsState extends State<_Settings> {
               min: .4,
               max: 1,
               format: _percent,
-              onChanged: (v) => onChanged(config.copyWith(barOpacity: () => v)),
+              onChanged: (v) => onChanged(
+                config.copyWith(
+                  barOpacity: () => v == tokens.barOpacity ? null : v,
+                ),
+              ),
               onReset: config.barOpacity == null
                   ? null
                   : () => onChanged(config.copyWith(barOpacity: () => null)),
@@ -343,7 +346,11 @@ class _SettingsState extends State<_Settings> {
               max: 48,
               step: 1,
               format: (v) => v.round().toString(),
-              onChanged: (v) => onChanged(config.copyWith(glassBlur: () => v)),
+              onChanged: (v) => onChanged(
+                config.copyWith(
+                  glassBlur: () => v == tokens.glassBlur ? null : v,
+                ),
+              ),
               onReset: config.glassBlur == null
                   ? null
                   : () => onChanged(config.copyWith(glassBlur: () => null)),
@@ -845,6 +852,9 @@ class _Actions extends StatelessWidget {
           'your UnaApp.',
         ),
         semanticLabel: 'Generated theme code',
+        style: const DialogTheme(
+          constraints: BoxConstraints(maxWidth: 720),
+        ),
         actions: [
           Button.outline(
             onPressed: () => Navigator.of(context).pop(),
@@ -859,13 +869,13 @@ class _Actions extends StatelessWidget {
             child: const Text('Copy'),
           ),
         ],
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 560),
-          child: SelectableText(
-            snippet,
-            style: Theme.of(context).textTheme.small.merge(
-              CodeStyle.compact,
-            ),
+        // The docs' own code block: dark, highlighted, in the code face,
+        // scrolling inside the dialog rather than past the screen.
+        child: SizedBox(
+          width: 640,
+          child: CodeBlock(
+            code: snippet,
+            maxHeight: MediaQuery.sizeOf(context).height * .6,
           ),
         ),
       ),
@@ -940,6 +950,40 @@ class _FontPickerState extends State<_FontPicker> {
           ),
       ],
       onChanged: pick,
+    );
+  }
+}
+
+/// The seed the palette is made from, with a picker to start from any
+/// colour: `ColorScheme.fromSeed` builds the whole scheme around it.
+class _SeedRow extends StatelessWidget {
+  const _SeedRow({required this.config, required this.onChanged});
+
+  final ThemeEditorConfig config;
+  final ValueChanged<ThemeEditorConfig> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final seed = config.seed;
+    final shown =
+        seed ?? ColorPalette.of(config)?.swatch ?? config.colorScheme.primary;
+    return ThemeColorPicker(
+      label: 'Seed',
+      value: seed,
+      current: shown,
+      emptyLabel: 'From the palette',
+      swatches: [for (final p in ColorPalette.values) p.swatch],
+      // A new seed starts the colours afresh: ones picked by hand were
+      // picked against the old palette.
+      onChanged: (color) => onChanged(
+        color == null
+            ? ColorPalette.ocean.applyTo(config)
+            : config.copyWith(
+                seed: () => color,
+                lightColors: const ColorEdits(),
+                darkColors: const ColorEdits(),
+              ),
+      ),
     );
   }
 }

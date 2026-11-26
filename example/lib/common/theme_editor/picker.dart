@@ -556,29 +556,25 @@ class ThemeSegments<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    // One quiet line: the label, and a small control at the end. A
+    // full-width segmented control under every label outweighed the rows
+    // around it.
+    // Where the two do not fit on one line (long option names, large
+    // text), the control goes on the next.
     return Opacity(
       opacity: enabled ? 1 : .5,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 8,
+        runSpacing: 4,
         children: [
-          SizedBox(
-            height: 20,
-            child: Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: Text(
-                label,
-                style: _labelStyle(theme),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ),
+          Text(label, style: _labelStyle(theme), maxLines: 1),
           Semantics(
             label: label,
             container: true,
             child: SegmentedControl<T>(
-              expand: true,
+              size: ControlSize.sm,
               enabled: enabled,
               value: value,
               onChanged: (next) {
@@ -766,8 +762,16 @@ class ThemeColorPicker extends StatelessWidget {
     required this.value,
     required this.current,
     required this.onChanged,
+    this.emptyLabel = 'None',
+    this.swatches = _swatches,
     super.key,
   });
+
+  /// What the row reads while no colour is chosen.
+  final String emptyLabel;
+
+  /// The swatches the picker offers.
+  final List<Color> swatches;
 
   final String label;
 
@@ -795,7 +799,7 @@ class ThemeColorPicker extends StatelessWidget {
     final value = this.value;
     return _SettingBox(
       label: label,
-      value: value == null ? 'None' : colorToHex(value),
+      value: value == null ? emptyLabel : colorToHex(value),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         spacing: 4,
@@ -810,7 +814,7 @@ class ThemeColorPicker extends StatelessWidget {
             semanticLabel: label,
             size: 24,
             value: value ?? current,
-            swatches: _swatches,
+            swatches: swatches,
             onChanged: onChanged,
           ),
         ],
