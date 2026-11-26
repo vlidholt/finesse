@@ -399,6 +399,11 @@ was measured from (Strand, until it moved), is its own repository,
   `leading`, also inside an `IndicatorBadge`, `Tooltip` or
   `RepaintBoundary` — stands with its glyph, not its box, on the bar's
   margin; a button with a surface, and a capsule of glass, with its edge.
+- **A large bar's titles stand on the page colour over its picture.** The
+  page colour is painted behind the title and subtitle and rises a short
+  fade into the `background` above them, measured from the titles rather
+  than as fractions of the bar, so a two-line name or headline is never
+  set on the photograph itself.
 - **A bar's capsule of glass does not clip**, so a badge on its last
   button hangs over the capsule's end as on iOS 26 instead of being cut
   off; the buttons on it are round, so their fills stay inside its ends.

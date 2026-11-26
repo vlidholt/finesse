@@ -142,8 +142,9 @@ class SliverAppBar extends StatefulWidget {
   final Widget? bottom;
 
   /// What fills the expanded area of a large bar, behind the title: an
-  /// image, a gradient. It is faded into the page colour behind the title,
-  /// so the title reads on it in either brightness.
+  /// image, a gradient. The titles stand on the page colour, which rises
+  /// into the picture just above them, so they read on any picture in
+  /// either brightness.
   final Widget? background;
 
   /// The height of the area under the toolbar of a large bar while it is
@@ -412,36 +413,44 @@ class _SliverAppBarState extends State<SliverAppBar>
             ),
         ],
       );
-      // As tall as it is asked to be, with the titles at its bottom start
-      // corner, inside the page's margins.
-      expanded = ConstrainedBox(
-        constraints: BoxConstraints(minHeight: height ?? 0),
-        child: Align(
-          alignment: Alignment.bottomCenter,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: widget.maxWidth ?? bar.maxWidth ?? double.infinity,
-            ),
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(margin.left, gap, margin.right, gap),
-              child: Align(
-                alignment: AlignmentDirectional.centerStart,
-                heightFactor: 1,
-                child: titles,
-              ),
+      final page = scheme.background;
+      Widget block = Align(
+        alignment: Alignment.topCenter,
+        heightFactor: 1,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: widget.maxWidth ?? bar.maxWidth ?? double.infinity,
+          ),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(margin.left, gap, margin.right, gap),
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              heightFactor: 1,
+              child: titles,
             ),
           ),
         ),
       );
+      if (widget.background != null) {
+        // The titles stand on the page colour, which rises into the
+        // picture above them: measured from the titles, not from the bar,
+        // so a long name or a second line of headline is never set on the
+        // picture itself, in either brightness.
+        block = _TitleScrim(color: page, fade: gap * 4, child: block);
+      }
+      // As tall as it is asked to be, with the titles at its bottom start
+      // corner, inside the page's margins.
+      expanded = ConstrainedBox(
+        constraints: BoxConstraints(minHeight: height ?? 0),
+        child: Align(alignment: Alignment.bottomCenter, child: block),
+      );
       if (widget.background case final picture?) {
-        final page = scheme.background;
         background = Stack(
           fit: StackFit.expand,
           children: [
             picture,
-            // The page colour comes up behind the title and down behind the
-            // toolbar's buttons, so both read on any picture, in either
-            // brightness.
+            // The page colour comes down behind the toolbar's buttons, so
+            // they read on any picture; the titles bring their own.
             DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -450,11 +459,8 @@ class _SliverAppBarState extends State<SliverAppBar>
                   colors: [
                     page.withValues(alpha: .6),
                     page.withValues(alpha: 0),
-                    page.withValues(alpha: 0),
-                    page.withValues(alpha: .85),
-                    page,
                   ],
-                  stops: const [0, .3, .45, .88, 1],
+                  stops: const [0, .3],
                 ),
               ),
             ),
@@ -945,6 +951,97 @@ class _RenderSliverBarFill extends RenderProxyBox {
   }
 }
 
+/// Marks a large bar's titles as standing on the page colour [color],
+/// which rises [fade] above them into the picture.
+///
+/// It paints nothing itself: the bar paints the scrim with the picture —
+/// in the picture's clip and opacity, but where the titles are — so it is
+/// not cut off at the toolbar with the titles, and as the titles go under
+/// the toolbar the page covers the picture behind it instead of ending on
+/// a line.
+class _TitleScrim extends SingleChildRenderObjectWidget {
+  const _TitleScrim({
+    required this.color,
+    required this.fade,
+    required super.child,
+  });
+
+  final Color color;
+  final double fade;
+
+  @override
+  _RenderTitleScrim createRenderObject(BuildContext context) =>
+      _RenderTitleScrim(color, fade);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderTitleScrim scrim) {
+    scrim
+      ..color = color
+      ..fade = fade;
+  }
+}
+
+class _RenderTitleScrim extends RenderProxyBox {
+  _RenderTitleScrim(this._color, this._fade);
+
+  // The bar paints from these, in the same paint pass: no repaint
+  // boundary lies between the two.
+  Color get color => _color;
+  Color _color;
+  set color(Color value) {
+    if (value == _color) return;
+    _color = value;
+    markNeedsPaint();
+  }
+
+  double get fade => _fade;
+  double _fade;
+  set fade(double value) {
+    if (value == _fade) return;
+    _fade = value;
+    markNeedsPaint();
+  }
+
+  /// Paints the scrim on [canvas], in the coordinates of [ancestor].
+  void paintScrim(Canvas canvas, RenderObject ancestor) {
+    final box = MatrixUtils.transformRect(
+      getTransformTo(ancestor),
+      Offset.zero & size,
+    );
+    canvas.drawRect(box, Paint()..color = _color);
+    if (_fade <= 0) return;
+    final rise = Rect.fromLTRB(box.left, box.top - _fade, box.right, box.top);
+    Color at(double t) => _color.withValues(alpha: _color.a * t);
+    canvas.drawRect(
+      rise,
+      Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          // Eased, so the picture has no edge where it ends.
+          colors: [at(0), at(.25), at(.7), at(1)],
+          stops: const [0, .35, .7, 1],
+        ).createShader(rise),
+    );
+  }
+}
+
+/// The [_RenderTitleScrim] in [part], a few single-child boxes down.
+_RenderTitleScrim? _scrimIn(RenderObject part) {
+  _RenderTitleScrim? found;
+  void visit(RenderObject child) {
+    if (found != null) return;
+    if (child is _RenderTitleScrim) {
+      found = child;
+    } else {
+      child.visitChildren(visit);
+    }
+  }
+
+  part.visitChildren(visit);
+  return found;
+}
+
 enum _BarSlot { background, expanded, toolbar, bottom }
 
 class _BarPartData extends ContainerBoxParentData<RenderBox> {
@@ -1207,18 +1304,23 @@ class _RenderSliverBarBody extends RenderBox
     if (background != null && progress < 1) {
       final shown = Rect.fromLTWH(0, 0, size.width, window.bottom);
       final alpha = ((1 - progress) * 255).round().clamp(0, 255);
+      final scrim = expanded == null ? null : _scrimIn(expanded);
       void paintPicture(PaintingContext context, Offset offset) {
-        context.pushClipRect(
-          needsCompositing,
+        context.pushClipRect(needsCompositing, offset, shown, (
+          context,
           offset,
-          shown,
-          (context, offset) => _paintMoved(
-            context,
-            offset,
-            background,
-            _backgroundTransform(),
-          ),
-        );
+        ) {
+          _paintMoved(context, offset, background, _backgroundTransform());
+          // The page colour behind the titles, where they are.
+          if (scrim != null) {
+            context.canvas
+              ..save()
+              ..translate(offset.dx, offset.dy)
+              ..transform(_expandedTransform(expanded!).storage);
+            scrim.paintScrim(context.canvas, expanded);
+            context.canvas.restore();
+          }
+        });
       }
 
       if (alpha >= 255) {

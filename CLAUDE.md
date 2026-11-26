@@ -1348,6 +1348,14 @@ ticks only for a finger's changes, as the board and the wheel do.
 - The FAB travels when its corner moves (a footer appears, the bar goes)
   and follows rigidly when the window or the keyboard is moving it, or
   when it grows from its corner.
+- **A large bar's titles bring their own ground over a picture.** The
+  page colour behind the titles' box, and an eased fade above it, are
+  measured from the titles (`_TitleScrim` marks them and paints nothing)
+  but painted by the bar *with the picture*: in its clip and opacity,
+  through the title's transform. Painted inside the title's slot it was
+  cut off at the toolbar, a hard line mid-collapse; a gradient in
+  fractions of the background left a long name on the photograph. The
+  background keeps only the scrim behind the toolbar's buttons.
 - **A scroll-driven bar is written at layout and read at paint**
   (`AppBarSurfaceBehavior.whenScrolled`, `SliverAppBar`): its listeners are
   render objects, never builders. A header's semantics merge into the

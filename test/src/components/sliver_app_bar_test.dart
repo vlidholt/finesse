@@ -570,6 +570,53 @@ void main() {
     });
   });
 
+  testWidgets('a long title over a picture stands on the page colour', (
+    tester,
+  ) async {
+    const picture = Color(0xff000000);
+    await pump(
+      tester,
+      page(
+        const SliverAppBar.large(
+          title: Text('A name long enough to wrap onto a second line'),
+          subtitle: Text('A headline that also runs onto two lines here'),
+          expandedHeight: 120,
+          background: ColoredBox(color: picture),
+        ),
+      ),
+    );
+    final context = tester.element(find.byType(SliverAppBar));
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final toolbar = theme.appBarTheme.height!;
+    final rows = tester.getRect(find.byKey(_row));
+    // At the end of the subtitle's line, under the first line of the
+    // title, and the gap above the title: the page colour, not the
+    // picture, wherever the titles are.
+    final title = tester.getRect(
+      find.text('A name long enough to wrap onto a second line').first,
+    );
+    for (final y in [
+      title.top - 2,
+      title.top + 4,
+      title.bottom - 2,
+      rows.top - 4,
+    ]) {
+      expect(
+        await sampler.pixel(tester, Offset(rows.right - 2, y)),
+        scheme.background,
+        reason: 'at $y',
+      );
+    }
+    // Above the fade, under the toolbar, the picture still shows.
+    if (title.top - theme.layoutTheme.gapMd! * 5 > toolbar) {
+      expect(
+        await sampler.pixel(tester, Offset(rows.right - 2, toolbar + 1)),
+        isNot(scheme.background),
+      );
+    }
+  });
+
   group('SliverAppBar', () {
     Widget plain({
       bool pinned = true,
