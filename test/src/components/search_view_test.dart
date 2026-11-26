@@ -143,6 +143,37 @@ void main() {
         expect(find.text('Result: Grace Hopper'), findsOneWidget);
       });
 
+      testWidgets('the results stay as they were while the view leaves', (
+        tester,
+      ) async {
+        await tester.pumpWidget(
+          _app(const _Opener(), formFactor: formFactor),
+        );
+        await _open(tester);
+        await tester.enterText(find.byType(SearchField), 'ada');
+        await _settle(tester);
+        expect(find.text('Alan Turing'), findsNothing);
+
+        await tester.tap(find.text('Ada Lovelace'));
+        // Every frame of the exit: the view used to be built again from
+        // scratch as it began to leave, with an empty query and every
+        // result in it.
+        for (var i = 0; i < 40; i++) {
+          await tester.pump(const Duration(milliseconds: 16));
+          expect(
+            find.text('Alan Turing', skipOffstage: false),
+            findsNothing,
+            reason: 'frame $i',
+          );
+          expect(
+            find.text('Type a name', skipOffstage: false),
+            findsNothing,
+            reason: 'frame $i',
+          );
+        }
+        expect(find.text('Result: Ada Lovelace'), findsOneWidget);
+      });
+
       testWidgets('Escape clears the query, then leaves with null', (
         tester,
       ) async {

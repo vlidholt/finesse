@@ -188,6 +188,12 @@ class _TagFieldState<T extends Object> extends State<TagField<T>> {
     super.dispose();
   }
 
+  final _pointers = OptionsPointers();
+
+  /// The options the list last showed while open, which it keeps showing
+  /// while it leaves rather than emptying as one is picked.
+  List<T> _shown = const [];
+
   void _onFocusChanged() {
     final focused = _focusNode.hasFocus;
     if (focused == _focused) return;
@@ -196,10 +202,22 @@ class _TagFieldState<T extends Object> extends State<TagField<T>> {
       if (!focused) _marked = null;
     });
     if (!focused) {
-      // What was typed is not lost by leaving the field.
-      _commitText(_controller.text);
-      _popover.close();
+      // A finger on a suggestion: the field is left once it lifts, so the
+      // tap it ends still picks the suggestion (see [OptionsPointers]).
+      if (_pointers.any) {
+        _pointers.afterUp = () {
+          if (mounted && !_focusNode.hasFocus) _leave();
+        };
+        return;
+      }
+      _leave();
     }
+  }
+
+  /// What leaving the field does: what was typed is not lost by it.
+  void _leave() {
+    _commitText(_controller.text);
+    _popover.close();
   }
 
   void _announce(String message) {
@@ -314,8 +332,9 @@ class _TagFieldState<T extends Object> extends State<TagField<T>> {
   void _closeOptions() {
     _question++;
     _popover.close();
+    // The list keeps what it showed while it leaves (see [_shown]), and
+    // the highlight stays on a picked row; the next answer resets both.
     if (_options.isNotEmpty) setState(() => _options = const []);
-    _highlight.value = (index: null, byKeyboard: false);
   }
 
   void _pick(T option) {
@@ -596,44 +615,50 @@ class _TagFieldState<T extends Object> extends State<TagField<T>> {
           decoration: select.popoverDecoration,
           shadows: select.shadows,
           filter: select.filter,
-          builder: (context) => ConstrainedBox(
-            constraints: BoxConstraints(
-              minWidth: width ?? 0,
-              maxWidth: width ?? double.infinity,
-              maxHeight: select.maxHeight ?? 384,
-            ),
-            child: ExcludeFocus(
-              child: DefaultTextStyle(
-                style:
-                    optionTheme.textStyle ??
-                    theme.textTheme.muted.fallback(
-                      color: theme.colorScheme.popoverForeground,
-                    ),
-                child: SingleChildScrollView(
-                  padding: select.optionsPadding ?? const EdgeInsets.all(4),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      for (final (index, option) in _options.indexed)
-                        AutocompleteOptionRow(
-                          index: index,
-                          highlight: _highlight,
-                          onSelected: () => _pick(option),
-                          child:
-                              widget.optionBuilder?.call(context, option) ??
-                              Text(
-                                _display(option),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+          builder: (context) {
+            if (_popover.isOpen) _shown = _options;
+            final shown = _shown;
+            return ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: width ?? 0,
+                maxWidth: width ?? double.infinity,
+                maxHeight: select.maxHeight ?? 384,
+              ),
+              child: _pointers.wrap(
+                ExcludeFocus(
+                  child: DefaultTextStyle(
+                    style:
+                        optionTheme.textStyle ??
+                        theme.textTheme.muted.fallback(
+                          color: theme.colorScheme.popoverForeground,
                         ),
-                    ],
+                    child: SingleChildScrollView(
+                      padding: select.optionsPadding ?? const EdgeInsets.all(4),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (final (index, option) in shown.indexed)
+                            AutocompleteOptionRow(
+                              index: index,
+                              highlight: _highlight,
+                              onSelected: () => _pick(option),
+                              child:
+                                  widget.optionBuilder?.call(context, option) ??
+                                  Text(
+                                    _display(option),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
+            );
+          },
           child: labelled,
         );
       },

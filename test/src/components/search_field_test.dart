@@ -212,10 +212,12 @@ void main() {
       final narrow = tester.getSize(find.byType(TextField)).width;
       expect(narrow, lessThan(wide - 20));
       expect(cancel.hitTestable(), findsOneWidget);
-      // Beside the field, not over it.
+      // Beside the field, not over it, with the layout's medium gap
+      // between them.
       expect(
-        tester.getRect(cancel).left,
-        greaterThan(tester.getRect(find.byType(TextField)).right),
+        tester.getRect(cancel).left -
+            tester.getRect(find.byType(TextField)).right,
+        moreOrLessEquals(12, epsilon: .5),
       );
     });
 

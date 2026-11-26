@@ -183,6 +183,69 @@ void main() {
       expect(find.text('#4338CA'), findsOneWidget);
     });
 
+    testWidgets('the ring is the swatch grown by an even gap, in every '
+        'style, radius and form factor', (tester) async {
+      const swatches = [Color(0xFFB45309), Color(0xFF4338CA)];
+      for (final style in [
+        StyleTokens.fluid,
+        StyleTokens.crisp,
+        StyleTokens.pebble,
+        StyleTokens.sharp,
+      ]) {
+        for (final radius in [0.0, 8.0, 24.0]) {
+          for (final formFactor in FormFactor.values) {
+            await pumpUna(
+              tester,
+              const _Host(initial: Color(0xFF4338CA), swatches: swatches),
+              theme: ThemeData(
+                style: style,
+                radius: BorderRadius.circular(radius),
+              ),
+              formFactor: formFactor,
+            );
+            final why = '$formFactor at $radius';
+            final ring = find.byWidgetPredicate(
+              (w) =>
+                  w is DecoratedBox &&
+                  w.decoration is BoxDecoration &&
+                  (w.decoration as BoxDecoration).border != null &&
+                  ((w.decoration as BoxDecoration).border! as Border)
+                          .top
+                          .width ==
+                      2,
+            );
+            expect(ring, findsOneWidget, reason: why);
+            final swatch = find.descendant(
+              of: ring,
+              matching: find.byType(ClipRRect),
+            );
+            final ringRect = tester.getRect(ring);
+            final swatchRect = tester.getRect(swatch);
+            final ringRadius =
+                ((tester.widget<DecoratedBox>(ring).decoration as BoxDecoration)
+                            .borderRadius!
+                        as BorderRadius)
+                    .topLeft
+                    .x;
+            final swatchRadius =
+                (tester.widget<ClipRRect>(swatch).borderRadius as BorderRadius)
+                    .topLeft
+                    .x;
+            // Two of ring and two of gap all round, and the same curve
+            // grown by as much: concentric, round where the swatch is.
+            expect(ringRect, swatchRect.inflate(4), reason: why);
+            expect(ringRadius, swatchRadius + 4, reason: why);
+            expect(
+              swatchRadius,
+              lessThanOrEqualTo(swatchRect.width / 2),
+              reason: why,
+            );
+            await tester.pumpWidget(const SizedBox.shrink());
+          }
+        }
+      }
+    });
+
     testWidgets('a colour from outside moves the thumbs', (tester) async {
       await pumpUna(tester, const _Host());
       host(tester).set(const Color(0xFFFF0000));

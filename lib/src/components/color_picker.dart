@@ -1033,28 +1033,47 @@ class _SwatchButton extends StatelessWidget {
   final bool selected;
   final VoidCallback onPressed;
 
+  /// The selected swatch's ring, and the gap between it and the swatch.
+  static const ringWidth = 2.0;
+  static const ringGap = 2.0;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    // The ring is the swatch's own shape grown by the gap and its width,
+    // so the two stay concentric at every radius, round where the swatch
+    // is round. A ring with corners of its own met the swatch's corners
+    // unevenly: a hair apart on the sides, and touching at the corners
+    // once the radius rounded the swatch off.
+    final swatchRadius = math.min(theme.radii.sm.topLeft.x, size / 2);
+    const inset = ringWidth + ringGap;
+    final ringRadius = BorderRadius.circular(swatchRadius + inset);
     return Pressable(
       onPressed: onPressed,
       selected: selected,
       semanticLabel: colorToHex(color, alpha: color.a < 1),
       builder: (context, states) => FocusRing(
         visible: states.contains(WidgetState.focused),
-        borderRadius: theme.radii.md,
+        borderRadius: ringRadius,
         child: DecoratedBox(
           position: DecorationPosition.foreground,
           decoration: BoxDecoration(
-            borderRadius: theme.radii.md,
+            borderRadius: ringRadius,
             // The chosen one wears the page's ring.
             border: selected
-                ? Border.all(color: theme.colorScheme.foreground, width: 2)
+                ? Border.all(
+                    color: theme.colorScheme.foreground,
+                    width: ringWidth,
+                  )
                 : null,
           ),
           child: Padding(
-            padding: const EdgeInsets.all(3),
-            child: _Swatch(color: color, size: size, radius: theme.radii.sm),
+            padding: const EdgeInsets.all(inset),
+            child: _Swatch(
+              color: color,
+              size: size,
+              radius: BorderRadius.circular(swatchRadius),
+            ),
           ),
         ),
       ),

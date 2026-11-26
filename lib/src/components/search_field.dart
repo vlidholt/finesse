@@ -9,6 +9,7 @@ import 'package:una/src/icons/phosphor_icon.dart';
 import 'package:una/src/icons/phosphor_icons_regular.dart';
 import 'package:una/src/theme/components/button.dart';
 import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/components/layout.dart';
 import 'package:una/src/theme/motion.dart';
 import 'package:una/src/theme/theme.dart';
 import 'package:una/src/utils/dismiss_shortcut.dart';
@@ -337,7 +338,9 @@ class _SearchFieldState extends State<SearchField> {
 
     if (!widget.showCancel) return field;
 
-    final gap = theme.textFieldTheme.gap ?? 8;
+    // A step more than the gap inside the field, so the button reads as
+    // its own control beside the field rather than part of it.
+    final gap = theme.layoutTheme.gap(GapSize.md);
     return Row(
       children: [
         Expanded(child: field),

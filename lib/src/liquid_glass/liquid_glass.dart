@@ -436,9 +436,15 @@ class _LiquidGlassSurfaceState extends State<LiquidGlassSurface> {
         child: child,
       );
     }
+    // One tree shape whether or not the fade is claimed, as in
+    // `BackdropSurface`: a wrapper that came with the exit rebuilt the
+    // surface's content from scratch as it left.
+    final opacity = fade ?? kAlwaysCompleteAnimation;
     return LiquidGlassBridge(
-      child: Builder(
-        builder: (context) {
+      child: AnimatedBuilder(
+        animation: opacity,
+        child: FadeTransition(opacity: opacity, child: child),
+        builder: (context, content) {
           final quality = widget.overlay || widget.interactive
               ? lg.GlassQuality.premium
               : null;
@@ -448,7 +454,7 @@ class _LiquidGlassSurfaceState extends State<LiquidGlassSurface> {
               useOwnLayer: true,
               quality: quality,
               clipBehavior: widget.clipBehavior,
-              child: child,
+              child: content,
             );
           }
           var settings = lg.GlassThemeHelpers.resolveSettings(
@@ -456,7 +462,8 @@ class _LiquidGlassSurfaceState extends State<LiquidGlassSurface> {
             isOverlayPlatter: widget.overlay,
           );
           if (legible) settings = legibleOverlaySettings(settings, theme);
-          Widget glass(double visibility, Widget content) => lg.GlassContainer(
+          final visibility = opacity.value;
+          return lg.GlassContainer(
             shape: _shape,
             useOwnLayer: true,
             quality: quality,
@@ -467,12 +474,6 @@ class _LiquidGlassSurfaceState extends State<LiquidGlassSurface> {
                     visibility: settings.visibility * visibility,
                   ),
             child: content,
-          );
-          if (fade == null) return glass(1, child);
-          return AnimatedBuilder(
-            animation: fade,
-            child: FadeTransition(opacity: fade, child: child),
-            builder: (context, content) => glass(fade.value, content!),
           );
         },
       ),

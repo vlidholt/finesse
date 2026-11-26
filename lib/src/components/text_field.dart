@@ -1640,9 +1640,12 @@ class TextFieldState extends State<TextField>
                                         start: effectiveGap,
                                       ),
                                       child: _AdornmentButton(
+                                        // The icon shows the state: a
+                                        // crossed-out eye while the text is
+                                        // hidden, an open one while it shows.
                                         icon: _obscured
-                                            ? PhosphorIconsRegular.eye
-                                            : PhosphorIconsRegular.eyeSlash,
+                                            ? PhosphorIconsRegular.eyeSlash
+                                            : PhosphorIconsRegular.eye,
                                         semanticLabel: l.input.showPassword,
                                         toggled: !_obscured,
                                         extent: adornmentExtent,
