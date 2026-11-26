@@ -2,17 +2,33 @@ import 'package:flutter/widgets.dart';
 import 'package:una/src/theme/data.dart';
 import 'package:una/src/theme/theme.dart';
 
-/// Lerps between two colours without passing through a darker one when a
-/// side is missing or fully transparent.
+/// Lerps between two colours the way a cross-fade between them looks:
+/// never through a colour darker (or lighter) than both.
 ///
-/// `Color.lerp` treats "no colour" as transparent *black*, so a fill fading
-/// in over a light surface is grey halfway — the dark flash of a hover
-/// state. Here a null or zero-alpha side takes the other side's colour at
-/// zero alpha, so only the opacity changes.
+/// `Color.lerp` lerps red, green, blue and alpha on their own, so between
+/// colours of different opacity it is wrong in two ways. "No colour" is
+/// transparent *black*, so a fill fading in over a light surface is grey
+/// halfway. And between two translucent colours — a button's glass fill
+/// and its hover wash, white at 80% and near-black at 4% — the colour
+/// halfway is a mid-grey at 42%, far darker than either: the flicker of a
+/// hover. Here each colour is weighed by its opacity (a premultiplied
+/// lerp), so composited over anything the result moves linearly from one
+/// look to the other; a null side is the other colour at zero opacity.
 Color? lerpColorThroughAlpha(Color? a, Color? b, double t) {
-  final from = a == null || a.a == 0 ? b?.withValues(alpha: 0) : a;
-  final to = b == null || b.a == 0 ? a?.withValues(alpha: 0) : b;
-  return Color.lerp(from, to, t);
+  if (a == null && b == null) return null;
+  final from = a ?? b!.withValues(alpha: 0);
+  final to = b ?? a!.withValues(alpha: 0);
+  final alpha = (from.a + (to.a - from.a) * t).clamp(0.0, 1.0);
+  if (alpha == 0) return (t < .5 ? from : to).withValues(alpha: 0);
+  double channel(double x, double y) =>
+      ((x * from.a + (y * to.a - x * from.a) * t) / alpha).clamp(0.0, 1.0);
+  return Color.from(
+    alpha: alpha,
+    red: channel(from.r, to.r),
+    green: channel(from.g, to.g),
+    blue: channel(from.b, to.b),
+    colorSpace: to.colorSpace,
+  );
 }
 
 /// A [Tween] of colours that lerps with [lerpColorThroughAlpha], for a

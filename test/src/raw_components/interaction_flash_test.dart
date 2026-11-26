@@ -18,12 +18,12 @@ void main() {
     'una light': ThemeData(),
     'una dark': ThemeData(brightness: Brightness.dark),
     'nova light': ThemeData(
-      style: StyleTokens.nova,
-      colorScheme: const NeutralColorScheme.light(),
+      style: StyleTokens.crisp,
+      colorScheme: const GraphiteColorScheme.light(),
     ),
     'nova dark': ThemeData(
-      style: StyleTokens.nova,
-      colorScheme: const NeutralColorScheme.dark(),
+      style: StyleTokens.crisp,
+      colorScheme: const GraphiteColorScheme.dark(),
     ),
   };
 
@@ -222,6 +222,49 @@ void main() {
           expect(selected, isTrue);
           // And once more from the selected state it is now in.
           await expectNoFlash(tester, sampler, gesture, chip, at, name);
+        });
+      }
+
+      for (final variant in [
+        ButtonVariant.primary,
+        ButtonVariant.secondary,
+        ButtonVariant.outline,
+        ButtonVariant.ghost,
+        ButtonVariant.destructive,
+      ]) {
+        testWidgets('a ${variant.name} button, its fill, edge and label', (
+          tester,
+        ) async {
+          final sampler = await pump(
+            tester,
+            theme,
+            Button(
+              variant: variant,
+              leading: const SizedBox.square(dimension: 16),
+              onPressed: () {},
+              child: const SizedBox(width: 60, height: 12),
+            ),
+          );
+          final rect = tester.getRect(find.byType(Button));
+          final gesture = await mouse(tester);
+          final button = find.byType(Button);
+          for (final (what, at) in [
+            // Inside, clear of the outline and the content.
+            ('fill', rect.centerLeft + const Offset(6, 0)),
+            // On the outline's hairline.
+            ('edge', rect.topCenter + const Offset(0, .5)),
+            // On the content, which takes the label's colour.
+            ('label', rect.center),
+          ]) {
+            await expectNoFlash(
+              tester,
+              sampler,
+              gesture,
+              button,
+              at,
+              '$name ${variant.name} $what',
+            );
+          }
         });
       }
 
