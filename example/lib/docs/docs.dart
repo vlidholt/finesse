@@ -62,11 +62,58 @@ class ComponentExample {
 }
 
 /// A titled section of the docs sidebar.
+///
+/// A section lists its [items] first, then its [categories], each a fold of
+/// pages of its own: the component reference is one section with an
+/// overview page and a category per kind of component.
 class DocGroup {
-  const DocGroup({required this.title, required this.items});
+  const DocGroup({
+    required this.title,
+    required this.items,
+    this.categories = const [],
+  });
 
   final String title;
+
+  /// The pages listed directly under the section's heading.
   final List<ComponentDoc> items;
+
+  /// The folds of pages after [items].
+  final List<DocCategory> categories;
+
+  /// Every page of the section, in sidebar order.
+  List<ComponentDoc> get pages => [
+    ...items,
+    for (final category in categories) ...category.items,
+  ];
+}
+
+/// One kind of component — actions, overlays, lists — as the sidebar folds
+/// it and the overview page shows it.
+class DocCategory {
+  const DocCategory({
+    required this.title,
+    required this.icon,
+    required this.description,
+    required this.items,
+  });
+
+  final String title;
+  final IconData icon;
+
+  /// One sentence saying what the category's components are for.
+  final String description;
+
+  /// The pages, alphabetical by title.
+  final List<ComponentDoc> items;
+
+  /// This category with only [items].
+  DocCategory withItems(List<ComponentDoc> items) => DocCategory(
+    title: title,
+    icon: icon,
+    description: description,
+    items: items,
+  );
 }
 
 /// Loads the Dart grammar and highlighter theme once, before the app runs.

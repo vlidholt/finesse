@@ -111,8 +111,10 @@ import 'package:example/docs/pages/toolbar.dart';
 import 'package:example/docs/pages/tooltip.dart';
 import 'package:example/docs/pages/typography.dart';
 import 'package:example/docs/pages/wheel_picker.dart';
+import 'package:una/una.dart';
 
-/// Every documented page, in the order the sidebar shows them.
+/// Every documented page, in the order the sidebar shows them: the
+/// components by [componentCategories].
 final docGroups = <DocGroup>[
   DocGroup(
     title: 'Getting started',
@@ -141,14 +143,16 @@ final docGroups = <DocGroup>[
   ),
   DocGroup(
     title: 'Components',
-    items: [
-      overviewDoc,
-      ...componentDocs,
-    ],
+    items: [overviewDoc],
+    categories: componentCategories,
   ),
 ];
 
-/// Every component reference page, in sidebar order: alphabetical by title.
+/// Every component reference page, alphabetical by title.
+///
+/// The sidebar and the overview show them by [componentCategories], which
+/// has to name each of them once (`docs_categories_test.dart` holds that);
+/// the skills generator reads this list.
 final componentDocs = [
   accordionDoc,
   actionSheetDoc,
@@ -248,10 +252,207 @@ final componentDocs = [
   wheelPickerDoc,
 ];
 
+/// The component pages by kind, in the order the sidebar folds them and the
+/// overview shows them. Each category's pages are alphabetical by title.
+final componentCategories = <DocCategory>[
+  DocCategory(
+    title: 'Actions',
+    icon: PhosphorIconsRegular.cursorClick,
+    description:
+        'Buttons, toggles and chips: what is pressed to make something '
+        'happen.',
+    items: [
+      backButtonDoc,
+      buttonDoc,
+      buttonGroupDoc,
+      chipDoc,
+      floatingActionButtonDoc,
+      iconButtonDoc,
+      pressableDoc,
+      toggleDoc,
+      toggleGroupDoc,
+    ],
+  ),
+  DocCategory(
+    title: 'Text input',
+    icon: PhosphorIconsRegular.textbox,
+    description:
+        'Fields that take typed text: words, numbers, codes, tags, dates '
+        'and times.',
+    items: [
+      autocompleteDoc,
+      dateFieldDoc,
+      keyboardToolbarDoc,
+      numberFieldDoc,
+      otpFieldDoc,
+      searchFieldDoc,
+      tagFieldDoc,
+      textFieldDoc,
+      textareaDoc,
+      timeFieldDoc,
+    ],
+  ),
+  DocCategory(
+    title: 'Selection & pickers',
+    icon: PhosphorIconsRegular.checkSquare,
+    description:
+        'Choosing a value: from a set, along a range, or on a calendar, a '
+        'clock, a colour wheel or a wheel of rows.',
+    items: [
+      calendarDoc,
+      checkboxDoc,
+      colorPickerDoc,
+      datePickerDoc,
+      radioGroupDoc,
+      ratingDoc,
+      segmentedControlDoc,
+      selectDoc,
+      sliderDoc,
+      switchDoc,
+      timePickerDoc,
+      wheelPickerDoc,
+    ],
+  ),
+  DocCategory(
+    title: 'Overlays & menus',
+    icon: PhosphorIconsRegular.stack,
+    description:
+        'What floats over the page: dialogs, sheets, popovers, menus, '
+        'tooltips and toasts.',
+    items: [
+      actionSheetDoc,
+      commandDoc,
+      contextMenuDoc,
+      dialogDoc,
+      dropdownMenuDoc,
+      hoverCardDoc,
+      menubarDoc,
+      popoverDoc,
+      searchViewDoc,
+      sheetDoc,
+      toastDoc,
+      tooltipDoc,
+    ],
+  ),
+  DocCategory(
+    title: 'Navigation',
+    icon: PhosphorIconsRegular.compass,
+    description:
+        'Moving between pages and sections: tabs, the bars and the rail, '
+        'the sidebar, and the route from one page to the next.',
+    items: [
+      breadcrumbDoc,
+      navigationBarDoc,
+      navigationMenuDoc,
+      navigationRailDoc,
+      pageIndicatorDoc,
+      pageRouteDoc,
+      paginationDoc,
+      sidebarDoc,
+      stepperDoc,
+      tabBarDoc,
+      tabsDoc,
+    ],
+  ),
+  DocCategory(
+    title: 'App structure',
+    icon: PhosphorIconsRegular.layout,
+    description:
+        'The frame of a screen: the scaffold and its bars, page margins, '
+        'scrolling and split layouts.',
+    items: [
+      appBarDoc,
+      licensePageDoc,
+      listDetailLayoutDoc,
+      pageContainerDoc,
+      resizableDoc,
+      scaffoldDoc,
+      scrollAreaDoc,
+      sliverAppBarDoc,
+      toolbarDoc,
+    ],
+  ),
+  DocCategory(
+    title: 'Surfaces',
+    icon: PhosphorIconsRegular.cards,
+    description:
+        'What content sits on: cards, glass and floating chrome, dividers, '
+        'and sections that open and close.',
+    items: [
+      accordionDoc,
+      cardDoc,
+      collapsibleDoc,
+      dividerDoc,
+      glassDoc,
+      surfaceDoc,
+    ],
+  ),
+  DocCategory(
+    title: 'Lists & data',
+    icon: PhosphorIconsRegular.rows,
+    description:
+        'Rows, tables and boards, with sections, swipes, reordering and '
+        'pull to refresh.',
+    items: [
+      boardDoc,
+      dataTableDoc,
+      expansionTileDoc,
+      listSectionDoc,
+      listTileDoc,
+      refreshIndicatorDoc,
+      reorderableListViewDoc,
+      swipeActionsDoc,
+      tableDoc,
+      timelineDoc,
+    ],
+  ),
+  DocCategory(
+    title: 'Feedback & status',
+    icon: PhosphorIconsRegular.bellSimple,
+    description:
+        'Telling people what is going on: alerts, badges, progress, and '
+        'placeholders for what has not arrived.',
+    items: [
+      alertDoc,
+      badgeDoc,
+      emptyDoc,
+      indicatorBadgeDoc,
+      progressBarDoc,
+      progressRingDoc,
+      skeletonDoc,
+      spinnerDoc,
+    ],
+  ),
+  DocCategory(
+    title: 'Content & media',
+    icon: PhosphorIconsRegular.image,
+    description:
+        'People, icons, keys and photographs, and text that can be '
+        'selected.',
+    items: [
+      avatarDoc,
+      avatarGroupDoc,
+      carouselDoc,
+      iconTileDoc,
+      kbdDoc,
+      selectionAreaDoc,
+    ],
+  ),
+  DocCategory(
+    title: 'Chat',
+    icon: PhosphorIconsRegular.chatsCircle,
+    description:
+        'Conversations: message bubbles, a list that keeps its place, and '
+        'text that streams in.',
+    items: [chatBubbleDoc, chatListDoc, streamingTextDoc],
+  ),
+];
+
 final overviewDoc = ComponentDoc(
   slug: 'overview',
   title: 'Overview',
   description:
-      'Every component in the library. Pick one to open its documentation.',
-  body: (context) => ComponentsOverview(components: componentDocs),
+      'Every component in the library, by what it is for. Pick one to open '
+      'its documentation.',
+  body: (context) => ComponentsOverview(categories: componentCategories),
 );
