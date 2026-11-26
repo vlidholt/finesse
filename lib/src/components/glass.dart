@@ -114,32 +114,13 @@ class Glass extends StatelessWidget {
     final glass = theme.glassTheme;
     final radius = borderRadius ?? glass.borderRadius ?? theme.radius;
     // A scrim (an explicit colour) and unfrosted glass stay as they are:
-    // Liquid Glass is a frosted surface with the theme's own tint.
+    // Liquid Glass stands in for the frosted surface only.
     final effectiveBorder =
         border ??
         Border.all(
           color: glass.borderColor ?? theme.colorScheme.border,
           width: glass.borderWidth ?? 1,
         );
-    if (frosted &&
-        color == null &&
-        LiquidGlass.isActive(context, glass.liquidGlass)) {
-      return LiquidGlassSurface(
-        radius: radius.topLeft.x,
-        child: Container(
-          width: width,
-          height: height,
-          constraints: constraints,
-          alignment: alignment,
-          // The border's point stays as padding, as a decoration's border
-          // takes it, so the content sits where it does on frosted glass.
-          padding: effectiveBorder.dimensions.add(
-            padding ?? EdgeInsets.zero,
-          ),
-          child: child,
-        ),
-      );
-    }
     final base = glass.color ?? theme.colorScheme.card;
     final tint =
         color ??
@@ -154,6 +135,33 @@ class Glass extends StatelessWidget {
               },
         );
 
+    if (frosted &&
+        color == null &&
+        LiquidGlass.isActive(context, glass.liquidGlass)) {
+      // The same tint, blur and saturation as the frosted surface, so the
+      // two read as one design; Liquid Glass adds its rim, highlights and
+      // refraction on top. Left to the iOS presets, a panel was clear
+      // glass whatever its level, and the text on it unreadable over a
+      // photograph wherever the package has no frost to draw (the web).
+      return LiquidGlassSurface(
+        radius: radius.topLeft.x,
+        tint: tint,
+        blur: blur ?? glass.blur,
+        saturation: saturation ?? glass.saturation,
+        child: Container(
+          width: width,
+          height: height,
+          constraints: constraints,
+          alignment: alignment,
+          // The border's point stays as padding, as a decoration's border
+          // takes it, so the content sits where it does on frosted glass.
+          padding: effectiveBorder.dimensions.add(
+            padding ?? EdgeInsets.zero,
+          ),
+          child: child,
+        ),
+      );
+    }
     Widget surface = Backdrop(
       blur: frosted ? blur ?? glass.blur ?? 0 : 0,
       saturation: frosted ? saturation ?? glass.saturation ?? 1 : 1,

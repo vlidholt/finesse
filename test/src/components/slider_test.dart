@@ -19,6 +19,13 @@ void main() {
     );
   }
 
+  // The thumb's centre stays a radius in from each end (Radix's
+  // `getThumbInBoundsOffset`), so a value is a fraction of that span.
+  double radius(WidgetTester tester, Finder slider) =>
+      Theme.of(tester.element(slider)).sliderTheme.thumbRadius!;
+  double travel(WidgetTester tester, Finder slider) =>
+      tester.getSize(slider).width - 2 * radius(tester, slider);
+
   group('Slider', () {
     testWidgets('Slider matches goldens', (tester) async {
       await tester.pumpWidget(
@@ -239,7 +246,11 @@ void main() {
       await tester.pump();
 
       expect(changed!.first, 25);
-      expect(changed!.last, moreOrLessEquals(50, epsilon: 1));
+      final span = travel(tester, find.byType(RangeSlider));
+      expect(
+        changed!.last,
+        moreOrLessEquals(75 - 100 / span * 100, epsilon: .5),
+      );
     });
 
     testWidgets('a thumb stops at its neighbour instead of crossing it', (
@@ -291,7 +302,12 @@ void main() {
       await tester.tapAt(Offset(slider.left + 40, slider.center.dy));
       await tester.pump();
 
-      expect(changed!.first, moreOrLessEquals(10, epsilon: 1));
+      final r = radius(tester, find.byType(RangeSlider));
+      final span = travel(tester, find.byType(RangeSlider));
+      expect(
+        changed!.first,
+        moreOrLessEquals((40 - r) / span * 100, epsilon: .5),
+      );
       expect(changed!.last, 75);
     });
 
@@ -366,7 +382,12 @@ void main() {
         await tester.pump();
 
         expect(changed, isNotNull);
-        expect(changed!.first, moreOrLessEquals(75, epsilon: 1));
+        final span = travel(tester, find.byType(RangeSlider));
+        // Held by a point off its centre, the thumb keeps that offset.
+        expect(
+          changed!.first,
+          moreOrLessEquals(100 - 100 / span * 100, epsilon: .5),
+        );
         expect(changed!.last, 100);
       },
     );
@@ -497,11 +518,16 @@ void main() {
               boxDecorationOf(widget.decoration)?.shape == BoxShape.circle,
         ),
       );
-      expect(thumb.dx, moreOrLessEquals(slider.right - 100, epsilon: 1));
+      final r = radius(tester, find.byType(Slider));
+      final span = travel(tester, find.byType(Slider));
+      expect(
+        thumb.dx,
+        moreOrLessEquals(slider.right - r - span / 4, epsilon: 1),
+      );
 
       await tester.tapAt(Offset(slider.right - 40, slider.center.dy));
       await tester.pump();
-      expect(changed, moreOrLessEquals(10, epsilon: 1));
+      expect(changed, moreOrLessEquals((40 - r) / span * 100, epsilon: .5));
     });
 
     testWidgets('a drag to the left raises the value, and so does the left '
@@ -526,7 +552,11 @@ void main() {
         const Offset(-100, 0),
       );
       await tester.pump();
-      expect(changes.last, moreOrLessEquals(75, epsilon: 1));
+      final span = travel(tester, find.byType(Slider));
+      expect(
+        changes.last,
+        moreOrLessEquals(50 + 100 / span * 100, epsilon: 1),
+      );
 
       await tester.sendKeyEvent(LogicalKeyboardKey.tab);
       await tester.pump();

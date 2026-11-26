@@ -342,8 +342,28 @@ class LiquidGlassSurface extends StatefulWidget {
     this.overlay = false,
     this.interactive = false,
     this.clipBehavior = Clip.antiAlias,
+    this.tint,
+    this.blur,
+    this.saturation,
     super.key,
   });
+
+  /// The glass's own colour, over the page, in place of the theme's.
+  ///
+  /// `Glass` passes the tint of its level, so the same surface carries the
+  /// same weight of colour on Liquid Glass as it does frosted.
+  final Color? tint;
+
+  /// The least the page under the glass is blurred, as a sigma; the
+  /// theme's own blur when it is more.
+  final double? blur;
+
+  /// The least the page under the glass is saturated; the theme's own
+  /// saturation when it is more.
+  final double? saturation;
+
+  /// Whether the surface sets any of its glass itself.
+  bool get _ownsMaterial => tint != null || blur != null || saturation != null;
 
   /// The content.
   final Widget child;
@@ -442,7 +462,7 @@ class _LiquidGlassSurfaceState extends State<LiquidGlassSurface> {
           final quality = widget.overlay || widget.interactive
               ? lg.GlassQuality.premium
               : null;
-          if (fade == null && !widget.overlay) {
+          if (fade == null && !widget.overlay && !widget._ownsMaterial) {
             return lg.GlassContainer(
               shape: _shape,
               useOwnLayer: true,
@@ -456,6 +476,16 @@ class _LiquidGlassSurfaceState extends State<LiquidGlassSurface> {
             isOverlayPlatter: widget.overlay,
           );
           if (legible) settings = legibleOverlaySettings(settings, theme);
+          if (widget._ownsMaterial) {
+            settings = settings.copyWith(
+              glassColor: widget.tint,
+              blur: math.max(settings.blur, widget.blur ?? 0),
+              saturation: math.max(
+                settings.saturation,
+                widget.saturation ?? 0,
+              ),
+            );
+          }
           Widget glass(double visibility, Widget content) => lg.GlassContainer(
             shape: _shape,
             useOwnLayer: true,

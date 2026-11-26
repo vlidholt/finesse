@@ -99,6 +99,13 @@ final liquidGlassDoc = ComponentDoc(
             '`light` and `dark` `GlassThemeSettings` for any of its '
             'material settings — thickness, blur, refraction, light, rim.',
           ),
+          DocParagraph(
+            'A `Glass` panel keeps its own material on Liquid Glass: the '
+            'tint of its `level`, and the blur and saturation of the '
+            'theme\'s `GlassTheme`, with the rim, light and refraction '
+            'of Liquid Glass on top. A panel that carries text reads the '
+            'same either way.',
+          ),
         ],
       ),
       const DocSection(
