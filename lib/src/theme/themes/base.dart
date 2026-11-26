@@ -15,6 +15,7 @@ import 'package:una/src/theme/components/button_sizes.dart';
 import 'package:una/src/theme/components/calendar.dart';
 import 'package:una/src/theme/components/card.dart';
 import 'package:una/src/theme/components/carousel.dart';
+import 'package:una/src/theme/components/chart.dart';
 import 'package:una/src/theme/components/chat_bubble.dart';
 import 'package:una/src/theme/components/chat_list.dart';
 import 'package:una/src/theme/components/checkbox.dart';
@@ -185,6 +186,7 @@ abstract class BaseTheme {
     required this.iconTileTheme,
     required this.phosphorIconTheme,
     required this.timelineTheme,
+    required this.chartTheme,
     required this.boardTheme,
     required this.layoutTheme,
     required this.scrollAreaTheme,
@@ -268,6 +270,9 @@ abstract class BaseTheme {
 
   /// The theme of the matching widget.
   final TimelineTheme timelineTheme;
+
+  /// The theme of the charts.
+  final ChartTheme chartTheme;
 
   /// The theme of `Board`.
   final BoardTheme boardTheme;
@@ -757,6 +762,9 @@ abstract class ThemeVariant {
 
   /// Builds the [TimelineTheme].
   TimelineTheme timelineTheme();
+
+  /// Builds the [ChartTheme].
+  ChartTheme chartTheme();
 
   /// Builds the [BoardTheme].
   BoardTheme boardTheme();

@@ -347,6 +347,11 @@ a description, then every example's real source. Regenerate with
   [Progress Ring](components/progress-ring.md),
   [Spinner](components/spinner.md), [Skeleton](components/skeleton.md).
 
+**Data**
+
+- [Charts](components/charts.md): `LineChart`, `BarChart`, `DonutChart`,
+  `Sparkline` and `ChartLegend`, in the scheme's `chart1`…`chart5`.
+
 ## Testing una widgets
 
 - Wrap a widget under test in a `UnaApp` (or a `Theme` with a

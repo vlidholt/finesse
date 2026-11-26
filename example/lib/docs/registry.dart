@@ -16,6 +16,7 @@ import 'package:example/docs/pages/button_group.dart';
 import 'package:example/docs/pages/calendar.dart';
 import 'package:example/docs/pages/card.dart';
 import 'package:example/docs/pages/carousel.dart';
+import 'package:example/docs/pages/charts.dart';
 import 'package:example/docs/pages/chat_bubble.dart';
 import 'package:example/docs/pages/chat_list.dart';
 import 'package:example/docs/pages/checkbox.dart';
@@ -166,6 +167,7 @@ final componentDocs = [
   calendarDoc,
   cardDoc,
   carouselDoc,
+  chartsDoc,
   chatBubbleDoc,
   chatListDoc,
   checkboxDoc,

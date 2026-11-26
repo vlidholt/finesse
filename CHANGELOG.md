@@ -623,6 +623,17 @@ was measured from (Strand, until it moved), is its own repository,
   `DataTableColumn(sortable: true)` sorts at the source.
 - `ResizableController.sizes`, `setSizes` and `reset`.
 - `AvatarGroup`, `IconTile`, `StatTile`, `Timeline`, `IndicatorBadge`.
+- **Charts.** `LineChart` (over categories or `xValues`; monotone, straight
+  or stepped lines, `area`, `dots`), `BarChart` (grouped or `stacked`,
+  vertical or `direction: Axis.horizontal`), `DonutChart` (a pie with
+  `holeRatio: 0`, a `center` widget) and `Sparkline`, with `ChartSeries`,
+  `ChartSegment` and `ChartLegend`. Series take the scheme's
+  `chart1`…`chart5`; value axes have round ticks. Hover, touch and the
+  arrow keys show a glass tooltip and a cursor or highlight; assistive
+  technology reads and steps through the points. Values grow from the
+  baseline on the theme's motion and a change of data moves from the old
+  values to the new, painted without rebuilding. `ChartTheme`
+  (`ThemeData.chartTheme`).
 
 #### Buttons and feedback
 

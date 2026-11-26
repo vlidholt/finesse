@@ -188,3 +188,10 @@ navigation:
   openMenu: "Open menu"
   menu: "Navigation menu"
   toggleSidebar: "Toggle sidebar"
+
+chart:
+  line: "Line chart"
+  bar: "Bar chart"
+  donut: "Donut chart"
+  sparkline: "Sparkline"
+  range: "$count points, $first to $last"

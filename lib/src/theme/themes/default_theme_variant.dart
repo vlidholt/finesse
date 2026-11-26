@@ -22,6 +22,7 @@ import 'package:una/src/theme/components/button_sizes.dart';
 import 'package:una/src/theme/components/calendar.dart';
 import 'package:una/src/theme/components/card.dart';
 import 'package:una/src/theme/components/carousel.dart';
+import 'package:una/src/theme/components/chart.dart';
 import 'package:una/src/theme/components/chat_bubble.dart';
 import 'package:una/src/theme/components/chat_list.dart';
 import 'package:una/src/theme/components/checkbox.dart';
@@ -2380,6 +2381,88 @@ class DefaultThemeVariant extends ThemeVariant {
       gap: scaled(14),
       spacing: scaled(20),
       lineGap: scaled(style.timelineLineGap),
+    );
+  }
+
+  @override
+  ChartTheme chartTheme() {
+    // A bar's end follows the style's rows, capped so a thin bar in a round
+    // style is still a bar and not a pill; a square style stays square.
+    final barRadius = math.min(
+      itemRadius.topLeft.x,
+      radii.md.topLeft.x,
+    );
+    // The tooltip is a small popover: the popover's surface (glass where
+    // the style's popovers are), at a radius no rounder than `rounded-lg`.
+    final tooltipRadius = BorderRadius.all(
+      Radius.circular(
+        math.min(popoverRadius.topLeft.x, radii.lg.topLeft.x),
+      ),
+    );
+    final captionRole = style.caption;
+    // The caption role's size and tracking at the text theme's own weight,
+    // in the muted colour (`TextTheme.caption`), with figures that line up.
+    final caption = TextRole(
+      fontSize: captionRole.fontSize,
+      letterSpacing: captionRole.letterSpacing,
+      height: captionRole.height,
+    ).apply(effectiveTextTheme.caption);
+    const figures = [FontFeature.tabularFigures()];
+    return ChartTheme(
+      gridColor: colorScheme.border,
+      gridWidth: 1,
+      axisTextStyle: caption.copyWith(
+        color: colorScheme.mutedForeground,
+        fontFeatures: figures,
+      ),
+      axisGap: scaled(8),
+      tickCount: 5,
+      cursorColor: colorScheme.borderStrong,
+      cursorWidth: 1,
+      highlightColor: colorScheme.muted,
+      lineWidth: 2,
+      dotRadius: 3,
+      activeDotRadius: 4.5,
+      dotBorderColor: colorScheme.card,
+      areaOpacity: _isDark ? .4 : .3,
+      barRadius: barRadius,
+      barGap: scaled(4),
+      categoryGap: .2,
+      maxBarThickness: scaled(48),
+      segmentGap: 2,
+      segmentRadius: math.min(barRadius, 6),
+      holeRatio: .6,
+      activeSegmentGrowth: scaled(6),
+      tooltipDecoration: UnaDecoration(
+        color: popoverSurfaceColor,
+        shadows: style.popoverShadow,
+        border: UnaBorder.all(
+          borderRadius: tooltipRadius,
+          color: surfaceBorderColor,
+          width: 1,
+        ),
+      ),
+      // `px-2.5 py-1.5`, shadcn's chart tooltip.
+      tooltipPadding: spacing.symmetric(horizontal: 2.5, vertical: 1.5),
+      tooltipLabelStyle: caption.copyWith(
+        color: colorScheme.popoverForeground,
+        fontWeight: FontWeight.w500,
+      ),
+      tooltipTextStyle: caption.copyWith(
+        color: colorScheme.mutedForeground,
+      ),
+      tooltipValueStyle: caption.copyWith(
+        color: colorScheme.popoverForeground,
+        fontWeight: FontWeight.w500,
+        fontFeatures: figures,
+      ),
+      tooltipOffset: scaled(12),
+      legendTextStyle: caption.copyWith(color: colorScheme.mutedForeground),
+      legendSwatchSize: scaled(10),
+      legendSpacing: scaled(16),
+      height: scaled(240),
+      sparklineLineWidth: 1.5,
+      sparklineSize: Size(scaled(96), scaled(32)),
     );
   }
 

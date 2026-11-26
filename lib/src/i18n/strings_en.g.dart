@@ -65,6 +65,7 @@ class UnaLocalizationsData with BaseTranslations<UnaLocale, UnaLocalizationsData
 	late final UnaLocalizationsData$button$en button = UnaLocalizationsData$button$en.internal(_root);
 	late final UnaLocalizationsData$board$en board = UnaLocalizationsData$board$en.internal(_root);
 	late final UnaLocalizationsData$navigation$en navigation = UnaLocalizationsData$navigation$en.internal(_root);
+	late final UnaLocalizationsData$chart$en chart = UnaLocalizationsData$chart$en.internal(_root);
 }
 
 // Path: actionSheet
@@ -730,6 +731,30 @@ class UnaLocalizationsData$navigation$en {
 	String get toggleSidebar => 'Toggle sidebar';
 }
 
+// Path: chart
+class UnaLocalizationsData$chart$en {
+	UnaLocalizationsData$chart$en.internal(this._root);
+
+	final UnaLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Line chart'
+	String get line => 'Line chart';
+
+	/// en: 'Bar chart'
+	String get bar => 'Bar chart';
+
+	/// en: 'Donut chart'
+	String get donut => 'Donut chart';
+
+	/// en: 'Sparkline'
+	String get sparkline => 'Sparkline';
+
+	/// en: '$count points, $first to $last'
+	String range({required Object count, required Object first, required Object last}) => '${count} points, ${first} to ${last}';
+}
+
 /// The flat map containing all translations for locale <en>.
 /// Only for edge cases! For simple maps, use the map function of this library.
 ///
@@ -869,6 +894,11 @@ extension on UnaLocalizationsData {
 			'navigation.openMenu' => 'Open menu',
 			'navigation.menu' => 'Navigation menu',
 			'navigation.toggleSidebar' => 'Toggle sidebar',
+			'chart.line' => 'Line chart',
+			'chart.bar' => 'Bar chart',
+			'chart.donut' => 'Donut chart',
+			'chart.sparkline' => 'Sparkline',
+			'chart.range' => ({required Object count, required Object first, required Object last}) => '${count} points, ${first} to ${last}',
 			_ => null,
 		};
 	}
