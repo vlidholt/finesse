@@ -1,5 +1,4 @@
 import 'package:example/common/app_shell.dart';
-import 'package:example/common/app_state.dart';
 import 'package:example/common/theme_editor/customizer_panel.dart';
 import 'package:example/common/theme_editor/fonts.dart';
 import 'package:example/main.dart';

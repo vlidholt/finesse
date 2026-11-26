@@ -415,11 +415,23 @@ class ComponentsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     // A Column, not a Scaffold: the docs browser is a sidebar layout that
     // fills its box and does not inset itself for a bar laid over it.
-    final mobile = Theme.of(context).formFactor == FormFactor.mobile;
+    final theme = Theme.of(context);
+    final mobile = theme.formFactor == FormFactor.mobile;
+    final margin = theme.layoutTheme.gap(GapSize.lg);
     return SignalBuilder(
       builder: (context, _) {
         final section = appSectionProvider.of(context);
         final current = section.value;
+        final switcher = SegmentedControl<AppSection>(
+          expand: mobile,
+          size: mobile ? ControlSize.regular : ControlSize.sm,
+          value: current,
+          onChanged: (value) => section.value = value,
+          segments: [
+            for (final s in AppSection.values)
+              Segment(value: s, label: Text(s.label)),
+          ],
+        );
         return Column(
           children: [
             AppBar(
@@ -430,16 +442,21 @@ class ComponentsSection extends StatelessWidget {
               automaticallyImplyLeading: false,
               // On a phone the mark alone: the switch needs the room.
               leading: UnaLogo(showWordmark: !mobile),
-              // Centred, at its own width: two choices, not a title.
-              middle: SegmentedControl<AppSection>(
-                size: ControlSize.sm,
-                value: current,
-                onChanged: (value) => section.value = value,
-                segments: [
-                  for (final s in AppSection.values)
-                    Segment(value: s, label: Text(s.label)),
-                ],
-              ),
+              // Centred, at its own width: two choices, not a title. On a
+              // phone it takes a row of its own under the bar, which has no
+              // room left beside its buttons.
+              middle: mobile ? null : switcher,
+              bottom: mobile
+                  ? Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        margin,
+                        0,
+                        margin,
+                        theme.layoutTheme.gap(GapSize.sm),
+                      ),
+                      child: switcher,
+                    )
+                  : null,
               actions: const [
                 _ThemeModeButton(),
                 _DirectionButton(),
