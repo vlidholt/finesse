@@ -1,3 +1,4 @@
+import 'package:finesse/src/components/bar_button_scope.dart';
 import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/button_group.dart';
 import 'package:finesse/src/components/tooltip.dart';
@@ -26,10 +27,11 @@ import 'package:flutter/widgets.dart';
 /// sizes, and the same [style] object for anything else.
 class IconButton extends StatefulWidget {
   /// Creates an icon button: the primary variant unless [variant] says
-  /// otherwise.
+  /// otherwise or, in an `AppBar` or `SliverAppBar`, the variant the bar
+  /// gives the buttons in it.
   const IconButton({
     super.key,
-    this.variant = ButtonVariant.primary,
+    this.variant,
     required this.icon,
     this.onPressed,
     this.onLongPress,
@@ -134,7 +136,7 @@ class IconButton extends StatefulWidget {
   }) : variant = ButtonVariant.ghost;
 
   /// {@macro Button.variant}
-  final ButtonVariant variant;
+  final ButtonVariant? variant;
 
   /// {@macro Button.onPressed}
   final VoidCallback? onPressed;
@@ -235,8 +237,8 @@ class _IconButtonState extends State<IconButton> {
 
     final theme = Theme.of(context);
     final widget = this.widget;
-    final style = widget.style;
-    final variant = widget.variant;
+    final style = BarButtonScope.styleOf(context, widget.style);
+    final variant = BarButtonScope.variantOf(context, widget.variant);
     final tooltip = widget.tooltip;
     final focusNode = _focusNode;
 

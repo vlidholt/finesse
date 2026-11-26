@@ -1,3 +1,4 @@
+import 'package:finesse/src/components/bar_button_scope.dart';
 import 'package:finesse/src/components/button_group.dart';
 import 'package:finesse/src/components/decorator.dart';
 import 'package:finesse/src/components/spinner.dart';
@@ -91,10 +92,12 @@ enum ButtonSize {
 /// no callback for — a double tap, a secondary tap, the moment a press
 /// starts — wrap it in a `FinesseGestureDetector`.
 class Button extends StatefulWidget {
-  /// Creates a button: the primary variant unless [variant] says otherwise.
+  /// Creates a button: the primary variant unless [variant] says otherwise
+  /// or, in an `AppBar` or `SliverAppBar`, the variant the bar gives the
+  /// buttons in it.
   const Button({
     super.key,
-    this.variant = ButtonVariant.primary,
+    this.variant,
     this.child,
     this.leading,
     this.trailing,
@@ -263,8 +266,14 @@ class Button extends StatefulWidget {
   /// {@template Button.variant}
   /// Which of the theme's button looks this is. The named constructors set
   /// it.
+  ///
+  /// Null is primary, except in the leading, title and action slots of an
+  /// `AppBar` or `SliverAppBar`, where the bar picks the look for what it
+  /// is drawn on: ghost on its own surface and on a capsule of Liquid Glass,
+  /// outline over a `SliverAppBar.background` picture. Name a variant to
+  /// keep it everywhere.
   /// {@endtemplate}
-  final ButtonVariant variant;
+  final ButtonVariant? variant;
 
   /// {@template Button.size}
   /// The size: its height, padding and icon size come from the theme's
@@ -398,8 +407,8 @@ class _ButtonState extends State<Button> {
     final iconTheme = IconTheme.of(context);
     final style = Button._variantTheme(
       theme,
-      widget.variant,
-    ).merge(widget.style);
+      BarButtonScope.variantOf(context, widget.variant),
+    ).merge(BarButtonScope.styleOf(context, widget.style));
 
     final sizes = style.sizesTheme;
     final sizeTheme = switch (widget.size ?? style.size ?? ButtonSize.regular) {

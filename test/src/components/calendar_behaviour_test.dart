@@ -39,7 +39,7 @@ void main() {
           },
         ),
       );
-      ButtonVariant variantOf(int day) =>
+      ButtonVariant? variantOf(int day) =>
           tester.widget<Button>(dayOf(day).first).variant;
       expect(variantOf(15), ButtonVariant.primary);
       rebuild(() => value = DateTime(2024, 5, 20));

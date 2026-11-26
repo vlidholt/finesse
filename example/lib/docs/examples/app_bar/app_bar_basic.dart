@@ -2,7 +2,8 @@ import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
 /// A back button, a title and two actions. Without a `middle`, the title
-/// takes the space between the leading widget and the actions.
+/// takes the space between the leading widget and the actions. The buttons
+/// name no variant: the bar gives them the look for what it is drawn on.
 class AppBarBasicExample extends StatelessWidget {
   const AppBarBasicExample({super.key});
 
@@ -27,19 +28,19 @@ class AppBarBasicExample extends StatelessWidget {
           AppBar(
             // Not at the top of the screen here, so no status bar inset.
             primary: false,
-            leading: IconButton.ghost(
+            leading: IconButton(
               icon: const PhosphorIcon(PhosphorIconsRegular.arrowLeft),
               semanticLabel: 'Back',
               onPressed: () {},
             ),
             title: const Text('Messages'),
             actions: [
-              IconButton.ghost(
+              IconButton(
                 icon: const PhosphorIcon(PhosphorIconsRegular.magnifyingGlass),
                 semanticLabel: 'Search',
                 onPressed: () {},
               ),
-              IconButton.ghost(
+              IconButton(
                 icon: const PhosphorIcon(PhosphorIconsRegular.notePencil),
                 semanticLabel: 'New message',
                 onPressed: () {},

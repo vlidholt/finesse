@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:finesse/src/components/bar_button_scope.dart';
 import 'package:finesse/src/theme/components/layout.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/entrance.dart';
@@ -775,17 +776,21 @@ class _PortalState extends State<Portal> {
       child: OverlayPortal(
         controller: overlayPortalController,
         overlayChildBuilder: (context) {
-          return Center(
-            widthFactor: 1,
-            heightFactor: 1,
-            child: switch (widget.anchor) {
-              final AnchorAuto anchor => buildAutoPosition(context, anchor),
-              final Anchor anchor => buildManualPosition(context, anchor),
-              final GlobalAnchor anchor => buildGlobalPosition(
-                context,
-                anchor,
-              ),
-            },
+          // Built under the anchor, but not part of it: a menu opened from
+          // a button in a bar does not take the bar's look for its buttons.
+          return BarButtonScope.none(
+            child: Center(
+              widthFactor: 1,
+              heightFactor: 1,
+              child: switch (widget.anchor) {
+                final AnchorAuto anchor => buildAutoPosition(context, anchor),
+                final Anchor anchor => buildManualPosition(context, anchor),
+                final GlobalAnchor anchor => buildGlobalPosition(
+                  context,
+                  anchor,
+                ),
+              },
+            ),
           );
         },
         child: widget.child,

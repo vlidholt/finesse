@@ -387,6 +387,21 @@ was measured from (Strand, until it moved), is its own repository,
   blur. A blur too faint to see (the
   iOS presets' 0.6) is dropped there rather than costing a backdrop pass
   under every capsule, bar and control.
+- **A bar picks its buttons' look.** `Button.variant` and
+  `IconButton.variant` are nullable: null is primary, except in an
+  `AppBar`'s or `SliverAppBar`'s toolbar, where the bar gives the look for
+  what it is drawn on — ghost on its own surface (frosted or solid), ghost
+  on a capsule of Liquid Glass, outline over a `SliverAppBar.background`
+  picture. `BackButton` and `CloseButton` follow it too. An app writes
+  `IconButton(icon: …)` and never asks which material the bar is on; a
+  named variant is kept. A menu opened from a bar button is not the bar's.
+  A bare (ghost) icon button at either end of a bar — also an explicit
+  `leading`, also inside an `IndicatorBadge`, `Tooltip` or
+  `RepaintBoundary` — stands with its glyph, not its box, on the bar's
+  margin; a button with a surface, and a capsule of glass, with its edge.
+- **A bar's capsule of glass does not clip**, so a badge on its last
+  button hangs over the capsule's end as on iOS 26 instead of being cut
+  off; the buttons on it are round, so their fills stay inside its ends.
 - **The bottom bar's tabs keep their own width**: the capsule hugs them,
   with the free space between it and the `action`, as on iOS 26, and it is
   centred when there is no action. A screen that is none of the

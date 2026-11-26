@@ -53,7 +53,7 @@ ThemeData(
 
 | finesse | On Liquid Glass |
 | --- | --- |
-| `AppBar` (phone and tablet) | No fill, no hairline; the content under it is blurred more the nearer the top and faded into the page, a little past the bar. A leading button and the actions sit on glass capsules; a logo or title stands bare. A desktop top bar stays solid unless `AppBarTheme(liquidGlass: LiquidGlassMode.always)`. |
+| `AppBar` (phone and tablet) | No fill, no hairline; the content under it is blurred more the nearer the top and faded into the page, a little past the bar. A leading button and the actions sit on glass capsules; a logo or title stands bare. The capsule does not clip, so a badge on a button hangs over its edge; the buttons on it are round. Write buttons in a bar with no variant (`IconButton(icon: …)`) and the bar picks the look: plain on glass, ghost on a solid or frosted bar, outline over a picture. A desktop top bar stays solid unless `AppBarTheme(liquidGlass: LiquidGlassMode.always)`. |
 | `BottomNavigationBar` (floating, with a selection) | The package's `GlassTabBar.bottom`: a lens slides between tabs; `action` floats beside the tabs on its own capsule. |
 | `Toolbar`, docked bottom bar, `NavigationRail` | Glass material, finesse layout. |
 | `Glass` (frosted, no custom `color`) | Glass material. Scrims and `frosted: false` stay. |

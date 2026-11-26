@@ -248,6 +248,21 @@ componentTheme.liquidGlass)` at build: never a window width, never cached.
   `FragmentProgram`) was smooth and in the same frame, but CanvasKit reads
   every snapshot back from the GPU (about 2.5 ms a frame on a Mac) and it
   had the most late frames of all on the iPhone.
+- **A bar picks its buttons' look; apps do not ask which material it is
+  on.** `Button.variant`/`IconButton.variant` are nullable, and the
+  toolbar puts an internal `BarButtonScope` (`bar_button_scope.dart`,
+  not exported) around its slots: ghost on a frosted or solid bar and on
+  a glass capsule, outline over a `SliverAppBar.background`. The capsule
+  (`LiquidGlassBarGroup`) adds a full-radius `buttonDecoration` to every
+  button on it and **does not clip** (`LiquidGlassSurface.clipBehavior`),
+  so a badge on the last button hangs over its end, as iOS 26 draws a
+  toolbar badge. An overlay is built under its anchor, so `Portal` and
+  the morph popover put `BarButtonScope.none` around their content: a
+  menu's rows are not the bar's. A bare (ghost) icon button at either end
+  puts its glyph on the margin; the toolbar sees through `RepaintBoundary`,
+  `IndicatorBadge`, `Tooltip` and `KeyedSubtree` to find it
+  (`app_bar_buttons_test.dart`). A widget it cannot see through (a
+  `builder`) is not a bare button and not put on a capsule as a leading.
 - **Invisible blurs are not paid for off Impeller.** The iOS presets blur
   by 0.6 and leave the frosting to `frost`; the package's lighter tier
   still pushes a `BackdropFilterLayer` for that 0.6 under every glass

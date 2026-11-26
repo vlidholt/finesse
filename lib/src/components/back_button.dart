@@ -1,3 +1,5 @@
+import 'package:finesse/src/components/bar_button_scope.dart';
+import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/icon_button.dart';
 import 'package:finesse/src/components/tooltip.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
@@ -127,7 +129,14 @@ class _DismissButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final button = IconButton.ghost(
+    // Ghost, or what the bar it is in gives its buttons (an outline disc
+    // over a picture).
+    final button = IconButton(
+      variant: BarButtonScope.variantOf(
+        context,
+        null,
+        fallback: ButtonVariant.ghost,
+      ),
       icon: icon,
       semanticLabel: label,
       enabled: enabled,

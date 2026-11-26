@@ -16,7 +16,8 @@ void main() {
     );
 
     const label = Text('x');
-    expect(const Button(child: label).variant, ButtonVariant.primary);
+    // None named: primary, or the look a bar gives its buttons.
+    expect(const Button(child: label).variant, isNull);
     expect(
       const Button(variant: ButtonVariant.ghost, child: label).variant,
       const Button.ghost(child: label).variant,

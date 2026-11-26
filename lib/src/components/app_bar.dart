@@ -214,9 +214,7 @@ class AppBar extends StatelessWidget {
     final toolbar = AppBarToolbar(
       height: toolbarHeight,
       leading: effectiveLeading,
-      // The bar's own button lines its glyph up with the page margin, as
-      // the title of a bar without one does. On glass the capsule does.
-      alignLeadingGlyph: implied != null && !liquid,
+      buttonVariant: appBarButtonVariant(material: material),
       title: title,
       middle: middle,
       actions: effectiveActions,

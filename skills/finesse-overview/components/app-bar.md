@@ -4,14 +4,15 @@ The bar across the top of a screen: a logo or back button, a title, and actions.
 
 ## Leading, title and actions
 
-Without a `middle`, the title takes the space between `leading` and `actions` and truncates when it runs out. It is the page's heading for a screen reader.
+Without a `middle`, the title takes the space between `leading` and `actions` and truncates when it runs out. It is the page's heading for a screen reader. A `Button` or `IconButton` in the bar that names no variant takes the bar's: a bare glyph on the bar's surface, whose glyph rather than box lines up with the margin at either end; a plain icon on a capsule of Liquid Glass; an outline disc over a `SliverAppBar.background` picture. Name a variant to keep it.
 
 ```dart
 import 'package:finesse/finesse.dart';
 import 'package:flutter/widgets.dart';
 
 /// A back button, a title and two actions. Without a `middle`, the title
-/// takes the space between the leading widget and the actions.
+/// takes the space between the leading widget and the actions. The buttons
+/// name no variant: the bar gives them the look for what it is drawn on.
 class AppBarBasicExample extends StatelessWidget {
   const AppBarBasicExample({super.key});
 
@@ -36,19 +37,19 @@ class AppBarBasicExample extends StatelessWidget {
           AppBar(
             // Not at the top of the screen here, so no status bar inset.
             primary: false,
-            leading: IconButton.ghost(
+            leading: IconButton(
               icon: const PhosphorIcon(PhosphorIconsRegular.arrowLeft),
               semanticLabel: 'Back',
               onPressed: () {},
             ),
             title: const Text('Messages'),
             actions: [
-              IconButton.ghost(
+              IconButton(
                 icon: const PhosphorIcon(PhosphorIconsRegular.magnifyingGlass),
                 semanticLabel: 'Search',
                 onPressed: () {},
               ),
-              IconButton.ghost(
+              IconButton(
                 icon: const PhosphorIcon(PhosphorIconsRegular.notePencil),
                 semanticLabel: 'New message',
                 onPressed: () {},

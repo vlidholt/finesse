@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
+import 'package:finesse/src/components/bar_button_scope.dart';
 import 'package:finesse/src/liquid_glass/liquid_glass_theme.dart';
+import 'package:finesse/src/theme/components/button.dart';
 import 'package:finesse/src/theme/data.dart';
 import 'package:finesse/src/theme/theme.dart';
 import 'package:finesse/src/utils/backdrop.dart';
@@ -339,11 +341,16 @@ class LiquidGlassSurface extends StatefulWidget {
     this.capsule = false,
     this.overlay = false,
     this.interactive = false,
+    this.clipBehavior = Clip.antiAlias,
     super.key,
   });
 
   /// The content.
   final Widget child;
+
+  /// Whether the content is clipped to the glass. A bar's capsule is not:
+  /// a badge on a button hangs over its edge, as on iOS 26.
+  final Clip clipBehavior;
 
   /// The corner radius, drawn as a continuous (superellipse) corner.
   final double radius;
@@ -440,7 +447,7 @@ class _LiquidGlassSurfaceState extends State<LiquidGlassSurface> {
               shape: _shape,
               useOwnLayer: true,
               quality: quality,
-              clipBehavior: Clip.antiAlias,
+              clipBehavior: widget.clipBehavior,
               child: child,
             );
           }
@@ -453,7 +460,7 @@ class _LiquidGlassSurfaceState extends State<LiquidGlassSurface> {
             shape: _shape,
             useOwnLayer: true,
             quality: quality,
-            clipBehavior: Clip.antiAlias,
+            clipBehavior: widget.clipBehavior,
             settings: visibility == 1
                 ? settings
                 : settings.copyWith(
@@ -523,13 +530,25 @@ class LiquidGlassBarGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return LiquidGlassSurface(
       capsule: true,
       interactive: true,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        spacing: gap,
-        children: children,
+      // A badge on a button hangs over the capsule's edge, as on iOS 26,
+      // instead of being cut off by its round end. Nothing else needs the
+      // clip: the buttons on it are round, so a press or hover fill stays
+      // inside the capsule's ends.
+      clipBehavior: Clip.none,
+      child: BarButtonScope(
+        variant: BarButtonScope.maybeOf(context)?.variant,
+        style: ButtonTheme(
+          decoration: theme.buttonDecoration(radius: theme.radii.full),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: gap,
+          children: children,
+        ),
       ),
     );
   }

@@ -350,7 +350,12 @@ class _SliverAppBarState extends State<SliverAppBar>
         // room gets it.
         height: appBarToolbarHeight(context, widget.height ?? bar.height ?? 64),
         leading: leading,
-        alignLeadingGlyph: implied != null && !liquid,
+        // Over a picture a bare glyph would be lost: the buttons are
+        // discs, there and once the bar has collapsed over the picture.
+        buttonVariant: appBarButtonVariant(
+          material: material,
+          overPicture: widget.background != null,
+        ),
         // In a large bar the small title is there for assistive technology
         // all along, and for the eye once the large one has gone under.
         title: large && title != null

@@ -56,7 +56,10 @@ void main() {
       final sizes = theme.buttonSizesTheme.regular!;
 
       expect(
-        Button.themeOf(tester.element(find.byType(Button)), button.variant),
+        Button.themeOf(
+          tester.element(find.byType(Button)),
+          button.variant ?? ButtonVariant.primary,
+        ),
         outline,
       );
       expect(tester.getSize(find.byType(Button)).height, sizes.height);

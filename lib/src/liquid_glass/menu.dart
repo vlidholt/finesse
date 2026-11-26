@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 
+import 'package:finesse/src/components/bar_button_scope.dart';
 import 'package:finesse/src/components/popover.dart';
 import 'package:finesse/src/liquid_glass/liquid_glass.dart';
 import 'package:finesse/src/theme/theme.dart';
@@ -125,7 +126,10 @@ class _LiquidGlassMorphPopoverState extends State<LiquidGlassMorphPopover> {
             // The trigger opens the menu through the finesse controller.
             triggerBuilder: (context, _) => widget.child,
             contentBuilder: (context, _) {
-              final content = widget.builder(context);
+              // Not the bar's buttons, though the trigger may be in a bar.
+              final content = BarButtonScope.none(
+                child: widget.builder(context),
+              );
               if (!legible) return content;
               return DecoratedBox(
                 position: DecorationPosition.foreground,

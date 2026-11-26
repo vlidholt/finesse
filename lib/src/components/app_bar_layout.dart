@@ -2,9 +2,12 @@ import 'dart:math' as math;
 import 'dart:ui' show ImageFilter;
 
 import 'package:finesse/src/components/back_button.dart';
+import 'package:finesse/src/components/bar_button_scope.dart';
 import 'package:finesse/src/components/button.dart';
 import 'package:finesse/src/components/icon_button.dart';
+import 'package:finesse/src/components/indicator_badge.dart';
 import 'package:finesse/src/components/scaffold.dart';
+import 'package:finesse/src/components/tooltip.dart';
 import 'package:finesse/src/i18n/localizations_delegate.dart';
 import 'package:finesse/src/icons/phosphor_icon.dart';
 import 'package:finesse/src/icons/phosphor_icons_regular.dart';
@@ -79,10 +82,40 @@ double appBarTopInset(BuildContext context, {required bool liquid}) {
 bool _isBarButton(Widget leading) => switch (leading) {
   IconButton() || Button() || BackButton() || CloseButton() => true,
   // A button kept on a layer of its own, as a bar that repaints while it
-  // scrolls keeps its buttons.
-  RepaintBoundary(:final child?) => _isBarButton(child),
+  // scrolls keeps its buttons, or with a badge or a tooltip.
+  RepaintBoundary(:final child?) ||
+  IndicatorBadge(:final child?) ||
+  Tooltip(:final child) ||
+  KeyedSubtree(:final child) => _isBarButton(child),
   _ => false,
 };
+
+/// The variant a bar gives the buttons in it that name none (see
+/// `BarButtonScope`): ghost on the bar's own surface and on a capsule of
+/// Liquid Glass, which is the surface there; an outline — a disc with a
+/// hairline — over a picture the bar is drawn on, where a bare glyph would
+/// be lost.
+ButtonVariant appBarButtonVariant({
+  required AppBarMaterial material,
+  bool overPicture = false,
+}) => overPicture && material != AppBarMaterial.liquid
+    ? ButtonVariant.outline
+    : ButtonVariant.ghost;
+
+/// Whether [widget], at an end of a bar whose buttons take [barVariant], is
+/// an icon button with no surface of its own: its glyph, not its box, then
+/// stands on the bar's margin, as a bar's title does. Seen through the
+/// wrappers a bar's buttons come in.
+bool _isBareIconButton(Widget widget, ButtonVariant barVariant) =>
+    switch (widget) {
+      IconButton(:final variant) => (variant ?? barVariant) == .ghost,
+      BackButton() || CloseButton() => barVariant == .ghost,
+      RepaintBoundary(:final child?) ||
+      IndicatorBadge(:final child?) ||
+      Tooltip(:final child) ||
+      KeyedSubtree(:final child) => _isBareIconButton(child, barVariant),
+      _ => false,
+    };
 
 /// A bar's [leading] and [actions] as iOS 26 puts them on Liquid Glass:
 /// the leading button on a capsule of its own and all the actions on one
@@ -145,8 +178,8 @@ List<Widget> impliedActions(BuildContext context, List<Widget> actions) {
   ];
 }
 
-/// The least a pulled-out leading button keeps from the edge of the bar.
-const _minLeadingMargin = 4.0;
+/// The least a pulled-out button at an end keeps from the edge of the bar.
+const _minEdgeMargin = 4.0;
 
 /// The row of a bar: [leading], [title], [middle] and [actions], in the
 /// bar's text and icon styles, inside the bar's margins.
@@ -159,7 +192,7 @@ class AppBarToolbar extends StatelessWidget {
     this.middle,
     this.actions = const [],
     this.centerTitle = false,
-    this.alignLeadingGlyph = false,
+    this.buttonVariant = ButtonVariant.ghost,
     this.padding,
     this.maxWidth,
     this.gap,
@@ -186,10 +219,15 @@ class AppBarToolbar extends StatelessWidget {
   /// first.
   final bool centerTitle;
 
-  /// Whether [leading] is an icon button whose *glyph*, not its box, should
-  /// stand on the row's margin: the box is then moved out towards the edge
-  /// by its own inner inset, as far as the margin allows.
-  final bool alignLeadingGlyph;
+  /// The variant of the buttons in the row that name none (see
+  /// [appBarButtonVariant]).
+  ///
+  /// An icon button at either end that has no surface of its own — ghost —
+  /// stands with its *glyph*, not its box, on the row's margin, as the
+  /// title does: the box is moved out towards the edge by its own inner
+  /// inset, as far as the margin allows. A button with a surface (an
+  /// outline disc, a capsule of glass) stands with its edge on it.
+  final ButtonVariant buttonVariant;
 
   /// Padding around the row. Defaults to the theme's.
   final EdgeInsetsGeometry? padding;
@@ -273,17 +311,25 @@ class AppBarToolbar extends StatelessWidget {
     var effectivePadding =
         (padding ?? bar.padding ?? const EdgeInsets.symmetric(horizontal: 24))
             .resolve(direction);
-    if (alignLeadingGlyph && leading != null) {
-      final ltr = direction == TextDirection.ltr;
-      final margin = ltr ? effectivePadding.left : effectivePadding.right;
-      final inset =
-          (theme.style.iconButtonSize - theme.style.iconButtonIconSize) / 2;
+    final inset =
+        (theme.style.iconButtonSize - theme.style.iconButtonIconSize) / 2;
+    double pulled(double margin) {
       // Never right up against the edge.
-      final room = margin - _minLeadingMargin;
-      final pulled = margin - inset.clamp(0.0, room < 0 ? 0.0 : room);
+      final room = margin - _minEdgeMargin;
+      return margin - inset.clamp(0.0, room < 0 ? 0.0 : room);
+    }
+
+    final ltr = direction == TextDirection.ltr;
+    final alignStart =
+        leading != null && _isBareIconButton(leading!, buttonVariant);
+    final alignEnd =
+        actions.isNotEmpty && _isBareIconButton(actions.last, buttonVariant);
+    if (alignStart || alignEnd) {
+      final left = ltr ? alignStart : alignEnd;
+      final right = ltr ? alignEnd : alignStart;
       effectivePadding = effectivePadding.copyWith(
-        left: ltr ? pulled : null,
-        right: ltr ? null : pulled,
+        left: left ? pulled(effectivePadding.left) : null,
+        right: right ? pulled(effectivePadding.right) : null,
       );
     }
 
@@ -304,7 +350,7 @@ class AppBarToolbar extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               child: IconTheme.merge(
                 data: IconThemeData(color: foreground),
-                child: content,
+                child: BarButtonScope(variant: buttonVariant, child: content),
               ),
             ),
           ),

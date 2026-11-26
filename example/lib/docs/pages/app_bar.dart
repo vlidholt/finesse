@@ -24,7 +24,12 @@ final appBarDoc = ComponentDoc(
       description:
           'Without a `middle`, the title takes the space between '
           '`leading` and `actions` and truncates when it runs out. It is '
-          'the page\'s heading for a screen reader.',
+          'the page\'s heading for a screen reader. A `Button` or '
+          '`IconButton` in the bar that names no variant takes the bar\'s: '
+          'a bare glyph on the bar\'s surface, whose glyph rather than box '
+          'lines up with the margin at either end; a plain icon on a '
+          'capsule of Liquid Glass; an outline disc over a '
+          '`SliverAppBar.background` picture. Name a variant to keep it.',
       minPreviewHeight: 260,
       builder: (_) => const AppBarBasicExample(),
     ),
