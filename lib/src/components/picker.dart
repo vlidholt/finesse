@@ -15,6 +15,7 @@ import 'package:una/src/theme/components/layout.dart';
 import 'package:una/src/theme/data.dart';
 import 'package:una/src/theme/form_factor.dart';
 import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/entrance.dart';
 import 'package:una/src/utils/extensions/text_style.dart';
 
 /// How a picker — `DatePicker`, `TimePicker`, `Select`, `ColorPickerButton`
@@ -69,6 +70,7 @@ class PickerHost extends StatefulWidget {
     this.anchor,
     this.onOpenChanged,
     this.exitDuration,
+    this.instant = false,
     this.shadows,
     this.filter,
     this.decoration,
@@ -111,6 +113,12 @@ class PickerHost extends StatefulWidget {
   /// `Motion.fast`.
   final Duration? exitDuration;
 
+  /// Whether the popover is simply there when it opens, and gone when it
+  /// closes, with no entrance or exit: the calendar of a date picker, whose
+  /// grid growing and sliding in from the trigger reads as content that
+  /// scrolls into place.
+  final bool instant;
+
   /// The popover's shadows, when the picker has its own.
   final List<BoxShadow>? shadows;
 
@@ -123,6 +131,8 @@ class PickerHost extends StatefulWidget {
   @override
   State<PickerHost> createState() => _PickerHostState();
 }
+
+const _noEntrance = EntranceSpec(duration: Duration.zero, curve: Curves.linear);
 
 class _PickerHostState extends State<PickerHost> {
   PopoverController? _ownController;
@@ -238,7 +248,8 @@ class _PickerHostState extends State<PickerHost> {
       closeOnTapOutside: widget.closeOnTapOutside,
       padding: widget.popoverPadding,
       anchor: widget.anchor,
-      exitDuration: widget.exitDuration,
+      exitDuration: widget.instant ? Duration.zero : widget.exitDuration,
+      entrance: widget.instant ? _noEntrance : null,
       shadows: widget.shadows,
       filter: widget.filter,
       decoration: widget.decoration,

@@ -15,7 +15,6 @@ import 'package:una/src/theme/components/calendar.dart';
 import 'package:una/src/theme/components/decorator.dart';
 import 'package:una/src/theme/theme.dart';
 import 'package:una/src/utils/border.dart';
-import 'package:una/src/utils/content_switch.dart';
 import 'package:una/src/utils/extensions/date_time.dart';
 import 'package:una/src/utils/extensions/text_style.dart';
 
@@ -205,6 +204,11 @@ class Calendar extends StatefulWidget {
        maxDays = null;
 
   /// Creates a calendar that selects a range of days.
+  ///
+  /// The first tap sets the first day. The next one ends the range there,
+  /// or, on an earlier day, moves the first day to it. Once the range has
+  /// both its days, the next tap starts a new range, anywhere: [minDays]
+  /// and [maxDays] bound only the end of a range that is waiting for one.
   const Calendar.range({
     super.key,
     this.range,
@@ -351,6 +355,14 @@ class _CalendarState extends State<Calendar> {
   late DateTime? startRange = widget.range?.start;
   late DateTime? endRange = widget.range?.end;
 
+  /// Whether the view still follows [Calendar.initialMonth]: until the
+  /// month is changed by hand.
+  bool _followsInitialMonth = true;
+
+  bool _showsMonth(DateTime date) => datesModels.any(
+    (model) => model.month.year == date.year && model.month.month == date.month,
+  );
+
   final backMonthButtonHovered = ValueNotifier<bool>(false);
   final forwardMonthButtonHovered = ValueNotifier<bool>(false);
 
@@ -397,7 +409,9 @@ class _CalendarState extends State<Calendar> {
       return selectedDays.any((selectedDay) => selectedDay.isSameDay(date));
     }
 
-    if (widget.variant == CalendarVariant.range) {
+    // A range bounds the days its end may be only while it waits for one:
+    // once it has both, the next tap starts a new range anywhere.
+    if (widget.variant == CalendarVariant.range && endRange == null) {
       bool satifiesMin() {
         if (widget.minDays != null && startRange != null) {
           // only the dates after min are enabled
@@ -417,12 +431,7 @@ class _CalendarState extends State<Calendar> {
         return true;
       }
 
-      bool isInRange() {
-        return (startRange != null && date.isSameDayOrGreater(startRange!)) &&
-            (endRange != null && date.isSameDayOrLower(endRange!));
-      }
-
-      return (satifiesMin() && satifiesMax()) || isInRange();
+      return satifiesMin() && satifiesMax();
     }
 
     return true;
@@ -438,14 +447,21 @@ class _CalendarState extends State<Calendar> {
   @override
   void didUpdateWidget(covariant Calendar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final bool initialMonthChanged;
-    if ((oldWidget.initialMonth == currentMonth ||
-            (currentMonth == today.startOfMonth)) &&
-        widget.initialMonth != null) {
-      currentMonth = widget.initialMonth!;
+    // The view goes to a new initial month — the day a picker was given,
+    // the first day of a range — only where that month is not on screen
+    // already: a range whose first day is picked in the second of two
+    // months does not move the months under the pointer.
+    var initialMonthChanged = false;
+    final initial = widget.initialMonth;
+    final old = oldWidget.initialMonth;
+    final movedOn =
+        initial != null &&
+        (old == null || old.year != initial.year || old.month != initial.month);
+    if (initial != null &&
+        (_followsInitialMonth || movedOn) &&
+        !_showsMonth(initial)) {
+      currentMonth = initial;
       initialMonthChanged = true;
-    } else {
-      initialMonthChanged = false;
     }
 
     if (widget.showOutsideDays != oldWidget.showOutsideDays ||
@@ -610,6 +626,7 @@ class _CalendarState extends State<Calendar> {
 
   void goToMonth(DateTime date) {
     setState(() {
+      _followsInitialMonth = false;
       currentMonth = date;
       generateDates();
     });
@@ -1113,298 +1130,292 @@ class _CalendarState extends State<Calendar> {
                     ),
                   ),
                 ),
-                // Changing month brings the new grid in from the side it
-                // lies on: later months from the end, earlier from the
-                // start.
-                ContentSwitch(
-                  value: dateModel.month.year * 12 + dateModel.month.month,
-                  child: Actions(
-                    actions: {
-                      DirectionalFocusAction:
-                          CallbackAction<DirectionalFocusIntent>(
-                            onInvoke: (intent) {
-                              FocusScope.of(
-                                context,
-                              ).focusInDirection(intent.direction);
-                              return null;
-                            },
-                          ),
+                // A new month is simply there: a grid that slides in reads
+                // as lag when the month is changed a few times in a row.
+                Actions(
+                  actions: {
+                    DirectionalFocusAction:
+                        CallbackAction<DirectionalFocusIntent>(
+                          onInvoke: (intent) {
+                            FocusScope.of(
+                              context,
+                            ).focusInDirection(intent.direction);
+                            return null;
+                          },
+                        ),
+                  },
+                  child: Shortcuts(
+                    shortcuts: {
+                      LogicalKeySet(LogicalKeyboardKey.arrowUp):
+                          const DirectionalFocusIntent(TraversalDirection.up),
+                      LogicalKeySet(
+                        LogicalKeyboardKey.arrowDown,
+                      ): const DirectionalFocusIntent(
+                        TraversalDirection.down,
+                      ),
+                      LogicalKeySet(
+                        LogicalKeyboardKey.arrowLeft,
+                      ): const DirectionalFocusIntent(
+                        TraversalDirection.left,
+                      ),
+                      LogicalKeySet(
+                        LogicalKeyboardKey.arrowRight,
+                      ): const DirectionalFocusIntent(
+                        TraversalDirection.right,
+                      ),
                     },
-                    child: Shortcuts(
-                      shortcuts: {
-                        LogicalKeySet(LogicalKeyboardKey.arrowUp):
-                            const DirectionalFocusIntent(TraversalDirection.up),
-                        LogicalKeySet(
-                          LogicalKeyboardKey.arrowDown,
-                        ): const DirectionalFocusIntent(
-                          TraversalDirection.down,
-                        ),
-                        LogicalKeySet(
-                          LogicalKeyboardKey.arrowLeft,
-                        ): const DirectionalFocusIntent(
-                          TraversalDirection.left,
-                        ),
-                        LogicalKeySet(
-                          LogicalKeyboardKey.arrowRight,
-                        ): const DirectionalFocusIntent(
-                          TraversalDirection.right,
-                        ),
-                      },
-                      child: GridView.count(
-                        mainAxisSpacing: effectiveGridMainAxisSpacing,
-                        crossAxisSpacing: effectiveGridCrossAxisSpacing,
-                        crossAxisCount: columnsCount,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        children: dateModel.dates.mapIndexed((index, date) {
-                          if (date == null) return const SizedBox.shrink();
-                          final selected = switch (widget.variant) {
-                            CalendarVariant.range => false,
-                            CalendarVariant.single ||
-                            CalendarVariant.multiple => selectedDays.any(
-                              (selectedDate) => selectedDate.isSameDay(date),
-                            ),
-                          };
+                    child: GridView.count(
+                      mainAxisSpacing: effectiveGridMainAxisSpacing,
+                      crossAxisSpacing: effectiveGridCrossAxisSpacing,
+                      crossAxisCount: columnsCount,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      children: dateModel.dates.mapIndexed((index, date) {
+                        if (date == null) return const SizedBox.shrink();
+                        final selected = switch (widget.variant) {
+                          CalendarVariant.range => false,
+                          CalendarVariant.single ||
+                          CalendarVariant.multiple => selectedDays.any(
+                            (selectedDate) => selectedDate.isSameDay(date),
+                          ),
+                        };
 
-                          final isInRange = switch (widget.variant) {
-                            CalendarVariant.range =>
-                              (startRange != null &&
-                                      date.isSameDayOrGreater(startRange!)) &&
-                                  (endRange != null &&
-                                      date.isSameDayOrLower(endRange!)),
-                            CalendarVariant.single ||
-                            CalendarVariant.multiple => false,
-                          };
+                        final isInRange = switch (widget.variant) {
+                          CalendarVariant.range =>
+                            (startRange != null &&
+                                    date.isSameDayOrGreater(startRange!)) &&
+                                (endRange != null &&
+                                    date.isSameDayOrLower(endRange!)),
+                          CalendarVariant.single ||
+                          CalendarVariant.multiple => false,
+                        };
 
-                          final isFirstDateInRange =
-                              startRange != null && date.isSameDay(startRange!);
-                          final isLastDateInRange =
-                              endRange != null && date.isSameDay(endRange!);
+                        final isFirstDateInRange =
+                            startRange != null && date.isSameDay(startRange!);
+                        final isLastDateInRange =
+                            endRange != null && date.isSameDay(endRange!);
 
-                          final isToday = date.isSameDay(today);
-                          final isInMonth = date.month == dateModel.month.month;
-                          final textStyle = switch (widget.variant) {
-                            CalendarVariant.range => () {
-                              if (isFirstDateInRange || isLastDateInRange) {
-                                return effectiveSelectedDayButtonTextStyle;
-                              }
+                        final isToday = date.isSameDay(today);
+                        final isInMonth = date.month == dateModel.month.month;
+                        final textStyle = switch (widget.variant) {
+                          CalendarVariant.range => () {
+                            if (isFirstDateInRange || isLastDateInRange) {
+                              return effectiveSelectedDayButtonTextStyle;
+                            }
 
-                              if (isInRange) {
-                                return effectiveInsideRangeDayButtonTextStyle;
-                              }
+                            if (isInRange) {
+                              return effectiveInsideRangeDayButtonTextStyle;
+                            }
 
-                              return effectiveDayButtonTextStyle;
-                            }(),
-                            CalendarVariant.single ||
-                            CalendarVariant.multiple =>
-                              isInMonth
-                                  ? selected
-                                        ? effectiveSelectedDayButtonTextStyle
-                                        : effectiveDayButtonTextStyle
-                                  : effectiveDayButtonOutsideMonthTextStyle,
-                          };
+                            return effectiveDayButtonTextStyle;
+                          }(),
+                          CalendarVariant.single || CalendarVariant.multiple =>
+                            isInMonth
+                                ? selected
+                                      ? effectiveSelectedDayButtonTextStyle
+                                      : effectiveDayButtonTextStyle
+                                : effectiveDayButtonOutsideMonthTextStyle,
+                        };
 
-                          final variant = switch (widget.variant) {
-                            CalendarVariant.range => () {
-                              if (isFirstDateInRange || isLastDateInRange) {
-                                return effectiveSelectedDayButtonVariant;
-                              }
-                              if (isInRange) {
-                                return effectiveInsideRangeDayButtonVariant;
-                              }
-                              if (isToday) return effectiveTodayButtonVariant;
-                              return effectiveDayButtonVariant;
-                            }(),
-                            CalendarVariant.single ||
-                            CalendarVariant.multiple => switch (isInMonth) {
-                              true =>
-                                selected
-                                    ? effectiveSelectedDayButtonVariant
-                                    : isToday
-                                    ? effectiveTodayButtonVariant
-                                    : effectiveDayButtonVariant,
-                              false =>
-                                selected
-                                    ? effectiveSelectedOutsideMonthVariant
-                                    : effectiveDayButtonOutsideMonthVariant,
-                            },
-                          };
+                        final variant = switch (widget.variant) {
+                          CalendarVariant.range => () {
+                            if (isFirstDateInRange || isLastDateInRange) {
+                              return effectiveSelectedDayButtonVariant;
+                            }
+                            if (isInRange) {
+                              return effectiveInsideRangeDayButtonVariant;
+                            }
+                            if (isToday) return effectiveTodayButtonVariant;
+                            return effectiveDayButtonVariant;
+                          }(),
+                          CalendarVariant.single ||
+                          CalendarVariant.multiple => switch (isInMonth) {
+                            true =>
+                              selected
+                                  ? effectiveSelectedDayButtonVariant
+                                  : isToday
+                                  ? effectiveTodayButtonVariant
+                                  : effectiveDayButtonVariant,
+                            false =>
+                              selected
+                                  ? effectiveSelectedOutsideMonthVariant
+                                  : effectiveDayButtonOutsideMonthVariant,
+                          },
+                        };
 
-                          if (effectiveShowWeekNumbers && index % 8 == 0) {
-                            return Center(
-                              child: Text(
-                                date.weekNumber.toString(),
-                                style: effectiveWeekNumbersTextStyle,
-                                textAlign: effectiveWeekNumbersTextAlign,
-                              ),
-                            );
-                          }
-
-                          final isFirstOfRow =
-                              (index - (effectiveShowWeekNumbers ? 1 : 0)) %
-                                  7 ==
-                              0;
-                          final isLastOfRow =
-                              (index - (effectiveShowWeekNumbers ? 1 : 0)) %
-                                  7 ==
-                              6;
-
-                          final cellRadius = effectiveDayButtonRadius;
-                          final effectiveDayButtonDecoration = UnaDecoration(
-                            secondaryBorder: const UnaBorder(
-                              padding: EdgeInsets.zero,
-                            ),
-                            border:
-                                isInRange &&
-                                    !isFirstDateInRange &&
-                                    !isLastDateInRange
-                                // A row starts at the right where text
-                                // runs that way: the grid is mirrored.
-                                ? isFirstOfRow
-                                      ? UnaBorder(
-                                          borderRadius:
-                                              BorderRadiusDirectional.only(
-                                                topStart: cellRadius.topLeft,
-                                                bottomStart:
-                                                    cellRadius.bottomLeft,
-                                              ),
-                                        )
-                                      : isLastOfRow
-                                      ? UnaBorder(
-                                          borderRadius:
-                                              BorderRadiusDirectional.only(
-                                                topEnd: cellRadius.topRight,
-                                                bottomEnd:
-                                                    cellRadius.bottomRight,
-                                              ),
-                                        )
-                                      : const UnaBorder(
-                                          borderRadius: BorderRadius.zero,
-                                        )
-                                : UnaBorder(borderRadius: cellRadius),
-                            secondaryFocusedBorder: UnaBorder.all(
-                              offset: 2,
-                              color: theme.colorScheme.ring.withValues(
-                                alpha: .5,
-                              ),
-                            ),
-                          ).merge(calendar.dayButtonDecoration);
-
+                        if (effectiveShowWeekNumbers && index % 8 == 0) {
                           return Center(
-                            child: Opacity(
-                              opacity: isInMonth
-                                  ? 1
-                                  : effectiveDayButtonOutsideMonthOpacity,
-                              child: Button(
-                                variant: variant,
-                                style: ButtonTheme(
-                                  width: effectiveDayButtonSize,
-                                  height: effectiveDayButtonSize,
-                                  decoration: effectiveDayButtonDecoration,
-                                  padding: effectiveDayButtonPadding,
-                                ),
-                                enabled: enabled(date),
-                                child: Text(
-                                  date.day.toString(),
-                                  style: textStyle,
-                                ),
-                                onPressed: () {
-                                  // ignore the operation if the min is reached
-                                  if (selectedDays.contains(date) &&
-                                      widget.minSelected != null &&
-                                      selectedDays.length ==
-                                          widget.minSelected) {
+                            child: Text(
+                              date.weekNumber.toString(),
+                              style: effectiveWeekNumbersTextStyle,
+                              textAlign: effectiveWeekNumbersTextAlign,
+                            ),
+                          );
+                        }
+
+                        final isFirstOfRow =
+                            (index - (effectiveShowWeekNumbers ? 1 : 0)) % 7 ==
+                            0;
+                        final isLastOfRow =
+                            (index - (effectiveShowWeekNumbers ? 1 : 0)) % 7 ==
+                            6;
+
+                        final cellRadius = effectiveDayButtonRadius;
+                        final effectiveDayButtonDecoration = UnaDecoration(
+                          secondaryBorder: const UnaBorder(
+                            padding: EdgeInsets.zero,
+                          ),
+                          border:
+                              isInRange &&
+                                  !isFirstDateInRange &&
+                                  !isLastDateInRange
+                              // A row starts at the right where text
+                              // runs that way: the grid is mirrored.
+                              ? isFirstOfRow
+                                    ? UnaBorder(
+                                        borderRadius:
+                                            BorderRadiusDirectional.only(
+                                              topStart: cellRadius.topLeft,
+                                              bottomStart:
+                                                  cellRadius.bottomLeft,
+                                            ),
+                                      )
+                                    : isLastOfRow
+                                    ? UnaBorder(
+                                        borderRadius:
+                                            BorderRadiusDirectional.only(
+                                              topEnd: cellRadius.topRight,
+                                              bottomEnd: cellRadius.bottomRight,
+                                            ),
+                                      )
+                                    : const UnaBorder(
+                                        borderRadius: BorderRadius.zero,
+                                      )
+                              : UnaBorder(borderRadius: cellRadius),
+                          secondaryFocusedBorder: UnaBorder.all(
+                            offset: 2,
+                            color: theme.colorScheme.ring.withValues(
+                              alpha: .5,
+                            ),
+                          ),
+                        ).merge(calendar.dayButtonDecoration);
+
+                        return Center(
+                          child: Opacity(
+                            opacity: isInMonth
+                                ? 1
+                                : effectiveDayButtonOutsideMonthOpacity,
+                            child: Button(
+                              variant: variant,
+                              style: ButtonTheme(
+                                // The hover follows the pointer from day
+                                // to day at once, as a menu's highlight
+                                // does: a fade trails behind it.
+                                transitionDuration: Duration.zero,
+                                width: effectiveDayButtonSize,
+                                height: effectiveDayButtonSize,
+                                decoration: effectiveDayButtonDecoration,
+                                padding: effectiveDayButtonPadding,
+                              ),
+                              enabled: enabled(date),
+                              child: Text(
+                                date.day.toString(),
+                                style: textStyle,
+                              ),
+                              onPressed: () {
+                                // ignore the operation if the min is reached
+                                if (selectedDays.contains(date) &&
+                                    widget.minSelected != null &&
+                                    selectedDays.length == widget.minSelected) {
+                                  return;
+                                }
+
+                                if (widget.variant == CalendarVariant.single) {
+                                  final selectedDate = selectedDays.firstOrNull;
+                                  selectedDays.clear();
+                                  if (effectiveAllowDeselection &&
+                                      (selectedDate?.isSameDay(date) ??
+                                          false)) {
+                                    widget.onChanged?.call(null);
+
                                     return;
                                   }
+                                }
+                                final startRangeEquals =
+                                    startRange?.isSameDay(date) ?? false;
+                                final endDateEquals =
+                                    endRange?.isSameDay(date) ?? false;
 
-                                  if (widget.variant ==
-                                      CalendarVariant.single) {
-                                    final selectedDate =
-                                        selectedDays.firstOrNull;
-                                    selectedDays.clear();
-                                    if (effectiveAllowDeselection &&
-                                        (selectedDate?.isSameDay(date) ??
-                                            false)) {
-                                      widget.onChanged?.call(null);
+                                final singleDateSelectedInRange =
+                                    (startRangeEquals && endRange == null) ||
+                                    (endDateEquals && startRange == null);
 
-                                      return;
-                                    }
+                                // Skip the operation on the range if a single
+                                // date is selected and allowDeselection is
+                                // false
+                                if (widget.variant == CalendarVariant.range) {
+                                  if (singleDateSelectedInRange &&
+                                      !effectiveAllowDeselection) {
+                                    return;
                                   }
-                                  final startRangeEquals =
-                                      startRange?.isSameDay(date) ?? false;
-                                  final endDateEquals =
-                                      endRange?.isSameDay(date) ?? false;
+                                }
 
-                                  final singleDateSelectedInRange =
-                                      (startRangeEquals && endRange == null) ||
-                                      (endDateEquals && startRange == null);
-
-                                  // Skip the operation on the range if a single
-                                  // date is selected and allowDeselection is
-                                  // false
+                                setState(() {
                                   if (widget.variant == CalendarVariant.range) {
-                                    if (singleDateSelectedInRange &&
-                                        !effectiveAllowDeselection) {
-                                      return;
-                                    }
-                                  }
-
-                                  setState(() {
-                                    if (widget.variant ==
-                                        CalendarVariant.range) {
-                                      // deselect the range
-                                      if (singleDateSelectedInRange) {
-                                        startRange = null;
+                                    // deselect the range
+                                    if (singleDateSelectedInRange) {
+                                      startRange = null;
+                                    } else {
+                                      // select the start range
+                                      if (startRange == null) {
+                                        startRange = date;
                                       } else {
-                                        // select the start range
-                                        if (startRange == null) {
+                                        // A range that has both its days
+                                        // is done: the next tap starts a
+                                        // new one, wherever it lands.
+                                        if (endRange != null) {
                                           startRange = date;
+                                          endRange = null;
                                         } else {
-                                          // update the start range
-                                          if (isFirstDateInRange ||
-                                              isLastDateInRange) {
+                                          // An earlier day moves the
+                                          // first; a later one ends it.
+                                          if (date.isBefore(startRange!)) {
                                             startRange = date;
-                                            endRange = null;
                                           } else {
-                                            // update the start/end range based on the date position
-                                            if (date.isBefore(startRange!)) {
-                                              startRange = date;
-                                            } else {
-                                              endRange = date;
-                                            }
+                                            endRange = date;
                                           }
                                         }
                                       }
-                                    } else {
-                                      if (selectedDays.contains(date)) {
-                                        selectedDays.remove(date);
-                                      } else {
-                                        selectedDays.add(date);
-                                      }
                                     }
-                                  });
-
-                                  switch (widget.variant) {
-                                    case CalendarVariant.single:
-                                      widget.onChanged?.call(date);
-                                    case CalendarVariant.multiple:
-                                      widget.onValuesChanged?.call(
-                                        selectedDays.toList(),
-                                      );
-                                    case CalendarVariant.range:
-                                      widget.onRangeChanged?.call(
-                                        DateTimeRange(
-                                          start: startRange,
-                                          end: endRange,
-                                        ),
-                                      );
+                                  } else {
+                                    if (selectedDays.contains(date)) {
+                                      selectedDays.remove(date);
+                                    } else {
+                                      selectedDays.add(date);
+                                    }
                                   }
-                                },
-                              ),
+                                });
+
+                                switch (widget.variant) {
+                                  case CalendarVariant.single:
+                                    widget.onChanged?.call(date);
+                                  case CalendarVariant.multiple:
+                                    widget.onValuesChanged?.call(
+                                      selectedDays.toList(),
+                                    );
+                                  case CalendarVariant.range:
+                                    widget.onRangeChanged?.call(
+                                      DateTimeRange(
+                                        start: startRange,
+                                        end: endRange,
+                                      ),
+                                    );
+                                }
+                              },
                             ),
-                          );
-                        }).toList(),
-                      ),
+                          ),
+                        );
+                      }).toList(),
                     ),
                   ),
                 ),

@@ -37,15 +37,14 @@ class _DatePickerSingleExampleState extends State<DatePickerSingleExample> {
 
 ## A range
 
-`DateRangePicker` holds a `DateTimeRange`. `minDays` and `maxDays` bound its length.
+`DateRangePicker` holds a `DateTimeRange`. `minDays` and `maxDays` bound its length. The popover stays open until the range has both its days.
 
 ```dart
 import 'package:flutter/widgets.dart';
 import 'package:una/una.dart';
 
-/// `DateRangePicker` picks a first and a last day. The popover shows two
-/// months and closes on the second tap; a sheet shows one month and waits
-/// for Done.
+/// `DateRangePicker` picks a first and a last day. The popover stays open
+/// until the range has both, and closes then; a sheet waits for Done.
 class DatePickerRangeExample extends StatefulWidget {
   const DatePickerRangeExample({super.key});
 
@@ -63,7 +62,6 @@ class _DatePickerRangeExampleState extends State<DatePickerRangeExample> {
       onChanged: (value) => setState(() => stay = value),
       min: DateTime.now(),
       maxDays: 14,
-      numberOfMonths: 2,
       placeholder: const Text('Check in - check out'),
     );
   }

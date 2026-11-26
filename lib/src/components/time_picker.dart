@@ -174,6 +174,8 @@ class _TimePickerState extends State<TimePicker> {
 
     return PickerHost(
       presentation: widget.presentation,
+      // Simply there, as a date picker's calendar is.
+      instant: true,
       controller: widget.controller,
       requestFocus: widget.requestFocus,
       popoverPadding: picker.popoverPadding,

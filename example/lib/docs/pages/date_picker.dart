@@ -31,7 +31,8 @@ final datePickerDoc = ComponentDoc(
       title: 'A range',
       description:
           '`DateRangePicker` holds a `DateTimeRange`. `minDays` and '
-          '`maxDays` bound its length.',
+          '`maxDays` bound its length. The popover stays open until the '
+          'range has both its days.',
       builder: (_) => const DatePickerRangeExample(),
     ),
     ComponentExample(

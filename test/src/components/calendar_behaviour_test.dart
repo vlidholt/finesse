@@ -105,6 +105,55 @@ void main() {
       expect(tester.widget<Button>(dayOf(21).first).enabled, isFalse);
     });
 
+    testWidgets('a range with both its days starts over on the next tap', (
+      tester,
+    ) async {
+      final reported = <DateTimeRange?>[];
+      await pumpUna(
+        tester,
+        Center(
+          child: Calendar.range(
+            initialMonth: may,
+            range: DateTimeRange(start: DateTime(2024, 5, 10), end: may),
+            minDays: 2,
+            maxDays: 5,
+            onRangeChanged: reported.add,
+            calendarTheme: _small,
+          ),
+        ),
+      );
+      // Too far from the 10th for an end, but a range that is done does
+      // not bound the day a new one starts on.
+      expect(tester.widget<Button>(dayOf(25).first).enabled, isTrue);
+      await tester.tap(dayOf(25).first);
+      await tester.pump();
+      expect(reported.single, DateTimeRange(start: DateTime(2024, 5, 25)));
+      // Waiting for its end, the new range bounds it again.
+      expect(tester.widget<Button>(dayOf(26).first).enabled, isFalse);
+      expect(tester.widget<Button>(dayOf(28).first).enabled, isTrue);
+      await tester.tap(dayOf(28).first);
+      await tester.pump();
+      expect(
+        reported.last,
+        DateTimeRange(start: DateTime(2024, 5, 25), end: DateTime(2024, 5, 28)),
+      );
+    });
+
+    testWidgets('a day takes the hover at once, with no fade', (tester) async {
+      await pumpUna(
+        tester,
+        Center(
+          child: Calendar(initialMonth: may, calendarTheme: _small),
+        ),
+      );
+      for (final day in [1, 15, 31]) {
+        expect(
+          tester.widget<Button>(dayOf(day).first).style?.transitionDuration,
+          Duration.zero,
+        );
+      }
+    });
+
     testWidgets('several days stop at maxSelected', (tester) async {
       final reported = <List<DateTime>>[];
       await pumpUna(

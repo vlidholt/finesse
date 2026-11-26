@@ -929,29 +929,29 @@ void main() {
       expect(start, lessThan(dx(tester, 'page 1')));
     });
 
-    testWidgets('the calendar uses it for its months', (tester) async {
+    testWidgets('the calendar does not use it: a new month is just there', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _app(Calendar(initialMonth: DateTime(2026, 3))),
       );
       await tester.pumpAndSettle();
-      final before = tester.widget<ContentSwitch>(find.byType(ContentSwitch));
+      expect(find.byType(ContentSwitch), findsNothing);
       await tester.tap(find.byType(IconButton).last);
       await tester.pump();
-      final after = tester.widget<ContentSwitch>(find.byType(ContentSwitch));
-      expect(after.value, isNot(before.value));
-      expect(
-        tester
-            .widget<FadeTransition>(
-              find.descendant(
-                of: find.byType(ContentSwitch),
-                matching: find.byType(FadeTransition),
-              ),
-            )
-            .opacity
-            .value,
-        lessThan(1),
-      );
+      // April is shown in place on the frame after the tap: nothing fades
+      // or slides it in.
+      final during = tester.getTopLeft(find.text('15'));
       await tester.pumpAndSettle();
+      expect(during, tester.getTopLeft(find.text('15')));
+      expect(
+        find.descendant(
+          of: find.byType(Calendar),
+          matching: find.byType(FadeTransition),
+        ),
+        findsNothing,
+      );
+      expect(find.text('30'), findsWidgets);
     });
   });
 

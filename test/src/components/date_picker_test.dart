@@ -63,9 +63,10 @@ class _HostState extends State<_Host> {
 }
 
 class _RangeHost extends StatefulWidget {
-  const _RangeHost({this.initial});
+  const _RangeHost({this.initial, this.numberOfMonths = 1});
 
   final DateTimeRange? initial;
+  final int numberOfMonths;
 
   @override
   State<_RangeHost> createState() => _RangeHostState();
@@ -80,6 +81,7 @@ class _RangeHostState extends State<_RangeHost> {
     return Center(
       child: DateRangePicker(
         value: value,
+        numberOfMonths: widget.numberOfMonths,
         calendarTheme: const CalendarTheme(
           dayButtonTextStyle: TextStyle(fontSize: 8),
           selectedDayButtonTextStyle: TextStyle(fontSize: 8),
@@ -535,6 +537,60 @@ void main() {
         DateTimeRange(start: may, end: DateTime(2024, 5, 22)),
       );
       expect(find.byType(Calendar), findsNothing);
+    });
+
+    testWidgets('with a range chosen, the popover stays open for a new one', (
+      tester,
+    ) async {
+      await pumpUna(
+        tester,
+        _RangeHost(
+          initial: DateTimeRange(
+            start: DateTime(2024, 5, 10),
+            end: DateTime(2024, 5, 16),
+          ),
+        ),
+      );
+      await open(tester);
+      // A tap after the range's last day used to move that day and close
+      // the popover on one tap; it starts a new range instead.
+      await tester.tap(dayOf(20).first);
+      await rest(tester);
+      expect(find.byType(Calendar), findsOneWidget);
+      await tester.tap(dayOf(24).first);
+      await rest(tester);
+      expect(rangeHost(tester).changes, [
+        DateTimeRange(start: DateTime(2024, 5, 20)),
+        DateTimeRange(start: DateTime(2024, 5, 20), end: DateTime(2024, 5, 24)),
+      ]);
+      expect(find.byType(Calendar), findsNothing);
+    });
+
+    testWidgets('a first day in the second month does not move the months', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1200, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await pumpUna(
+        tester,
+        const _RangeHost(numberOfMonths: 2),
+      );
+      await open(tester);
+      final months = find.descendant(
+        of: find.byType(Calendar),
+        matching: find.textContaining(RegExp(r'\d{4}$')),
+      );
+      String captions() =>
+          tester.widgetList<Text>(months).map((t) => t.data).join(' ');
+      final before = captions();
+      // The last cell with a 20 is in the second month.
+      final day = dayOf(20).last;
+      final at = tester.getCenter(day);
+      await tester.tap(day);
+      await rest(tester);
+      expect(captions(), before);
+      expect(tester.getCenter(dayOf(20).last), at);
     });
 
     testWidgets('in a sheet the range is a draft that Done reports', (

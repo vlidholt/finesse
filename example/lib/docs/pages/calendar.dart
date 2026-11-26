@@ -28,7 +28,8 @@ final calendarDoc = ComponentDoc(
       description:
           '`Calendar.range` takes `range` and `onRangeChanged`. `min` and '
           '`max` are the earliest and latest day; `minDays` and `maxDays` '
-          'bound the length of the range.',
+          'bound the length of the range. Once it has both its days, the '
+          'next tap starts a new range.',
       builder: (_) => const CalendarRangeExample(),
     ),
     ComponentExample(

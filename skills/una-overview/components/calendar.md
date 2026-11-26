@@ -35,14 +35,15 @@ class _CalendarSingleExampleState extends State<CalendarSingleExample> {
 
 ## A range
 
-`Calendar.range` takes `range` and `onRangeChanged`. `min` and `max` are the earliest and latest day; `minDays` and `maxDays` bound the length of the range.
+`Calendar.range` takes `range` and `onRangeChanged`. `min` and `max` are the earliest and latest day; `minDays` and `maxDays` bound the length of the range. Once it has both its days, the next tap starts a new range.
 
 ```dart
 import 'package:flutter/widgets.dart';
 import 'package:una/una.dart';
 
 /// A stay of two to seven nights, no earlier than today. Once the first day
-/// is chosen, the days too near and too far are disabled.
+/// is chosen, the days too near and too far are disabled; once the stay is
+/// chosen, the next tap starts a new one.
 class CalendarRangeExample extends StatefulWidget {
   const CalendarRangeExample({super.key});
 
@@ -61,7 +62,6 @@ class _CalendarRangeExampleState extends State<CalendarRangeExample> {
       min: DateTime.now(),
       minDays: 2,
       maxDays: 7,
-      numberOfMonths: 2,
     );
   }
 }

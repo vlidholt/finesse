@@ -246,6 +246,9 @@ class _DatePickerState extends State<DatePicker> {
 
     return PickerHost(
       presentation: widget.presentation,
+      // The calendar is simply there: grown and slid in from the
+      // trigger, its grid reads as scrolling into place.
+      instant: true,
       controller: widget.controller,
       requestFocus: widget.requestFocus,
       popoverPadding: picker.popoverPadding,
@@ -462,14 +465,14 @@ class _DateSheetState extends State<_DateSheet> {
 /// DateRangePicker(
 ///   value: _stay,
 ///   onChanged: (range) => setState(() => _stay = range),
-///   numberOfMonths: 2,
 /// )
 /// ```
 ///
-/// The first tap sets the first day and the second the last. In a popover
-/// each tap is reported, and the picker closes on the second when
-/// [closeOnSelection] is true; in a sheet the range is a draft that Done
-/// reports. See [DatePicker] for the trigger and the calendar.
+/// The first tap sets the first day and the second the last; with a range
+/// already chosen, the first tap starts a new one. In a popover each tap is
+/// reported, and the picker stays open until the range has both its days,
+/// closing then when [closeOnSelection] is true; in a sheet the range is a
+/// draft that Done reports. See [DatePicker] for the trigger and the calendar.
 class DateRangePicker extends StatefulWidget {
   /// Creates a date range picker.
   const DateRangePicker({
@@ -655,6 +658,9 @@ class _DateRangePickerState extends State<DateRangePicker> {
 
     return PickerHost(
       presentation: widget.presentation,
+      // The calendar is simply there: grown and slid in from the
+      // trigger, its grid reads as scrolling into place.
+      instant: true,
       controller: widget.controller,
       requestFocus: widget.requestFocus,
       popoverPadding: picker.popoverPadding,
