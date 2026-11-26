@@ -1356,6 +1356,13 @@ ticks only for a finger's changes, as the board and the wheel do.
   cut off at the toolbar, a hard line mid-collapse; a gradient in
   fractions of the background left a long name on the photograph. The
   background keeps only the scrim behind the toolbar's buttons.
+- **A sliver bar's scroll edge is a part of the bar, as tall as the
+  collapsed bar** (`_BarSlot.edge`), and the bar's clip reaches
+  `_edgeOverhang` below it on glass. `Positioned.fill` over the full
+  expanded box showed only the edge's top once collapsed, cut on a line.
+  A pinned picture (`pinBackground`) is blurred through a reused
+  `ImageFilterLayer`, veiled, and on glass masked out over its lowest
+  `_edgeOverhang` (`ShaderMaskLayer`) into the edge below.
 - **A scroll-driven bar is written at layout and read at paint**
   (`AppBarSurfaceBehavior.whenScrolled`, `SliverAppBar`): its listeners are
   render objects, never builders. A header's semantics merge into the

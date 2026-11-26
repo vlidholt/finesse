@@ -1,6 +1,10 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/src/liquid_glass/liquid_glass.dart'
+    show LiquidGlassScrollEdge;
 import 'package:una/una.dart';
 
 import '../../frame_sampler.dart';
@@ -102,9 +106,11 @@ void main() {
       double? expandedHeight,
       bool pinned = true,
       bool stretch = true,
+      bool pinBackground = true,
       Widget? subtitle,
       List<Widget> actions = const [],
     }) => SliverAppBar.large(
+      pinBackground: pinBackground,
       title: const Text('Library'),
       subtitle: subtitle,
       backgroundColor: _fill,
@@ -444,8 +450,58 @@ void main() {
       final fading = await sampler.pixel(tester, Offset(300, toolbar + 20));
       expect(fading.g, lessThan(middle.g));
 
+      // Collapsed, the picture stays behind the toolbar, veiled in the
+      // page colour: neither the bar's own fill nor the bare picture.
+      await scrollTo(tester, 400);
+      final pinned = await sampler.pixel(tester, const Offset(300, 20));
+      expect(pinned, isNot(_fill));
+      expect(pinned.g, greaterThan(themed.g * .5));
+      expect(pinned.g, lessThan(picture.g));
+      expect(pinned.r, greaterThan(.3));
+
+      // Unpinned, it fades out and the collapsed bar takes its surface.
+      await pump(
+        tester,
+        page(
+          large(
+            expandedHeight: 200,
+            pinBackground: false,
+            background: const ColoredBox(color: picture),
+          ),
+        ),
+      );
       await scrollTo(tester, 400);
       expect(await sampler.pixel(tester, const Offset(300, 20)), _fill);
+    });
+
+    testWidgets("on Liquid Glass the scroll edge is the collapsed bar's "
+        'height and reaches below it', (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      LiquidGlass.debugHasShaderFilters = true;
+      try {
+        await pump(tester, page(large(expandedHeight: 200)));
+        await scrollTo(tester, 600);
+        final toolbar = toolbarHeight(tester);
+        final edge = find.byType(LiquidGlassScrollEdge);
+        expect(edge, findsOneWidget);
+        // The collapsed bar (with the glass bar's margin above its
+        // toolbar), not the whole expanded box: only its top would show.
+        expect(
+          tester.getSize(edge).height,
+          inInclusiveRange(toolbar, toolbar + 12),
+        );
+        // Its fade below the bar is not cut off at the bar's edge.
+        final clip = tester.renderObject<RenderClipRect>(
+          find.ancestor(of: edge, matching: find.byType(ClipRect)).first,
+        );
+        expect(
+          clip.clipper!.getClip(clip.size).bottom,
+          greaterThan(toolbar + 20),
+        );
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+        LiquidGlass.debugHasShaderFilters = null;
+      }
     });
 
     testWidgets('expandedHeight is a floor from the widget or the theme; '

@@ -399,6 +399,15 @@ was measured from (Strand, until it moved), is its own repository,
   `leading`, also inside an `IndicatorBadge`, `Tooltip` or
   `RepaintBoundary` — stands with its glyph, not its box, on the bar's
   margin; a button with a surface, and a capsule of glass, with its edge.
+- **`SliverAppBar.pinBackground`** (default true): a large bar's picture
+  stays behind the collapsed toolbar, as a profile's cover does, blurred
+  and veiled in the page colour as the bar collapses so the small title
+  and buttons read on it. On Liquid Glass its lower edge dissolves into
+  the blurred page under the bar; false fades it out as before.
+- **A sliver bar's scroll edge on Liquid Glass is the collapsed bar's
+  height and reaches below it.** It was stretched over the whole
+  expanded box and clipped to the visible bar, so collapsed it showed
+  only its strongest blur, cut off on a line.
 - **A large bar's titles stand on the page colour over its picture.** The
   page colour is painted behind the title and subtitle and rises a short
   fade into the `background` above them, measured from the titles rather

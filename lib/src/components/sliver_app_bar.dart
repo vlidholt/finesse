@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -75,6 +76,7 @@ class SliverAppBar extends StatefulWidget {
   }) : _large = false,
        subtitle = null,
        background = null,
+       pinBackground = true,
        expandedHeight = null,
        stretch = false;
 
@@ -89,6 +91,7 @@ class SliverAppBar extends StatefulWidget {
     this.automaticallyImplyActions = true,
     this.bottom,
     this.background,
+    this.pinBackground = true,
     this.expandedHeight,
     this.stretch = true,
     this.pinned = true,
@@ -146,6 +149,14 @@ class SliverAppBar extends StatefulWidget {
   /// into the picture just above them, so they read on any picture in
   /// either brightness.
   final Widget? background;
+
+  /// Whether [background] stays behind the toolbar once the bar has
+  /// collapsed, as a profile's cover does: as the bar collapses the picture
+  /// is blurred and veiled in the page colour, so the small title and the
+  /// buttons read on it. On Liquid Glass its lower edge dissolves into the
+  /// blurred page below; on a frosted or solid bar it ends on the hairline.
+  /// False fades it out, and the collapsed bar takes the bar's surface.
+  final bool pinBackground;
 
   /// The height of the area under the toolbar of a large bar while it is
   /// fully expanded. Defaults to the theme's, and then to the height of the
@@ -488,7 +499,23 @@ class _SliverAppBarState extends State<SliverAppBar>
         hairline: widget.showBorder ? 1 : 0,
         reduceMotion: motion.reduced,
         titleInset: titleInset,
+        pinBackground: widget.pinBackground,
+        fadeBackground: liquid,
+        veil: scheme.background,
         children: [
+          // On Liquid Glass: the page under the collapsed bar, blurred and
+          // faded into the page colour, reaching [_edgeOverhang] below it.
+          // As tall as the collapsed bar, not the whole box: stretched
+          // over that, only its top showed once the bar had collapsed,
+          // cut off on a line where the blur was still strong.
+          if (liquid)
+            _BarPart(
+              slot: _BarSlot.edge,
+              child: LiquidGlassScrollEdge(
+                color: scheme.background,
+                visibility: always ? null : _surface,
+              ),
+            ),
           if (background != null)
             _BarPart(slot: _BarSlot.background, child: background),
           if (expanded != null)
@@ -499,26 +526,17 @@ class _SliverAppBarState extends State<SliverAppBar>
         ],
       ),
     );
-    if (liquid) {
-      body = Stack(
-        children: [
-          Positioned.fill(
-            child: LiquidGlassScrollEdge(
-              color: scheme.background,
-              visibility: always ? null : _surface,
-            ),
-          ),
-          body,
-        ],
-      );
-    } else if (filter != null) {
+    if (!liquid && filter != null) {
       body = always
           ? BackdropFilter(filter: filter, child: body)
           : FadingBackdrop(visibility: _surface, filter: filter, child: body);
     }
     // The bar's box is always its full, expanded size; what shows of it is
     // cut at paint time.
-    body = ClipRect(clipper: _BarClipper(_scroll), child: body);
+    body = ClipRect(
+      clipper: _BarClipper(_scroll, overhang: liquid ? _edgeOverhang : 0),
+      child: body,
+    );
 
     if (widget.primary) {
       body = AnnotatedRegion<SystemUiOverlayStyle>(
@@ -668,20 +686,27 @@ class _ScrollAnimation extends Animation<double> {
 
 /// Cuts the bar to the part of it that shows.
 class _BarClipper extends CustomClipper<Rect> {
-  _BarClipper(this.scroll) : super(reclip: scroll);
+  _BarClipper(this.scroll, {this.overhang = 0}) : super(reclip: scroll);
 
   final _BarScroll scroll;
 
+  /// How far below the bar its scroll edge reaches.
+  final double overhang;
+
   @override
-  Rect getClip(Size size) =>
-      Rect.fromLTWH(0, 0, size.width, math.max(scroll.visibleExtent, 0));
+  Rect getClip(Size size) => Rect.fromLTWH(
+    0,
+    0,
+    size.width,
+    math.max(scroll.visibleExtent, 0) + overhang,
+  );
 
   @override
   Rect getApproximateClipRect(Size size) => Offset.zero & size;
 
   @override
   bool shouldReclip(_BarClipper oldClipper) =>
-      !identical(oldClipper.scroll, scroll);
+      !identical(oldClipper.scroll, scroll) || oldClipper.overhang != overhang;
 }
 
 /// The sliver: one box, always laid out at the bar's full height.
@@ -1003,15 +1028,16 @@ class _RenderTitleScrim extends RenderProxyBox {
   }
 
   /// Paints the scrim on [canvas], in the coordinates of [ancestor].
-  void paintScrim(Canvas canvas, RenderObject ancestor) {
+  void paintScrim(Canvas canvas, RenderObject ancestor, {double opacity = 1}) {
     final box = MatrixUtils.transformRect(
       getTransformTo(ancestor),
       Offset.zero & size,
     );
-    canvas.drawRect(box, Paint()..color = _color);
+    final color = _color.withValues(alpha: _color.a * opacity);
+    canvas.drawRect(box, Paint()..color = color);
     if (_fade <= 0) return;
     final rise = Rect.fromLTRB(box.left, box.top - _fade, box.right, box.top);
-    Color at(double t) => _color.withValues(alpha: _color.a * t);
+    Color at(double t) => color.withValues(alpha: color.a * t);
     canvas.drawRect(
       rise,
       Paint()
@@ -1042,7 +1068,10 @@ _RenderTitleScrim? _scrimIn(RenderObject part) {
   return found;
 }
 
-enum _BarSlot { background, expanded, toolbar, bottom }
+/// How far a bar's scroll edge reaches below it on Liquid Glass.
+const _edgeOverhang = 24.0;
+
+enum _BarSlot { edge, background, expanded, toolbar, bottom }
 
 class _BarPartData extends ContainerBoxParentData<RenderBox> {
   _BarSlot? slot;
@@ -1073,6 +1102,9 @@ class _SliverBarBody extends MultiChildRenderObjectWidget {
     required this.hairline,
     required this.reduceMotion,
     required this.titleInset,
+    required this.pinBackground,
+    required this.fadeBackground,
+    required this.veil,
     required super.children,
   });
 
@@ -1080,6 +1112,9 @@ class _SliverBarBody extends MultiChildRenderObjectWidget {
   final double hairline;
   final bool reduceMotion;
   final double titleInset;
+  final bool pinBackground;
+  final bool fadeBackground;
+  final Color veil;
 
   @override
   RenderObject createRenderObject(BuildContext context) => _RenderSliverBarBody(
@@ -1088,6 +1123,9 @@ class _SliverBarBody extends MultiChildRenderObjectWidget {
     reduceMotion: reduceMotion,
     textDirection: Directionality.of(context),
     titleInset: titleInset,
+    pinBackground: pinBackground,
+    fadeBackground: fadeBackground,
+    veil: veil,
   );
 
   @override
@@ -1099,7 +1137,10 @@ class _SliverBarBody extends MultiChildRenderObjectWidget {
       ..hairline = hairline
       ..reduceMotion = reduceMotion
       ..textDirection = Directionality.of(context)
-      ..titleInset = titleInset;
+      ..titleInset = titleInset
+      ..pinBackground = pinBackground
+      ..fadeBackground = fadeBackground
+      ..veil = veil;
   }
 }
 
@@ -1113,10 +1154,55 @@ class _RenderSliverBarBody extends RenderBox
     required bool reduceMotion,
     required TextDirection textDirection,
     required double titleInset,
+    required bool pinBackground,
+    required bool fadeBackground,
+    required Color veil,
   }) : _hairline = hairline,
        _reduceMotion = reduceMotion,
        _textDirection = textDirection,
-       _titleInset = titleInset;
+       _titleInset = titleInset,
+       _pinBackground = pinBackground,
+       _fadeBackground = fadeBackground,
+       _veil = veil;
+
+  /// Whether the picture stays behind the collapsed toolbar.
+  bool get pinBackground => _pinBackground;
+  bool _pinBackground;
+  set pinBackground(bool value) {
+    if (value == _pinBackground) return;
+    _pinBackground = value;
+    markNeedsPaint();
+  }
+
+  /// Whether a pinned picture's lower edge dissolves into what is below
+  /// the bar (Liquid Glass) rather than ending on the bar's hairline.
+  bool get fadeBackground => _fadeBackground;
+  bool _fadeBackground;
+  set fadeBackground(bool value) {
+    if (value == _fadeBackground) return;
+    _fadeBackground = value;
+    markNeedsPaint();
+  }
+
+  /// The page colour a pinned picture is veiled in as the bar collapses.
+  Color get veil => _veil;
+  Color _veil;
+  set veil(Color value) {
+    if (value == _veil) return;
+    _veil = value;
+    markNeedsPaint();
+  }
+
+  // Reused frame to frame while a pinned picture is blurred.
+  final _blur = LayerHandle<ImageFilterLayer>();
+  final _mask = LayerHandle<ShaderMaskLayer>();
+
+  @override
+  void dispose() {
+    _blur.layer = null;
+    _mask.layer = null;
+    super.dispose();
+  }
 
   final _BarScroll scroll;
 
@@ -1221,6 +1307,12 @@ class _RenderSliverBarBody extends RenderBox
     );
     (_part(_BarSlot.background)?.parentData as _BarPartData?)?.offset =
         Offset.zero;
+    // The scroll edge is as tall as the collapsed bar: it shows only once
+    // content is under it, which is once the bar has collapsed.
+    _part(_BarSlot.edge)?.layout(
+      BoxConstraints.tightFor(width: width, height: toolbar + bottom),
+    );
+    (_part(_BarSlot.edge)?.parentData as _BarPartData?)?.offset = Offset.zero;
     scroll.measure(expanded: expanded, pinned: toolbar + bottom + hairline);
     size = constraints.constrain(
       Size(width, toolbar + expanded + bottom + hairline),
@@ -1301,39 +1393,99 @@ class _RenderSliverBarBody extends RenderBox
       math.max(_expandedHeight + _lift, 0),
     );
 
-    if (background != null && progress < 1) {
+    if (_part(_BarSlot.edge) case final edge?) {
+      context.paintChild(edge, offset);
+    }
+
+    // The large title goes under the toolbar and thins out as it does.
+    final titleFade = (1 - (progress - .35) / .5).clamp(0.0, 1.0);
+    final pin = _pinBackground;
+    if (background != null && (pin || progress < 1)) {
       final shown = Rect.fromLTWH(0, 0, size.width, window.bottom);
-      final alpha = ((1 - progress) * 255).round().clamp(0, 255);
+      final alpha = pin ? 255 : ((1 - progress) * 255).round().clamp(0, 255);
       final scrim = expanded == null ? null : _scrimIn(expanded);
+      void paintImage(PaintingContext context, Offset offset) =>
+          _paintMoved(context, offset, background, _backgroundTransform());
       void paintPicture(PaintingContext context, Offset offset) {
         context.pushClipRect(needsCompositing, offset, shown, (
           context,
           offset,
         ) {
-          _paintMoved(context, offset, background, _backgroundTransform());
-          // The page colour behind the titles, where they are.
-          if (scrim != null) {
-            context.canvas
+          // Pinned, the picture is blurred as it collapses, so the toolbar
+          // stands on its colours rather than on its detail.
+          final sigma = pin && !reduceMotion ? 10 * progress : 0.0;
+          if (sigma > .5) {
+            _blur.layer = (_blur.layer ?? ImageFilterLayer())
+              ..imageFilter = ImageFilter.blur(
+                sigmaX: sigma,
+                sigmaY: sigma,
+                tileMode: TileMode.clamp,
+              );
+            context.pushLayer(_blur.layer!, paintImage, offset);
+          } else {
+            _blur.layer = null;
+            paintImage(context, offset);
+          }
+          final canvas = context.canvas;
+          if (pin && progress > 0) {
+            canvas.drawRect(
+              shown.shift(offset),
+              Paint()..color = _veil.withValues(alpha: _veil.a * .4 * progress),
+            );
+          }
+          // The page colour behind the titles, where they are, going with
+          // them.
+          if (scrim != null && titleFade > 0) {
+            canvas
               ..save()
               ..translate(offset.dx, offset.dy)
               ..transform(_expandedTransform(expanded!).storage);
-            scrim.paintScrim(context.canvas, expanded);
-            context.canvas.restore();
+            scrim.paintScrim(canvas, expanded, opacity: titleFade);
+            canvas.restore();
           }
         });
       }
 
+      // On Liquid Glass a collapsing picture's lower edge dissolves into
+      // the blurred page under the bar instead of ending on a line.
+      void paintFaded(PaintingContext context, Offset offset) {
+        if (!(pin && _fadeBackground && progress > 0)) {
+          _mask.layer = null;
+          paintPicture(context, offset);
+          return;
+        }
+        const fade = _edgeOverhang;
+        final band = Rect.fromLTRB(
+          0,
+          math.max(shown.bottom - fade, 0),
+          shown.width,
+          shown.bottom,
+        );
+        _mask.layer = (_mask.layer ?? ShaderMaskLayer())
+          ..maskRect = shown.shift(offset)
+          ..blendMode = BlendMode.dstIn
+          ..shader = LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: const [
+              Color(0xFFFFFFFF),
+              Color(0xFFFFFFFF),
+              Color(0x00FFFFFF),
+            ],
+            stops: [0, band.top / math.max(shown.height, 1), 1],
+          ).createShader(Offset.zero & shown.size);
+        context.pushLayer(_mask.layer!, paintPicture, offset);
+      }
+
       if (alpha >= 255) {
-        paintPicture(context, offset);
+        paintFaded(context, offset);
       } else if (alpha > 0) {
-        context.pushOpacity(offset, alpha, paintPicture);
+        context.pushOpacity(offset, alpha, paintFaded);
       }
     }
 
     if (expanded != null && window.height > 0) {
-      // The large title goes under the toolbar and thins out as it does.
-      final fade = (1 - (progress - .35) / .5).clamp(0.0, 1.0);
-      final alpha = (fade * 255).round();
+      final alpha = (titleFade * 255).round();
       void paintTitle(PaintingContext context, Offset offset) {
         context.pushClipRect(
           needsCompositing,
@@ -1372,7 +1524,7 @@ class _RenderSliverBarBody extends RenderBox
   Matrix4 _transformOf(RenderBox child) {
     final data = child.parentData! as _BarPartData;
     return switch (data.slot) {
-      _BarSlot.toolbar || null => Matrix4.identity(),
+      _BarSlot.toolbar || _BarSlot.edge || null => Matrix4.identity(),
       _BarSlot.background => _backgroundTransform(),
       _BarSlot.expanded => _expandedTransform(child),
       _BarSlot.bottom => Matrix4.translationValues(
