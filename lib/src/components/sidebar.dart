@@ -747,10 +747,28 @@ class Sidebar extends StatelessWidget {
     }
 
     final floating = variant == SidebarVariant.floating;
+    // The bars of a `Scaffold` above lie over the page and say how much of
+    // it they cover in the padding they hand down. The panel runs on under
+    // them, as the page does, and its column starts and ends clear of them;
+    // a floating panel keeps clear of them altogether.
+    final insets = MediaQuery.paddingOf(context);
+    final clearOfBars = EdgeInsets.only(top: insets.top, bottom: insets.bottom);
     final floatingMargin =
         (sidebarTheme.floatingMargin ?? const EdgeInsets.all(8)).resolve(
           Directionality.of(context),
-        );
+        ) +
+        (floating ? clearOfBars : EdgeInsets.zero);
+    if (!floating && clearOfBars != EdgeInsets.zero) {
+      content = Padding(
+        padding: clearOfBars,
+        child: MediaQuery.removePadding(
+          context: context,
+          removeTop: true,
+          removeBottom: true,
+          child: content,
+        ),
+      );
+    }
 
     // The icon rail keeps the content laid out at the expanded width and lets
     // the animated container clip it — the same overflow-hidden semantics the

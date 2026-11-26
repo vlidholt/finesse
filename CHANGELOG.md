@@ -889,6 +889,10 @@ From the component review:
   `NavigationScaffold(layout: NavigationLayout.rail)`, styled by
   `NavigationRailTheme`; for a panel of sections beside the page use
   `Sidebar`.
+- **A sidebar under a `Scaffold`'s bars keeps its column clear of them**:
+  its header starts below the top bar and its footer ends above the bottom
+  one, while its surface runs on beneath them (a floating panel keeps
+  clear of them altogether).
 - **Example.** Previews stand on a card, the browser's own context menu
   is off on the web, and a docs page runs on under the floating bottom
   bar on a phone.
