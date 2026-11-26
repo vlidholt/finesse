@@ -29,7 +29,7 @@ own default look and its own rules.
   Input), `OtpField`, `Divider` (was Separator), `ProgressBar`,
   `SelectOption`, `MenuItem` (was ContextMenuItem), `Toaster`/`Toast` (was
   Sonner), and the widgets added since with Flutter's names and shapes
-  (`Scaffold`, `SliverAppBar`, `NavigationRail`, `TabBarView`,
+  (`Scaffold`, `SliverAppBar`, `TabBarView`,
   `RefreshIndicator`, `ReorderableListView`, `ExpansionTile`, `Stepper`,
   `SelectionArea`, `Autocomplete`). Components with no Flutter counterpart
   keep shadcn's name (`Select`, `Sheet`, `Popover`, `Textarea`, `Command`).
@@ -946,15 +946,15 @@ weight, another font, at or above the reference — is a plain `Icon`.
   taking the next event, so such a loop freezes the app outright: no frames,
   no pointer input, and no response to a window resize (the resize path is
   `scheduleForcedFrame`, which still needs an event-loop turn). This is not
-  hypothetical — `Select`'s hover-to-scroll chevrons hit it. A second
+  hypothetical — `Select`'s hover-to-scroll chevrons (since removed) hit it. A second
   `animateTo` on a `ScrollPosition` calls `beginActivity`, which disposes the
   previous activity, and `DrivenScrollActivity.dispose` completes its
   completer **synchronously**; two loops therefore cancel each other in an
   unbroken microtask chain, and because the offset only advances on a frame
   that never comes, neither exit condition is ever met. Any driver loop here
   needs a re-entrancy guard *and* a real yield (`Future.delayed(Duration.zero)`)
-  per iteration. `test/src/components/select_auto_scroll_test.dart` locks the
-  guard. On web this reads as a browser bug, which is how it went unnoticed.
+  per iteration. On web this reads as a browser bug, which is how it went
+  unnoticed.
 - **An early or late key handler, a `HardwareKeyboard` handler, or
   anything else that reacts to a system event, asks whether its widget is
   shown and on top when the event arrives: `isShownOnTop(context)`
@@ -1317,6 +1317,13 @@ rules below were all found there.
   `semanticLabel` excludes the *content's* semantics only — excluding at
   the outer `Semantics` also dropped the tap and focus actions, so a
   labelled region could be read but not activated.
+- **A click does not make focus show.** `FocusVisibility`
+  (`lib/src/utils/focus_visibility.dart`, internal, installed by
+  `Pressable`) sets the highlight strategy to touch on a pointer down and
+  back to automatic on a key that is not a modifier, as CSS's
+  `:focus-visible` does, and leaves a strategy an app set alone. A test of
+  a ring after a mouse tap sets the strategy itself
+  (`useTraditionalHighlights`).
 - **Hover comes from a `MouseRegion`**, not from
   `FocusableActionDetector`'s highlight callback, which only fires in the
   traditional highlight mode.
@@ -1436,9 +1443,11 @@ ticks only for a finger's changes, as the board and the wheel do.
   builder context sits under the `TickerMode`/`Visibility` (a `Builder`),
   and `swipePosition` is nulled in `dispose` only if non-null.
   `TabsController<T>` is shared by a `TabBar` and a `TabBarView`.
-- `NavigationScaffold(layout:)` places a top bar, a bottom bar or a
-  `NavigationRail`; in the rail layout the rail is part of the scaffold's
-  body and reads the `MediaQuery` under it. `BottomBarSurface` is the one
+- `NavigationScaffold(layout:)` places a top bar, a bottom bar or a rail;
+  in the rail layout the rail is part of the scaffold's body and reads the
+  `MediaQuery` under it. The rail widget is the scaffold's own and is not
+  exported (the user found it a second `Sidebar`); `NavigationRailTheme`
+  still styles it. `BottomBarSurface` is the one
   surface of the bottom bar and `Toolbar`.
 - `ListDetailLayout` on a phone is a nested `Navigator` under a
   `NavigatorPopHandler(enabled: detail != null)`.

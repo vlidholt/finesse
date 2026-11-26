@@ -549,8 +549,10 @@ class _DirectionButton extends StatelessWidget {
   }
 }
 
-/// [child] inset by the bars the scaffold lays over it, which it is then
-/// told nothing of.
+/// [child] below the top bar the scaffold lays over it. The bottom bar
+/// floats over the page, so the page runs on beneath it and is told how
+/// much of its bottom edge the bar covers, as a scrolling page is: its last
+/// lines scroll up clear of the bar instead of stopping short of it.
 class _UnderBars extends StatelessWidget {
   const _UnderBars({required this.child});
 
@@ -560,11 +562,10 @@ class _UnderBars extends StatelessWidget {
   Widget build(BuildContext context) {
     final padding = MediaQuery.paddingOf(context);
     return Padding(
-      padding: EdgeInsets.only(top: padding.top, bottom: padding.bottom),
+      padding: EdgeInsets.only(top: padding.top),
       child: MediaQuery.removePadding(
         context: context,
         removeTop: true,
-        removeBottom: true,
         child: child,
       ),
     );

@@ -828,3 +828,67 @@ Problems inherited from shad:
   switch of theme rebuilt the app on every frame of its transition, and a
   `Spinner` rebuilt on every frame instead of painting.
 - `UnaMaterial` derived its Material theme on every rebuild.
+
+From the component review:
+
+- **Calendars and date pickers.** A month changes without sliding in, a
+  day takes the hover at once, and `DatePicker`, `DateRangePicker` and
+  `TimePicker` open and close their popover with no entrance. Once a range
+  has both its days the next tap starts a new one, so `DateRangePicker`
+  stays open until the new range is complete; `minDays`/`maxDays` bound
+  only an unfinished range. A new `initialMonth` already on screen no
+  longer moves the months. The range examples show one month.
+- **Menus.** A chosen row (or a select option that closes its list)
+  blinks its highlight before the menu closes and its callback runs
+  (`Motion.fast`; at once under `Motion.none`). `MenuCheckboxItem`
+  closes its menu on a click or Enter like any row (`closeOnTap` defaults
+  to true); Space toggles and stays. A `MenuRadioGroup` at a menu's edge
+  rounds only its own end row, and select options follow the select's own
+  radius. Overlay content is no longer part of a `SelectionArea` around
+  its anchor. A Liquid Glass overlay without shader filters (the web) no
+  longer darkens its rim, which framed the rows as a white block.
+- **`Select` has no scroll arrows**: `showScrollToTopChevron` and
+  `showScrollToBottomChevron` are gone from it, its form fields and
+  `SelectTheme`; a long list scrolls like any list.
+- **Sliders.** A thumb stays inside the track at either end, as in Radix,
+  so it can be taken by its outer edge; a thumb grabbed off-centre no
+  longer jumps to the pointer, and a tap anywhere across the slider's
+  height moves it. The same for the colour picker's area.
+- **Liquid Glass.** A `SegmentedControl` segment with an icon and a label
+  shows them side by side instead of overflowing. `Glass` keeps the tint of
+  its `level` and the theme's glass blur and saturation, so it looks like
+  the frosted panel.
+- **Inputs.** Content inside a glass dialog or popover keeps its state as
+  the surface fades out, so a search view no longer shows every result
+  again while it closes. A `TagField` suggestion picked by touch in Safari
+  on iOS is added rather than dropped, and `TagField` and `Autocomplete`
+  keep their options while their list closes. The password toggle shows a
+  crossed-out eye while the text is hidden. `SearchField`'s Cancel sits a
+  medium gap from the field. A selected colour swatch's ring is concentric
+  with the swatch.
+- **Surfaces.** A disabled `Button`, `IconButton` or `Toggle` in a
+  `ButtonGroup` (or a joined `ToggleGroup`) keeps the group's hairline at
+  its enabled colour. `Sheet` shows no close button unless
+  `showCloseButton` or `SheetTheme.showCloseButton` asks for one. Success,
+  warning and destructive toasts are washed in their colour
+  (`ToastTheme.statusTintOpacity`), with the icon on the title's line.
+  Links in a phone's navigation-menu sheet have room around their text,
+  and buttons on a floating `Toolbar` follow the bar's curve.
+- **Scrolling and dragging.** `SliverAppBar.large`'s title goes up under
+  the toolbar, whose surface (or scroll edge, on Liquid Glass) comes in
+  over it, instead of being cut off; over a pinned picture the titles
+  dissolve first and the picture blurs only as they go. A
+  `ReorderableListView` row with no handle drags from anywhere with a
+  mouse, as on a `Board`. `SwipeActions` takes a mouse drag and a
+  two-finger trackpad swipe.
+- **Focus shows only after the keyboard is used**, as CSS's
+  `:focus-visible` does: a row or button focused by or after a click (the
+  first action of a sheet a button opened, the button once it closed)
+  shows no ring or highlight.
+- **`NavigationRail` is no longer exported.** The rail is
+  `NavigationScaffold(layout: NavigationLayout.rail)`, styled by
+  `NavigationRailTheme`; for a panel of sections beside the page use
+  `Sidebar`.
+- **Example.** Previews stand on a card, the browser's own context menu
+  is off on the web, and a docs page runs on under the floating bottom
+  bar on a phone.

@@ -529,7 +529,8 @@ Color overlayEdgeColor(ThemeData theme) {
 /// sharp. So the body is blurred as una's own floating glass is, and
 /// lifted towards white in a light theme — the package's whiten veil,
 /// strongest at the rim and lightest in the middle — so text reads over
-/// a white page and a busy one alike.
+/// a white page and a busy one alike. The rim is not darkened: over a
+/// light page a darker meniscus framed a menu's rows as a white block.
 lg.LiquidGlassSettings legibleOverlaySettings(
   lg.LiquidGlassSettings settings,
   ThemeData theme,
@@ -539,7 +540,6 @@ lg.LiquidGlassSettings legibleOverlaySettings(
     blur: math.max(settings.blur, theme.style.glassBlur / 2),
     saturation: math.max(settings.saturation, theme.style.glassSaturation),
     whitenStrength: math.max(settings.whitenStrength, dark ? 0 : .3),
-    edgeAbsorption: math.max(settings.edgeAbsorption, .08),
   );
 }
 

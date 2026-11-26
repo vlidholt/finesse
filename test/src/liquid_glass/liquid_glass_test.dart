@@ -978,12 +978,14 @@ void main() {
 
   group('legibility without shader filters', () {
     test('an overlay is blurred, whitened and edged', () {
+      // Its rim is not darkened: a meniscus band over a light page framed
+      // the rows inside it as a white block.
       final light = ThemeData();
       const preset = lg.LiquidGlassSettings(blur: .6);
       final settings = legibleOverlaySettings(preset, light);
       expect(settings.blur, light.style.glassBlur / 2);
       expect(settings.whitenStrength, greaterThan(0));
-      expect(settings.edgeAbsorption, greaterThan(preset.edgeAbsorption));
+      expect(settings.edgeAbsorption, preset.edgeAbsorption);
       expect(overlayEdgeColor(light).a, greaterThan(0));
 
       final dark = ThemeData(brightness: Brightness.dark);
