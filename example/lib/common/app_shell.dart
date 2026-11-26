@@ -5,6 +5,7 @@ import 'package:example/common/theme_editor/customizer_panel.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/una_logo.dart';
 import 'package:example/screens/components_screen.dart';
+import 'package:example/showcase/showcase_screen.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_solidart/flutter_solidart.dart';
 import 'package:una/una.dart';
@@ -65,6 +66,28 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   final _navigatorKey = GlobalKey<NavigatorState>();
+
+  /// The width from which the app opens with the editor beside it: room
+  /// for the panel and a desktop page.
+  static const _editorOnStartWidth = 1100.0;
+
+  bool _checkedStart = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_checkedStart) return;
+    _checkedStart = true;
+    if (!openEditorOnDesktop) return;
+    final width = MediaQuery.sizeOf(context).width;
+    if (width < _editorOnStartWidth) return;
+    // After the first frame: the panel slides in beside the page it is
+    // about to restyle, which says what it is for.
+    final open = themeEditorOpenProvider.of(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) open.value = true;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -392,30 +415,62 @@ class ComponentsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     // A Column, not a Scaffold: the docs browser is a sidebar layout that
     // fills its box and does not inset itself for a bar laid over it.
-    return Column(
-      children: [
-        AppBar(
-          // The docs browser is full-bleed, so its bar is too.
-          maxWidth: double.infinity,
-          // The page is the app's first route: there is nowhere to go back
-          // to, and nothing should be implied.
-          automaticallyImplyLeading: false,
-          leading: const UnaLogo(),
-          title: const Text('Components'),
-          actions: const [
-            _ThemeModeButton(),
-            _DirectionButton(),
-            _ThemeEditorButton(),
+    final mobile = Theme.of(context).formFactor == FormFactor.mobile;
+    return SignalBuilder(
+      builder: (context, _) {
+        final section = appSectionProvider.of(context);
+        final current = section.value;
+        return Column(
+          children: [
+            AppBar(
+              // The docs browser is full-bleed, so its bar is too.
+              maxWidth: double.infinity,
+              // The page is the app's first route: there is nowhere to go
+              // back to, and nothing should be implied.
+              automaticallyImplyLeading: false,
+              // On a phone the mark alone: the switch needs the room.
+              leading: UnaLogo(showWordmark: !mobile),
+              // Centred, at its own width: two choices, not a title.
+              middle: SegmentedControl<AppSection>(
+                size: ControlSize.sm,
+                value: current,
+                onChanged: (value) => section.value = value,
+                segments: [
+                  for (final s in AppSection.values)
+                    Segment(value: s, label: Text(s.label)),
+                ],
+              ),
+              actions: const [
+                _ThemeModeButton(),
+                _DirectionButton(),
+                _ThemeEditorButton(),
+              ],
+            ),
+            Expanded(
+              child: MediaQuery.removePadding(
+                context: context,
+                removeTop: true,
+                // Both stay built, so switching keeps the page you were on
+                // and the showcase's scroll; the hidden one is off stage
+                // and its tickers stop.
+                child: IndexedStack(
+                  index: current.index,
+                  children: [
+                    for (final s in AppSection.values)
+                      TickerMode(
+                        enabled: s == current,
+                        child: switch (s) {
+                          AppSection.showcase => const ShowcaseScreen(),
+                          AppSection.components => const ComponentsScreen(),
+                        },
+                      ),
+                  ],
+                ),
+              ),
+            ),
           ],
-        ),
-        Expanded(
-          child: MediaQuery.removePadding(
-            context: context,
-            removeTop: true,
-            child: const ComponentsScreen(),
-          ),
-        ),
-      ],
+        );
+      },
     );
   }
 }

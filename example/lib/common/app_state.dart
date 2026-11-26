@@ -29,6 +29,31 @@ final themeConfigProvider = Provider(
 /// Whether that panel is docked beside the app.
 final themeEditorOpenProvider = Provider((_) => Signal(false));
 
+/// The two halves of the app, switched from the top bar.
+enum AppSection {
+  /// The components at their best, on one page: what the app opens on.
+  showcase('Showcase'),
+
+  /// The reference: a page per component and guide.
+  components('Components');
+
+  const AppSection(this.label);
+
+  final String label;
+}
+
+/// Which section the app starts on. The showcase; tests about the docs
+/// browser start on the reference.
+AppSection initialAppSection = AppSection.showcase;
+
+/// Whether the editor opens by itself when the app starts in a window wide
+/// enough for a desktop page beside it. Tests that open it themselves turn
+/// this off.
+bool openEditorOnDesktop = true;
+
+/// The section showing.
+final appSectionProvider = Provider((_) => Signal(initialAppSection));
+
 /// Every provider above, for the `ProviderScope` at the root of the app (and
 /// of a test that pumps part of it).
 final appProviders = <Provider<Object>>[
@@ -36,6 +61,7 @@ final appProviders = <Provider<Object>>[
   directionalityProvider,
   themeConfigProvider,
   themeEditorOpenProvider,
+  appSectionProvider,
 ];
 
 /// Flips between light and dark.

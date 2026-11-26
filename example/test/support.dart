@@ -1,4 +1,5 @@
 import 'package:example/common/app_shell.dart';
+import 'package:example/common/app_state.dart';
 import 'package:example/common/theme_editor/customizer_panel.dart';
 import 'package:example/common/theme_editor/fonts.dart';
 import 'package:example/main.dart';
@@ -48,11 +49,22 @@ Future<void> settle(WidgetTester tester, {int frames = 12}) async {
 Future<void> pumpApp(
   WidgetTester tester, {
   Size size = desktopSize,
+  AppSection startOn = AppSection.components,
+  bool openEditor = false,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
+  // The docs browser, with the editor closed: what these tests are about.
+  // The showcase and the editor's opening by itself have tests of their
+  // own.
+  initialAppSection = startOn;
+  openEditorOnDesktop = openEditor;
+  addTearDown(() {
+    initialAppSection = AppSection.showcase;
+    openEditorOnDesktop = true;
+  });
 
   await tester.pumpWidget(const App());
   await settle(tester, frames: 8);
