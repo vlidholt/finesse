@@ -426,6 +426,14 @@ final componentCategories = <DocCategory>[
     ],
   ),
   DocCategory(
+    title: 'Charts',
+    icon: PhosphorIconsRegular.chartBar,
+    description:
+        'Lines, bars, donuts and sparklines in the chart colours, with '
+        'tooltips, keyboard stepping and an entrance that grows.',
+    items: [chartsDoc],
+  ),
+  DocCategory(
     title: 'Content & media',
     icon: PhosphorIconsRegular.image,
     description:

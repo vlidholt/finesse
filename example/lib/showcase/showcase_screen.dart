@@ -29,6 +29,8 @@ class ShowcaseScreen extends StatelessWidget {
             const Gap.xl(),
             const ShowcaseStats(),
             const Gap.lg(),
+            const ShowcaseAnalytics(),
+            const Gap.lg(),
             const _Grid(),
             const Gap.xl(),
           ],

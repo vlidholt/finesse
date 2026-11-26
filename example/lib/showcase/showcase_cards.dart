@@ -7,6 +7,7 @@ import 'package:una/una.dart';
 /// Every card, in reading order. [columns] is how many the grid has, for
 /// the few cards that arrange themselves differently in a narrow one.
 List<Widget> showcaseCards({required int columns}) => const [
+  _ActivityCard(),
   _TeamCard(),
   _ChatCard(),
   _BookingCard(),
@@ -33,24 +34,28 @@ class ShowcaseStats extends StatelessWidget {
         label: 'Users',
         value: '24,816',
         change: '+12.4%',
+        trend: [18, 19, 21, 20, 23, 22, 25, 27, 26, 29],
       ),
       const _Stat(
         icon: PhosphorIconsRegular.currencyDollar,
         label: 'Revenue',
         value: r'$48.2k',
         change: '+8.1%',
+        trend: [31, 33, 32, 36, 35, 39, 41, 40, 44, 48],
       ),
       const _Stat(
         icon: PhosphorIconsRegular.chartLineUp,
         label: 'Conversion',
         value: '3.62%',
         change: '+0.4%',
+        trend: [3.1, 3.2, 3.15, 3.3, 3.25, 3.4, 3.38, 3.5, 3.55, 3.62],
       ),
       const _Stat(
         icon: PhosphorIconsRegular.smiley,
-        label: 'Satisfaction',
+        label: 'Rating',
         value: '4.8',
         change: '-0.1',
+        trend: [4.9, 4.9, 4.85, 4.9, 4.88, 4.86, 4.84, 4.83, 4.81, 4.8],
         down: true,
       ),
     ];
@@ -83,6 +88,7 @@ class _Stat extends StatelessWidget {
     required this.label,
     required this.value,
     required this.change,
+    required this.trend,
     this.down = false,
   });
 
@@ -90,30 +96,49 @@ class _Stat extends StatelessWidget {
   final String label;
   final String value;
   final String change;
+  final List<double> trend;
   final bool down;
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final color = down ? scheme.destructive : scheme.success;
     return StatTile(
       icon: PhosphorIcon(icon),
       label: Text(label),
       value: Text(value),
-      trailing: Badge.secondary(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            PhosphorIcon(
-              down
-                  ? PhosphorIconsBold.arrowDownRight
-                  : PhosphorIconsBold.arrowUpRight,
-              size: 12,
-              color: down ? scheme.destructive : scheme.success,
+      trailing: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          SizedBox(
+            width: 64,
+            height: 24,
+            child: Sparkline(
+              values: trend,
+              color: down ? scheme.destructive : null,
+              semanticLabel: '$label over ten weeks',
             ),
-            const Gap.xs(),
-            Text(change),
-          ],
-        ),
+          ),
+          const Gap.xs(),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              PhosphorIcon(
+                down
+                    ? PhosphorIconsBold.arrowDownRight
+                    : PhosphorIconsBold.arrowUpRight,
+                size: 11,
+                color: color,
+              ),
+              Text(
+                change,
+                style: theme.textTheme.caption.copyWith(color: color),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -843,6 +868,205 @@ class _ShortcutsCard extends StatelessWidget {
             title: Text('Tip'),
             description: Text('Press ? anywhere to see every shortcut.'),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The analytics row under the figures: revenue over the year and where
+/// the visitors came from, side by side on a desktop.
+class ShowcaseAnalytics extends StatelessWidget {
+  const ShowcaseAnalytics({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final gap = Theme.of(context).layoutTheme.gap(GapSize.lg);
+    return LayoutBuilder(
+      builder: (context, constraints) => constraints.maxWidth >= 900
+          ? IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: gap,
+                children: const [
+                  Expanded(flex: 2, child: _RevenueCard()),
+                  Expanded(child: _TrafficCard()),
+                ],
+              ),
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: gap,
+              children: const [_RevenueCard(), _TrafficCard()],
+            ),
+    );
+  }
+}
+
+class _RevenueCard extends StatefulWidget {
+  const _RevenueCard();
+
+  @override
+  State<_RevenueCard> createState() => _RevenueCardState();
+}
+
+class _RevenueCardState extends State<_RevenueCard> {
+  bool _year = true;
+
+  static const _months = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', //
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  ];
+  static const _thisYear = <double>[
+    18.2,
+    21.4,
+    20.1,
+    24.8,
+    27.3,
+    26.1,
+    30.4,
+    33.9,
+    32.2,
+    38.6,
+    41.8,
+    48.2,
+  ];
+  static const _lastYear = <double>[
+    14.1,
+    15.8,
+    17.2,
+    16.9,
+    19.4,
+    21.0,
+    20.3,
+    23.7,
+    24.9,
+    26.2,
+    28.8,
+    31.5,
+  ];
+
+  static const _dollar = r'$';
+
+  static String _money(num v, {int digits = 0}) =>
+      '$_dollar${v.toStringAsFixed(digits)}k';
+
+  @override
+  Widget build(BuildContext context) {
+    final from = _year ? 0 : 6;
+    final series = [
+      ChartSeries(label: 'This year', values: _thisYear.sublist(from)),
+      ChartSeries(label: 'Last year', values: _lastYear.sublist(from)),
+    ];
+    return Card(
+      title: const Text('Revenue'),
+      description: Text(
+        '${_money(48.2, digits: 1)} this month, 53% up on last year',
+      ),
+      action: SegmentedControl<bool>(
+        size: ControlSize.sm,
+        value: _year,
+        onChanged: (v) => setState(() => _year = v),
+        segments: const [
+          Segment(value: false, label: Text('6M')),
+          Segment(value: true, label: Text('12M')),
+        ],
+      ),
+      child: UnaColumn(
+        gap: GapSize.md,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            height: 260,
+            child: LineChart(
+              labels: _months.sublist(from),
+              series: series,
+              area: true,
+              valueFormatter: (v) => _money(v, digits: 1),
+              tickFormatter: (v) => _money(v),
+              semanticLabel: 'Revenue by month, this year and last',
+            ),
+          ),
+          ChartLegend(entries: series),
+        ],
+      ),
+    );
+  }
+}
+
+class _TrafficCard extends StatelessWidget {
+  const _TrafficCard();
+
+  static const _sources = [
+    ChartSegment(label: 'Search', value: 4820),
+    ChartSegment(label: 'Direct', value: 3150),
+    ChartSegment(label: 'Social', value: 2210),
+    ChartSegment(label: 'Referral', value: 1240),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      title: const Text('Traffic'),
+      description: const Text('Where visitors came from this month.'),
+      child: UnaColumn(
+        gap: GapSize.lg,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            height: 200,
+            child: DonutChart(
+              segments: _sources,
+              semanticLabel: 'Visitors by source',
+              // Scaled down rather than cut off where a style's larger
+              // type, or large text, does not fit the hole.
+              center: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('11.4k', style: theme.textTheme.h3),
+                    Text('visitors', style: theme.textTheme.caption),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const ChartLegend(entries: _sources),
+        ],
+      ),
+    );
+  }
+}
+
+class _ActivityCard extends StatelessWidget {
+  const _ActivityCard();
+
+  static const _days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  static const _series = [
+    ChartSeries(label: 'Desktop', values: [42, 58, 61, 55, 67, 30, 24]),
+    ChartSeries(label: 'Mobile', values: [36, 41, 47, 52, 58, 49, 44]),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      title: const Text('Sessions'),
+      description: const Text('This week, by device.'),
+      child: UnaColumn(
+        gap: GapSize.md,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            height: 200,
+            child: BarChart(
+              labels: _days,
+              series: _series,
+              semanticLabel: 'Sessions this week by device',
+            ),
+          ),
+          const ChartLegend(entries: _series),
         ],
       ),
     );
