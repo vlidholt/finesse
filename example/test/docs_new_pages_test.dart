@@ -52,7 +52,7 @@ Set<String> _bundledExampleDirs() {
 }
 
 List<ComponentDoc> get _allDocs => [
-  for (final group in docGroups) ...group.items,
+  for (final group in docGroups) ...group.pages,
 ];
 
 /// Pumps the docs browser in a window of [size].

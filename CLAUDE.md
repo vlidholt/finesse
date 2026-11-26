@@ -1840,6 +1840,15 @@ come from it.
   with `DocExample` instead. `example/test/docs_new_pages_test.dart` builds
   every page at desktop and phone width and checks every example file is
   registered, bundled and on disk.
+- **A component page is registered twice**: in `componentDocs` (flat,
+  alphabetical — the skills generator reads it) and in one category of
+  `componentCategories`, which is what the sidebar folds (one fold per
+  category, open on the page's own) and the overview shows (a section of
+  cards per category; rows of a list on a phone).
+  `example/test/docs_categories_test.dart` fails on a page in no category
+  or in two. On a phone the sidebar is a sheet whose route keeps the
+  `Sidebar` it opened with, so the docs sidebar's content listens to the
+  screen's state (`_sidebarRevision`) rather than being rebuilt from above.
 - Slugs, example ids and directory names use the widget's current name
   (`text_field`, not `input`); a half-renamed page shows "Missing source
   asset" in its Code tab.

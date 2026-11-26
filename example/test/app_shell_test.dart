@@ -1,5 +1,6 @@
 import 'package:example/common/app_shell.dart';
 import 'package:example/common/theme_editor/customizer_panel.dart';
+import 'package:example/docs/registry.dart';
 import 'package:example/screens/components_screen.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,11 +16,22 @@ void main() {
   Finder inSidebar(Finder finder) =>
       find.descendant(of: find.byType(Sidebar), matching: finder);
 
-  /// Opens the docs page called [name] from the sidebar. The list grows
-  /// with the library, so the entry is scrolled into view first: a page
-  /// added above it must not push it out of reach.
+  /// Opens the docs page called [name] from the sidebar, folding its
+  /// component category open first if it is shut. The list grows with the
+  /// library, so the entry is scrolled into view first: a page added above
+  /// it must not push it out of reach.
   Future<void> openPage(WidgetTester tester, String name) async {
     final entry = inSidebar(find.text(name));
+    if (entry.evaluate().isEmpty) {
+      final category = componentCategories.firstWhere(
+        (c) => c.items.any((doc) => doc.title == name),
+      );
+      final fold = inSidebar(find.text(category.title));
+      await tester.ensureVisible(fold);
+      await settle(tester);
+      await tester.tap(fold);
+      await settle(tester);
+    }
     await tester.ensureVisible(entry);
     await settle(tester);
     await tester.tap(entry);
