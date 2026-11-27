@@ -1,3 +1,4 @@
+import 'package:example/showcase/showcase_layout.dart';
 import 'package:example/showcase/showcase_media_cards.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/una.dart';
@@ -5,84 +6,108 @@ import 'package:una/una.dart';
 // The showcase's cards: each one a moment from a real app, built only from
 // the package's widgets on the current theme.
 
-/// Every card, in reading order. [columns] is how many the grid has, for
-/// the few cards that arrange themselves differently in a narrow one.
-List<Widget> showcaseCards({required int columns}) => const [
-  _ActivityCard(),
-  ShowcaseEventCard(),
-  _TeamCard(),
-  ShowcaseArticleCard(),
-  _ChatCard(),
-  _BookingCard(),
-  ShowcaseGalleryCard(),
-  _PlayerCard(),
-  _NotificationsCard(),
-  ShowcaseJobsCard(),
-  _CheckoutCard(),
-  _GoalCard(),
-  _PricingCard(),
-  _ReleaseCard(),
-  _ShortcutsCard(),
-];
+// The page is the header, a first run of cards, the revenue chart across
+// the grid and the rest of the cards. The first run has to end level, or
+// the chart under it leaves a hole above it in the shorter columns, so its
+// cards are chosen per column count to come out even in the default look
+// at every width of that count: one picture card to a column (a picture
+// grows with its column) beside cards of fixed height that make up the
+// difference. The rest are ordered to end close together too, and so that
+// no two charts sit side by side.
 
-/// The figures across the top: four stat tiles.
+/// The cards between the header and the revenue chart, in reading order,
+/// for a grid of [columns].
+List<Widget> showcaseOpeningCards({required int columns}) => columns >= 3
+    ? const [
+        // Event over payment, figures over the player, chat over the
+        // gallery.
+        ShowcaseEventCard(),
+        ShowcaseStats(),
+        _ChatCard(),
+        _PlayerCard(),
+        _CheckoutCard(),
+        ShowcaseGalleryCard(),
+      ]
+    : const [
+        // Event over the figures, the team over the article.
+        ShowcaseEventCard(),
+        _TeamCard(),
+        ShowcaseArticleCard(),
+        ShowcaseStats(),
+      ];
+
+/// The cards under the revenue chart, in reading order, for a grid of
+/// [columns]. Below three columns the top pages leave the revenue's row
+/// and come among these.
+List<Widget> showcaseClosingCards({required int columns}) => columns >= 3
+    ? const [
+        ShowcaseArticleCard(),
+        _TeamCard(),
+        _NotificationsCard(),
+        _ReleaseCard(),
+        _GoalCard(),
+        _PricingCard(),
+        _BookingCard(),
+        ShowcaseJobsCard(),
+        _ActivityCard(),
+        _ShortcutsCard(),
+      ]
+    : const [
+        ShowcaseGalleryCard(),
+        _PlayerCard(),
+        _TopPagesCard(),
+        _ReleaseCard(),
+        _PricingCard(),
+        ShowcaseJobsCard(),
+        _ActivityCard(),
+        _NotificationsCard(),
+        _ChatCard(),
+        _CheckoutCard(),
+        _BookingCard(),
+        _GoalCard(),
+        _ShortcutsCard(),
+      ];
+
+/// Four figures, one above the other: a column of the grid.
 class ShowcaseStats extends StatelessWidget {
   const ShowcaseStats({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final gap = theme.layoutTheme.gap(GapSize.lg);
-    final tiles = <Widget>[
-      const _Stat(
-        icon: PhosphorIconsRegular.users,
-        label: 'Users',
-        value: '24,816',
-        change: '+12.4%',
-        trend: [18, 19, 21, 20, 23, 22, 25, 27, 26, 29],
-      ),
-      const _Stat(
-        icon: PhosphorIconsRegular.currencyDollar,
-        label: 'Revenue',
-        value: r'$48.2k',
-        change: '+8.1%',
-        trend: [31, 33, 32, 36, 35, 39, 41, 40, 44, 48],
-      ),
-      const _Stat(
-        icon: PhosphorIconsRegular.chartLineUp,
-        label: 'Conversion',
-        value: '3.62%',
-        change: '+0.4%',
-        trend: [3.1, 3.2, 3.15, 3.3, 3.25, 3.4, 3.38, 3.5, 3.55, 3.62],
-      ),
-      const _Stat(
-        icon: PhosphorIconsRegular.smiley,
-        label: 'Rating',
-        value: '4.8',
-        change: '-0.1',
-        trend: [4.9, 4.9, 4.85, 4.9, 4.88, 4.86, 4.84, 4.83, 4.81, 4.8],
-        down: true,
-      ),
-    ];
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final perRow = constraints.maxWidth >= 900
-            ? 4
-            : constraints.maxWidth >= 480
-            ? 2
-            : 1;
-        return Wrap(
-          spacing: gap,
-          runSpacing: gap,
-          children: [
-            for (final tile in tiles)
-              SizedBox(
-                width: (constraints.maxWidth - gap * (perRow - 1)) / perRow,
-                child: tile,
-              ),
-          ],
-        );
-      },
+    return const UnaColumn(
+      gap: GapSize.lg,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _Stat(
+          icon: PhosphorIconsRegular.users,
+          label: 'Users',
+          value: '24,816',
+          change: '+12.4%',
+          trend: [18, 19, 21, 20, 23, 22, 25, 27, 26, 29],
+        ),
+        _Stat(
+          icon: PhosphorIconsRegular.currencyDollar,
+          label: 'Revenue',
+          value: r'$48.2k',
+          change: '+8.1%',
+          trend: [31, 33, 32, 36, 35, 39, 41, 40, 44, 48],
+        ),
+        _Stat(
+          icon: PhosphorIconsRegular.chartLineUp,
+          label: 'Conversion',
+          value: '3.62%',
+          change: '+0.4%',
+          trend: [3.1, 3.2, 3.15, 3.3, 3.25, 3.4, 3.38, 3.5, 3.55, 3.62],
+        ),
+        _Stat(
+          icon: PhosphorIconsRegular.smiley,
+          label: 'Rating',
+          value: '4.8',
+          change: '-0.1',
+          trend: [4.9, 4.9, 4.85, 4.9, 4.88, 4.86, 4.84, 4.83, 4.81, 4.8],
+          down: true,
+        ),
+      ],
     );
   }
 }
@@ -324,9 +349,9 @@ class _ChatCard extends StatelessWidget {
           const Gap.xs(),
           TextField(
             placeholder: const Text('Message'),
-            trailing: IconButton(
+            trailing: IconButton.ghost(
               size: ButtonSize.sm,
-              icon: const PhosphorIcon(PhosphorIconsFill.paperPlaneTilt),
+              icon: const PhosphorIcon(PhosphorIconsRegular.paperPlaneTilt),
               semanticLabel: 'Send',
               onPressed: () {},
             ),
@@ -883,37 +908,32 @@ class _ShortcutsCard extends StatelessWidget {
   }
 }
 
-/// The analytics row under the figures: revenue over the year and the
-/// pages read most, side by side on a desktop.
+/// The revenue over the year, two columns wide, and the pages read most in
+/// the third on a desktop, the two as tall as each other. Below three
+/// columns the revenue is as wide as the page and the top pages go on
+/// among the cards.
 class ShowcaseAnalytics extends StatelessWidget {
-  const ShowcaseAnalytics({super.key});
+  const ShowcaseAnalytics({required this.columns, super.key});
+
+  final ShowcaseColumns columns;
 
   @override
   Widget build(BuildContext context) {
-    final gap = Theme.of(context).layoutTheme.gap(GapSize.lg);
-    return LayoutBuilder(
-      builder: (context, constraints) => constraints.maxWidth >= 900
-          ? IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: gap,
-                children: const [
-                  Expanded(flex: 2, child: _RevenueCard()),
-                  Expanded(child: _TopPagesCard()),
-                ],
-              ),
-            )
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: gap,
-              children: const [_RevenueCard(), _TopPagesCard()],
-            ),
+    if (columns.count < 3) return const _RevenueCard();
+    return ShowcaseSpanRow(
+      columns: columns,
+      spans: const [2, 1],
+      children: const [_RevenueCard(fill: true), _TopPagesCard(fill: true)],
     );
   }
 }
 
 class _RevenueCard extends StatefulWidget {
-  const _RevenueCard();
+  const _RevenueCard({this.fill = false});
+
+  /// Whether the chart takes whatever height the card is given beyond its
+  /// own: true in a row whose cards are as tall as each other.
+  final bool fill;
 
   @override
   State<_RevenueCard> createState() => _RevenueCardState();
@@ -967,7 +987,21 @@ class _RevenueCardState extends State<_RevenueCard> {
       ChartSeries(label: 'This year', values: _thisYear.sublist(from)),
       ChartSeries(label: 'Last year', values: _lastYear.sublist(from)),
     ];
+    final chart = SizedBox(
+      height: 260,
+      child: LineChart(
+        labels: _months.sublist(from),
+        series: series,
+        area: true,
+        valueFormatter: (v) => _money(v, digits: 1),
+        tickFormatter: (v) => _money(v),
+        semanticLabel: 'Revenue by month, this year and last',
+      ),
+    );
     return Card(
+      style: widget.fill
+          ? const CardTheme(columnMainAxisSize: MainAxisSize.max)
+          : null,
       title: const Text('Revenue'),
       description: Text(
         '${_money(48.2, digits: 1)} this month, 53% up on last year',
@@ -983,19 +1017,10 @@ class _RevenueCardState extends State<_RevenueCard> {
       ),
       child: UnaColumn(
         gap: GapSize.md,
+        mainAxisSize: widget.fill ? MainAxisSize.max : MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SizedBox(
-            height: 260,
-            child: LineChart(
-              labels: _months.sublist(from),
-              series: series,
-              area: true,
-              valueFormatter: (v) => _money(v, digits: 1),
-              tickFormatter: (v) => _money(v),
-              semanticLabel: 'Revenue by month, this year and last',
-            ),
-          ),
+          if (widget.fill) Expanded(child: chart) else chart,
           ChartLegend(entries: series),
         ],
       ),
@@ -1003,29 +1028,61 @@ class _RevenueCardState extends State<_RevenueCard> {
   }
 }
 
-/// The pages visitors open most, as bars in one colour: a ranking reads
-/// at a glance where a chart of many colours asks for a legend.
+/// The pages visitors open most, as shares of a ring with the total in
+/// the middle, in the theme's chart palette.
 class _TopPagesCard extends StatelessWidget {
-  const _TopPagesCard();
+  const _TopPagesCard({this.fill = false});
 
-  static const _pages = ['/pricing', '/docs', '/blog', '/changelog', '/about'];
-  static const _views = [
-    ChartSeries(label: 'Views', values: [9840, 7320, 4180, 2650, 1730]),
+  /// Whether the ring takes whatever height the card is given beyond its
+  /// own: true beside the revenue, which sets the row's height.
+  final bool fill;
+
+  static const _pages = [
+    ChartSegment(label: '/pricing', value: 9840),
+    ChartSegment(label: '/docs', value: 7320),
+    ChartSegment(label: '/blog', value: 4180),
+    ChartSegment(label: '/changelog', value: 2650),
+    ChartSegment(label: '/about', value: 1730),
   ];
+
+  static String _views(num v) => '${(v / 1000).toStringAsFixed(1)}k';
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final total = _pages.fold<double>(0, (sum, page) => sum + page.value);
+    final chart = SizedBox(
+      height: 200,
+      child: DonutChart(
+        segments: _pages,
+        valueFormatter: (v) => '${_views(v)} views',
+        semanticLabel: 'Views of the top pages this month',
+        center: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(_views(total), style: theme.textTheme.h3),
+            Text('views', style: theme.textTheme.caption),
+          ],
+        ),
+      ),
+    );
     return Card(
+      style: fill
+          ? const CardTheme(columnMainAxisSize: MainAxisSize.max)
+          : null,
       title: const Text('Top pages'),
       description: const Text('Views this month.'),
-      child: SizedBox(
-        height: 260,
-        child: BarChart(
-          labels: _pages,
-          series: _views,
-          direction: Axis.horizontal,
-          semanticLabel: 'Views of the top pages this month',
-        ),
+      child: UnaColumn(
+        gap: GapSize.lg,
+        mainAxisSize: fill ? MainAxisSize.max : MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (fill) Expanded(child: chart) else chart,
+          const ChartLegend(
+            entries: _pages,
+            alignment: WrapAlignment.center,
+          ),
+        ],
       ),
     );
   }
