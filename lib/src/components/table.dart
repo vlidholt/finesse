@@ -1,10 +1,14 @@
 import 'package:flutter/gestures.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart';
 import 'package:una/src/theme/color_scheme/base.dart';
 import 'package:una/src/theme/components/table.dart';
+import 'package:una/src/theme/data.dart';
 import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/activation_keys.dart';
 import 'package:una/src/utils/extensions/text_style.dart';
+import 'package:una/src/utils/focus_visibility.dart';
 
 /// Builder function for creating [UnaTableCell] widgets.
 typedef TableCellBuilder = UnaTableCell Function(
@@ -92,7 +96,10 @@ class UnaTableCell extends TableViewCell {
   final TextStyle? style;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => TableViewCell(child: _content(context));
+
+  /// What the cell shows, without the [TableViewCell] that places it.
+  Widget _content(BuildContext context) {
     final theme = Theme.of(context);
 
     final effectiveAlignment =
@@ -124,7 +131,11 @@ class UnaTableCell extends TableViewCell {
                 .fallback(color: theme.colorScheme.foreground),
         };
 
-    return TableViewCell(
+    // A header cell is announced as one, so a reader knows what the cells
+    // under it are. Not `SemanticsRole.columnHeader`: that one asserts a
+    // table and a row above it, which the table view does not build.
+    return Semantics(
+      header: variant == TableCellVariant.header ? true : null,
       child: Container(
         width: double.infinity,
         height: effectiveHeight,
@@ -134,6 +145,164 @@ class UnaTableCell extends TableViewCell {
           style: textStyle,
           child: child,
         ),
+      ),
+    );
+  }
+}
+
+/// A cell of a data row, with what the row adds to it: whether it is
+/// selected, and a way to tap the row that does not take a pointer.
+///
+/// Every cell of a row that has an `onRowTap` can be activated by
+/// assistive technology; the first is also the row's Tab stop, activated
+/// with Enter or Space, and the row is ringed while that focus shows.
+class _TableRowCell extends TableViewCell {
+  _TableRowCell({
+    required this.cell,
+    required this.row,
+    required this.first,
+    required this.onTap,
+    required this.selected,
+    required this.focusedRow,
+  }) : super(
+         child: cell.child,
+         addRepaintBoundaries: cell.addRepaintBoundaries,
+       );
+
+  final UnaTableCell cell;
+  final int row;
+  final bool first;
+  final VoidCallback? onTap;
+  final bool? selected;
+  final _FocusedRow focusedRow;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget content = Semantics(
+      selected: selected,
+      onTap: onTap,
+      child: cell._content(context),
+    );
+    if (first && onTap != null) {
+      content = _RowFocus(
+        row: row,
+        onTap: onTap!,
+        focusedRow: focusedRow,
+        child: content,
+      );
+    }
+    return TableViewCell(
+      addRepaintBoundaries: addRepaintBoundaries,
+      child: content,
+    );
+  }
+}
+
+/// The row whose Tab stop has the focus while the focus shows, or null.
+///
+/// A row's Tab stop that goes away with its table may still clear this
+/// after the frame, so it says whether it is still in use.
+class _FocusedRow extends ValueNotifier<int?> {
+  _FocusedRow() : super(null);
+
+  bool disposed = false;
+
+  @override
+  void dispose() {
+    disposed = true;
+    super.dispose();
+  }
+}
+
+/// The Tab stop of a row with an `onRowTap`: Enter and Space tap the row,
+/// and while the focus shows, [focusedRow] says which row it is in so the
+/// table can ring it.
+class _RowFocus extends StatefulWidget {
+  const _RowFocus({
+    required this.row,
+    required this.onTap,
+    required this.focusedRow,
+    required this.child,
+  });
+
+  final int row;
+  final VoidCallback onTap;
+  final _FocusedRow focusedRow;
+  final Widget child;
+
+  @override
+  State<_RowFocus> createState() => _RowFocusState();
+}
+
+class _RowFocusState extends State<_RowFocus> {
+  bool _focused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // A click does not make the focus show, as everywhere else.
+    FocusVisibility.ensureInstalled();
+    FocusManager.instance.addHighlightModeListener(_onHighlightMode);
+  }
+
+  @override
+  void dispose() {
+    FocusManager.instance.removeHighlightModeListener(_onHighlightMode);
+    // Scrolled out of a lazy table while it had the focus.
+    final focusedRow = widget.focusedRow;
+    final row = widget.row;
+    if (focusedRow.value == row) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (!focusedRow.disposed && focusedRow.value == row) {
+          focusedRow.value = null;
+        }
+      });
+    }
+    super.dispose();
+  }
+
+  void _onHighlightMode(FocusHighlightMode mode) => _sync();
+
+  void _sync() {
+    if (!mounted) return;
+    final shown =
+        _focused &&
+        FocusManager.instance.highlightMode == FocusHighlightMode.traditional;
+    final focusedRow = widget.focusedRow;
+    final row = widget.row;
+    void apply() {
+      if (focusedRow.disposed) return;
+      if (shown) {
+        focusedRow.value = row;
+      } else if (focusedRow.value == row) {
+        focusedRow.value = null;
+      }
+    }
+
+    // The table rebuilds its rows when this changes; not in the middle of
+    // a build.
+    if (SchedulerBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (mounted) apply();
+      });
+    } else {
+      apply();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CallbackShortcuts(
+      bindings: {
+        for (final trigger in activationKeys) trigger: widget.onTap,
+      },
+      child: Focus(
+        onFocusChange: (focused) {
+          _focused = focused;
+          _sync();
+        },
+        child: widget.child,
       ),
     );
   }
@@ -496,6 +665,12 @@ class UnaTable extends StatefulWidget {
 class _TableState extends State<UnaTable> {
   final hoveredRowIndex = ValueNotifier<int?>(null);
 
+  /// The row whose Tab stop has the focus while the focus shows, ringed.
+  final _focusedRow = _FocusedRow();
+
+  /// What the row spans follow: the pointer and the keyboard.
+  late final _rowState = Listenable.merge([hoveredRowIndex, _focusedRow]);
+
   /// This is a workaround to avoid rebuilding the same row when the pointer
   /// doesn't move, because when you call setState, the onExit callback is
   /// called, even if the pointer is still hovering, and the onEnter callback is
@@ -518,7 +693,32 @@ class _TableState extends State<UnaTable> {
   @override
   void dispose() {
     hoveredRowIndex.dispose();
+    _focusedRow.dispose();
     super.dispose();
+  }
+
+  bool get _hasHeader => widget.header != null || widget.headerBuilder != null;
+
+  bool get _hasFooter => widget.footer != null || widget.footerBuilder != null;
+
+  /// [cell] at [row] and [column] of the table, counting the header row,
+  /// with what its row adds for the keyboard and for assistive technology.
+  TableViewCell _rowCell(UnaTableCell cell, int row, int column) {
+    final isHeader = _hasHeader && row == 0;
+    final isFooter = _hasFooter && row == effectiveRowCount - 1;
+    final onRowTap = widget.onRowTap;
+    final rowSelected = widget.rowSelected;
+    if (isHeader || isFooter || (onRowTap == null && rowSelected == null)) {
+      return cell;
+    }
+    return _TableRowCell(
+      cell: cell,
+      row: row,
+      first: column == 0,
+      onTap: onRowTap == null ? null : () => onRowTap(row),
+      selected: rowSelected?.call(row),
+      focusedRow: _focusedRow,
+    );
   }
 
   TableSpan _buildColumnSpan(int index) {
@@ -605,6 +805,18 @@ class _TableState extends State<UnaTable> {
     return hovered ? tableTheme.rowHoverColor ?? half : null;
   }
 
+  /// The ring around a row whose Tab stop has the focus: the theme's ring,
+  /// along the row's top and bottom edges.
+  static TableSpanDecoration _focusRing(ThemeData theme) {
+    final side = BorderSide(
+      color: theme.colorScheme.ring.withValues(alpha: theme.style.ringOpacity),
+      width: theme.style.ringWidth,
+    );
+    return TableSpanDecoration(
+      border: TableSpanBorder(leading: side, trailing: side),
+    );
+  }
+
   TableSpan _buildRowSpan(int index, int effectiveRowCount) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -635,7 +847,9 @@ class _TableState extends State<UnaTable> {
                   : BorderSide(color: colorScheme.border),
             ),
           ),
-      foregroundDecoration: widget.rowSpanForegroundDecoration?.call(index),
+      foregroundDecoration: _focusedRow.value == index
+          ? _focusRing(theme)
+          : widget.rowSpanForegroundDecoration?.call(index),
       extent: effectiveRowSpanExtent,
       onEnter: (p) {
         previousPointerOffset = p.position;
@@ -732,17 +946,26 @@ class _TableState extends State<UnaTable> {
     // a row boundary, and this allocates one List per row plus the outer list
     // — pathological on a large table. Only the row-span decoration actually
     // depends on the hovered index.
-    final cells = widget.children == null
+    final rows = widget.children == null
         ? null
         : <List<UnaTableCell>>[
             if (widget.header != null) widget.header!.toList(),
             ...widget.children!.map((row) => row.toList()),
             if (widget.footer != null) widget.footer!.toList(),
           ];
+    final cells = rows == null
+        ? null
+        : <List<TableViewCell>>[
+            for (final (row, cells) in rows.indexed)
+              [
+                for (final (column, cell) in cells.indexed)
+                  _rowCell(cell, row, column),
+              ],
+          ];
 
-    return ValueListenableBuilder(
-      valueListenable: hoveredRowIndex,
-      builder: (context, value, child) {
+    return ListenableBuilder(
+      listenable: _rowState,
+      builder: (context, child) {
         // A new closure for every hovered row, on purpose: the table's
         // delegate only rebuilds its row spans — which carry the hover
         // wash — when the row builder it is handed differs. Built once per
@@ -800,7 +1023,11 @@ class _TableState extends State<UnaTable> {
               column: index.column,
             );
 
-            return widget.builder!(context, realVicinity);
+            return _rowCell(
+              widget.builder!(context, realVicinity),
+              index.row,
+              index.column,
+            );
           },
           columnCount: widget.columnCount,
           columnBuilder: effectiveColumnBuilder,

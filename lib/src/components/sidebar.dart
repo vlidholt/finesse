@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/src/components/decorator.dart';
@@ -10,17 +11,34 @@ import 'package:una/src/components/skeleton.dart';
 import 'package:una/src/components/tooltip.dart';
 import 'package:una/src/i18n/localizations_delegate.dart';
 import 'package:una/src/icons/phosphor_icons.dart';
-import 'package:una/src/raw_components/focusable.dart';
 import 'package:una/src/raw_components/portal.dart';
+import 'package:una/src/raw_components/pressable.dart';
 import 'package:una/src/theme/components/decorator.dart';
 import 'package:una/src/theme/components/sheet.dart';
 import 'package:una/src/theme/form_factor.dart';
+import 'package:una/src/theme/motion.dart';
 import 'package:una/src/theme/theme.dart';
 import 'package:una/src/utils/border.dart';
 import 'package:una/src/utils/debug_check.dart';
 import 'package:una/src/utils/gesture_detector.dart';
 import 'package:una/src/utils/route_on_top.dart';
 import 'package:una/src/utils/shadow.dart';
+import 'package:una/src/utils/text_scaled_height.dart';
+
+/// The duration and curve of the sidebar's own movement — the panel's width,
+/// a group label sliding away, a row shrinking to the icon rail.
+///
+/// The theme's knobs, or else the motion's ordinary duration and curve;
+/// under reduced motion the change is immediate, since all of it is
+/// movement.
+(Duration, Curve) _sidebarMotion(BuildContext context) {
+  final sidebarTheme = Theme.of(context).sidebarTheme;
+  final motion = Motion.of(context);
+  return (
+    motion.reduced ? Duration.zero : sidebarTheme.duration ?? motion.normal,
+    sidebarTheme.curve ?? motion.standard,
+  );
+}
 
 /// Which edge of the layout the sidebar sits on.
 ///
@@ -628,6 +646,7 @@ class Sidebar extends StatelessWidget {
     this.backgroundColor,
     this.borderColor,
     this.scrollController,
+    this.semanticLabel,
   });
 
   /// The edge of the layout that the sidebar sits on. Defaults to
@@ -692,6 +711,11 @@ class Sidebar extends StatelessWidget {
   /// {@endtemplate}
   final ScrollController? scrollController;
 
+  /// The name assistive technology gives the sidebar's navigation landmark.
+  /// Defaults to the localised "Sidebar"; pass another when a screen has
+  /// more than one.
+  final String? semanticLabel;
+
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasTheme(context));
@@ -719,8 +743,9 @@ class Sidebar extends StatelessWidget {
     final effectiveWidth = width ?? sidebarTheme.width ?? 256;
     final effectiveCollapsedWidth =
         collapsedWidth ?? sidebarTheme.collapsedWidth ?? 48;
-    final duration = sidebarTheme.duration ?? const Duration(milliseconds: 200);
-    final curve = sidebarTheme.curve ?? Curves.linear;
+    final (duration, curve) = _sidebarMotion(context);
+    final landmarkLabel =
+        semanticLabel ?? UnaLocalizations.of(context).navigation.sidebar;
 
     final column = _SidebarColumn(
       header: header,
@@ -743,7 +768,10 @@ class Sidebar extends StatelessWidget {
 
     // Inside the mobile sheet the sidebar is just its column on its surface.
     if (scope.inSheet) {
-      return ColoredBox(color: effectiveBackgroundColor, child: content);
+      return _landmark(
+        landmarkLabel,
+        ColoredBox(color: effectiveBackgroundColor, child: content),
+      );
     }
 
     final floating = variant == SidebarVariant.floating;
@@ -856,6 +884,18 @@ class Sidebar extends StatelessWidget {
       );
     }
 
+    // A panel slid off the screen is gone for the keyboard and for
+    // assistive technology too: its rows are not Tab stops, and nothing
+    // reads them, while it is closed.
+    final hidden = collapsible == SidebarCollapsible.offcanvas && !open;
+    content = ExcludeFocus(
+      excluding: hidden,
+      child: ExcludeSemantics(
+        excluding: hidden,
+        child: _landmark(landmarkLabel, content),
+      ),
+    );
+
     return AnimatedContainer(
       duration: duration,
       curve: curve,
@@ -865,6 +905,16 @@ class Sidebar extends StatelessWidget {
       child: content,
     );
   }
+
+  /// The sidebar as a navigation landmark, named — a screen may have more
+  /// than one, and assistive technology lists them by name.
+  static Widget _landmark(String label, Widget child) => Semantics(
+    container: true,
+    explicitChildNodes: true,
+    role: SemanticsRole.navigation,
+    label: label,
+    child: child,
+  );
 }
 
 /// Hosts a [Sidebar] that has no [SidebarScaffold] above it, so that its
@@ -992,7 +1042,10 @@ class _SidebarColumn extends StatelessWidget {
 
 /// A ghost icon button that toggles the enclosing sidebar, shadcn/ui's
 /// `SidebarTrigger`.
-class SidebarTrigger extends StatefulWidget {
+///
+/// Assistive technology hears it as "Toggle sidebar", expanded while the
+/// sidebar it toggles is open.
+class SidebarTrigger extends StatelessWidget {
   /// Creates a trigger for the enclosing sidebar.
   const SidebarTrigger({super.key, this.icon, this.onPressed});
 
@@ -1003,49 +1056,65 @@ class SidebarTrigger extends StatefulWidget {
   final VoidCallback? onPressed;
 
   @override
-  State<SidebarTrigger> createState() => _SidebarTriggerState();
-}
-
-class _SidebarTriggerState extends State<SidebarTrigger> {
-  bool hovered = false;
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scope = SidebarScope.of(context);
-    return Semantics(
-      button: true,
-      label: UnaLocalizations.of(context).navigation.toggleSidebar,
-      child: UnaGestureDetector(
-        mouseCursor: SystemMouseCursors.click,
-        onHover: (value) => setState(() => hovered = value),
-        onTap: () {
-          widget.onPressed?.call();
-          scope.toggle();
-        },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 100),
-          width: 28,
-          height: 28,
-          decoration: BoxDecoration(
-            color: hovered ? theme.colorScheme.accent : null,
-            borderRadius: theme.radii.sm,
-          ),
-          child: IconTheme.merge(
-            data: IconThemeData(
-              size: 16,
-              color: hovered
-                  ? theme.colorScheme.accentForeground
-                  : theme.colorScheme.foreground,
-            ),
-            child: Center(
-              child:
-                  widget.icon ??
-                  const PhosphorIcon(PhosphorIconsRegular.sidebarSimple),
-            ),
-          ),
-        ),
-      ),
+    final radius = theme.radii.sm;
+    // The controller, not the scope: the scope does not change when the
+    // phone's sheet opens.
+    return ListenableBuilder(
+      listenable: scope.controller,
+      builder: (context, _) {
+        final controller = scope.controller;
+        final expanded =
+            scope.inSheet ||
+            (scope.isMobile ? controller.isMobileOpen : controller.isOpen);
+        return Pressable(
+          semanticContainer: true,
+          semanticLabel: UnaLocalizations.of(context).navigation.toggleSidebar,
+          // The content says whether the sidebar is open; it has nothing
+          // else to say.
+          excludeSemantics: false,
+          onPressed: () {
+            onPressed?.call();
+            scope.toggle();
+          },
+          builder: (context, states) {
+            final hot =
+                states.contains(WidgetState.hovered) ||
+                states.contains(WidgetState.pressed);
+            return Semantics(
+              expanded: expanded,
+              child: FocusRing(
+                visible: states.contains(WidgetState.focused),
+                borderRadius: radius,
+                child: AnimatedFill(
+                  color: hot ? theme.colorScheme.accent : null,
+                  borderRadius: radius,
+                  child: SizedBox.square(
+                    dimension: 28,
+                    child: IconTheme.merge(
+                      data: IconThemeData(
+                        size: 16,
+                        color: hot
+                            ? theme.colorScheme.accentForeground
+                            : theme.colorScheme.foreground,
+                      ),
+                      child: Center(
+                        child:
+                            icon ??
+                            const PhosphorIcon(
+                              PhosphorIconsRegular.sidebarSimple,
+                            ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }
@@ -1126,9 +1195,12 @@ class SidebarGroup extends StatelessWidget {
     final scope = SidebarScope.of(context);
     final collapsed = scope.collapsed;
 
-    final labelHeight = sidebarTheme.groupLabelHeight ?? 32;
-    final duration = sidebarTheme.duration ?? const Duration(milliseconds: 200);
-    final curve = sidebarTheme.curve ?? Curves.linear;
+    // A fixed box around one line of text, so it grows with the text.
+    final labelHeight = textScaledMaxHeight(
+      context,
+      sidebarTheme.groupLabelHeight ?? 32,
+    );
+    final (duration, curve) = _sidebarMotion(context);
 
     return Padding(
       padding: sidebarTheme.groupPadding ?? const EdgeInsets.all(8),
@@ -1148,11 +1220,19 @@ class SidebarGroup extends StatelessWidget {
                 duration: duration,
                 curve: curve,
                 opacity: collapsed ? 0 : 1,
-                child: OverflowBox(
-                  minHeight: labelHeight,
-                  maxHeight: labelHeight,
-                  alignment: Alignment.bottomCenter,
-                  child: _GroupLabelRow(label: label!, action: action),
+                // Gone from the rail, so its action is no Tab stop there
+                // and the label is not read.
+                child: ExcludeFocus(
+                  excluding: collapsed,
+                  child: ExcludeSemantics(
+                    excluding: collapsed,
+                    child: OverflowBox(
+                      minHeight: labelHeight,
+                      maxHeight: labelHeight,
+                      alignment: Alignment.bottomCenter,
+                      child: _GroupLabelRow(label: label!, action: action),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -1229,7 +1309,7 @@ class SidebarMenu extends StatelessWidget {
 /// it shrinks to a square and, when [tooltip] is given, shows the label as a
 /// tooltip instead.
 /// {@endtemplate}
-class SidebarMenuButton extends StatefulWidget {
+class SidebarMenuButton extends StatelessWidget {
   /// {@macro SidebarMenuButton}
   const SidebarMenuButton({
     super.key,
@@ -1262,6 +1342,10 @@ class SidebarMenuButton extends StatefulWidget {
 
   /// The height and text size of the row. Defaults to
   /// [SidebarMenuButtonSize.regular].
+  ///
+  /// {@template SidebarMenuButton.height}
+  /// Height of a menu button, shadcn's `h-8`.
+  /// {@endtemplate}
   final SidebarMenuButtonSize size;
 
   /// The visual variant. Defaults to [SidebarMenuButtonVariant.standard].
@@ -1277,17 +1361,6 @@ class SidebarMenuButton extends StatefulWidget {
   /// focus. Defaults to true.
   final bool enabled;
 
-  /// {@template SidebarMenuButton.height}
-  /// Height of a menu button, shadcn's `h-8`.
-  /// {@endtemplate}
-  @override
-  State<SidebarMenuButton> createState() => _SidebarMenuButtonState();
-}
-
-class _SidebarMenuButtonState extends State<SidebarMenuButton> {
-  bool hovered = false;
-  bool pressed = false;
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -1295,10 +1368,9 @@ class _SidebarMenuButtonState extends State<SidebarMenuButton> {
     final scope = SidebarScope.of(context);
     final collapsed = scope.collapsed;
 
-    final duration = sidebarTheme.duration ?? const Duration(milliseconds: 200);
-    final curve = sidebarTheme.curve ?? Curves.linear;
+    final (duration, curve) = _sidebarMotion(context);
 
-    final expandedHeight = switch (widget.size) {
+    final expandedHeight = switch (size) {
       SidebarMenuButtonSize.sm => sidebarTheme.menuButtonHeightSm ?? 28,
       SidebarMenuButtonSize.regular => sidebarTheme.menuButtonHeight ?? 32,
       SidebarMenuButtonSize.lg => sidebarTheme.menuButtonHeightLg ?? 48,
@@ -1313,7 +1385,15 @@ class _SidebarMenuButtonState extends State<SidebarMenuButton> {
     final collapsedSize = scope.collapsedWidth - groupPadding.horizontal;
     final iconSize = sidebarTheme.iconSize ?? 16;
 
-    final height = collapsed ? collapsedSize : expandedHeight;
+    // The style's height is a floor once text is scaled: the row grows to
+    // a line of scaled text rather than cutting its label off. The rail's
+    // square holds an icon and stays a square.
+    final heightConstraints = collapsed
+        ? BoxConstraints.tightFor(height: collapsedSize)
+        : BoxConstraints(
+            minHeight: expandedHeight,
+            maxHeight: textScaledMaxHeight(context, expandedHeight),
+          );
     final padding = collapsed
         ? EdgeInsets.symmetric(
             horizontal: math.max(0, (collapsedSize - iconSize) / 2),
@@ -1321,7 +1401,7 @@ class _SidebarMenuButtonState extends State<SidebarMenuButton> {
         : (sidebarTheme.menuButtonPadding ??
               const EdgeInsets.symmetric(horizontal: 8));
 
-    final textStyle = switch (widget.size) {
+    final textStyle = switch (size) {
       SidebarMenuButtonSize.sm =>
         sidebarTheme.menuButtonTextStyleSm ??
             sidebarTheme.menuButtonTextStyle ??
@@ -1336,117 +1416,104 @@ class _SidebarMenuButtonState extends State<SidebarMenuButton> {
     final foreground =
         sidebarTheme.foregroundColor ?? theme.colorScheme.sidebarForeground;
 
-    final highlighted =
-        widget.enabled && (hovered || pressed || widget.selected);
-    final contentColor = highlighted ? accentForeground : foreground;
     final radius = sidebarTheme.menuButtonBorderRadius ?? theme.radii.sm;
     final gap = sidebarTheme.menuButtonGap ?? 8;
 
-    final outline = widget.variant == SidebarMenuButtonVariant.outline;
+    final outline = variant == SidebarMenuButtonVariant.outline;
     final borderColor =
         sidebarTheme.borderColor ?? theme.colorScheme.sidebarBorder;
 
     final ringColor = sidebarTheme.ringColor ?? theme.colorScheme.sidebarRing;
     final ringWidth = sidebarTheme.ringWidth ?? 2;
 
-    // Every fixed-width part after the icon animates to zero on the same
-    // timeline as the button's width, so at any point of the collapse the
-    // row's minimum width fits the animated bounds — a plain SizedBox gap
-    // (or an instantly-dropped trailing) overflows the 16px inner width of
-    // the 32px square.
-    Widget row = Row(
-      children: [
-        if (widget.leading != null) ...[
-          IconTheme.merge(
-            data: IconThemeData(size: iconSize, color: contentColor),
-            child: widget.leading!,
-          ),
-          AnimatedContainer(
-            duration: duration,
-            curve: curve,
-            width: collapsed ? 0 : gap,
-          ),
-        ],
-        Expanded(
-          child: DefaultTextStyle.merge(
-            style: textStyle.copyWith(
-              color: contentColor,
-              fontWeight: widget.selected ? FontWeight.w500 : null,
+    Widget content(Set<WidgetState> states) {
+      final highlighted =
+          enabled &&
+          (states.contains(WidgetState.hovered) ||
+              states.contains(WidgetState.pressed) ||
+              selected);
+      final contentColor = highlighted ? accentForeground : foreground;
+
+      // Every fixed-width part after the icon animates to zero on the same
+      // timeline as the button's width, so at any point of the collapse the
+      // row's minimum width fits the animated bounds — a plain SizedBox gap
+      // (or an instantly-dropped trailing) overflows the 16px inner width of
+      // the 32px square.
+      Widget row = Row(
+        children: [
+          if (leading != null) ...[
+            IconTheme.merge(
+              data: IconThemeData(size: iconSize, color: contentColor),
+              child: leading!,
             ),
-            maxLines: 1,
-            softWrap: false,
-            overflow: TextOverflow.clip,
-            child: widget.child,
-          ),
-        ),
-        // The reference hides badges and actions in the icon rail; here they
-        // shrink away instead of vanishing, for the same fits-at-every-frame
-        // reason.
-        if (widget.trailing != null)
-          ClipRect(
-            child: AnimatedAlign(
+            AnimatedContainer(
               duration: duration,
               curve: curve,
-              alignment: AlignmentDirectional.centerEnd,
-              widthFactor: collapsed ? 0 : 1,
-              child: Padding(
-                padding: EdgeInsetsDirectional.only(start: gap),
-                child: IconTheme.merge(
-                  data: IconThemeData(size: iconSize, color: contentColor),
-                  child: DefaultTextStyle.merge(
-                    style: textStyle.copyWith(color: contentColor),
-                    child: widget.trailing!,
+              width: collapsed ? 0 : gap,
+            ),
+          ],
+          Expanded(
+            child: DefaultTextStyle.merge(
+              style: textStyle.copyWith(
+                color: contentColor,
+                fontWeight: selected ? FontWeight.w500 : null,
+              ),
+              maxLines: 1,
+              softWrap: false,
+              overflow: TextOverflow.clip,
+              child: child,
+            ),
+          ),
+          // The reference hides badges and actions in the icon rail; here
+          // they shrink away instead of vanishing, for the same
+          // fits-at-every-frame reason.
+          if (trailing != null)
+            ClipRect(
+              child: AnimatedAlign(
+                duration: duration,
+                curve: curve,
+                alignment: AlignmentDirectional.centerEnd,
+                widthFactor: collapsed ? 0 : 1,
+                child: Padding(
+                  padding: EdgeInsetsDirectional.only(start: gap),
+                  child: IconTheme.merge(
+                    data: IconThemeData(size: iconSize, color: contentColor),
+                    child: DefaultTextStyle.merge(
+                      style: textStyle.copyWith(color: contentColor),
+                      // An action in the row is not reached in the rail.
+                      child: ExcludeFocus(
+                        excluding: collapsed,
+                        child: trailing!,
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-      ],
-    );
+        ],
+      );
 
-    if (widget.leading == null && collapsed) {
-      // Nothing to shrink to: keep the label clipped instead of an empty box.
-      row = Center(child: row);
-    }
+      if (leading == null && collapsed) {
+        // Nothing to shrink to: keep the label clipped instead of an empty
+        // box.
+        row = Center(child: row);
+      }
 
-    Widget button = Focusable(
-      visibleOnly: true,
-      canRequestFocus: widget.enabled,
-      focusNode: widget.focusNode,
-      builder: (context, focused, child) {
-        return Decorator(
-          focused: focused,
-          decoration: UnaDecoration(
-            border: UnaBorder.all(borderRadius: radius, width: 0),
-            secondaryFocusedBorder: UnaBorder.all(
-              borderRadius: radius.add(BorderRadius.circular(ringWidth)),
-              width: ringWidth,
-              offset: ringWidth,
-              color: ringColor,
-            ),
+      return Decorator(
+        focused: states.contains(WidgetState.focused),
+        decoration: UnaDecoration(
+          border: UnaBorder.all(borderRadius: radius, width: 0),
+          secondaryFocusedBorder: UnaBorder.all(
+            borderRadius: radius.add(BorderRadius.circular(ringWidth)),
+            width: ringWidth,
+            offset: ringWidth,
+            color: ringColor,
           ),
-          child: child,
-        );
-      },
-      child: UnaGestureDetector(
-        mouseCursor: widget.enabled
-            ? SystemMouseCursors.click
-            : MouseCursor.defer,
-        onHover: widget.enabled
-            ? (value) => setState(() => hovered = value)
-            : null,
-        onTapDown: widget.enabled
-            ? (_) => setState(() => pressed = true)
-            : null,
-        onTapUp: widget.enabled ? (_) => setState(() => pressed = false) : null,
-        onTapCancel: widget.enabled
-            ? () => setState(() => pressed = false)
-            : null,
-        onTap: widget.enabled ? widget.onPressed : null,
-        // The sidebar lays its content out at the expanded width even while
-        // the rail is collapsed (see Sidebar), so the square form needs
-        // an explicit width; the LayoutBuilder below supplies the expanded
-        // target so both ends of the animation are finite.
+        ),
+        // The sidebar lays its content out at the expanded width even
+        // while the rail is collapsed (see Sidebar), so the square form
+        // needs an explicit width; the LayoutBuilder below supplies the
+        // expanded target so both ends of the animation are finite.
         child: LayoutBuilder(
           builder: (context, constraints) {
             final expandedWidth = constraints.maxWidth.isFinite
@@ -1456,7 +1523,7 @@ class _SidebarMenuButtonState extends State<SidebarMenuButton> {
               duration: duration,
               curve: curve,
               width: collapsed ? collapsedSize : expandedWidth,
-              height: height,
+              constraints: heightConstraints,
               padding: padding,
               decoration: ShadowDecoration.box(
                 color: highlighted
@@ -1481,21 +1548,26 @@ class _SidebarMenuButtonState extends State<SidebarMenuButton> {
             );
           },
         ),
-      ),
+      );
+    }
+
+    Widget button = Pressable(
+      // A row with no callback is still a Tab stop, as it always was; only
+      // `enabled: false` takes it out.
+      enabled: enabled,
+      onPressed: enabled ? onPressed : null,
+      selected: selected,
+      focusNode: focusNode,
+      semanticContainer: true,
+      pressScale: 1,
+      builder: (context, states) => content(states),
     );
 
-    if (!widget.enabled) {
+    if (!enabled) {
       button = Opacity(opacity: theme.disabledOpacity, child: button);
     }
 
-    button = Semantics(
-      button: true,
-      enabled: widget.enabled,
-      selected: widget.selected,
-      child: button,
-    );
-
-    if (widget.tooltip != null && collapsed && !scope.isMobile) {
+    if (tooltip != null && collapsed && !scope.isMobile) {
       // The tooltip hangs off the button's inner side — away from the
       // screen edge the rail sits on — with the arrow pointing back at it.
       final towardEnd = scope.side == SidebarSide.start;
@@ -1514,7 +1586,7 @@ class _SidebarMenuButtonState extends State<SidebarMenuButton> {
         arrowDirection: physicalRight
             ? AxisDirection.left
             : AxisDirection.right,
-        builder: (context) => Text(widget.tooltip!),
+        builder: (context) => Text(tooltip!),
         child: button,
       );
     }
@@ -1558,7 +1630,7 @@ class SidebarMenuBadge extends StatelessWidget {
 /// A small hover-accent icon control, shadcn/ui's `SidebarMenuAction` and
 /// `SidebarGroupAction`: put it in a menu button's `trailing` or a group's
 /// `action` slot.
-class SidebarMenuAction extends StatefulWidget {
+class SidebarMenuAction extends StatelessWidget {
   /// Creates an action button that shows [icon].
   const SidebarMenuAction({
     super.key,
@@ -1570,18 +1642,15 @@ class SidebarMenuAction extends StatefulWidget {
   /// The icon to show, sized by the sidebar theme's icon size.
   final Widget icon;
 
-  /// Called when the action is tapped.
+  /// Called when the action is tapped. Null disables the action.
   final VoidCallback? onPressed;
 
   /// The label read by screen readers.
   final String? semanticLabel;
 
-  @override
-  State<SidebarMenuAction> createState() => _SidebarMenuActionState();
-}
-
-class _SidebarMenuActionState extends State<SidebarMenuAction> {
-  bool hovered = false;
+  /// The side of the square that takes a tap: larger than the 20-point
+  /// control drawn in it, the smallest target WCAG allows.
+  static const double _hitSize = 24;
 
   @override
   Widget build(BuildContext context) {
@@ -1593,31 +1662,40 @@ class _SidebarMenuActionState extends State<SidebarMenuAction> {
         theme.colorScheme.sidebarAccentForeground;
     final foreground =
         sidebarTheme.foregroundColor ?? theme.colorScheme.sidebarForeground;
+    final radius = sidebarTheme.menuButtonBorderRadius ?? theme.radii.sm;
 
-    return Semantics(
-      button: true,
-      label: widget.semanticLabel,
-      child: UnaGestureDetector(
-        mouseCursor: SystemMouseCursors.click,
-        onHover: (value) => setState(() => hovered = value),
-        onTap: widget.onPressed,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 100),
-          width: 20,
-          height: 20,
-          decoration: BoxDecoration(
-            color: hovered ? accent : null,
-            borderRadius: sidebarTheme.menuButtonBorderRadius ?? theme.radii.sm,
-          ),
-          child: IconTheme.merge(
-            data: IconThemeData(
-              size: sidebarTheme.iconSize ?? 16,
-              color: hovered ? accentForeground : foreground,
+    return Pressable(
+      onPressed: onPressed,
+      semanticLabel: semanticLabel,
+      semanticContainer: true,
+      builder: (context, states) {
+        final hot =
+            states.contains(WidgetState.hovered) ||
+            states.contains(WidgetState.pressed);
+        return SizedBox.square(
+          dimension: _hitSize,
+          child: Center(
+            child: FocusRing(
+              visible: states.contains(WidgetState.focused),
+              borderRadius: radius,
+              child: AnimatedFill(
+                color: hot ? accent : null,
+                borderRadius: radius,
+                child: SizedBox.square(
+                  dimension: 20,
+                  child: IconTheme.merge(
+                    data: IconThemeData(
+                      size: sidebarTheme.iconSize ?? 16,
+                      color: hot ? accentForeground : foreground,
+                    ),
+                    child: Center(child: icon),
+                  ),
+                ),
+              ),
             ),
-            child: Center(child: widget.icon),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -1666,7 +1744,7 @@ class SidebarMenuSub extends StatelessWidget {
 }
 
 /// A row inside a [SidebarMenuSub], shadcn/ui's `SidebarMenuSubButton`.
-class SidebarMenuSubButton extends StatefulWidget {
+class SidebarMenuSubButton extends StatelessWidget {
   /// Creates a sub-menu row.
   const SidebarMenuSubButton({
     super.key,
@@ -1698,13 +1776,6 @@ class SidebarMenuSubButton extends StatefulWidget {
   final FocusNode? focusNode;
 
   @override
-  State<SidebarMenuSubButton> createState() => _SidebarMenuSubButtonState();
-}
-
-class _SidebarMenuSubButtonState extends State<SidebarMenuSubButton> {
-  bool hovered = false;
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final sidebarTheme = theme.sidebarTheme;
@@ -1715,44 +1786,47 @@ class _SidebarMenuSubButtonState extends State<SidebarMenuSubButton> {
         theme.colorScheme.sidebarAccentForeground;
     final foreground =
         sidebarTheme.foregroundColor ?? theme.colorScheme.sidebarForeground;
-    final highlighted = hovered || widget.selected;
-    final contentColor = highlighted ? accentForeground : foreground;
 
     var textStyle = sidebarTheme.subButtonTextStyle ?? theme.textTheme.small;
-    if (widget.small) textStyle = textStyle.copyWith(fontSize: 12);
+    if (small) textStyle = textStyle.copyWith(fontSize: 12);
 
     final ringColor = sidebarTheme.ringColor ?? theme.colorScheme.sidebarRing;
     final ringWidth = sidebarTheme.ringWidth ?? 2;
     final radius = sidebarTheme.menuButtonBorderRadius ?? theme.radii.sm;
     final gap = sidebarTheme.menuButtonGap ?? 8;
+    final height = sidebarTheme.subButtonHeight ?? 28;
 
-    return Semantics(
-      button: true,
-      selected: widget.selected,
-      child: Focusable(
-        visibleOnly: true,
-        focusNode: widget.focusNode,
-        builder: (context, focused, child) {
-          return Decorator(
-            focused: focused,
-            decoration: UnaDecoration(
-              border: UnaBorder.all(borderRadius: radius, width: 0),
-              secondaryFocusedBorder: UnaBorder.all(
-                borderRadius: radius.add(BorderRadius.circular(ringWidth)),
-                width: ringWidth,
-                offset: ringWidth,
-                color: ringColor,
-              ),
+    return Pressable(
+      // A Tab stop with or without a callback, as it always was.
+      enabled: true,
+      onPressed: onPressed,
+      selected: selected,
+      focusNode: focusNode,
+      semanticContainer: true,
+      pressScale: 1,
+      builder: (context, states) {
+        final highlighted =
+            states.contains(WidgetState.hovered) ||
+            states.contains(WidgetState.pressed) ||
+            selected;
+        final contentColor = highlighted ? accentForeground : foreground;
+        return Decorator(
+          focused: states.contains(WidgetState.focused),
+          decoration: UnaDecoration(
+            border: UnaBorder.all(borderRadius: radius, width: 0),
+            secondaryFocusedBorder: UnaBorder.all(
+              borderRadius: radius.add(BorderRadius.circular(ringWidth)),
+              width: ringWidth,
+              offset: ringWidth,
+              color: ringColor,
             ),
-            child: child,
-          );
-        },
-        child: UnaGestureDetector(
-          mouseCursor: SystemMouseCursors.click,
-          onHover: (value) => setState(() => hovered = value),
-          onTap: widget.onPressed,
+          ),
           child: Container(
-            height: sidebarTheme.subButtonHeight ?? 28,
+            // A floor once text is scaled, so the label is not cut off.
+            constraints: BoxConstraints(
+              minHeight: height,
+              maxHeight: textScaledMaxHeight(context, height),
+            ),
             padding:
                 sidebarTheme.subButtonPadding ??
                 const EdgeInsets.symmetric(horizontal: 8),
@@ -1762,7 +1836,7 @@ class _SidebarMenuSubButtonState extends State<SidebarMenuSubButton> {
             ),
             child: Row(
               children: [
-                if (widget.leading != null) ...[
+                if (leading != null) ...[
                   IconTheme.merge(
                     // `[&>svg]:text-sidebar-accent-foreground`: sub icons
                     // always take the accent foreground.
@@ -1770,7 +1844,7 @@ class _SidebarMenuSubButtonState extends State<SidebarMenuSubButton> {
                       size: sidebarTheme.iconSize ?? 16,
                       color: accentForeground,
                     ),
-                    child: widget.leading!,
+                    child: leading!,
                   ),
                   SizedBox(width: gap),
                 ],
@@ -1780,14 +1854,14 @@ class _SidebarMenuSubButtonState extends State<SidebarMenuSubButton> {
                     maxLines: 1,
                     softWrap: false,
                     overflow: TextOverflow.clip,
-                    child: widget.child,
+                    child: child,
                   ),
                 ),
               ],
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

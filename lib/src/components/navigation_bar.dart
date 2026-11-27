@@ -1,6 +1,8 @@
+import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/src/components/bottom_bar_surface.dart';
 import 'package:una/src/components/indicator_badge.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
 import 'package:una/src/liquid_glass/liquid_glass.dart';
 import 'package:una/src/liquid_glass/tab_bar.dart';
 import 'package:una/src/raw_components/pressable.dart';
@@ -218,6 +220,7 @@ class NavigationBar extends StatelessWidget {
     required this.selectedIndex,
     this.onDestinationSelected,
     this.height,
+    this.semanticLabel,
     super.key,
   });
 
@@ -233,6 +236,13 @@ class NavigationBar extends StatelessWidget {
 
   /// The bar's height. Defaults to the app bar's.
   final double? height;
+
+  /// {@template NavigationBar.semanticLabel}
+  /// The name assistive technology gives the bar's navigation landmark.
+  /// Defaults to the localised "Main navigation"; pass another when a
+  /// screen has more than one.
+  /// {@endtemplate}
+  final String? semanticLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -341,6 +351,8 @@ class NavigationBar extends StatelessWidget {
     return Semantics(
       container: true,
       explicitChildNodes: true,
+      role: SemanticsRole.navigation,
+      label: semanticLabel ?? UnaLocalizations.of(context).navigation.main,
       child: SizedBox(
         height: barHeight,
         // In front of the destinations, so the bar also covers the app
@@ -390,6 +402,7 @@ class BottomNavigationBar extends StatelessWidget {
     this.action,
     this.floating,
     this.showLabels,
+    this.semanticLabel,
     super.key,
   });
 
@@ -413,6 +426,9 @@ class BottomNavigationBar extends StatelessWidget {
   /// the theme's, which is icons only. A bar with labels is as much
   /// taller as a line of the label.
   final bool? showLabels;
+
+  /// {@macro NavigationBar.semanticLabel}
+  final String? semanticLabel;
 
   /// How much taller a bar with labels is than one without, in [context]:
   /// the gap under the icon and one line of the label.
@@ -441,8 +457,15 @@ class BottomNavigationBar extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, constraints) => _build(context, constraints.maxWidth),
+  Widget build(BuildContext context) => Semantics(
+    // One landmark, on Liquid Glass or not.
+    container: true,
+    explicitChildNodes: true,
+    role: SemanticsRole.navigation,
+    label: semanticLabel ?? UnaLocalizations.of(context).navigation.main,
+    child: LayoutBuilder(
+      builder: (context, constraints) => _build(context, constraints.maxWidth),
+    ),
   );
 
   Widget _build(BuildContext context, double maxWidth) {

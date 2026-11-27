@@ -9,6 +9,11 @@ import 'package:una/src/utils/debug_check.dart';
 /// The [Avatar] widget renders an image from a provided source, falling
 /// back to [fallback] while the image loads, if it fails to load, or when
 /// there is no source.
+///
+/// For assistive technology it is one image named [semanticLabel], whatever
+/// it shows at the moment. Without a label it is decorative and reads as
+/// nothing — the usual case, an avatar beside the name it belongs to — so
+/// initials read while the picture loads do not change underfoot.
 class Avatar extends StatelessWidget {
   /// Creates an avatar showing the image at [src], a URL or an asset path.
   ///
@@ -24,6 +29,7 @@ class Avatar extends StatelessWidget {
     this.backgroundColor,
     this.package,
     this.fit,
+    this.semanticLabel,
   }) : image = null;
 
   /// Creates an avatar showing [image], for any other source: a file, memory
@@ -37,6 +43,7 @@ class Avatar extends StatelessWidget {
     this.shape,
     this.backgroundColor,
     this.fit,
+    this.semanticLabel,
   }) : src = null,
        package = null;
 
@@ -89,6 +96,12 @@ class Avatar extends StatelessWidget {
   /// {@endtemplate}
   final BoxFit? fit;
 
+  /// {@template Avatar.semanticLabel}
+  /// What assistive technology reads for the avatar: who it shows. Null
+  /// makes it decorative.
+  /// {@endtemplate}
+  final String? semanticLabel;
+
   /// The provider to load, or null when there is nothing to load.
   ImageProvider? get _image {
     if (image != null) return image;
@@ -117,7 +130,7 @@ class Avatar extends StatelessWidget {
         : Center(child: this.fallback);
     final image = _image;
 
-    return Container(
+    final avatar = Container(
       width: size.width,
       height: size.height,
       clipBehavior: Clip.antiAlias,
@@ -161,6 +174,14 @@ class Avatar extends StatelessWidget {
               errorBuilder: (context, error, stackTrace) =>
                   fallback ?? const SizedBox.shrink(),
             ),
+    );
+    // The same widget with a label or without, so the avatar keeps its
+    // state (an image that has loaded) when one comes or goes.
+    return Semantics(
+      label: semanticLabel,
+      image: semanticLabel == null ? null : true,
+      excludeSemantics: true,
+      child: avatar,
     );
   }
 }

@@ -343,22 +343,26 @@ class _SidebarCategory extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Semantics(
-          expanded: open,
-          child: SidebarMenuButton(
-            leading: PhosphorIcon(category.icon),
-            selected: holdsSelection && !open,
-            onPressed: onToggle,
-            // A caret pointing at the end of the line, turned down when
-            // the fold is open.
-            trailing: SpringBuilder(
-              value: open ? 0 : (rtl ? .25 : -.25),
-              spring: motion.snappy,
-              builder: (context, turns, child) =>
-                  Transform.rotate(angle: turns * 2 * math.pi, child: child),
-              child: const PhosphorIcon(PhosphorIconsRegular.caretDown),
+        // The row is a semantics node of its own; merged, the fold's
+        // state is part of it.
+        MergeSemantics(
+          child: Semantics(
+            expanded: open,
+            child: SidebarMenuButton(
+              leading: PhosphorIcon(category.icon),
+              selected: holdsSelection && !open,
+              onPressed: onToggle,
+              // A caret pointing at the end of the line, turned down when
+              // the fold is open.
+              trailing: SpringBuilder(
+                value: open ? 0 : (rtl ? .25 : -.25),
+                spring: motion.snappy,
+                builder: (context, turns, child) =>
+                    Transform.rotate(angle: turns * 2 * math.pi, child: child),
+                child: const PhosphorIcon(PhosphorIconsRegular.caretDown),
+              ),
+              child: Text(category.title),
             ),
-            child: Text(category.title),
           ),
         ),
         SpringBuilder(

@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:una/src/theme/motion.dart';
 import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/progress_semantics.dart';
 import 'package:una/src/utils/spring.dart';
 
 /// A customizable linear progress indicator widget.
@@ -182,7 +183,8 @@ class _ProgressState extends State<ProgressBar>
         theme.progressBarTheme.innerBorderRadius ??
         BorderRadius.zero;
 
-    return Semantics(
+    return progressSemantics(
+      determinate: widget.value != null,
       label: widget.semanticLabel,
       value:
           widget.semanticValue ??

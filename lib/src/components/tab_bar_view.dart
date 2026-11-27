@@ -476,7 +476,14 @@ class _TabPagesState extends State<TabPages> with TickerProviderStateMixin {
           child: FocusTraversalGroup(
             descendantsAreFocusable: index == widget.index,
             policy: WidgetOrderTraversalPolicy(),
-            child: content,
+            // The selected page is the panel its tab controls: one node
+            // for assistive technology. Every page has the node, so a page
+            // keeps its place in the tree as the selection moves.
+            child: Semantics(
+              container: true,
+              role: index == widget.index ? SemanticsRole.tabPanel : null,
+              child: content,
+            ),
           ),
         ),
       ),

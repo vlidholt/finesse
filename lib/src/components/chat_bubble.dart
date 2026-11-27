@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
 import 'package:una/src/theme/theme.dart';
 import 'package:una/src/utils/spring_size.dart';
 
@@ -164,7 +165,7 @@ class TypingIndicator extends StatefulWidget {
   const TypingIndicator({
     this.color,
     this.dotSize = 6,
-    this.semanticLabel = 'Typing',
+    this.semanticLabel,
     super.key,
   });
 
@@ -174,9 +175,9 @@ class TypingIndicator extends StatefulWidget {
   /// The diameter of each dot.
   final double dotSize;
 
-  /// What assistive technology reads for the indicator. Pass a localised
-  /// string, ideally naming who is typing.
-  final String semanticLabel;
+  /// What assistive technology reads for the indicator, ideally naming who
+  /// is typing. Defaults to the localised "Typing".
+  final String? semanticLabel;
 
   @override
   State<TypingIndicator> createState() => _TypingIndicatorState();
@@ -210,7 +211,7 @@ class _TypingIndicatorState extends State<TypingIndicator>
     final color = widget.color ?? Theme.of(context).colorScheme.mutedForeground;
     final dot = widget.dotSize;
     return Semantics(
-      label: widget.semanticLabel,
+      label: widget.semanticLabel ?? UnaLocalizations.of(context).chat.typing,
       // The dots never stop while somebody is typing, so a frame of them
       // has to cost next to nothing: they are painted, not built, and in a
       // layer of their own, so the bubble around them is not painted again

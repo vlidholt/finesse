@@ -129,6 +129,8 @@ dataTable:
   selectedCount: "$selected of $total row(s) selected."
   sortedAscending: "Sorted ascending"
   sortedDescending: "Sorted descending"
+  selectRow: "Select row $row"
+  selectAll: "Select all rows"
 
 pagination:
   previous: "Previous"
@@ -193,6 +195,13 @@ dialog:
 sheet:
   resize: "Resize"
 
+resizable:
+  resizePanel: "Resize panel"
+
+chat:
+  typing: "Typing"
+  jumpToLatest: "Jump to latest"
+
 button:
   loading: "Loading"
 
@@ -212,6 +221,10 @@ navigation:
   openMenu: "Open menu"
   menu: "Navigation menu"
   toggleSidebar: "Toggle sidebar"
+  main: "Main navigation"
+  sidebar: "Sidebar"
+  breadcrumb: "Breadcrumb"
+  morePages: "More pages"
 
 chart:
   line: "Line chart"

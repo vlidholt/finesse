@@ -2,8 +2,10 @@ import 'dart:math' as math;
 import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/src/components/navigation_bar.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
 import 'package:una/src/liquid_glass/liquid_glass.dart';
 import 'package:una/src/raw_components/pressable.dart';
 import 'package:una/src/theme/components/layout.dart';
@@ -142,6 +144,8 @@ class _Rail extends StatelessWidget {
     return Semantics(
       container: true,
       explicitChildNodes: true,
+      role: SemanticsRole.navigation,
+      label: UnaLocalizations.of(context).navigation.main,
       child: _RailSurface(
         liquid: liquid,
         blur: style.blur ?? 0,

@@ -65,6 +65,8 @@ class UnaLocalizationsData with BaseTranslations<UnaLocale, UnaLocalizationsData
 	late final UnaLocalizationsData$colorPicker$en colorPicker = UnaLocalizationsData$colorPicker$en.internal(_root);
 	late final UnaLocalizationsData$dialog$en dialog = UnaLocalizationsData$dialog$en.internal(_root);
 	late final UnaLocalizationsData$sheet$en sheet = UnaLocalizationsData$sheet$en.internal(_root);
+	late final UnaLocalizationsData$resizable$en resizable = UnaLocalizationsData$resizable$en.internal(_root);
+	late final UnaLocalizationsData$chat$en chat = UnaLocalizationsData$chat$en.internal(_root);
 	late final UnaLocalizationsData$button$en button = UnaLocalizationsData$button$en.internal(_root);
 	late final UnaLocalizationsData$board$en board = UnaLocalizationsData$board$en.internal(_root);
 	late final UnaLocalizationsData$navigation$en navigation = UnaLocalizationsData$navigation$en.internal(_root);
@@ -525,6 +527,12 @@ class UnaLocalizationsData$dataTable$en {
 
 	/// en: 'Sorted descending'
 	String get sortedDescending => 'Sorted descending';
+
+	/// en: 'Select row $row'
+	String selectRow({required Object row}) => 'Select row ${row}';
+
+	/// en: 'Select all rows'
+	String get selectAll => 'Select all rows';
 }
 
 // Path: pagination
@@ -746,6 +754,33 @@ class UnaLocalizationsData$sheet$en {
 	String get resize => 'Resize';
 }
 
+// Path: resizable
+class UnaLocalizationsData$resizable$en {
+	UnaLocalizationsData$resizable$en.internal(this._root);
+
+	final UnaLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Resize panel'
+	String get resizePanel => 'Resize panel';
+}
+
+// Path: chat
+class UnaLocalizationsData$chat$en {
+	UnaLocalizationsData$chat$en.internal(this._root);
+
+	final UnaLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Typing'
+	String get typing => 'Typing';
+
+	/// en: 'Jump to latest'
+	String get jumpToLatest => 'Jump to latest';
+}
+
 // Path: button
 class UnaLocalizationsData$button$en {
 	UnaLocalizationsData$button$en.internal(this._root);
@@ -813,6 +848,18 @@ class UnaLocalizationsData$navigation$en {
 
 	/// en: 'Toggle sidebar'
 	String get toggleSidebar => 'Toggle sidebar';
+
+	/// en: 'Main navigation'
+	String get main => 'Main navigation';
+
+	/// en: 'Sidebar'
+	String get sidebar => 'Sidebar';
+
+	/// en: 'Breadcrumb'
+	String get breadcrumb => 'Breadcrumb';
+
+	/// en: 'More pages'
+	String get morePages => 'More pages';
 }
 
 // Path: chart
@@ -939,6 +986,8 @@ extension on UnaLocalizationsData {
 			'dataTable.selectedCount' => ({required Object selected, required Object total}) => '${selected} of ${total} row(s) selected.',
 			'dataTable.sortedAscending' => 'Sorted ascending',
 			'dataTable.sortedDescending' => 'Sorted descending',
+			'dataTable.selectRow' => ({required Object row}) => 'Select row ${row}',
+			'dataTable.selectAll' => 'Select all rows',
 			'pagination.previous' => 'Previous',
 			'pagination.next' => 'Next',
 			'pagination.morePages' => 'More pages',
@@ -982,6 +1031,9 @@ extension on UnaLocalizationsData {
 			'dialog.close' => 'Close',
 			'dialog.dismiss' => 'Dismiss',
 			'sheet.resize' => 'Resize',
+			'resizable.resizePanel' => 'Resize panel',
+			'chat.typing' => 'Typing',
+			'chat.jumpToLatest' => 'Jump to latest',
 			'button.loading' => 'Loading',
 			'board.moveUp' => 'Move up',
 			'board.moveDown' => 'Move down',
@@ -996,6 +1048,10 @@ extension on UnaLocalizationsData {
 			'navigation.openMenu' => 'Open menu',
 			'navigation.menu' => 'Navigation menu',
 			'navigation.toggleSidebar' => 'Toggle sidebar',
+			'navigation.main' => 'Main navigation',
+			'navigation.sidebar' => 'Sidebar',
+			'navigation.breadcrumb' => 'Breadcrumb',
+			'navigation.morePages' => 'More pages',
 			'chart.line' => 'Line chart',
 			'chart.bar' => 'Bar chart',
 			'chart.donut' => 'Donut chart',
