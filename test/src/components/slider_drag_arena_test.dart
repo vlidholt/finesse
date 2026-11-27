@@ -62,7 +62,7 @@ void main() {
     });
   }
 
-  testWidgets('a vertical swipe on a slider still scrolls the page', (
+  testWidgets("a vertical swipe on a slider's track still scrolls the page", (
     tester,
   ) async {
     final scroll = ScrollController();
@@ -87,12 +87,51 @@ void main() {
         ),
       ),
     );
+    // On the track, away from the thumb, which a finger takes on contact.
+    final slider = tester.getRect(find.byType(Slider));
     await tester.dragFrom(
-      tester.getCenter(find.byType(Slider)),
+      Offset(slider.left + slider.width * .15, slider.center.dy),
       const Offset(0, -150),
     );
     await tester.pumpAndSettle();
     expect(scroll.offset, greaterThan(50));
     expect(value, .5);
+  });
+
+  testWidgets('a finger held still on the thumb keeps it, under a long '
+      'press', (tester) async {
+    var value = .5;
+    var longPressed = false;
+    await pumpUna(
+      tester,
+      GestureDetector(
+        // The docs' `SelectionArea` is such a long press.
+        onLongPress: () => longPressed = true,
+        child: Center(
+          child: SizedBox(
+            width: 300,
+            child: StatefulBuilder(
+              builder: (context, setState) => Slider(
+                value: value,
+                onChanged: (v) => setState(() => value = v),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    final gesture = await tester.startGesture(
+      tester.getCenter(find.byType(Slider)),
+    );
+    await tester.pump(const Duration(seconds: 1));
+    expect(longPressed, isFalse);
+    for (var i = 0; i < 5; i++) {
+      await gesture.moveBy(const Offset(10, 0));
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    await gesture.up();
+    await tester.pumpAndSettle();
+    expect(value, greaterThan(.5));
+    expect(longPressed, isFalse);
   });
 }

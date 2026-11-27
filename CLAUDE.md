@@ -209,25 +209,39 @@ componentTheme.liquidGlass)` at build: never a window width, never cached.
   frosted fallback for what the package cannot express: a segmented
   control with no selection or an unnamed non-`Text` label, a docked bar,
   a popover with an arrow, a desktop top bar. Tooltips never switch.
-- **Every slider on glass is una's, with a glass thumb.** The package's
-  `GlassSlider` was used for plain sliders and dropped: its jelly squashed
-  the capsule by 30 % and stretched it by 18 % with the resting corner
-  radius, so a fast drag flattened the lens's top and bottom as if
-  clipped. `LiquidGlassSliderThumb` is that thumb rebuilt
-  (`GlassSlider._buildThumbGlass` of 1.21: the same capsule, 37:24 and 1.6
-  thumb radii tall, the same `GlassEffect` settings and inner shadow,
-  imported from the package's unexported files), swells 1.55× and fades
-  its material to the lens while held. A `LiquidGlassSurface` there was
-  near invisible on a light page (a surface's settings, not a lens's); and squashes by the drag speed
-  (`_SliderCore._stretch`, a step per move over 24, settling 60 ms after
-  the moves stop) with its radius half its shorter side. It grows by its
-  *size*, never a `Transform`: glass is laid out at the size it is drawn.
+- **Every slider on glass is una's, with the package's thumb.**
+  `LiquidGlassSliderThumb` is `GlassSlider`'s thumb (1.21) ported whole:
+  the resting capsule (37:24, 1.6 thumb radii tall), the press (150 ms
+  easeOutBack to 1.55×, a 300 ms fade of the material into the
+  `GlassEffect` lens, same settings and inner shadow, imported from the
+  package's unexported files) and the jelly (a `SingleSpringController`
+  on the thumb's position, its velocity through `buildJellyTransform`).
+  The one change is `clipExpansion` on the lens: the package gives none,
+  so on the premium tier its stretched lens was cut off at the top and
+  bottom in a fast drag. A una slider rather than `GlassSlider` because
+  ranges, bubbles and division marks need the same thumb, and una's
+  gestures (below). Compared with `GlassSlider` on the iOS Simulator
+  (Impeller, premium): the same at rest, pressed and in a fast drag. An
+  earlier `LiquidGlassSurface` thumb (a bar's glass) was near invisible
+  on a light page.
 - **A slider's drags are horizontal drags, not pans.** A pan waits for
   twice the touch slop, so a horizontal pager, carousel or swipeable row
   around a slider (the docs' preview/code `TabPages`) took the finger and
   the card moved instead of the thumb. Of two horizontal drags the deeper
-  wins; a vertical swipe on a slider still scrolls
+  wins; a vertical swipe on a slider's track still scrolls
   (`slider_drag_arena_test.dart`).
+- **The thumb is the finger's on contact** (`_ThumbDragRecognizer`
+  accepts at pointer-down). Held still, a finger waiting out the 18-point
+  slop lost the arena to a long press around it — the docs'
+  `SelectionArea` — half a second in, which cancelled the drag and took
+  the Liquid Glass lens away under a finger still down. (The package's
+  slider claims after 4 points, which a real finger's jitter reaches
+  first.) The track keeps the normal slop, and a drag that starts there
+  shows the thumb held only from `onStart`, so a resting finger never
+  flashes the lens. The Liquid Glass slider was compared with the
+  package's `GlassSlider` on the iOS Simulator (Impeller, premium tier):
+  same lens, same press and fade; on glass the active range ends in a
+  round cap under the thumb, as the package's does.
 - **A Liquid Glass surface claims the entrance fade too**, like a
   `BackdropSurface`, and fades the glass by `LiquidGlassSettings.visibility`
   with its content in a `FadeTransition`: the shader does not survive an

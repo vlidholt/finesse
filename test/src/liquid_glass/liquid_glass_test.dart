@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -296,7 +294,7 @@ void main() {
       });
     });
 
-    testWidgets('a fast drag squashes the glass thumb, with round ends', (
+    testWidgets('a fast drag squashes the glass thumb, with room to', (
       tester,
     ) async {
       await onPlatform(TargetPlatform.iOS, () async {
@@ -316,35 +314,26 @@ void main() {
           ),
         );
         final thumb = find.byType(LiquidGlassSliderThumb);
-        final rest = tester.getSize(
-          find
-              .descendant(
-                of: thumb,
-                matching: find.byType(SizedBox),
-              )
-              .first,
-        );
+        Matrix4 jelly() => tester
+            .widgetList<Transform>(
+              find.descendant(of: thumb, matching: find.byType(Transform)),
+            )
+            .first
+            .transform;
         final gesture = await tester.startGesture(tester.getCenter(thumb));
         for (var i = 0; i < 6; i++) {
           await gesture.moveBy(const Offset(30, 0));
           await tester.pump(const Duration(milliseconds: 16));
         }
-        final box = find.descendant(of: thumb, matching: find.byType(SizedBox));
-        final moving = tester.getSize(box.first);
-        // Squashed along the track, stretched across it, against the
-        // swollen capsule it is at rest under a finger.
-        expect(
-          moving.width / moving.height,
-          lessThan(rest.width / rest.height),
-        );
-        // The ends stay round: the lens's radius is half its shorter side.
+        // The package's jelly: narrower along the track, taller across it.
+        expect(jelly().storage[0], lessThan(1));
+        expect(jelly().storage[5], greaterThan(1));
+        // And the lens has room for the stretch, which the package's
+        // slider gives it none of.
         final lens = tester.widget<GlassEffect>(
           find.descendant(of: thumb, matching: find.byType(GlassEffect)),
         );
-        expect(
-          (lens.shape as lg.LiquidRoundedRectangle).borderRadius,
-          closeTo(math.min(moving.width, moving.height) / 2, .01),
-        );
+        expect(lens.clipExpansion.vertical, greaterThan(0));
         await gesture.up();
         await tester.pump(const Duration(seconds: 1));
       });

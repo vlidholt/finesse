@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart';
@@ -699,31 +698,13 @@ class _SliderCoreState extends State<_SliderCore> {
   int? draggingThumb;
 
   void _setDragging(int? index) {
-    if (index == null) _settleStretch();
     if (draggingThumb == index) return;
     setState(() => draggingThumb = index);
   }
 
-  /// How fast the held thumb is moving, 0 at rest to 1 at a quick flick:
-  /// the glass thumb squashes along the track and stretches across it as
-  /// it does (see `LiquidGlassSliderThumb.stretch`).
-  final _stretch = ValueNotifier<double>(0);
-  Timer? _stretchSettle;
-
-  /// Records a drag step of [dx] logical pixels. A pointer reports a move
-  /// about once a frame, so the step is the speed; the stretch settles
-  /// once the moves stop.
-  void _dragMoved(double dx) {
-    _stretch.value = (dx.abs() / 24).clamp(0.0, 1.0);
-    _stretchSettle?.cancel();
-    _stretchSettle = Timer(const Duration(milliseconds: 60), _settleStretch);
-  }
-
-  void _settleStretch() {
-    _stretchSettle?.cancel();
-    _stretchSettle = null;
-    _stretch.value = 0;
-  }
+  /// The thumb a drag on the track picked up when it landed, held from
+  /// the moment the drag starts.
+  int? _trackThumb;
 
   @override
   void didUpdateWidget(covariant _SliderCore oldWidget) {
@@ -740,8 +721,6 @@ class _SliderCoreState extends State<_SliderCore> {
 
   @override
   void dispose() {
-    _stretchSettle?.cancel();
-    _stretch.dispose();
     for (final node in _ownedFocusNodes.values) {
       node.dispose();
     }
@@ -1182,50 +1161,68 @@ class _SliderCoreState extends State<_SliderCore> {
                       // moved instead of the thumb. Of two horizontal drags
                       // the deeper one, this, wins; a vertical swipe still
                       // scrolls the page.
-                      child: GestureDetector(
+                      // The thumb is grabbed on contact, as a native
+                      // slider's is: held still, a finger lost the arena to
+                      // a long press around it (the docs' `SelectionArea`)
+                      // half a second in, which cancelled the drag and took
+                      // the Liquid Glass lens away while the finger was
+                      // still down.
+                      child: RawGestureDetector(
                         excludeFromSemantics: true,
-                        onHorizontalDragUpdate: canSlideThumb
-                            ? (details) {
-                                _dragMoved(details.delta.dx);
-                                final dx = _localDx(
-                                  layoutContext,
-                                  details.globalPosition,
-                                );
-                                if (dx == null) return;
-                                _updateThumb(
-                                  index,
-                                  _valueFromDx(
-                                    dx - _grabOffset,
-                                    effectiveTrackWidth,
-                                    effectiveThumbRadius,
-                                  ),
-                                );
-                              }
-                            : null,
-                        onHorizontalDragDown: widget.enabled
-                            ? (details) {
-                                _grabOffset =
-                                    details.localPosition.dx -
-                                    effectiveThumbRadius;
-                                _setDragging(index);
-                              }
-                            : null,
-                        onHorizontalDragCancel: widget.enabled
-                            ? () => _setDragging(null)
-                            : null,
-                        onHorizontalDragStart: widget.enabled
-                            ? (details) {
-                                _dragStarted(details);
-                                _setDragging(index);
-                                widget.onChangeStart?.call(widget.values);
-                              }
-                            : null,
-                        onHorizontalDragEnd: widget.enabled
-                            ? (details) {
-                                _setDragging(null);
-                                widget.onChangeEnd?.call(widget.values);
-                              }
-                            : null,
+                        gestures: <Type, GestureRecognizerFactory>{
+                          _ThumbDragRecognizer:
+                              GestureRecognizerFactoryWithHandlers<
+                                _ThumbDragRecognizer
+                              >(
+                                () => _ThumbDragRecognizer(debugOwner: this),
+                                (recognizer) => recognizer
+                                  ..onUpdate = canSlideThumb
+                                      ? (details) {
+                                          final dx = _localDx(
+                                            layoutContext,
+                                            details.globalPosition,
+                                          );
+                                          if (dx == null) return;
+                                          _updateThumb(
+                                            index,
+                                            _valueFromDx(
+                                              dx - _grabOffset,
+                                              effectiveTrackWidth,
+                                              effectiveThumbRadius,
+                                            ),
+                                          );
+                                        }
+                                      : null
+                                  ..onDown = widget.enabled
+                                      ? (details) {
+                                          _grabOffset =
+                                              details.localPosition.dx -
+                                              effectiveThumbRadius;
+                                          _setDragging(index);
+                                        }
+                                      : null
+                                  ..onCancel = widget.enabled
+                                      ? () => _setDragging(null)
+                                      : null
+                                  ..onStart = widget.enabled
+                                      ? (details) {
+                                          _dragStarted(details);
+                                          _setDragging(index);
+                                          widget.onChangeStart?.call(
+                                            widget.values,
+                                          );
+                                        }
+                                      : null
+                                  ..onEnd = widget.enabled
+                                      ? (details) {
+                                          _setDragging(null);
+                                          widget.onChangeEnd?.call(
+                                            widget.values,
+                                          );
+                                        }
+                                      : null,
+                              ),
+                        },
                         child: MouseRegion(
                           // The thumb's node above carries its actions.
                           cursor: widget.enabled
@@ -1238,22 +1235,16 @@ class _SliderCoreState extends State<_SliderCore> {
                             // the package's, which turns to a lens while
                             // held and squashes as it moves.
                             child: liquid
-                                ? ValueListenableBuilder(
-                                    valueListenable: _stretch,
-                                    builder: (context, stretch, _) =>
-                                        LiquidGlassSliderThumb(
-                                          thumbRadius: effectiveThumbRadius,
-                                          color: resolvedThumbColor,
-                                          pressed:
-                                              draggingThumb == index &&
-                                              widget.enabled,
-                                          stretch: draggingThumb == index
-                                              ? stretch
-                                              : 0,
-                                          focusColor: focused && widget.enabled
-                                              ? ringColor
-                                              : null,
-                                        ),
+                                ? LiquidGlassSliderThumb(
+                                    thumbRadius: effectiveThumbRadius,
+                                    color: resolvedThumbColor,
+                                    pressed:
+                                        draggingThumb == index &&
+                                        widget.enabled,
+                                    position: fromLeft(fractionOf(value)),
+                                    focusColor: focused && widget.enabled
+                                        ? ringColor
+                                        : null,
                                   )
                                 // The ring grows out of the thumb and the thumb
                                 // swells while it is held; both are paint only,
@@ -1344,7 +1335,6 @@ class _SliderCoreState extends State<_SliderCore> {
                   behavior: HitTestBehavior.opaque,
                   onHorizontalDragUpdate: canSlideTrack
                       ? (details) {
-                          _dragMoved(details.delta.dx);
                           final index = draggingThumb;
                           if (index == null) return;
                           final dx = _localDx(
@@ -1372,23 +1362,29 @@ class _SliderCoreState extends State<_SliderCore> {
                             details.globalPosition,
                           );
                           if (dx == null) return;
-                          _setDragging(
-                            _nearestThumb(
-                              _valueFromDx(
-                                dx,
-                                effectiveTrackWidth,
-                                effectiveThumbRadius,
-                              ),
+                          _trackThumb = _nearestThumb(
+                            _valueFromDx(
+                              dx,
+                              effectiveTrackWidth,
+                              effectiveThumbRadius,
                             ),
                           );
                         }
                       : null,
                   onHorizontalDragCancel: widget.enabled
-                      ? () => _setDragging(null)
+                      ? () {
+                          _trackThumb = null;
+                          _setDragging(null);
+                        }
                       : null,
                   onHorizontalDragStart: widget.enabled
                       ? (details) {
                           _dragStarted(details);
+                          // Held only once the drag is the track's: a
+                          // finger resting on the track may yet be a long
+                          // press or a scroll, and the lens would come and
+                          // go under it.
+                          _setDragging(_trackThumb);
                           widget.onChangeStart?.call(widget.values);
                         }
                       : null,
@@ -1459,6 +1455,15 @@ class _SliderCoreState extends State<_SliderCore> {
                                   color: widget.enabled
                                       ? effectiveActiveTrackColor
                                       : effectiveDisabledActiveTrackColor,
+                                  // On Liquid Glass the range ends in a
+                                  // round cap under the thumb, as the
+                                  // native slider's does, where the clear
+                                  // lens shows it.
+                                  borderRadius: liquid
+                                      ? BorderRadius.circular(
+                                          effectiveTrackHeight / 2,
+                                        )
+                                      : null,
                                 ),
                               ),
                             ),
@@ -1695,4 +1700,16 @@ class _BubblePainter extends CustomPainter {
       oldDelegate.radius != radius ||
       oldDelegate.arrowSize != arrowSize ||
       oldDelegate.arrowRadius != arrowRadius;
+}
+
+/// A horizontal drag that takes its pointer at once: a slider's thumb is
+/// the finger's from the moment it lands on it.
+class _ThumbDragRecognizer extends HorizontalDragGestureRecognizer {
+  _ThumbDragRecognizer({super.debugOwner});
+
+  @override
+  void addAllowedPointer(PointerDownEvent event) {
+    super.addAllowedPointer(event);
+    resolvePointer(event.pointer, GestureDisposition.accepted);
+  }
 }

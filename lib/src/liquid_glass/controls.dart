@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/widgets.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
 // The package's slider thumb, rebuilt (see `LiquidGlassSliderThumb`):
@@ -7,13 +5,12 @@ import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
 // ignore: implementation_imports
 import 'package:liquid_glass_widgets/src/widgets/shared/lens_inner_shadow_painter.dart';
 import 'package:liquid_glass_widgets/theme/glass_theme_helpers.dart' as lg;
+import 'package:liquid_glass_widgets/utils/draggable_indicator_physics.dart';
 import 'package:liquid_glass_widgets/widgets/shared/glass_effect.dart' as lg;
 import 'package:una/src/liquid_glass/liquid_glass.dart';
-import 'package:una/src/theme/motion.dart';
 import 'package:una/src/theme/theme.dart';
 import 'package:una/src/utils/haptics.dart';
 import 'package:una/src/utils/shadow.dart';
-import 'package:una/src/utils/spring.dart';
 
 /// The package's `GlassSwitch` with una's colours and size: flat at
 /// rest, a lens of glass while it is pressed or dragged.
@@ -93,19 +90,25 @@ class LiquidGlassSwitch extends StatelessWidget {
 /// The thumb of a una slider on Liquid Glass, every kind of slider: one
 /// value or a range, with or without its bubble and division marks.
 ///
-/// It is the package's slider thumb: a capsule 37:24 as wide as it is
-/// tall (the height 1.6 thumb radii) in [color] with a soft shadow, drawn
-/// as the package's `GlassSlider` draws it. Held, it swells by half again
-/// and turns into the package's refracting lens over the track; let go, it
-/// settles back. Only the picture: the slider keeps its own hit
-/// box, focus and semantics.
-class LiquidGlassSliderThumb extends StatelessWidget {
+/// It is the package's `GlassSlider` thumb (1.21), motion and all: at rest
+/// a capsule 37:24 as wide as it is tall (the height 1.6 thumb radii) in
+/// [color] with a soft shadow; pressed, it swells to 1.55× over 150 ms
+/// (easeOutBack) while its material fades over 300 ms into the package's
+/// refracting lens, and a spring on [position] squashes and stretches it
+/// with the drag's speed (`buildJellyTransform`, distortion .6). Let go,
+/// it settles back. The one change is room for that stretch: the package
+/// gives its lens none, so on the premium tier a fast drag cut the
+/// stretched lens off at its top and bottom.
+///
+/// Only the picture: the slider keeps its own hit box, focus and
+/// semantics.
+class LiquidGlassSliderThumb extends StatefulWidget {
   /// Creates the thumb for a slider whose thumb radius is [thumbRadius].
   const LiquidGlassSliderThumb({
     required this.thumbRadius,
     required this.color,
     required this.pressed,
-    this.stretch = 0,
+    this.position = 0,
     this.focusColor,
     super.key,
   });
@@ -119,70 +122,144 @@ class LiquidGlassSliderThumb extends StatelessWidget {
   /// Whether the thumb is held.
   final bool pressed;
 
-  /// How fast the held thumb is moving, 0 to 1. The lens squashes along
-  /// the track by up to 30 % and stretches across it by up to 18 %, as the
-  /// package's own thumb does, and settles back on a bouncy spring. Its
-  /// radius is half its shorter side whatever its shape, so its ends stay
-  /// round: the package's kept the resting radius, which flattened the top
-  /// and bottom of a squashed lens.
-  final double stretch;
+  /// Where the thumb is along the track, 0 at the left end to 1 at the
+  /// right. Its movement, through a spring, is the lens's squash.
+  final double position;
 
   /// The colour of a focus ring around the capsule, or null for none.
   final Color? focusColor;
 
   @override
-  Widget build(BuildContext context) {
-    final height = thumbRadius * 1.6;
-    final width = height * 37 / 24;
-    final motion = Motion.of(context);
-    return SpringBuilder(
-      value: pressed ? stretch : 0,
-      spring: motion.bouncy,
-      builder: (context, s, _) => SpringBuilder(
-        value: pressed ? 1 : 0,
-        spring: motion.bouncy,
-        builder: (context, t, _) => _build(width, height, t, s),
-      ),
-    );
+  State<LiquidGlassSliderThumb> createState() => _LiquidGlassSliderThumbState();
+}
+
+class _LiquidGlassSliderThumbState extends State<LiquidGlassSliderThumb>
+    with TickerProviderStateMixin {
+  late final AnimationController _scale = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 150),
+    value: widget.pressed ? 1 : 0,
+  );
+  late final CurvedAnimation _scaleCurve = CurvedAnimation(
+    parent: _scale,
+    curve: Curves.easeOutBack,
+    reverseCurve: Curves.easeInCubic,
+  );
+  late final AnimationController _thickness = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 300),
+    value: widget.pressed ? 1 : 0,
+  );
+  late final CurvedAnimation _thicknessCurve = CurvedAnimation(
+    parent: _thickness,
+    curve: Curves.easeOut,
+    reverseCurve: Curves.easeIn,
+  );
+  late final lg.SingleSpringController _jelly = lg.SingleSpringController(
+    vsync: this,
+    spring: lg.GlassSpring.snappy(
+      duration: const Duration(milliseconds: 350),
+    ),
+    initialValue: widget.position,
+  );
+  late final Listenable _listenable = Listenable.merge([
+    _scale,
+    _thickness,
+    _jelly,
+  ]);
+
+  @override
+  void didUpdateWidget(LiquidGlassSliderThumb oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final still = MediaQuery.disableAnimationsOf(context);
+    if (widget.pressed != oldWidget.pressed) {
+      if (still) {
+        _scale.value = _thickness.value = widget.pressed ? 1 : 0;
+      } else if (widget.pressed) {
+        _scale.forward();
+        _thickness.forward();
+      } else {
+        _scale.reverse();
+        _thickness.reverse();
+      }
+    }
+    if (widget.position != oldWidget.position) {
+      if (still || !widget.pressed) {
+        _jelly.setValue(widget.position);
+      } else {
+        _jelly.animateTo(widget.position);
+      }
+    }
   }
 
-  Widget _build(double width, double height, double t, double s) {
-    // It grows by its size, not by a transform, as the package's own
-    // thumb does: the glass is laid out at the size it is drawn.
-    final scale = 1 + .55 * t;
-    final w = width * scale * (1 - .3 * s);
-    final h = height * scale * (1 + .18 * s);
-    // Half the shorter side, whatever the shape: the ends stay round.
-    final radius = math.min(w, h) / 2;
-    return OverflowBox(
-      minWidth: 0,
-      minHeight: 0,
-      maxWidth: double.infinity,
-      maxHeight: double.infinity,
-      child: SizedBox(
-        width: w,
-        height: h,
-        child: LiquidGlassBridge(
-          child: Builder(
-            builder: (context) => _lens(context, w, h, radius, t),
+  @override
+  void dispose() {
+    _scaleCurve.dispose();
+    _thicknessCurve.dispose();
+    _scale.dispose();
+    _thickness.dispose();
+    _jelly.dispose();
+    super.dispose();
+  }
+
+  Color get color => widget.color;
+  Color? get focusColor => widget.focusColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final height = widget.thumbRadius * 1.6;
+    final width = height * 37 / 24;
+    return AnimatedBuilder(
+      animation: _listenable,
+      builder: (context, _) {
+        final scale = 1 + .55 * _scaleCurve.value;
+        final transition = _thicknessCurve.value;
+        final jelly = DraggableIndicatorPhysics.buildJellyTransform(
+          velocity: Offset(_jelly.velocity, 0),
+          maxDistortion: 0.6,
+          // The spring tracks a 0–1 position, whose velocities are a few
+          // units a second; the package scales them up the same way.
+          velocityScale: 2,
+        );
+        final w = width * scale;
+        final h = height * scale;
+        return OverflowBox(
+          minWidth: 0,
+          minHeight: 0,
+          maxWidth: double.infinity,
+          maxHeight: double.infinity,
+          child: Transform(
+            alignment: Alignment.center,
+            transform: jelly,
+            child: SizedBox(
+              width: w,
+              height: h,
+              child: LiquidGlassBridge(
+                child: Builder(
+                  builder: (context) =>
+                      _lens(context, width, height, w, h, transition),
+                ),
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
   /// The package's slider thumb (`GlassSlider._buildThumbGlass`, 1.21),
   /// at the size and radius given: the material capsule over a
-  /// `GlassEffect` lens that takes over as [t] rises, its shadow outside
-  /// the glass and the lens's inner shadow over it.
+  /// `GlassEffect` lens that takes over as `transition` rises, its shadow
+  /// outside the glass and the lens's inner shadow over it.
   Widget _lens(
     BuildContext context,
+    double restWidth,
+    double restHeight,
     double w,
     double h,
-    double radius,
-    double t,
+    double transition,
   ) {
-    final transition = t.clamp(0.0, 1.0);
+    final radius = h / 2;
     final quality = lg.GlassThemeHelpers.resolveQuality(
       context,
       fallback: lg.GlassThemeHelpers.nativeStyleQuality(context),
@@ -228,25 +305,32 @@ class LiquidGlassSliderThumb extends StatelessWidget {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        // Outside the lens's clip; the material's fade is folded into it.
+        // Outside the lens's clip, at the resting size; the material's
+        // fade is folded into it.
         Positioned.fill(
-          child: DecoratedBox(
-            decoration: ShadowDecoration.box(
-              borderRadius: corners,
-              shadows: [
-                BoxShadow(
-                  color: Color.from(
-                    alpha: .15 * shadowOpacity,
-                    red: 0,
-                    green: 0,
-                    blue: 0,
-                  ),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
+          child: Center(
+            child: SizedBox(
+              width: restWidth,
+              height: restHeight,
+              child: DecoratedBox(
+                decoration: ShadowDecoration.box(
+                  borderRadius: BorderRadius.circular(restHeight / 2),
+                  shadows: [
+                    BoxShadow(
+                      color: Color.from(
+                        alpha: .15 * shadowOpacity,
+                        red: 0,
+                        green: 0,
+                        blue: 0,
+                      ),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                    if (focusColor != null)
+                      BoxShadow(color: focusColor!, spreadRadius: 3),
+                  ],
                 ),
-                if (focusColor != null)
-                  BoxShadow(color: focusColor!, spreadRadius: 3),
-              ],
+              ),
             ),
           ),
         ),
@@ -255,6 +339,13 @@ class LiquidGlassSliderThumb extends StatelessWidget {
           settings: settings,
           quality: quality,
           interactionIntensity: transition,
+          // Room for the jelly's stretch, which the package's slider does
+          // not give: on the premium tier the lens is clipped to its
+          // unstretched shape without it.
+          clipExpansion: EdgeInsets.symmetric(
+            horizontal: w * .2,
+            vertical: h * .2,
+          ),
           rimThickness: standard ? (dark ? 0.5 : 0.7) : 0.5,
           ambientRim: standard ? (dark ? 0.08 : 0.15) : 0.1,
           baseAlphaMultiplier: standard ? (dark ? 0.0 : 0.04) : 0.08,

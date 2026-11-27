@@ -766,15 +766,17 @@ was measured from (Strand, until it moved), is its own repository,
   listened for a pan, which waits for twice the movement of a horizontal
   drag. It listens for horizontal drags now, which it wins as the deeper
   one, and a vertical swipe on it still scrolls the page.
-- **The Liquid Glass slider's lens keeps round ends in a fast drag.** Every
-  slider on Liquid Glass now draws una's glass thumb (a plain slider used
-  the package's `GlassSlider`, whose squashed lens kept its resting corner
-  radius and lost its top and bottom curves). It is the package's own lens,
-  drawn the same way, and it squashes and stretches with the speed of the
-  drag with its radius half its shorter side.
-
-Problems inherited from shad:
-
+- **A Liquid Glass slider stays glass for as long as it is held.** A
+  finger held still on the thumb lost it to a long press around the
+  slider (selectable text, for one) half a second in, and the lens turned
+  back into the handle. The thumb is the finger's from the moment it
+  lands; the active range ends in a round cap under the clear lens, as the
+  native slider's does.
+- **Every Liquid Glass slider draws the package's thumb, unclipped.** A
+  range, or a slider with its bubble or division marks, had a thumb of
+  una's own; all of them now draw `GlassSlider`'s thumb, press, lens and
+  squash included, with room for the lens's stretch, which the package's
+  own slider clipped at its top and bottom in a fast drag.
 - A popover, menu, select list, date picker or tooltip stayed on screen
   when its anchor was hidden: in an `IndexedStack` child that is not
   showing, a hidden `Visibility`, an `Offstage`, under an `Opacity` of zero
