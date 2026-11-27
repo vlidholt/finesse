@@ -1159,9 +1159,13 @@ void main() {
       await settle(tester);
       expect(find.text('Never'), findsNothing);
 
-      // Focusing the trigger through its node opens its menu, with the
-      // rows a menu takes anywhere else.
+      // Focusing the trigger through its node only marks it; Enter opens
+      // its menu, with the rows a menu takes anywhere else.
       node.requestFocus();
+      await settle(tester);
+      expect(node.hasPrimaryFocus, isTrue);
+      expect(find.text('Autosave'), findsNothing);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       await settle(tester);
       expect(find.text('Autosave'), findsOneWidget);
       expect(find.byType(MenuDivider), findsOneWidget);

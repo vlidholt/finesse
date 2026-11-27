@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:boxy/flex.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/button.dart';
 import 'package:una/src/components/icon_button.dart';
 import 'package:una/src/i18n/localizations_delegate.dart';
 import 'package:una/src/icons/phosphor_icons.dart';
@@ -17,6 +19,7 @@ import 'package:una/src/utils/backdrop.dart';
 import 'package:una/src/utils/entrance.dart';
 import 'package:una/src/utils/expanded_actions_theme.dart';
 import 'package:una/src/utils/extensions/text_style.dart';
+import 'package:una/src/utils/hit_area.dart';
 import 'package:una/src/utils/position.dart';
 import 'package:una/src/utils/route_theme.dart';
 import 'package:una/src/utils/separated_iterable.dart';
@@ -515,6 +518,7 @@ class Dialog extends StatelessWidget {
     this.closeButton,
     this.onDismissed,
     this.semanticLabel,
+    this.autofocus = true,
     this.scrollable,
     this.useSafeArea,
     this.titlePinned,
@@ -536,6 +540,7 @@ class Dialog extends StatelessWidget {
     this.closeButton,
     this.onDismissed,
     this.semanticLabel,
+    this.autofocus = true,
     this.scrollable,
     this.useSafeArea,
     this.titlePinned,
@@ -608,10 +613,20 @@ class Dialog extends StatelessWidget {
   /// {@template Dialog.semanticLabel}
   /// The accessible name of the dialog, announced when it opens.
   ///
-  /// Defaults to null, in which case screen readers fall back to reading the
-  /// dialog's contents.
+  /// Defaults to null, in which case the [title] names it.
   /// {@endtemplate}
   final String? semanticLabel;
+
+  /// {@template Dialog.autofocus}
+  /// Whether the dialog puts the keyboard focus on one of its controls when
+  /// it opens, defaults to true: the first one, or in an alert dialog the
+  /// first action that is not destructive (a Cancel before a Delete).
+  ///
+  /// A text field is passed over, so that opening a dialog does not bring
+  /// up the on-screen keyboard; give the field `autofocus` for that. Nor is
+  /// anything moved when a control inside took the focus by itself.
+  /// {@endtemplate}
+  final bool autofocus;
 
   /// Overrides of the variant's `DialogTheme` for this dialog: its size
   /// and placement, padding and gaps, fill, filter, border, corners,
@@ -681,25 +696,32 @@ class Dialog extends StatelessWidget {
         closeButton ??
         (!effectiveShowCloseButton
             ? null
-            : IconButton.ghost(
-                icon:
-                    closeIcon ??
-                    effectiveDialogTheme.closeIcon ??
-                    const PhosphorIcon(PhosphorIconsRegular.x, size: 16),
-                style: ButtonTheme(
-                  width: 20,
-                  height: 20,
-                  padding: EdgeInsets.zero,
-                  foregroundColor: theme.colorScheme.foreground.withValues(
-                    alpha: .5,
+            // Drawn at 20, it takes pointers over the minimum target (24,
+            // 44 on a phone) without moving. It sits near the top end
+            // corner, so it grows mostly away from it.
+            : HitArea(
+                minSize: theme.formFactor == FormFactor.mobile ? 44 : 24,
+                alignment: const AlignmentDirectional(1 / 3, -1 / 3),
+                child: IconButton.ghost(
+                  icon:
+                      closeIcon ??
+                      effectiveDialogTheme.closeIcon ??
+                      const PhosphorIcon(PhosphorIconsRegular.x, size: 16),
+                  style: ButtonTheme(
+                    width: 20,
+                    height: 20,
+                    padding: EdgeInsets.zero,
+                    foregroundColor: theme.colorScheme.foreground.withValues(
+                      alpha: .5,
+                    ),
+                    hoverBackgroundColor: const Color(0x00000000),
+                    hoverForegroundColor: theme.colorScheme.foreground,
+                    pressedForegroundColor: theme.colorScheme.foreground,
                   ),
-                  hoverBackgroundColor: const Color(0x00000000),
-                  hoverForegroundColor: theme.colorScheme.foreground,
-                  pressedForegroundColor: theme.colorScheme.foreground,
+                  semanticLabel: UnaLocalizations.of(context).dialog.close,
+                  onPressed:
+                      onDismissed ?? () => Navigator.of(context).maybePop(),
                 ),
-                semanticLabel: UnaLocalizations.of(context).dialog.close,
-                onPressed:
-                    onDismissed ?? () => Navigator.of(context).maybePop(),
               ));
 
     final effectiveCloseIconPosition =
@@ -821,33 +843,35 @@ class Dialog extends StatelessWidget {
 
         Widget? effectiveActions = actions.isEmpty
             ? null
-            : BoxyFlexible.align(
-                crossAxisAlignment: expandActions
-                    ? CrossAxisAlignment.stretch
-                    : CrossAxisAlignment.end,
-                child: Flex(
-                  direction: effectiveActionsAxis,
-                  mainAxisSize: effectiveActionsMainAxisSize,
-                  mainAxisAlignment: effectiveActionsMainAxisAlignment,
+            : _DialogActions(
+                child: BoxyFlexible.align(
                   crossAxisAlignment: expandActions
                       ? CrossAxisAlignment.stretch
-                      : CrossAxisAlignment.center,
-                  verticalDirection: effectiveActionsVerticalDirection,
-                  spacing: effectiveActionsGap,
-                  children: [
-                    for (final action in actions)
-                      // A button fills the dialog's width and gives its
-                      // label that width. The theme that does it reaches
-                      // every button below it, so it goes around any
-                      // action but a row: a button asked to be as wide as
-                      // a row has no width to take, so a row of buttons
-                      // is handed the width and lays out its own. In a
-                      // wrap each button takes a run of its own.
-                      if (expandedTheme != null && !_isRow(action))
-                        Theme(data: expandedTheme, child: action)
-                      else
-                        action,
-                  ],
+                      : CrossAxisAlignment.end,
+                  child: Flex(
+                    direction: effectiveActionsAxis,
+                    mainAxisSize: effectiveActionsMainAxisSize,
+                    mainAxisAlignment: effectiveActionsMainAxisAlignment,
+                    crossAxisAlignment: expandActions
+                        ? CrossAxisAlignment.stretch
+                        : CrossAxisAlignment.center,
+                    verticalDirection: effectiveActionsVerticalDirection,
+                    spacing: effectiveActionsGap,
+                    children: [
+                      for (final action in actions)
+                        // A button fills the dialog's width and gives its
+                        // label that width. The theme that does it reaches
+                        // every button below it, so it goes around any
+                        // action but a row: a button asked to be as wide as
+                        // a row has no width to take, so a row of buttons
+                        // is handed the width and lays out its own. In a
+                        // wrap each button takes a run of its own.
+                        if (expandedTheme != null && !_isRow(action))
+                          Theme(data: expandedTheme, child: action)
+                        else
+                          action,
+                    ],
+                  ),
                 ),
               );
 
@@ -862,10 +886,17 @@ class Dialog extends StatelessWidget {
         }
 
         final effectiveTitle = title != null
-            ? DefaultTextStyle(
-                style: effectiveTitleStyle,
-                textAlign: effectiveTitleTextAlign,
-                child: title!,
+            // A heading, and the dialog's name when it has no
+            // [semanticLabel], as in Flutter's own AlertDialog.
+            ? Semantics(
+                container: true,
+                header: true,
+                namesRoute: semanticLabel == null,
+                child: DefaultTextStyle(
+                  style: effectiveTitleStyle,
+                  textAlign: effectiveTitleTextAlign,
+                  child: title!,
+                ),
               )
             : null;
 
@@ -1004,6 +1035,20 @@ class Dialog extends StatelessWidget {
     // Get the current view padding
     final viewPadding = MediaQuery.viewInsetsOf(context);
 
+    Widget result = Align(
+      alignment: effectiveAlignment,
+      child: Padding(
+        padding: viewPadding,
+        child: dialog,
+      ),
+    );
+    if (autofocus) {
+      result = _DialogAutofocus(
+        alert: variant == DialogVariant.alert,
+        child: result,
+      );
+    }
+
     return Semantics(
       // Matches what Flutter's own AlertDialog publishes: the dialog names the
       // route it scopes, and its children are described explicitly rather than
@@ -1013,13 +1058,115 @@ class Dialog extends StatelessWidget {
       explicitChildNodes: true,
       namesRoute: semanticLabel != null,
       label: semanticLabel,
-      child: Align(
-        alignment: effectiveAlignment,
-        child: Padding(
-          padding: viewPadding,
-          child: dialog,
-        ),
-      ),
+      role: switch (variant) {
+        DialogVariant.primary => SemanticsRole.dialog,
+        DialogVariant.alert => SemanticsRole.alertDialog,
+      },
+      child: result,
     );
   }
+}
+
+/// Marks a dialog's actions, so its autofocus can tell them from its
+/// content.
+class _DialogActions extends StatelessWidget {
+  const _DialogActions({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => child;
+}
+
+/// Puts the focus on one of the dialog's controls after the frame that
+/// first builds it; see [Dialog.autofocus].
+class _DialogAutofocus extends StatefulWidget {
+  const _DialogAutofocus({required this.alert, required this.child});
+
+  /// Whether the dialog is an alert, whose focus goes to the first action
+  /// that is not destructive.
+  final bool alert;
+
+  final Widget child;
+
+  @override
+  State<_DialogAutofocus> createState() => _DialogAutofocusState();
+}
+
+class _DialogAutofocusState extends State<_DialogAutofocus> {
+  @override
+  void initState() {
+    super.initState();
+    // After the frame, and then after the other callbacks of that frame:
+    // a text field asks for its autofocus from one of them.
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => scheduleMicrotask(_focus),
+    );
+  }
+
+  void _focus() {
+    if (!mounted) return;
+    final scope = FocusScope.of(context);
+    // A control that took the focus by itself keeps it.
+    final primary = FocusManager.instance.primaryFocus;
+    if (primary != null &&
+        primary != scope &&
+        _isWithin(primary.context, context)) {
+      return;
+    }
+    final candidates = <BuildContext, FocusNode>{
+      for (final node in scope.traversalDescendants) ?node.context: node,
+    };
+    if (candidates.isEmpty) return;
+    // In the order the dialog builds its controls: a node's children in
+    // the focus tree are in the order they were attached.
+    final ordered = <FocusNode>[];
+    void visit(Element element) {
+      final node = candidates[element];
+      if (node != null) ordered.add(node);
+      element.visitChildren(visit);
+    }
+
+    context.visitChildElements(visit);
+    final controls = [
+      for (final node in ordered)
+        if (node.context!.findAncestorWidgetOfExactType<EditableText>() == null)
+          node,
+    ];
+    FocusNode? target;
+    if (widget.alert) {
+      target = controls.where(_isSafeAction).firstOrNull;
+    }
+    target ??= controls.firstOrNull;
+    // As an autofocus: a control that asked for the focus itself in the
+    // same frame — `TextField(autofocus: true)` — is applied first, and
+    // this then gives way to it.
+    if (target != null) scope.autofocus(target);
+  }
+
+  /// Whether [node] is one of the actions, and not a destructive button.
+  static bool _isSafeAction(FocusNode node) {
+    final context = node.context!;
+    if (context.findAncestorWidgetOfExactType<_DialogActions>() == null) {
+      return false;
+    }
+    final button = context.findAncestorWidgetOfExactType<Button>();
+    if (button?.variant == ButtonVariant.destructive) return false;
+    final iconButton = context.findAncestorWidgetOfExactType<IconButton>();
+    return iconButton?.variant != ButtonVariant.destructive;
+  }
+
+  static bool _isWithin(BuildContext? inner, BuildContext outer) {
+    if (inner == null) return false;
+    if (identical(inner, outer)) return true;
+    var found = false;
+    inner.visitAncestorElements((element) {
+      found = identical(element, outer);
+      return !found;
+    });
+    return found;
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }

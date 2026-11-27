@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/src/components/button.dart';
 import 'package:una/src/components/context_menu.dart';
@@ -283,8 +284,8 @@ class _MenubarItemState extends State<MenubarItem> {
     if (open == _wasOpen) return;
     _wasOpen = open;
     if (open) return;
-    // After the frame: the focus the menu gives back on its way out comes
-    // first, and a trigger that takes the focus selects itself.
+    // After the frame: a menu that closed because the next one opened in
+    // its place leaves the selection to that one.
     SchedulerBinding.instance.addPostFrameCallback((_) {
       if (!mounted || popoverController.isOpen) return;
       if (menubarController.selectedIndex == index) {
@@ -292,6 +293,33 @@ class _MenubarItemState extends State<MenubarItem> {
       }
     });
     SchedulerBinding.instance.ensureVisualUpdate();
+  }
+
+  /// Right or Left out of the open menu: the next or the previous menu of
+  /// the bar opens in its place, wrapping round at either end and passing
+  /// over the triggers that are disabled.
+  void _moveAcross(int step) {
+    final items = context.read<_MenubarState>().widget.items.toList();
+    final count = items.length;
+    for (var i = 1; i < count; i++) {
+      final next = (index + step * i) % count;
+      final item = items[next];
+      if (item is MenubarItem && !item.enabled) continue;
+      menubarController.selectedIndex = next;
+      return;
+    }
+  }
+
+  /// Down on a trigger opens its menu, as Enter and Space do.
+  KeyEventResult _onTriggerKey(FocusNode node, KeyEvent event) {
+    if (event is! KeyDownEvent ||
+        event.logicalKey != LogicalKeyboardKey.arrowDown ||
+        !widget.enabled) {
+      return KeyEventResult.ignored;
+    }
+    menubarController.selectedIndex = index;
+    if (!popoverController.isOpen) popoverController.open();
+    return KeyEventResult.handled;
   }
 
   void onSelectedIndexChange() {
@@ -389,6 +417,7 @@ class _MenubarItemState extends State<MenubarItem> {
             if (event.pointer == inherited._triggerPointer) return;
             menubarController.selectedIndex = null;
           },
+          onMoveAcross: _moveAcross,
           child: MovingIndicatorTarget(
             selected: selected,
             decoration: BoxDecoration(
@@ -401,60 +430,64 @@ class _MenubarItemState extends State<MenubarItem> {
               onPointerDown: widget.enabled
                   ? (event) => inherited._triggerPointer = event.pointer
                   : null,
-              child: Button(
-                variant: effectiveVariant,
-                style: ButtonTheme(
-                  pressScale: 1,
-                  height: effectiveHeight,
-                  backgroundColor: menubarTheme.buttonBackgroundColor,
-                  width: menubarTheme.buttonWidth,
-                  padding: menubarTheme.buttonPadding,
-                  hoverBackgroundColor: menubarTheme.buttonHoverBackgroundColor,
-                  foregroundColor: menubarTheme.buttonForegroundColor,
-                  hoverForegroundColor: menubarTheme.buttonHoverForegroundColor,
-                  pressedBackgroundColor:
-                      menubarTheme.buttonPressedBackgroundColor,
-                  pressedForegroundColor:
-                      menubarTheme.buttonPressedForegroundColor,
-                  shadows: menubarTheme.buttonShadows,
-                  gradient: menubarTheme.buttonGradient,
-                  textDecoration: menubarTheme.buttonTextDecoration,
-                  hoverTextDecoration: menubarTheme.buttonHoverTextDecoration,
-                  decoration: effectiveButtonDecoration,
-                  gap: menubarTheme.buttonGap,
-                  mainAxisAlignment: menubarTheme.buttonMainAxisAlignment,
-                  crossAxisAlignment: menubarTheme.buttonCrossAxisAlignment,
-                ),
-                focusNode: widget.focusNode,
-                onFocusChange: (focused) {
-                  // Set the selected index
-                  if (focused) {
+              child: Focus(
+                canRequestFocus: false,
+                skipTraversal: true,
+                includeSemantics: false,
+                onKeyEvent: _onTriggerKey,
+                child: Button(
+                  variant: effectiveVariant,
+                  style: ButtonTheme(
+                    pressScale: 1,
+                    height: effectiveHeight,
+                    backgroundColor: menubarTheme.buttonBackgroundColor,
+                    width: menubarTheme.buttonWidth,
+                    padding: menubarTheme.buttonPadding,
+                    hoverBackgroundColor:
+                        menubarTheme.buttonHoverBackgroundColor,
+                    foregroundColor: menubarTheme.buttonForegroundColor,
+                    hoverForegroundColor:
+                        menubarTheme.buttonHoverForegroundColor,
+                    pressedBackgroundColor:
+                        menubarTheme.buttonPressedBackgroundColor,
+                    pressedForegroundColor:
+                        menubarTheme.buttonPressedForegroundColor,
+                    shadows: menubarTheme.buttonShadows,
+                    gradient: menubarTheme.buttonGradient,
+                    textDecoration: menubarTheme.buttonTextDecoration,
+                    hoverTextDecoration: menubarTheme.buttonHoverTextDecoration,
+                    decoration: effectiveButtonDecoration,
+                    gap: menubarTheme.buttonGap,
+                    mainAxisAlignment: menubarTheme.buttonMainAxisAlignment,
+                    crossAxisAlignment: menubarTheme.buttonCrossAxisAlignment,
+                  ),
+                  // The focus only marks a trigger: Tab walks along the bar
+                  // without opening a menu. Enter, Space and Down open it.
+                  focusNode: widget.focusNode,
+                  onHover: (hovered) {
+                    if (!hovered) return;
+                    if (!effectiveSelectOnHover) return;
+                    // Hover only *switches* menus: a closed menubar opens on
+                    // tap, like the reference (`radix`'s menubar), not on
+                    // pointer-over.
+                    if (menubarController.selectedIndex == null) return;
                     menubarController.selectedIndex = index;
-                  }
-                },
-                onHover: (hovered) {
-                  if (!hovered) return;
-                  if (!effectiveSelectOnHover) return;
-                  // Hover only *switches* menus: a closed menubar opens on
-                  // tap, like the reference (`radix`'s menubar), not on
-                  // pointer-over.
-                  if (menubarController.selectedIndex == null) return;
-                  menubarController.selectedIndex = index;
-                },
-                onPressed: () {
-                  menubarController.selectedIndex = index;
-                  // If selected and popover is not open, open it
-                  if (selected && !popoverController.isOpen) {
-                    popoverController.open();
-                  }
-                },
-                leading: widget.leading,
-                trailing: widget.trailing,
-                size: menubarTheme.buttonSize,
-                mouseCursor: menubarTheme.buttonMouseCursor,
-                enabled: widget.enabled,
-                expands: menubarTheme.buttonExpands,
-                child: child,
+                  },
+                  onPressed: () {
+                    menubarController.selectedIndex = index;
+                    // If selected and popover is not open, open it
+                    if (selected && !popoverController.isOpen) {
+                      popoverController.open();
+                    }
+                  },
+                  leading: widget.leading,
+                  trailing: widget.trailing,
+                  size: menubarTheme.buttonSize,
+                  mouseCursor: menubarTheme.buttonMouseCursor,
+                  enabled: widget.enabled,
+                  expands: menubarTheme.buttonExpands,
+                  child: child,
+                ),
               ),
             ),
           ),
@@ -463,9 +496,18 @@ class _MenubarItemState extends State<MenubarItem> {
       child: widget.child,
     );
     // One node per trigger: a menu item of the bar, with the trigger's own
-    // label and tap. The menu it opens is drawn in the overlay, outside it.
+    // label and tap, that says whether its menu is open. The menu it opens
+    // is drawn in the overlay, outside it.
     return MergeSemantics(
-      child: Semantics(role: SemanticsRole.menuItem, child: item),
+      child: ListenableBuilder(
+        listenable: popoverController,
+        builder: (context, child) => Semantics(
+          role: SemanticsRole.menuItem,
+          expanded: popoverController.isOpen,
+          child: child,
+        ),
+        child: item,
+      ),
     );
   }
 }

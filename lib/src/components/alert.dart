@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/src/components/button.dart';
 import 'package:una/src/components/decorator.dart';
@@ -55,7 +57,12 @@ enum AlertVariant {
 ///
 /// With [onDismissed] the alert has a close button. Pressing it folds the
 /// alert away and then calls [onDismissed], for the parent to stop building
-/// it. Under a `Scaffold`'s app bar that is a banner.
+/// it; the focus, if it was on the button, moves on to the next control
+/// after the alert. Under a `Scaffold`'s app bar that is a banner.
+///
+/// A screen reader is told of an alert as it appears: a destructive or
+/// warning alert interrupts on the web (`role="alert"`), and every other is
+/// a polite live region.
 class Alert extends StatefulWidget {
   /// Creates an alert; [variant] defaults to [AlertVariant.primary].
   const Alert({
@@ -226,6 +233,45 @@ class _AlertState extends State<Alert> {
   /// Whether the close button was pressed and the alert is folding away.
   bool _dismissing = false;
 
+  /// Around the alert: says whether the focus is in it, and never takes it
+  /// itself.
+  final _focusNode = FocusNode(
+    debugLabel: 'Alert',
+    canRequestFocus: false,
+    skipTraversal: true,
+  );
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _dismiss() {
+    _moveFocusOut();
+    setState(() => _dismissing = true);
+  }
+
+  /// Moves the focus, when it is in the alert, to the next control after
+  /// it. The close button is disabled at once and the alert goes away, and
+  /// a control that loses the focus that way leaves it nowhere.
+  void _moveFocusOut() {
+    if (!_focusNode.hasFocus) return;
+    final start = FocusManager.instance.primaryFocus;
+    if (start == null) return;
+    var current = start;
+    // The rows after the close button (`bottom`) fold away with it.
+    for (var i = 0; i < 64; i++) {
+      if (!current.nextFocus()) return;
+      // Set at once by the request; the primary focus only follows in a
+      // microtask.
+      final next = current.nearestScope?.focusedChild;
+      if (next == null || identical(next, start)) return;
+      if (!next.ancestors.contains(_focusNode)) return;
+      current = next;
+    }
+  }
+
   /// The tint of a success, warning or info alert: its accent, and the
   /// opaque fill it is washed with.
   (Color accent, Color fill)? _tintOf(ThemeData theme, AlertTheme alertTheme) {
@@ -382,7 +428,7 @@ class _AlertState extends State<Alert> {
     final description = widget.description;
     final dismissible = widget.onDismissed != null;
 
-    final Widget alert = Decorator(
+    final alert = Decorator(
       decoration: effectiveDecoration,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -434,7 +480,7 @@ class _AlertState extends State<Alert> {
                         foregroundColor: effectiveDescriptionStyle.color,
                       ),
                       enabled: !_dismissing,
-                      onPressed: () => setState(() => _dismissing = true),
+                      onPressed: _dismiss,
                       icon: const PhosphorIcon(PhosphorIconsRegular.x),
                     ),
                   ),
@@ -445,7 +491,24 @@ class _AlertState extends State<Alert> {
         ],
       ),
     );
-    if (!dismissible) return alert;
+    // On the web an alert role is the assertive live region; elsewhere the
+    // live region flag is what is announced, and a node may not carry both
+    // (as a toast's).
+    final assertive =
+        kIsWeb &&
+        (variant == AlertVariant.destructive ||
+            variant == AlertVariant.warning);
+    final announced = Semantics(
+      container: true,
+      liveRegion: !assertive,
+      role: assertive ? SemanticsRole.alert : null,
+      child: Focus(
+        focusNode: _focusNode,
+        includeSemantics: false,
+        child: alert,
+      ),
+    );
+    if (!dismissible) return announced;
 
     final motion = Motion.of(context);
     return SpringBuilder(
@@ -459,7 +522,7 @@ class _AlertState extends State<Alert> {
         travel: motion.overlayTravel,
         child: child!,
       ),
-      child: alert,
+      child: announced,
     );
   }
 }

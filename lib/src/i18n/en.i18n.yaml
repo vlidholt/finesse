@@ -93,6 +93,8 @@ chip:
 
 command:
   noResults: "No results found."
+  label: "Command palette"
+  item: "$label, $index of $count"
 
 menu:
   control: "Ctrl"

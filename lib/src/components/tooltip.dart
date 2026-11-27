@@ -1,6 +1,7 @@
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/src/components/decorator.dart';
 import 'package:una/src/components/popover.dart';
@@ -15,16 +16,21 @@ import 'package:una/src/utils/backdrop.dart';
 import 'package:una/src/utils/dismiss_shortcut.dart';
 import 'package:una/src/utils/entrance.dart';
 import 'package:una/src/utils/mouse_area.dart';
+import 'package:una/src/utils/route_on_top.dart';
 import 'package:una/src/utils/shadow.dart';
 
 /// {@template Tooltip}
 /// A widget that displays a tooltip on hover or focus, styled to match the
 /// Shadcn UI design system.
 ///
-/// A mouse shows it by hovering, the keyboard by focusing the child (give
-/// the tooltip the child's `focusNode`), and a finger or a pen by a long
-/// press: it shows while the press is held. The tooltip listens for all
-/// three itself, so the child can be any widget.
+/// A mouse shows it by hovering, the keyboard by focusing the child or
+/// anything inside it, and a finger or a pen by a long press: it shows
+/// while the press is held. The tooltip listens for all three itself, so
+/// the child can be any widget. The pointer may move onto the bubble
+/// without closing it, and Escape closes it wherever the focus is.
+///
+/// The bubble is drawn in an overlay, so a screen reader does not find it
+/// beside the child: give the text it says as [semanticMessage].
 ///
 /// It pops out of the side that faces its trigger on the theme's motion
 /// tokens (`Motion.of`), and only fades in when it takes over from the
@@ -37,6 +43,7 @@ class Tooltip extends StatefulWidget {
     required this.child,
     required this.builder,
     this.focusNode,
+    this.semanticMessage,
     this.waitDuration,
     this.showDuration,
     this.padding,
@@ -64,11 +71,25 @@ class Tooltip extends StatefulWidget {
   final Widget child;
 
   /// {@template Tooltip.focusNode}
-  /// The focus node of the child widget.
+  /// A focus node whose focus shows the tooltip, however it got it.
   ///
-  /// When the child gains focus, the tooltip will be shown.
+  /// Not needed for the child: the keyboard focus reaching the child or
+  /// anything inside it shows the tooltip by itself. A click that focuses
+  /// the child does not, or the tooltip would stay for as long as the child
+  /// kept the focus; the focus of this node does.
   /// {@endtemplate}
   final FocusNode? focusNode;
+
+  /// {@template Tooltip.semanticMessage}
+  /// What the tooltip says, for a screen reader: the child is announced
+  /// with it as its tooltip.
+  ///
+  /// The bubble is built only while it shows, in an overlay, so the text
+  /// [builder] draws never reaches the child's semantics by itself. The
+  /// child and the message are merged into one node, so give it to a
+  /// tooltip around one control. Null, the default, adds nothing.
+  /// {@endtemplate}
+  final String? semanticMessage;
 
   /// {@template Tooltip.waitDuration}
   /// The length of time that a pointer must hover over a tooltip's widget
@@ -161,8 +182,20 @@ class Tooltip extends StatefulWidget {
 class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
   late final AnimationController animationController;
   PopoverController? _controller;
+
+  /// Whether the pointer is over the child or the bubble.
   bool hovered = false;
-  bool get hasFocus => widget.focusNode?.hasFocus ?? false;
+
+  bool _overChild = false;
+  bool _overBubble = false;
+
+  /// Whether the keyboard put the focus in the child.
+  bool _keyboardFocused = false;
+
+  bool get hasFocus =>
+      _keyboardFocused || (widget.focusNode?.hasFocus ?? false);
+
+  bool _listeningForEscape = false;
 
   PopoverController get controller => widget.controller ?? _controller!;
 
@@ -186,10 +219,12 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
   @override
   void dispose() {
     _showing.remove(this);
+    _listenForEscape(false);
     _stage.dispose();
     controller.removeListener(_onOpenChanged);
     animationController.dispose();
     widget.focusNode?.removeListener(onFocusChange);
+    _childFocusNode.dispose();
     _controller?.dispose();
     super.dispose();
   }
@@ -208,6 +243,7 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
   bool _warm = false;
 
   void _onOpenChanged() {
+    _listenForEscape(controller.isOpen);
     if (controller.isOpen) {
       // Opened behind the scenes, it stays there until its trigger shows.
       _stage.watch();
@@ -264,7 +300,75 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
   }
 
   void onFocusChange() {
-    hasFocus ? controller.open() : controller.close();
+    if (hasFocus) {
+      controller.open();
+    } else if (!hovered) {
+      controller.close();
+    }
+  }
+
+  /// The focus came to or left the child or something inside it.
+  void _onChildFocusChange(bool focused) {
+    // A click focuses a button too, and would pin the tooltip open for as
+    // long as the button kept the focus. Only the keyboard's focus counts.
+    final keyboard =
+        focused &&
+        FocusManager.instance.highlightMode == FocusHighlightMode.traditional;
+    if (keyboard == _keyboardFocused) return;
+    _keyboardFocused = keyboard;
+    onFocusChange();
+  }
+
+  /// Escape, while the tooltip shows and the focus is somewhere it cannot
+  /// be heard from: shown by the pointer, the tooltip has no part in the
+  /// focus tree. With the focus in the child, the [DismissShortcut] around
+  /// it closes it — after anything inside that wanted the key.
+  void _listenForEscape(bool listen) {
+    if (listen == _listeningForEscape) return;
+    _listeningForEscape = listen;
+    if (listen) {
+      FocusManager.instance.addEarlyKeyEventHandler(_onKey);
+    } else {
+      FocusManager.instance.removeEarlyKeyEventHandler(_onKey);
+    }
+  }
+
+  KeyEventResult _onKey(KeyEvent event) {
+    if (event is! KeyDownEvent ||
+        event.logicalKey != LogicalKeyboardKey.escape ||
+        !controller.isOpen ||
+        !mounted ||
+        _childFocusNode.hasFocus ||
+        (widget.focusNode?.hasFocus ?? false) ||
+        // An early handler hears the key wherever the focus is: under a
+        // dialog, or in a part of the tree that is not shown, the key is
+        // someone else's.
+        !isShownOnTop(context)) {
+      return KeyEventResult.ignored;
+    }
+    _dismiss();
+    return KeyEventResult.handled;
+  }
+
+  /// Closes the tooltip at once, until the pointer comes back to it.
+  void _dismiss() {
+    hovered = false;
+    _overChild = false;
+    _overBubble = false;
+    controller.close();
+  }
+
+  /// Around the child: has the focus while anything inside the child does.
+  final _childFocusNode = FocusNode(
+    debugLabel: 'Tooltip',
+    canRequestFocus: false,
+    skipTraversal: true,
+  );
+
+  void _onPointerOver({bool? child, bool? bubble}) {
+    _overChild = child ?? _overChild;
+    _overBubble = bubble ?? _overBubble;
+    onHoverChange(_overChild || _overBubble);
   }
 
   Future<void> onHoverChange(bool value) async {
@@ -344,6 +448,15 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
           ),
         );
 
+    final semanticMessage = widget.semanticMessage;
+    final semanticChild = semanticMessage == null
+        ? widget.child
+        // One node with the child: a button's own node would otherwise
+        // stand apart from the tooltip around it.
+        : MergeSemantics(
+            child: Semantics(tooltip: semanticMessage, child: widget.child),
+          );
+
     return ListenableBuilder(
       listenable: controller,
       builder: (context, child) {
@@ -352,10 +465,7 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
         // is shown, so Escape still reaches an enclosing dialog otherwise.
         return DismissShortcut(
           isActive: () => controller.isOpen,
-          onDismiss: () {
-            hovered = false;
-            controller.close();
-          },
+          onDismiss: _dismiss,
           child: Portal(
             visible: controller.isOpen && _onStage,
             anchor: effectiveAnchor,
@@ -498,7 +608,21 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
                   child: tooltip,
                 );
               }
-              return MouseArea(groupId: 'tooltip', child: tooltip);
+              // The bubble is part of what the pointer may rest on: moving
+              // onto it to read it, or to select its text, keeps it up
+              // (WCAG 1.4.13).
+              return MouseArea(
+                groupId: 'tooltip',
+                child: MouseRegion(
+                  onEnter: (_) {
+                    // Not a bubble that is already gone.
+                    if (!controller.isOpen) return;
+                    _onPointerOver(bubble: true);
+                  },
+                  onExit: (_) => _onPointerOver(bubble: false),
+                  child: tooltip,
+                ),
+              );
             },
             child: MouseArea(
               groupId: 'tooltip',
@@ -540,9 +664,16 @@ class _TooltipState extends State<Tooltip> with SingleTickerProviderStateMixin {
                 // trigger's own hit test.
                 child: MouseRegion(
                   hitTestBehavior: HitTestBehavior.deferToChild,
-                  onEnter: (_) => onHoverChange(true),
-                  onExit: (_) => onHoverChange(false),
-                  child: widget.child,
+                  onEnter: (_) => _onPointerOver(child: true),
+                  onExit: (_) => _onPointerOver(child: false),
+                  // Hears the focus anywhere inside the child, without
+                  // being a stop of its own.
+                  child: Focus(
+                    focusNode: _childFocusNode,
+                    includeSemantics: false,
+                    onFocusChange: _onChildFocusChange,
+                    child: semanticChild,
+                  ),
                 ),
               ),
             ),

@@ -404,6 +404,12 @@ class UnaLocalizationsData$command$en {
 
 	/// en: 'No results found.'
 	String get noResults => 'No results found.';
+
+	/// en: 'Command palette'
+	String get label => 'Command palette';
+
+	/// en: '$label, $index of $count'
+	String item({required Object label, required Object index, required Object count}) => '${label}, ${index} of ${count}';
 }
 
 // Path: menu
@@ -889,6 +895,8 @@ extension on UnaLocalizationsData {
 			'chip.remove' => 'Remove',
 			'chip.removeNamed' => ({required Object label}) => 'Remove ${label}',
 			'command.noResults' => 'No results found.',
+			'command.label' => 'Command palette',
+			'command.item' => ({required Object label, required Object index, required Object count}) => '${label}, ${index} of ${count}',
 			'menu.control' => 'Ctrl',
 			'menu.alt' => 'Alt',
 			'menu.shift' => 'Shift',

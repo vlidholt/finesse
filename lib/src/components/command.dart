@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:ui' show ImageFilter;
 
+import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/src/components/decorator.dart';
 import 'package:una/src/components/dialog.dart';
@@ -262,6 +264,15 @@ class _CommandState extends State<Command> {
 
   String _query = '';
 
+  /// Whether the highlight is being moved by the palette itself — to the
+  /// top for a new query, or to the first item when there was none — rather
+  /// than by the keys. Only the keys' moves are announced.
+  bool _settingHighlight = false;
+
+  /// Waits for the typing to pause before the number of results is
+  /// announced, so that each key does not interrupt the last.
+  Timer? _countAnnouncement;
+
   /// The flat, filtered item list backing the roving highlight.
   ///
   /// Groups are flattened because the highlight moves across group boundaries
@@ -301,6 +312,7 @@ class _CommandState extends State<Command> {
       ..dispose();
     _scrollController.dispose();
     _searchFocusNode.dispose();
+    _countAnnouncement?.cancel();
     super.dispose();
   }
 
@@ -310,7 +322,56 @@ class _CommandState extends State<Command> {
     widget.onQueryChanged?.call(_query);
     // A new query means a new result set; start again from the top so Enter
     // always chooses the best match.
+    _settingHighlight = true;
     _rovingController.highlightedIndex = 0;
+    _settingHighlight = false;
+    _countAnnouncement?.cancel();
+    _countAnnouncement = Timer(
+      const Duration(milliseconds: 500),
+      _announceCount,
+    );
+  }
+
+  /// Tells a screen reader how many items the query left, or that it left
+  /// none: the list changes under the search field, where the focus is.
+  void _announceCount() {
+    _countAnnouncement = null;
+    if (!mounted || !_searchFocusNode.hasFocus) return;
+    final l = UnaLocalizations.of(context);
+    // Filtered again rather than read from the last build, which a timer
+    // can come before.
+    final filter = widget.filter ?? Command.defaultFilter;
+    final count = widget.groups.fold(
+      0,
+      (count, group) => count + filter(group.items, _query).length,
+    );
+    _announce(switch (count) {
+      0 => l.command.noResults,
+      1 => l.autocomplete.oneResult,
+      _ => l.autocomplete.results(count: count),
+    });
+  }
+
+  /// Tells a screen reader which item the keys moved the highlight to: the
+  /// focus stays in the search field, so nothing else would.
+  void _announceHighlight() {
+    final index = _rovingController.highlightedIndex;
+    if (!mounted || index == null || index >= _visibleItems.length) return;
+    _announce(
+      UnaLocalizations.of(context).command.item(
+        label: _visibleItems[index].label,
+        index: index + 1,
+        count: _visibleItems.length,
+      ),
+    );
+  }
+
+  void _announce(String message) {
+    SemanticsService.sendAnnouncement(
+      View.of(context),
+      message,
+      Directionality.of(context),
+    );
   }
 
   void _onHighlightChanged() {
@@ -328,6 +389,7 @@ class _CommandState extends State<Command> {
         _previousHighlightedIndex != null &&
         index < _previousHighlightedIndex!;
     _previousHighlightedIndex = index;
+    if (!_settingHighlight) _announceHighlight();
 
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => _ensureVisible(preferStart: movingUp),
@@ -385,10 +447,12 @@ class _CommandState extends State<Command> {
       flat.addAll(matches);
     }
     _visibleItems = flat;
+    _settingHighlight = true;
     _rovingController.itemCount = flat.length;
     if (flat.isNotEmpty && _rovingController.highlightedIndex == null) {
       _rovingController.highlightedIndex = 0;
     }
+    _settingHighlight = false;
 
     final effectiveBackgroundColor =
         widget.backgroundColor ??
@@ -718,6 +782,7 @@ Future<T?> showCommandDialog<T>({
     context: context,
     barrierDismissible: barrierDismissible,
     builder: (context) {
+      final label = UnaLocalizations.of(context).command.label;
       final theme = Theme.of(context);
       final commandTheme = theme.commandTheme;
       // `.cn-command-dialog top-1/3 translate-y-0`: the top edge sits at a
@@ -733,6 +798,8 @@ Future<T?> showCommandDialog<T>({
       return Padding(
         padding: EdgeInsets.fromLTRB(16, topOffset, 16, 16),
         child: Dialog(
+          // It has no title to be named by.
+          semanticLabel: label,
           style: DialogTheme(
             alignment: Alignment.topCenter,
             constraints: const BoxConstraints(maxWidth: 448),
