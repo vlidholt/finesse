@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/src/components/button_group.dart';
 import 'package:una/src/components/decorator.dart';
@@ -362,6 +363,7 @@ class ToggleGroup<T> extends StatefulWidget {
     this.gap,
     this.axis = Axis.horizontal,
     this.mainAxisSize = MainAxisSize.min,
+    this.semanticLabel,
   }) : _multiple = false,
        values = null,
        initialValues = null,
@@ -384,6 +386,7 @@ class ToggleGroup<T> extends StatefulWidget {
     this.gap,
     this.axis = Axis.horizontal,
     this.mainAxisSize = MainAxisSize.min,
+    this.semanticLabel,
   }) : _multiple = true,
        value = null,
        initialValue = null,
@@ -451,6 +454,9 @@ class ToggleGroup<T> extends StatefulWidget {
   /// [MainAxisSize.min].
   final MainAxisSize mainAxisSize;
 
+  /// What the group sets, for assistive technology: "Text alignment".
+  final String? semanticLabel;
+
   @override
   State<ToggleGroup<T>> createState() => _ToggleGroupState<T>();
 }
@@ -468,6 +474,23 @@ class _ToggleGroupState<T> extends State<ToggleGroup<T>> {
       ? (widget.values ?? _own)
       : (widget.value == null ? _own : {widget.value as T});
 
+  /// One focus node per item: the group is one Tab stop and the arrows
+  /// move among its items, as in a toolbar.
+  final _nodes = <FocusNode>[];
+
+  /// The item that is the group's Tab stop: the one last focused.
+  int _current = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _syncNodes();
+    final first = widget.items.indexWhere(
+      (item) => _values.contains(item.value),
+    );
+    if (first >= 0) _current = first;
+  }
+
   @override
   void didUpdateWidget(ToggleGroup<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -476,6 +499,91 @@ class _ToggleGroupState<T> extends State<ToggleGroup<T>> {
     if (!widget._multiple && widget.value != oldWidget.value) {
       _own = {?widget.value};
     }
+    _syncNodes();
+  }
+
+  @override
+  void dispose() {
+    for (final node in _nodes) {
+      node.dispose();
+    }
+    super.dispose();
+  }
+
+  void _syncNodes() {
+    final count = widget.items.length;
+    while (_nodes.length > count) {
+      _nodes.removeLast().dispose();
+    }
+    while (_nodes.length < count) {
+      late final FocusNode node;
+      node = FocusNode(debugLabel: 'ToggleGroup item ${_nodes.length}')
+        ..addListener(() {
+          final index = _nodes.indexOf(node);
+          if (node.hasFocus && index >= 0 && _current != index) {
+            setState(() => _current = index);
+          }
+        });
+      _nodes.add(node);
+    }
+    if (_current >= count) _current = count == 0 ? 0 : count - 1;
+  }
+
+  bool _itemEnabled(int index) => _enabled && widget.items[index].enabled;
+
+  /// The Tab stop: the item last focused while it can take the focus,
+  /// else the first selected item that can, else the first that can.
+  int _stop() {
+    final count = widget.items.length;
+    if (_current < count && _itemEnabled(_current)) return _current;
+    final values = _values;
+    int? firstEnabled;
+    for (var i = 0; i < count; i++) {
+      if (!_itemEnabled(i)) continue;
+      if (values.contains(widget.items[i].value)) return i;
+      firstEnabled ??= i;
+    }
+    return firstEnabled ?? _current;
+  }
+
+  /// Moves the focus [step] items on, past the disabled ones, or to the
+  /// first or last with [toEnd].
+  void _move(int from, int step, {bool toEnd = false}) {
+    final count = widget.items.length;
+    var index = toEnd ? (step > 0 ? -1 : count) : from;
+    for (var i = 0; i < count; i++) {
+      index += step;
+      if (index < 0 || index >= count) return;
+      if (_itemEnabled(index)) {
+        _nodes[index].requestFocus();
+        return;
+      }
+    }
+  }
+
+  KeyEventResult _onKey(FocusNode node, KeyEvent event) {
+    if (event is KeyUpEvent) return KeyEventResult.ignored;
+    final from = _nodes.indexWhere((n) => n.hasFocus);
+    if (from < 0) return KeyEventResult.ignored;
+    final rtl = Directionality.maybeOf(context) == TextDirection.rtl;
+    final horizontal = widget.axis == Axis.horizontal;
+    final key = event.logicalKey;
+    if (horizontal && key == LogicalKeyboardKey.arrowRight) {
+      _move(from, rtl ? -1 : 1);
+    } else if (horizontal && key == LogicalKeyboardKey.arrowLeft) {
+      _move(from, rtl ? 1 : -1);
+    } else if (!horizontal && key == LogicalKeyboardKey.arrowDown) {
+      _move(from, 1);
+    } else if (!horizontal && key == LogicalKeyboardKey.arrowUp) {
+      _move(from, -1);
+    } else if (key == LogicalKeyboardKey.home) {
+      _move(from, 1, toEnd: true);
+    } else if (key == LogicalKeyboardKey.end) {
+      _move(from, -1, toEnd: true);
+    } else {
+      return KeyEventResult.ignored;
+    }
+    return KeyEventResult.handled;
   }
 
   bool get _enabled =>
@@ -514,6 +622,7 @@ class _ToggleGroupState<T> extends State<ToggleGroup<T>> {
 
     // Without a gap the items are one bar: joined corners, shared edges.
     final joined = effectiveGap == 0;
+    final stop = _stop();
     final items = <Widget>[];
     for (var i = 0; i < widget.items.length; i++) {
       if (i > 0 && !joined) {
@@ -524,8 +633,10 @@ class _ToggleGroupState<T> extends State<ToggleGroup<T>> {
         );
       }
       final item = widget.items[i];
+      _nodes[i].skipTraversal = i != stop;
       items.add(
         Toggle(
+          focusNode: _nodes[i],
           variant: widget.variant,
           value: _values.contains(item.value),
           enabled: _enabled && item.enabled,
@@ -551,12 +662,21 @@ class _ToggleGroupState<T> extends State<ToggleGroup<T>> {
       data: this as _ToggleGroupState<dynamic>,
       child: Semantics(
         container: true,
-        // The same tree for both variants; with several selections there is
-        // no single target and the indicator paints nothing.
-        child: MovingIndicator(
-          spring: toggleTheme.indicatorSpring,
-          stretch: toggleTheme.indicatorStretch,
-          child: list,
+        // The group is named; each toggle is a node of its own.
+        explicitChildNodes: true,
+        label: widget.semanticLabel,
+        child: Focus(
+          canRequestFocus: false,
+          skipTraversal: true,
+          includeSemantics: false,
+          onKeyEvent: _onKey,
+          // The same tree for both variants; with several selections there
+          // is no single target and the indicator paints nothing.
+          child: MovingIndicator(
+            spring: toggleTheme.indicatorSpring,
+            stretch: toggleTheme.indicatorStretch,
+            child: list,
+          ),
         ),
       ),
     );

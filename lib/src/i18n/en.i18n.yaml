@@ -82,6 +82,7 @@ toast:
 
 chip:
   remove: "Remove"
+  removeNamed: "Remove $label"
 
 command:
   noResults: "No results found."
@@ -127,6 +128,14 @@ carousel:
   next: "Next page"
   page: "Page $page of $count"
   item: "$index of $count"
+  pause: "Pause slide show"
+  play: "Play slide show"
+
+slider:
+  minimum: "Minimum"
+  maximum: "Maximum"
+  thumb: "Thumb $index of $count"
+  named: "$label, $thumb"
 
 refreshIndicator:
   refresh: "Refresh"
@@ -158,6 +167,8 @@ colorPicker:
   opacity: "Opacity"
   red: "Red"
   saturationAndBrightness: "Saturation and brightness"
+  saturation: "Saturation"
+  brightness: "Brightness"
   selectColor: "Select colour"
   sliders: "Sliders"
   spectrum: "Spectrum"

@@ -75,8 +75,9 @@ class Checkbox extends StatefulWidget {
 
   /// {@template Checkbox.onChanged}
   /// Called with the new state when the checkbox is tapped: true for an
-  /// unchecked or a mixed box, false for a checked one. If null, the
-  /// checkbox is non-interactive but still visible.
+  /// unchecked or a mixed box, false for a checked one. Null disables the
+  /// checkbox, as [enabled] false does: it is dimmed, takes no input and is
+  /// no Tab stop.
   /// {@endtemplate}
   final ValueChanged<bool>? onChanged;
 
@@ -189,8 +190,12 @@ class _CheckboxState extends State<Checkbox> {
     super.dispose();
   }
 
+  /// Whether the box takes input: [Checkbox.enabled], and an
+  /// [Checkbox.onChanged] to report to.
+  bool get _interactive => widget.enabled && widget.onChanged != null;
+
   void onTap() {
-    if (widget.onChanged == null) return;
+    if (!_interactive) return;
 
     // A mixed box becomes a checked one.
     Haptics.selection(context);
@@ -262,67 +267,59 @@ class _CheckboxState extends State<Checkbox> {
         theme.checkboxTheme.checkboxPadding ??
         const EdgeInsets.only(top: 1);
 
-    final checkbox = Semantics(
-      checked: value ?? false,
-      mixed: widget.tristate ? value == null : null,
-      child: Disabled(
-        showForbiddenCursor: true,
-        enabled: widget.enabled,
-        child: CallbackShortcuts(
-          bindings: {
-            for (final trigger in activationKeys)
-              trigger: () {
-                if (!widget.enabled) return;
-                onTap();
-              },
-          },
-          child: Focusable(
-            visibleOnly: true,
-            autofocus: widget.autofocus,
-            onFocusChange: widget.onFocusChange,
-            focusNode: focusNode,
-            builder: (context, focused, child) {
-              // The fill fades between the two states; the outline swaps
-              // with the decoration.
-              return AnimatedColorBuilder(
-                color: effectiveDecoration.color,
-                duration: motion.fast,
-                curve: motion.standard,
-                builder: (context, color, child) => Decorator(
-                  focused: focused,
-                  decoration: color == null
-                      ? effectiveDecoration
-                      : effectiveDecoration.copyWith(color: color),
-                  child: child,
-                ),
+    final checkbox = Disabled(
+      showForbiddenCursor: true,
+      enabled: _interactive,
+      child: CallbackShortcuts(
+        bindings: {
+          for (final trigger in activationKeys) trigger: onTap,
+        },
+        child: Focusable(
+          visibleOnly: true,
+          autofocus: widget.autofocus,
+          onFocusChange: widget.onFocusChange,
+          focusNode: focusNode,
+          builder: (context, focused, child) {
+            // The fill fades between the two states; the outline swaps
+            // with the decoration.
+            return AnimatedColorBuilder(
+              color: effectiveDecoration.color,
+              duration: motion.fast,
+              curve: motion.standard,
+              builder: (context, color, child) => Decorator(
+                focused: focused,
+                decoration: color == null
+                    ? effectiveDecoration
+                    : effectiveDecoration.copyWith(color: color),
                 child: child,
-              );
-            },
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: SizedBox(
-                width: effectiveSize,
-                height: effectiveSize,
-                child: Center(
-                  // The mark pops in while it is wiped on from its leading
-                  // edge, which reads as the stroke being drawn.
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
+              ),
+              child: child,
+            );
+          },
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: SizedBox(
+              width: effectiveSize,
+              height: effectiveSize,
+              child: Center(
+                // The mark pops in while it is wiped on from its leading
+                // edge, which reads as the stroke being drawn.
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    PopIn(
+                      visible: value ?? false,
+                      wipe: true,
+                      spring: checkSpring,
+                      child: effectiveIcon,
+                    ),
+                    if (widget.tristate)
                       PopIn(
-                        visible: value ?? false,
-                        wipe: true,
+                        visible: value == null,
                         spring: checkSpring,
-                        child: effectiveIcon,
+                        child: effectiveMixedIcon,
                       ),
-                      if (widget.tristate)
-                        PopIn(
-                          visible: value == null,
-                          spring: checkSpring,
-                          child: effectiveMixedIcon,
-                        ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
             ),
@@ -341,49 +338,58 @@ class _CheckboxState extends State<Checkbox> {
         theme.checkboxTheme.crossAxisAlignment ??
         defaultCrossAxisAlignment;
 
-    return Disabled(
-      showForbiddenCursor: true,
-      enabled: widget.enabled,
-      disabledOpacity: 1,
-      child: GestureDetector(
-        onTap: widget.onChanged == null ? null : onTap,
-        child: ControlLabelRow(
-          affinity: widget.controlAffinity,
-          crossAxisAlignment: effectiveCrossAxisAlignment,
-          labelPadding: effectivePadding,
-          control: Padding(
-            padding: effectiveCheckboxPadding,
-            child: checkbox,
+    // One node: the box, named by its label, with its state, whether or
+    // not it takes input.
+    return MergeSemantics(
+      child: Semantics(
+        enabled: _interactive,
+        checked: value ?? false,
+        mixed: widget.tristate ? value == null : null,
+        child: Disabled(
+          showForbiddenCursor: true,
+          enabled: _interactive,
+          disabledOpacity: 1,
+          child: GestureDetector(
+            onTap: _interactive ? onTap : null,
+            child: ControlLabelRow(
+              affinity: widget.controlAffinity,
+              crossAxisAlignment: effectiveCrossAxisAlignment,
+              labelPadding: effectivePadding,
+              control: Padding(
+                padding: effectiveCheckboxPadding,
+                child: checkbox,
+              ),
+              label: widget.label == null && widget.description == null
+                  ? null
+                  : Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (widget.label != null)
+                          MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: DefaultTextStyle(
+                              style: theme.textTheme.muted.copyWith(
+                                fontWeight: FontWeight.w500,
+                                color: theme.colorScheme.foreground,
+                              ),
+                              child: widget.label!,
+                            ),
+                          ),
+                        if (widget.description != null)
+                          MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: DefaultTextStyle(
+                              style: theme.textTheme.muted.fallback(
+                                color: theme.colorScheme.mutedForeground,
+                              ),
+                              child: widget.description!,
+                            ),
+                          ),
+                      ],
+                    ),
+            ),
           ),
-          label: widget.label == null && widget.description == null
-              ? null
-              : Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (widget.label != null)
-                      MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: DefaultTextStyle(
-                          style: theme.textTheme.muted.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: theme.colorScheme.foreground,
-                          ),
-                          child: widget.label!,
-                        ),
-                      ),
-                    if (widget.description != null)
-                      MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: DefaultTextStyle(
-                          style: theme.textTheme.muted.fallback(
-                            color: theme.colorScheme.mutedForeground,
-                          ),
-                          child: widget.description!,
-                        ),
-                      ),
-                  ],
-                ),
         ),
       ),
     );

@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:una/src/components/divider.dart';
 import 'package:una/src/icons/phosphor_icons.dart';
 import 'package:una/src/raw_components/focusable.dart';
+import 'package:una/src/raw_components/pressable.dart';
 import 'package:una/src/theme/motion.dart';
 import 'package:una/src/theme/theme.dart';
 import 'package:una/src/utils/activation_keys.dart';
@@ -305,6 +306,10 @@ class AccordionItem<T> extends StatefulWidget {
 class _AccordionItemState<T> extends State<AccordionItem<T>>
     with SingleTickerProviderStateMixin {
   final hovered = ValueNotifier(false);
+
+  /// Whether the trigger shows its focus ring: focused, and focus is being
+  /// shown (after a key, not a click), as `Focusable.visibleOnly` decides.
+  final ringVisible = ValueNotifier(false);
   FocusNode? _focusNode;
 
   FocusNode get focusNode => widget.focusNode ?? _focusNode!;
@@ -314,6 +319,7 @@ class _AccordionItemState<T> extends State<AccordionItem<T>>
     super.initState();
     if (widget.focusNode == null) _focusNode = FocusNode();
     focusNode.addListener(onFocusChange);
+    FocusManager.instance.addHighlightModeListener(_onHighlightMode);
   }
 
   @override
@@ -337,14 +343,25 @@ class _AccordionItemState<T> extends State<AccordionItem<T>>
 
   @override
   void dispose() {
+    FocusManager.instance.removeHighlightModeListener(_onHighlightMode);
     focusNode.removeListener(onFocusChange);
     _focusNode?.dispose();
     hovered.dispose();
+    ringVisible.dispose();
     super.dispose();
   }
 
   void onFocusChange() {
     hovered.value = focusNode.hasFocus;
+    _syncRing();
+  }
+
+  void _onHighlightMode(FocusHighlightMode mode) => _syncRing();
+
+  void _syncRing() {
+    ringVisible.value =
+        focusNode.hasFocus &&
+        FocusManager.instance.highlightMode == FocusHighlightMode.traditional;
   }
 
   @override
@@ -405,69 +422,82 @@ class _AccordionItemState<T> extends State<AccordionItem<T>>
             onHover: (value) => hovered.value = value,
             behavior: HitTestBehavior.opaque,
             onTap: () => inherited.effectiveController.toggle(widget.value),
-            child: Padding(
-              padding: effectivePadding,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: CallbackShortcuts(
-                      bindings: {
-                        for (final trigger in activationKeys)
-                          trigger: () {
-                            inherited.effectiveController.toggle(
-                              widget.value,
-                            );
-                          },
-                      },
-                      child: Focusable(
-                        focusNode: focusNode,
-                        builder: (context, focused, child) {
-                          return ValueListenableBuilder(
-                            valueListenable: hovered,
-                            builder: (context, hovered, child) {
-                              return DefaultTextStyle(
-                                style: effectiveTitleStyle.copyWith(
-                                  decoration:
-                                      hovered && effectiveUnderlineTitleOnHover
-                                      ? TextDecoration.underline
-                                      : null,
-                                ),
-                                child: child!,
+            // The ring goes round the whole trigger, chevron and all, as
+            // the reference's `focus-visible:ring` does.
+            child: ValueListenableBuilder(
+              valueListenable: ringVisible,
+              builder: (context, visible, child) => FocusRing(
+                visible: visible,
+                borderRadius: theme.radii.md,
+                child: child!,
+              ),
+              child: Padding(
+                padding: effectivePadding,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: CallbackShortcuts(
+                        bindings: {
+                          for (final trigger in activationKeys)
+                            trigger: () {
+                              inherited.effectiveController.toggle(
+                                widget.value,
                               );
                             },
-                            child: widget.title,
-                          );
                         },
+                        child: Focusable(
+                          focusNode: focusNode,
+                          // Installs the rule the ring above follows.
+                          visibleOnly: true,
+                          builder: (context, focused, child) {
+                            return ValueListenableBuilder(
+                              valueListenable: hovered,
+                              builder: (context, hovered, child) {
+                                return DefaultTextStyle(
+                                  style: effectiveTitleStyle.copyWith(
+                                    decoration:
+                                        hovered &&
+                                            effectiveUnderlineTitleOnHover
+                                        ? TextDecoration.underline
+                                        : null,
+                                  ),
+                                  child: child!,
+                                );
+                              },
+                              child: widget.title,
+                            );
+                          },
+                        ),
                       ),
                     ),
-                  ),
-                  if (widget.trailing != null)
-                    Padding(
-                      padding: const EdgeInsetsDirectional.only(
-                        start: 8,
-                        end: 8,
+                    if (widget.trailing != null)
+                      Padding(
+                        padding: const EdgeInsetsDirectional.only(
+                          start: 8,
+                          end: 8,
+                        ),
+                        // Its own gesture arena entry, so a tap on the
+                        // action does not also toggle the item.
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {},
+                          child: widget.trailing,
+                        ),
                       ),
-                      // Its own gesture arena entry, so a tap on the
-                      // action does not also toggle the item.
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () {},
-                        child: widget.trailing,
+                    // The chevron turns on the same spring as the content
+                    // opens.
+                    SpringBuilder(
+                      value: expanded ? 1 : 0,
+                      spring: spring,
+                      builder: (context, t, child) => Transform.rotate(
+                        angle: t * math.pi,
+                        child: child,
                       ),
+                      child: effectiveIcon,
                     ),
-                  // The chevron turns on the same spring as the content
-                  // opens.
-                  SpringBuilder(
-                    value: expanded ? 1 : 0,
-                    spring: spring,
-                    builder: (context, t, child) => Transform.rotate(
-                      angle: t * math.pi,
-                      child: child,
-                    ),
-                    child: effectiveIcon,
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

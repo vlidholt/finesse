@@ -1,3 +1,5 @@
+import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/src/components/control_affinity.dart';
 import 'package:una/src/components/decorator.dart';
@@ -208,15 +210,109 @@ class _RadioGroupState<T> extends State<UnaRadioGroup<T>> {
     widget.onChanged?.call(value);
   }
 
+  // The group is one Tab stop, as a radio group is on the web: the
+  // selected radio, or the first enabled one when none is, and the arrow
+  // keys move the selection among the rest.
+  final Set<_RadioGroupFocusState> _members = {};
+  bool _syncScheduled = false;
+
+  void _join(_RadioGroupFocusState member) {
+    _members.add(member);
+    _scheduleSync();
+  }
+
+  void _leave(_RadioGroupFocusState member) {
+    _members.remove(member);
+    _scheduleSync();
+  }
+
+  void _scheduleSync() {
+    if (_syncScheduled) return;
+    _syncScheduled = true;
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      _syncScheduled = false;
+      if (mounted) _syncStops();
+    });
+    SchedulerBinding.instance.ensureVisualUpdate();
+  }
+
+  /// The group's radios in the order they are in the tree.
+  List<_RadioGroupFocusState> _ordered() {
+    final ordered = <_RadioGroupFocusState>[];
+    if (_members.isEmpty) return ordered;
+    void visit(Element element) {
+      if (element is StatefulElement) {
+        final state = element.state;
+        if (state is _RadioGroupFocusState && _members.contains(state)) {
+          ordered.add(state);
+        }
+      }
+      element.visitChildren(visit);
+    }
+
+    (context as Element).visitChildren(visit);
+    return ordered;
+  }
+
+  void _syncStops() {
+    final value = widget.value ?? _value;
+    final enabled = _ordered().where((member) => member.enabled).toList();
+    final stop =
+        enabled.where((member) => member.value == value).firstOrNull ??
+        enabled.firstOrNull;
+    for (final member in _members) {
+      member.setSkipTraversal(stop != null && member != stop);
+    }
+  }
+
+  KeyEventResult _onKey(FocusNode node, KeyEvent event) {
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
+      return KeyEventResult.ignored;
+    }
+    final rtl = Directionality.maybeOf(context) == TextDirection.rtl;
+    final step = switch (event.logicalKey) {
+      LogicalKeyboardKey.arrowDown => 1,
+      LogicalKeyboardKey.arrowUp => -1,
+      LogicalKeyboardKey.arrowRight => rtl ? -1 : 1,
+      LogicalKeyboardKey.arrowLeft => rtl ? 1 : -1,
+      _ => 0,
+    };
+    if (step == 0 || !_enabled) return KeyEventResult.ignored;
+    final ordered = _ordered();
+    final focused = FocusManager.instance.primaryFocus;
+    final index = ordered.indexWhere((member) => member.focusNode == focused);
+    if (index < 0) return KeyEventResult.ignored;
+    // The next enabled radio that way, round the end and back to the start.
+    for (var i = 1; i < ordered.length; i++) {
+      final next = ordered[(index + step * i) % ordered.length];
+      if (!next.enabled) continue;
+      next.focusNode.requestFocus();
+      _select(next.value);
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.handled;
+  }
+
+  Widget _keys(Widget child) => Focus(
+    canRequestFocus: false,
+    skipTraversal: true,
+    includeSemantics: false,
+    onKeyEvent: _onKey,
+    child: child,
+  );
+
   @override
   Widget build(BuildContext context) {
+    // The stop follows the selection.
+    _scheduleSync();
     final child = widget.child;
     if (child != null) {
       return _RadioGroupMarker(
         value: widget.value ?? _value,
         enabled: _enabled,
         select: _select,
-        child: child,
+        group: this,
+        child: _keys(child),
       );
     }
 
@@ -240,14 +336,17 @@ class _RadioGroupState<T> extends State<UnaRadioGroup<T>> {
       value: widget.value ?? _value,
       enabled: _enabled,
       select: _select,
-      child: Wrap(
-        direction: effectiveAxis,
-        spacing: effectiveSpacing,
-        runSpacing: effectiveRunSpacing,
-        alignment: effectiveAlignment,
-        runAlignment: effectiveRunAlignment,
-        crossAxisAlignment: effectiveWrapCrossAlignment,
-        children: widget.items!.toList(),
+      group: this,
+      child: _keys(
+        Wrap(
+          direction: effectiveAxis,
+          spacing: effectiveSpacing,
+          runSpacing: effectiveRunSpacing,
+          alignment: effectiveAlignment,
+          runAlignment: effectiveRunAlignment,
+          crossAxisAlignment: effectiveWrapCrossAlignment,
+          children: widget.items!.toList(),
+        ),
       ),
     );
   }
@@ -259,16 +358,98 @@ class _RadioGroupMarker extends InheritedWidget {
     required this.value,
     required this.enabled,
     required this.select,
+    required this.group,
     required super.child,
   });
 
   final Object? value;
   final bool enabled;
   final ValueChanged<Object?> select;
+  final _RadioGroupState<Object?> group;
 
   @override
   bool updateShouldNotify(_RadioGroupMarker oldWidget) =>
       oldWidget.value != value || oldWidget.enabled != enabled;
+}
+
+/// Makes [focusNode] one of the radios of the [UnaRadioGroup] around it,
+/// for the group's one Tab stop and its arrow keys.
+///
+/// `Radio` and `RadioListTile` put one around themselves; not exported.
+class RadioGroupFocus extends StatefulWidget {
+  /// Joins [focusNode], standing for [value], to the group around it.
+  const RadioGroupFocus({
+    required this.value,
+    required this.enabled,
+    required this.focusNode,
+    required this.child,
+    super.key,
+  });
+
+  /// The value the radio selects.
+  final Object? value;
+
+  /// Whether the radio takes input; the arrow keys pass over it if not.
+  final bool enabled;
+
+  /// The radio's focus node. The group sets its
+  /// [FocusNode.skipTraversal].
+  final FocusNode focusNode;
+
+  /// The radio.
+  final Widget child;
+
+  @override
+  State<RadioGroupFocus> createState() => _RadioGroupFocusState();
+}
+
+class _RadioGroupFocusState extends State<RadioGroupFocus> {
+  _RadioGroupState<Object?>? _group;
+
+  Object? get value => widget.value;
+  bool get enabled => widget.enabled;
+  FocusNode get focusNode => widget.focusNode;
+
+  bool _skipTraversal = false;
+  void setSkipTraversal(bool skip) {
+    _skipTraversal = skip;
+    widget.focusNode.skipTraversal = skip;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final group = context
+        .dependOnInheritedWidgetOfExactType<_RadioGroupMarker>()
+        ?.group;
+    if (group == _group) return;
+    _group?._leave(this);
+    _group = group?.._join(this);
+  }
+
+  @override
+  void didUpdateWidget(RadioGroupFocus oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.focusNode != widget.focusNode) {
+      if (_skipTraversal) oldWidget.focusNode.skipTraversal = false;
+      widget.focusNode.skipTraversal = _skipTraversal;
+    }
+    if (oldWidget.value != widget.value ||
+        oldWidget.enabled != widget.enabled ||
+        oldWidget.focusNode != widget.focusNode) {
+      _group?._scheduleSync();
+    }
+  }
+
+  @override
+  void dispose() {
+    _group?._leave(this);
+    if (_skipTraversal) widget.focusNode.skipTraversal = false;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
 
 /// A customizable radio button widget that represents a single option in a
@@ -454,61 +635,58 @@ class _RadioState<T> extends State<Radio<T>> {
     final selected = group != null && group.value == widget.value;
     final enabled = widget.enabled && (group?.enabled ?? false);
 
-    final radio = Semantics(
-      checked: selected,
-      child: Disabled(
-        showForbiddenCursor: true,
-        enabled: enabled,
-        child: CallbackShortcuts(
-          bindings: {
-            for (final trigger in activationKeys)
-              trigger: () {
-                if (!enabled) return;
-                onTap();
-              },
-          },
-          child: Focusable(
-            visibleOnly: true,
-            autofocus: widget.autofocus,
-            onFocusChange: widget.onFocusChange,
-            focusNode: focusNode,
-            builder: (context, focused, child) {
-              final decoration = selected
-                  ? effectiveCheckedDecoration
-                  : effectiveDecoration;
-              // The fill fades between the two states; the outline
-              // swaps with the decoration.
-              return AnimatedColorBuilder(
-                color: decoration.color,
-                duration: motion.fast,
-                curve: motion.standard,
-                builder: (context, color, child) => Decorator(
-                  focused: focused,
-                  decoration: color == null
-                      ? decoration
-                      : decoration.copyWith(color: color),
-                  child: child,
-                ),
-                child: child,
-              );
+    final radio = Disabled(
+      showForbiddenCursor: true,
+      enabled: enabled,
+      child: CallbackShortcuts(
+        bindings: {
+          for (final trigger in activationKeys)
+            trigger: () {
+              if (!enabled) return;
+              onTap();
             },
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: SizedBox.square(
-                dimension: effectiveSize,
-                child: Center(
-                  // The dot grows out of the centre and settles.
-                  child: PopIn(
-                    visible: selected,
-                    scale: .2,
-                    spring: dotSpring,
-                    child: SizedBox.square(
-                      dimension: effectiveCircleSize,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: effectiveColor,
-                        ),
+        },
+        child: Focusable(
+          visibleOnly: true,
+          autofocus: widget.autofocus,
+          onFocusChange: widget.onFocusChange,
+          focusNode: focusNode,
+          builder: (context, focused, child) {
+            final decoration = selected
+                ? effectiveCheckedDecoration
+                : effectiveDecoration;
+            // The fill fades between the two states; the outline
+            // swaps with the decoration.
+            return AnimatedColorBuilder(
+              color: decoration.color,
+              duration: motion.fast,
+              curve: motion.standard,
+              builder: (context, color, child) => Decorator(
+                focused: focused,
+                decoration: color == null
+                    ? decoration
+                    : decoration.copyWith(color: color),
+                child: child,
+              ),
+              child: child,
+            );
+          },
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: SizedBox.square(
+              dimension: effectiveSize,
+              child: Center(
+                // The dot grows out of the centre and settles.
+                child: PopIn(
+                  visible: selected,
+                  scale: .2,
+                  spring: dotSpring,
+                  child: SizedBox.square(
+                    dimension: effectiveCircleSize,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: effectiveColor,
                       ),
                     ),
                   ),
@@ -519,46 +697,60 @@ class _RadioState<T> extends State<Radio<T>> {
         ),
       ),
     );
-    return Disabled(
-      showForbiddenCursor: true,
-      enabled: enabled,
-      disabledOpacity: 1,
-      child: GestureDetector(
-        onTap: enabled ? onTap : null,
-        child: ControlLabelRow(
-          affinity: widget.controlAffinity,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          labelPadding: effectivePadding,
-          control: Padding(
-            padding: effectiveRadioPadding,
-            child: radio,
-          ),
-          label: widget.label == null
-              ? null
-              : Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: DefaultTextStyle(
-                        style: theme.textTheme.muted.copyWith(
-                          fontWeight: FontWeight.w500,
-                          color: theme.colorScheme.foreground,
-                        ),
-                        child: widget.label!,
-                      ),
-                    ),
-                    if (widget.description != null)
-                      MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: DefaultTextStyle(
-                          style: theme.textTheme.muted,
-                          child: widget.description!,
-                        ),
-                      ),
-                  ],
+    // One node: the radio, named by its label, with its state, whether or
+    // not it takes input.
+    return MergeSemantics(
+      child: Semantics(
+        enabled: enabled,
+        checked: selected,
+        inMutuallyExclusiveGroup: true,
+        child: RadioGroupFocus(
+          value: widget.value,
+          enabled: enabled,
+          focusNode: focusNode,
+          child: Disabled(
+            showForbiddenCursor: true,
+            enabled: enabled,
+            disabledOpacity: 1,
+            child: GestureDetector(
+              onTap: enabled ? onTap : null,
+              child: ControlLabelRow(
+                affinity: widget.controlAffinity,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                labelPadding: effectivePadding,
+                control: Padding(
+                  padding: effectiveRadioPadding,
+                  child: radio,
                 ),
+                label: widget.label == null
+                    ? null
+                    : Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: DefaultTextStyle(
+                              style: theme.textTheme.muted.copyWith(
+                                fontWeight: FontWeight.w500,
+                                color: theme.colorScheme.foreground,
+                              ),
+                              child: widget.label!,
+                            ),
+                          ),
+                          if (widget.description != null)
+                            MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: DefaultTextStyle(
+                                style: theme.textTheme.muted,
+                                child: widget.description!,
+                              ),
+                            ),
+                        ],
+                      ),
+              ),
+            ),
+          ),
         ),
       ),
     );

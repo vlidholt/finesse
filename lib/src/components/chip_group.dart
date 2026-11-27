@@ -225,6 +225,22 @@ class _ChipGroupState<T> extends State<ChipGroup<T>> {
 
   bool _enabled(int index) => _interactive && widget.items[index].enabled;
 
+  /// The chip that is the Tab stop: the one last focused while it can
+  /// take the focus, else the first chosen chip that can, else the first
+  /// chip that can. A disabled stop would leave the group unreachable.
+  int _stop() {
+    final count = widget.items.length;
+    if (_current < count && _enabled(_current)) return _current;
+    final chosen = _chosen;
+    int? firstEnabled;
+    for (var i = 0; i < count; i++) {
+      if (!_enabled(i)) continue;
+      if (chosen.contains(widget.items[i].value)) return i;
+      firstEnabled ??= i;
+    }
+    return firstEnabled ?? _current;
+  }
+
   void _toggle(ChipGroupItem<T> item) {
     final values = _chosen;
     final chosen = values.contains(item.value);
@@ -290,12 +306,13 @@ class _ChipGroupState<T> extends State<ChipGroup<T>> {
     final chip = theme.chipTheme;
     final spacing = chip.groupSpacing ?? 8;
 
+    final stop = _stop();
     final chips = [
       for (final (index, item) in widget.items.indexed)
         Builder(
           builder: (context) {
             // One Tab stop for the group: the arrows reach the others.
-            _nodes[index].skipTraversal = index != _current;
+            _nodes[index].skipTraversal = index != stop;
             return Chip(
               label: item.label,
               leading: item.leading,

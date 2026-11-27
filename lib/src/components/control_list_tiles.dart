@@ -231,7 +231,7 @@ class CheckboxListTile extends StatelessWidget {
 /// meets one control: the title, "radio button", and whether it is
 /// selected. A radio with an inline label, for a form, is a `Radio` in a
 /// `UnaRadioGroup`.
-class RadioListTile<T> extends StatelessWidget {
+class RadioListTile<T> extends StatefulWidget {
   /// Creates a row with a radio button.
   const RadioListTile({
     required this.title,
@@ -271,6 +271,21 @@ class RadioListTile<T> extends StatelessWidget {
   final FocusNode? focusNode;
 
   @override
+  State<RadioListTile<T>> createState() => _RadioListTileState<T>();
+}
+
+class _RadioListTileState<T> extends State<RadioListTile<T>> {
+  // The group needs the row's node, for its one Tab stop.
+  FocusNode? _ownNode;
+  FocusNode get _node => widget.focusNode ?? (_ownNode ??= FocusNode());
+
+  @override
+  void dispose() {
+    _ownNode?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final group = UnaRadioGroup.maybeOf<T>(context);
     assert(() {
@@ -283,22 +298,28 @@ class RadioListTile<T> extends StatelessWidget {
       }
       return true;
     }());
+    final value = widget.value;
     final selected = group != null && value == group.value;
-    final active = enabled && (group?.enabled ?? false);
-    return _ControlTile(
-      title: title,
-      subtitle: subtitle,
-      secondary: secondary,
+    final active = widget.enabled && (group?.enabled ?? false);
+    return RadioGroupFocus(
+      value: value,
       enabled: active,
-      controlAffinity: controlAffinity,
-      subtitleMaxLines: subtitleMaxLines,
-      focusNode: focusNode,
-      checked: selected,
-      inMutuallyExclusiveGroup: true,
-      onTap: () {
-        if (!selected) group?.select(value);
-      },
-      control: _RadioMark(selected: selected, enabled: active),
+      focusNode: _node,
+      child: _ControlTile(
+        title: widget.title,
+        subtitle: widget.subtitle,
+        secondary: widget.secondary,
+        enabled: active,
+        controlAffinity: widget.controlAffinity,
+        subtitleMaxLines: widget.subtitleMaxLines,
+        focusNode: _node,
+        checked: selected,
+        inMutuallyExclusiveGroup: true,
+        onTap: () {
+          if (!selected) group?.select(value);
+        },
+        control: _RadioMark(selected: selected, enabled: active),
+      ),
     );
   }
 }

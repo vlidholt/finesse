@@ -248,12 +248,10 @@ class Pagination extends StatelessWidget {
 
       final isCurrent = entry == page;
       items.add(
-        Semantics(
-          selected: isCurrent,
-          label:
-              '${localizations.pagination.page} '
-              '${numberFormat.format(entry)}',
-          child: ExcludeSemantics(
+        // One node: a button named for its page, selected while current.
+        MergeSemantics(
+          child: Semantics(
+            selected: isCurrent,
             child: Button(
               variant: isCurrent ? ButtonVariant.outline : ButtonVariant.ghost,
               // A square, like an icon button, around the number.
@@ -266,6 +264,9 @@ class Pagination extends StatelessWidget {
                     : _inactivePageButtonDecoration(theme),
               ),
               enabled: enabled && onPageChanged != null,
+              semanticLabel:
+                  '${localizations.pagination.page} '
+                  '${numberFormat.format(entry)}',
               // The current page does nothing when pressed, but stays a
               // button, undimmed and in the focus order, as the
               // reference's `aria-current` link does: a button with no

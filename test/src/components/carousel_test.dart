@@ -542,6 +542,40 @@ void main() {
       expect(changes, isEmpty);
     });
 
+    testWidgets('does not run under a screen reader', (tester) async {
+      await pumpUna(
+        tester,
+        MediaQuery(
+          data: const MediaQueryData(accessibleNavigation: true),
+          child: carousel(autoPlay: interval),
+        ),
+      );
+      await tester.pump(interval * 3);
+      expect(changes, isEmpty);
+      // Nothing plays, so there is nothing to pause.
+      expect(find.bySemanticsLabel('Pause slide show'), findsNothing);
+    });
+
+    testWidgets('a pause button stops it, and play starts it again', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await pumpUna(tester, carousel(count: 3, autoPlay: interval));
+      expect(find.bySemanticsLabel('Pause slide show'), findsOneWidget);
+      tester.semantics.tap(find.semantics.byLabel('Pause slide show'));
+      await tester.pump();
+      await tester.pump(interval * 3);
+      await tester.pumpAndSettle();
+      expect(changes, isEmpty);
+      tester.semantics.tap(find.semantics.byLabel('Play slide show'));
+      await tester.pump();
+      await tester.pump(interval);
+      await tester.pumpAndSettle();
+      expect(changes, [1]);
+      await pumpUna(tester, const SizedBox());
+      handle.dispose();
+    });
+
     testWidgets('leaves no timer behind', (tester) async {
       await pumpUna(tester, carousel(autoPlay: interval));
       await pumpUna(tester, const SizedBox());

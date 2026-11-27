@@ -55,6 +55,7 @@ class UnaLocalizationsData with BaseTranslations<UnaLocale, UnaLocalizationsData
 	late final UnaLocalizationsData$dataTable$en dataTable = UnaLocalizationsData$dataTable$en.internal(_root);
 	late final UnaLocalizationsData$pagination$en pagination = UnaLocalizationsData$pagination$en.internal(_root);
 	late final UnaLocalizationsData$carousel$en carousel = UnaLocalizationsData$carousel$en.internal(_root);
+	late final UnaLocalizationsData$slider$en slider = UnaLocalizationsData$slider$en.internal(_root);
 	late final UnaLocalizationsData$refreshIndicator$en refreshIndicator = UnaLocalizationsData$refreshIndicator$en.internal(_root);
 	late final UnaLocalizationsData$reorder$en reorder = UnaLocalizationsData$reorder$en.internal(_root);
 	late final UnaLocalizationsData$swipeActions$en swipeActions = UnaLocalizationsData$swipeActions$en.internal(_root);
@@ -363,6 +364,9 @@ class UnaLocalizationsData$chip$en {
 
 	/// en: 'Remove'
 	String get remove => 'Remove';
+
+	/// en: 'Remove $label'
+	String removeNamed({required Object label}) => 'Remove ${label}';
 }
 
 // Path: command
@@ -516,6 +520,33 @@ class UnaLocalizationsData$carousel$en {
 
 	/// en: '$index of $count'
 	String item({required Object index, required Object count}) => '${index} of ${count}';
+
+	/// en: 'Pause slide show'
+	String get pause => 'Pause slide show';
+
+	/// en: 'Play slide show'
+	String get play => 'Play slide show';
+}
+
+// Path: slider
+class UnaLocalizationsData$slider$en {
+	UnaLocalizationsData$slider$en.internal(this._root);
+
+	final UnaLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Minimum'
+	String get minimum => 'Minimum';
+
+	/// en: 'Maximum'
+	String get maximum => 'Maximum';
+
+	/// en: 'Thumb $index of $count'
+	String thumb({required Object index, required Object count}) => 'Thumb ${index} of ${count}';
+
+	/// en: '$label, $thumb'
+	String named({required Object label, required Object thumb}) => '${label}, ${thumb}';
 }
 
 // Path: refreshIndicator
@@ -624,6 +655,12 @@ class UnaLocalizationsData$colorPicker$en {
 
 	/// en: 'Saturation and brightness'
 	String get saturationAndBrightness => 'Saturation and brightness';
+
+	/// en: 'Saturation'
+	String get saturation => 'Saturation';
+
+	/// en: 'Brightness'
+	String get brightness => 'Brightness';
 
 	/// en: 'Select colour'
 	String get selectColor => 'Select colour';
@@ -820,6 +857,7 @@ extension on UnaLocalizationsData {
 			'stepper.cancel' => 'Cancel',
 			'toast.dismiss' => 'Dismiss',
 			'chip.remove' => 'Remove',
+			'chip.removeNamed' => ({required Object label}) => 'Remove ${label}',
 			'command.noResults' => 'No results found.',
 			'menu.control' => 'Ctrl',
 			'menu.alt' => 'Alt',
@@ -853,6 +891,12 @@ extension on UnaLocalizationsData {
 			'carousel.next' => 'Next page',
 			'carousel.page' => ({required Object page, required Object count}) => 'Page ${page} of ${count}',
 			'carousel.item' => ({required Object index, required Object count}) => '${index} of ${count}',
+			'carousel.pause' => 'Pause slide show',
+			'carousel.play' => 'Play slide show',
+			'slider.minimum' => 'Minimum',
+			'slider.maximum' => 'Maximum',
+			'slider.thumb' => ({required Object index, required Object count}) => 'Thumb ${index} of ${count}',
+			'slider.named' => ({required Object label, required Object thumb}) => '${label}, ${thumb}',
 			'refreshIndicator.refresh' => 'Refresh',
 			'refreshIndicator.refreshing' => 'Refreshing',
 			'reorder.moveUp' => 'Move up',
@@ -874,6 +918,8 @@ extension on UnaLocalizationsData {
 			'colorPicker.opacity' => 'Opacity',
 			'colorPicker.red' => 'Red',
 			'colorPicker.saturationAndBrightness' => 'Saturation and brightness',
+			'colorPicker.saturation' => 'Saturation',
+			'colorPicker.brightness' => 'Brightness',
 			'colorPicker.selectColor' => 'Select colour',
 			'colorPicker.sliders' => 'Sliders',
 			'colorPicker.spectrum' => 'Spectrum',

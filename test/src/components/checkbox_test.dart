@@ -293,6 +293,7 @@ void main() {
           Checkbox(
             value: false,
             focusNode: focusNode,
+            onChanged: (_) {},
           ),
         ),
       );

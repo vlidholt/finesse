@@ -75,21 +75,21 @@ void main() {
           },
         ),
       );
-      expect(thumbValue(tester), '20.0');
+      expect(thumbValue(tester), '20%');
       // A tap the parent refuses moves nothing.
       await tester.tapAt(at(tester, .75));
       await tester.pump();
       expect(reported, [75]);
-      expect(thumbValue(tester), '20.0');
+      expect(thumbValue(tester), '20%');
       // One it takes does.
       accept = true;
       await tester.tapAt(at(tester, .5));
       await tester.pump();
-      expect(thumbValue(tester), '50.0');
+      expect(thumbValue(tester), '50%');
       // And a value written from outside.
       rebuild(() => value = 90);
       await tester.pump();
-      expect(thumbValue(tester), '90.0');
+      expect(thumbValue(tester), '90%');
       expect(find.bySemanticsLabel('Volume'), findsOneWidget);
     });
 
