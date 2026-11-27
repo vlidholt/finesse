@@ -62,7 +62,10 @@ class _RevealImageNetworkExampleState extends State<RevealImageNetworkExample> {
                   value: _reveal,
                   onChanged: (v) => setState(() => _reveal = v),
                   segments: const [
-                    Segment(value: ImageReveal.exposure, label: Text('Exposure')),
+                    Segment(
+                      value: ImageReveal.exposure,
+                      label: Text('Exposure'),
+                    ),
                     Segment(value: ImageReveal.fade, label: Text('Fade')),
                   ],
                 ),
