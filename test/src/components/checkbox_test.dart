@@ -24,8 +24,9 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          const Checkbox(
+          Checkbox(
             value: false,
+            onChanged: (_) {},
           ),
         ),
       );
@@ -48,8 +49,9 @@ void main() {
     testWidgets('renders checked state correctly', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const Checkbox(
+          Checkbox(
             value: true,
+            onChanged: (_) {},
           ),
         ),
       );

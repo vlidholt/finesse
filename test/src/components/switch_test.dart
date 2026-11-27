@@ -15,7 +15,9 @@ void main() {
 
   group('Switch', () {
     testWidgets('Switch true matches goldens', (tester) async {
-      await tester.pumpWidget(createTestWidget(const Switch(value: true)));
+      await tester.pumpWidget(
+        createTestWidget(Switch(value: true, onChanged: (_) {})),
+      );
 
       await expectLater(
         find.byType(Switch),
@@ -24,7 +26,9 @@ void main() {
     });
 
     testWidgets('Switch false matches goldens', (tester) async {
-      await tester.pumpWidget(createTestWidget(const Switch(value: false)));
+      await tester.pumpWidget(
+        createTestWidget(Switch(value: false, onChanged: (_) {})),
+      );
 
       await expectLater(
         find.byType(Switch),
