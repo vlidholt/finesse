@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:una/src/components/autocomplete.dart';
 import 'package:una/src/components/chip.dart';
 import 'package:una/src/components/decorator.dart';
+import 'package:una/src/components/field_semantics.dart';
 import 'package:una/src/components/popover.dart';
 import 'package:una/src/components/text_field.dart';
 import 'package:una/src/i18n/localizations_delegate.dart';
@@ -358,6 +359,14 @@ class _TagFieldState<T extends Object> extends State<TagField<T>> {
             ? (down ? 0 : count - 1)
             : (current + (down ? 1 : -1) + count) % count;
         _highlight.value = (index: next, byKeyboard: true);
+        // The focus stays in the field, so nothing else says it.
+        _announce(
+          UnaLocalizations.of(context).autocomplete.option(
+            option: _display(_options[next]),
+            index: next + 1,
+            count: count,
+          ),
+        );
         return KeyEventResult.handled;
       }
       final index = _highlight.value.index;
@@ -465,32 +474,41 @@ class _TagFieldState<T extends Object> extends State<TagField<T>> {
       canRequestFocus: false,
       skipTraversal: true,
       onKeyEvent: _onKey,
-      child: TextField(
-        controller: _controller,
-        focusNode: _focusNode,
-        groupId: _group,
-        autofocus: widget.autofocus,
-        enabled: _enabled,
-        readOnly: _full,
-        // The outline is the whole field's, drawn around the tags too.
-        decoration: UnaDecoration.none,
-        padding: EdgeInsets.zero,
-        constraints: BoxConstraints(minHeight: tagHeight),
-        placeholder: hasTags ? null : widget.placeholder,
-        showCursor: _marked == null && !_full ? null : false,
-        autocorrect: false,
-        enableSuggestions: false,
-        textInputAction: TextInputAction.done,
-        onChanged: _onTyped,
-        onSubmitted: (text) {
-          _commitText(text);
-          // Enter adds a tag and stays for the next one.
-          if (_focusNode.canRequestFocus) _focusNode.requestFocus();
-        },
-        onTap: () {
-          if (_marked != null) setState(() => _marked = null);
-        },
-        onTapAlwaysCalled: true,
+      // With suggestions, expanded while their list shows: a combobox.
+      child: ListenableBuilder(
+        listenable: _popover,
+        builder: (context, child) => FieldSemantics(
+          expanded: widget.optionsBuilder == null ? null : _popover.isOpen,
+          child: child!,
+        ),
+        child: TextField(
+          controller: _controller,
+          focusNode: _focusNode,
+          semanticLabel: widget.semanticLabel,
+          groupId: _group,
+          autofocus: widget.autofocus,
+          enabled: _enabled,
+          readOnly: _full,
+          // The outline is the whole field's, drawn around the tags too.
+          decoration: UnaDecoration.none,
+          padding: EdgeInsets.zero,
+          constraints: BoxConstraints(minHeight: tagHeight),
+          placeholder: hasTags ? null : widget.placeholder,
+          showCursor: _marked == null && !_full ? null : false,
+          autocorrect: false,
+          enableSuggestions: false,
+          textInputAction: TextInputAction.done,
+          onChanged: _onTyped,
+          onSubmitted: (text) {
+            _commitText(text);
+            // Enter adds a tag and stays for the next one.
+            if (_focusNode.canRequestFocus) _focusNode.requestFocus();
+          },
+          onTap: () {
+            if (_marked != null) setState(() => _marked = null);
+          },
+          onTapAlwaysCalled: true,
+        ),
       ),
     );
 
@@ -588,11 +606,9 @@ class _TagFieldState<T extends Object> extends State<TagField<T>> {
       ),
     );
 
-    final labelled = Semantics(
-      container: true,
-      label: widget.semanticLabel,
-      child: field,
-    );
+    // The name is the input's own (see TextField.semanticLabel); the tags
+    // are read beside it.
+    final labelled = Semantics(container: true, child: field);
     if (widget.optionsBuilder == null) return labelled;
 
     final select = theme.selectTheme;

@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:una/src/components/date_picker.dart';
 import 'package:una/src/components/icon_button.dart';
+import 'package:una/src/components/input_decorator.dart';
 import 'package:una/src/components/picker.dart';
 import 'package:una/src/components/text_field.dart';
 import 'package:una/src/i18n/localizations_delegate.dart';
@@ -407,6 +408,9 @@ class _DateFieldState extends State<DateField> {
         field.fieldPadding ??
         const EdgeInsets.symmetric(horizontal: 12, vertical: 8);
     final nodes = _nodes;
+    // The name of the form field the date field is in, if any: each part
+    // is read as it and the part's own name.
+    final fieldLabel = InputDecoratorScope.maybeOf(context)?.label;
 
     String labelOf(_Part part) => switch (part) {
       _Part.day => l.datePicker.day,
@@ -440,55 +444,56 @@ class _DateFieldState extends State<DateField> {
       final node = nodes[index];
       final boxWidth = part == _Part.year ? yearWidth : shortWidth;
       // One node per field, named by its label: a screen reader stops on
-      // "Day" once, not on a label and then a nameless text field.
-      return MergeSemantics(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (widget.showLabels) ...[
-              DefaultTextStyle(style: labelStyle, child: Text(label)),
-              SizedBox(height: gap),
-            ],
-            SizedBox(
-              width: boxWidth,
-              child: Semantics(
-                label: widget.showLabels ? null : label,
-                // The arrows are heard above the field, which would keep
-                // them for moving its caret.
-                child: Focus(
-                  canRequestFocus: false,
-                  skipTraversal: true,
-                  onKeyEvent: (_, event) => _onKey(part, index, event),
-                  child: TextField(
-                    enabled: widget.enabled,
-                    focusNode: node,
-                    autofocus: widget.autofocus && index == 0,
-                    style: style,
-                    placeholderStyle: placeholderStyle,
-                    controller: _controllers[part],
-                    decoration: decoration,
-                    placeholder: Text(hint),
-                    textAlign: TextAlign.center,
-                    placeholderAlignment: Alignment.center,
-                    keyboardType: TextInputType.number,
-                    textInputAction: index == 2
-                        ? TextInputAction.done
-                        : TextInputAction.next,
-                    showCursor: false,
-                    maxLengthEnforcement: MaxLengthEnforcement.none,
-                    padding: padding,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    onChanged: (text) {
-                      _changed();
-                      _advanceIfFull(part, text, index);
-                    },
-                    keyboardToolbarBuilder: widget.keyboardToolbarBuilder,
-                  ),
-                ),
+      // "Day" once, not on a label and then a nameless text field. The
+      // field carries the name; the painted label is left out.
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (widget.showLabels) ...[
+            ExcludeSemantics(
+              child: DefaultTextStyle(style: labelStyle, child: Text(label)),
+            ),
+            SizedBox(height: gap),
+          ],
+          SizedBox(
+            width: boxWidth,
+            // The arrows are heard above the field, which would keep
+            // them for moving its caret.
+            child: Focus(
+              canRequestFocus: false,
+              skipTraversal: true,
+              onKeyEvent: (_, event) => _onKey(part, index, event),
+              child: TextField(
+                enabled: widget.enabled,
+                focusNode: node,
+                autofocus: widget.autofocus && index == 0,
+                semanticLabel: fieldLabel == null
+                    ? label
+                    : '$fieldLabel, $label',
+                style: style,
+                placeholderStyle: placeholderStyle,
+                controller: _controllers[part],
+                decoration: decoration,
+                placeholder: Text(hint),
+                textAlign: TextAlign.center,
+                placeholderAlignment: Alignment.center,
+                keyboardType: TextInputType.number,
+                textInputAction: index == 2
+                    ? TextInputAction.done
+                    : TextInputAction.next,
+                showCursor: false,
+                maxLengthEnforcement: MaxLengthEnforcement.none,
+                padding: padding,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                onChanged: (text) {
+                  _changed();
+                  _advanceIfFull(part, text, index);
+                },
+                keyboardToolbarBuilder: widget.keyboardToolbarBuilder,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       );
     }
 

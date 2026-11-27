@@ -555,6 +555,9 @@ class _NumberFieldState extends State<NumberField> {
             controller: _controller,
             focusNode: _focusNode,
             autofocus: widget.autofocus,
+            // The field to type in is named too, not only the node that
+            // steps.
+            semanticLabel: widget.semanticLabel,
             enabled: _enabled,
             readOnly: widget.readOnly,
             decoration: widget.decoration,

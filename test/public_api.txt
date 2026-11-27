@@ -213,6 +213,7 @@ ImageReveal
 IndicatorBadge
 IndicatorBadgeTheme
 InputDecorator
+InputDecoratorScope
 IrisColorScheme
 Kbd
 KbdTheme

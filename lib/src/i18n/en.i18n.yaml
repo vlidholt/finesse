@@ -46,7 +46,11 @@ autocomplete:
   noResults: "No results"
   oneResult: "1 result available"
   results: "$count results available"
+  option: "$option, $index of $count"
   loading: "Loading…"
+
+otpField:
+  digit: "Digit $index of $count"
 
 numberField:
   increase: "Increase"

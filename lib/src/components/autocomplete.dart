@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/field_semantics.dart';
 import 'package:una/src/components/popover.dart';
 import 'package:una/src/components/text_field.dart';
 import 'package:una/src/i18n/localizations_delegate.dart';
@@ -91,6 +92,7 @@ class Autocomplete<T extends Object> extends StatefulWidget {
     this.enabled = true,
     this.textInputAction,
     this.decoration,
+    this.semanticLabel,
   }) : assert(
          initialValue == null || controller == null,
          'Pass either an initialValue or a controller, not both.',
@@ -178,6 +180,9 @@ class Autocomplete<T extends Object> extends StatefulWidget {
 
   /// Merged over the theme's text field decoration.
   final UnaDecoration? decoration;
+
+  /// {@macro TextField.semanticLabel}
+  final String? semanticLabel;
 
   @override
   State<Autocomplete<T>> createState() => _AutocompleteState<T>();
@@ -379,6 +384,23 @@ class _AutocompleteState<T extends Object> extends State<Autocomplete<T>> {
     }
   }
 
+  /// Says the option the arrow keys moved to, and where it is in the
+  /// list: the focus stays in the field, so nothing else would.
+  void _announceHighlight() {
+    final index = _highlight.value.index;
+    if (index == null || index >= _options.length) return;
+    final l = UnaLocalizations.of(context);
+    SemanticsService.sendAnnouncement(
+      View.of(context),
+      l.autocomplete.option(
+        option: _display(_options[index]),
+        index: index + 1,
+        count: _options.length,
+      ),
+      Directionality.of(context),
+    );
+  }
+
   void _announceCount(int count) {
     final l = UnaLocalizations.of(context);
     final message = switch (count) {
@@ -490,6 +512,7 @@ class _AutocompleteState<T extends Object> extends State<Autocomplete<T>> {
       }
       if (_panel != _Panel.options) return KeyEventResult.ignored;
       _move(down ? 1 : -1);
+      _announceHighlight();
       return KeyEventResult.handled;
     }
     if (key == LogicalKeyboardKey.enter ||
@@ -543,27 +566,34 @@ class _AutocompleteState<T extends Object> extends State<Autocomplete<T>> {
             canRequestFocus: false,
             skipTraversal: true,
             onKeyEvent: _onKey,
-            child: TextField(
-              controller: _controller,
-              focusNode: _focusNode,
-              groupId: _group,
-              autofocus: widget.autofocus,
-              enabled: widget.enabled,
-              decoration: widget.decoration,
-              placeholder: widget.placeholder,
-              leading: widget.leading,
-              trailing: widget.trailing,
-              clearable: widget.clearable,
-              textInputAction: widget.textInputAction,
-              // The field's own suggestions would cover the list.
-              autocorrect: false,
-              enableSuggestions: false,
-              onChanged: widget.onChanged,
-              onSubmitted: _onSubmitted,
-              // A tap brings back a list closed by a tap outside, which on
-              // a touch screen leaves the focus where it was.
-              onTap: _reopen,
-              onTapAlwaysCalled: true,
+            // Expanded while the list shows: a combobox.
+            child: ListenableBuilder(
+              listenable: _popover,
+              builder: (context, child) =>
+                  FieldSemantics(expanded: _popover.isOpen, child: child!),
+              child: TextField(
+                controller: _controller,
+                focusNode: _focusNode,
+                groupId: _group,
+                autofocus: widget.autofocus,
+                enabled: widget.enabled,
+                decoration: widget.decoration,
+                semanticLabel: widget.semanticLabel,
+                placeholder: widget.placeholder,
+                leading: widget.leading,
+                trailing: widget.trailing,
+                clearable: widget.clearable,
+                textInputAction: widget.textInputAction,
+                // The field's own suggestions would cover the list.
+                autocorrect: false,
+                enableSuggestions: false,
+                onChanged: widget.onChanged,
+                onSubmitted: _onSubmitted,
+                // A tap brings back a list closed by a tap outside, which on
+                // a touch screen leaves the focus where it was.
+                onTap: _reopen,
+                onTapAlwaysCalled: true,
+              ),
             ),
           ),
         );
