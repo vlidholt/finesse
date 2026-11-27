@@ -760,6 +760,19 @@ was measured from (Strand, until it moved), is its own repository,
 
 ### Fixed
 
+- **A slider takes a sideways swipe on a phone.** Inside something that
+  swipes sideways — a pager, a carousel, the docs' preview and code
+  pages — the swipe moved the page instead of the thumb: the slider
+  listened for a pan, which waits for twice the movement of a horizontal
+  drag. It listens for horizontal drags now, which it wins as the deeper
+  one, and a vertical swipe on it still scrolls the page.
+- **The Liquid Glass slider's lens keeps round ends in a fast drag.** Every
+  slider on Liquid Glass now draws una's glass thumb (a plain slider used
+  the package's `GlassSlider`, whose squashed lens kept its resting corner
+  radius and lost its top and bottom curves). It squashes and stretches
+  with the speed of the drag, as the package's does, with its radius half
+  its shorter side.
+
 Problems inherited from shad:
 
 - A popover, menu, select list, date picker or tooltip stayed on screen

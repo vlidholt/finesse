@@ -1,7 +1,10 @@
+import 'dart:math' as math;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
+import 'package:una/src/liquid_glass/controls.dart' show LiquidGlassSliderThumb;
 import 'package:una/src/liquid_glass/liquid_glass.dart'
     show
         LiquidGlassBarGroup,
@@ -153,7 +156,7 @@ void main() {
 
     final cases = <String, (Widget, Type)>{
       'Switch': (Switch(value: true, onChanged: (_) {}), lg.GlassSwitch),
-      'Slider': (Slider(value: .5, onChanged: (_) {}), lg.GlassSlider),
+      'Slider': (Slider(value: .5, onChanged: (_) {}), LiquidGlassSliderThumb),
       'SegmentedControl': (
         SegmentedControl<int>(
           value: 0,
@@ -284,14 +287,74 @@ void main() {
             child: Center(child: Slider(value: .5, onChanged: (_) {})),
           ),
         );
-        final glass = find.byType(lg.GlassSlider);
+        final thumb = find.byType(LiquidGlassSliderThumb);
         final row = find.byType(SizedBox).first;
-        // At its own height (the thumb's and 16), centred on the row, so the
-        // thumb it places for that height is on the track it centres.
-        final size = tester.getSize(glass);
-        expect(size.height, greaterThan(24));
-        expect(tester.getCenter(glass).dy, tester.getCenter(row).dy);
+        // The capsule is centred on the row, on the track.
+        expect(tester.getCenter(thumb).dy, tester.getCenter(row).dy);
         expect(tester.takeException(), isNull);
+      });
+    });
+
+    testWidgets('a fast drag squashes the glass thumb, with round ends', (
+      tester,
+    ) async {
+      await onPlatform(TargetPlatform.iOS, () async {
+        var value = .2;
+        await pump(
+          tester,
+          Center(
+            child: SizedBox(
+              width: 300,
+              child: StatefulBuilder(
+                builder: (context, setState) => Slider(
+                  value: value,
+                  onChanged: (v) => setState(() => value = v),
+                ),
+              ),
+            ),
+          ),
+        );
+        final thumb = find.byType(LiquidGlassSliderThumb);
+        final rest = tester.getSize(
+          find
+              .descendant(
+                of: thumb,
+                matching: find.byType(SizedBox),
+              )
+              .first,
+        );
+        final gesture = await tester.startGesture(tester.getCenter(thumb));
+        for (var i = 0; i < 6; i++) {
+          await gesture.moveBy(const Offset(30, 0));
+          await tester.pump(const Duration(milliseconds: 16));
+        }
+        final box = find.descendant(of: thumb, matching: find.byType(SizedBox));
+        final moving = tester.getSize(box.first);
+        // Squashed along the track, stretched across it, against the
+        // swollen capsule it is at rest under a finger.
+        expect(
+          moving.width / moving.height,
+          lessThan(rest.width / rest.height),
+        );
+        // The ends stay round: the corner radius is half the shorter side.
+        final decoration = tester
+            .widgetList<DecoratedBox>(
+              find.descendant(of: thumb, matching: find.byType(DecoratedBox)),
+            )
+            .map((d) => d.decoration)
+            .whereType<ShadowDecoration>()
+            .first;
+        final radius =
+            ((decoration.decoration as BoxDecoration).borderRadius!
+                    as BorderRadius)
+                .topLeft
+                .x;
+        expect(
+          radius,
+          closeTo(math.min(moving.width, moving.height) / 2, .01),
+        );
+        await gesture.up();
+        await tester.pump(const Duration(seconds: 1));
       });
     });
 

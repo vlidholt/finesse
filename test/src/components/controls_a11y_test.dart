@@ -439,7 +439,9 @@ void main() {
           ),
         );
         expect(
-          find.byWidgetPredicate((w) => '${w.runtimeType}' == 'GlassSlider'),
+          find.byWidgetPredicate(
+            (w) => '${w.runtimeType}' == 'LiquidGlassSliderThumb',
+          ),
           findsOneWidget,
         );
         final [slider] = sliders(tester);

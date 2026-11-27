@@ -194,7 +194,7 @@ componentTheme.liquidGlass)` at build: never a window width, never cached.
   every package widget, cached per `ThemeData` in an `Expando`. Components
   build una wrappers from that directory (`LiquidGlassSurface`,
   `LiquidGlassBarGroup`, `LiquidGlassScrollEdge`, `LiquidGlassSwitch`/
-  `Slider`/`SegmentedControl`/`TabBar`), and the config types
+  `SegmentedControl`/`TabBar`, `LiquidGlassSliderThumb`), and the config types
   (`GlassStyle`, `GlassQuality`, `GlassThemeSettings`) reach them through
   `liquid_glass_theme.dart`'s re-export. The package's `GlassTheme` clashes
   with ours: import it `as lg`.
@@ -204,16 +204,27 @@ componentTheme.liquidGlass)` at build: never a window width, never cached.
   layout and behaviour and draw `LiquidGlassSurface` (a `GlassContainer`
   with its own layer) instead of tint + border + shadow + backdrop; the
   decoration's border stays as padding (`glassFreeDecoration`), so nothing
-  moves. `Switch`, `Slider`, `SegmentedControl` and the floating
+  moves. `Switch`, `SegmentedControl` and the floating
   `BottomNavigationBar` build the package's widget. Each delegation has a
-  frosted fallback for what the package cannot express: a slider with an
-  always-shown bubble or division marks, a segmented control with no
-  selection or an unnamed non-`Text` label, a docked bar, a popover with
-  an arrow, a desktop top bar. Tooltips never switch.
-  The package's `GlassSlider` is `thumb + 16` tall and places its thumb
-  for that height while centring its track in whatever it is given, so
-  `LiquidGlassSlider` keeps it at its own height in an `OverflowBox`:
-  squeezed into a shorter row the thumb sat below the track.
+  frosted fallback for what the package cannot express: a segmented
+  control with no selection or an unnamed non-`Text` label, a docked bar,
+  a popover with an arrow, a desktop top bar. Tooltips never switch.
+- **Every slider on glass is una's, with a glass thumb.** The package's
+  `GlassSlider` was used for plain sliders and dropped: its jelly squashed
+  the capsule by 30 % and stretched it by 18 % with the resting corner
+  radius, so a fast drag flattened the lens's top and bottom as if
+  clipped. `LiquidGlassSliderThumb` is the same capsule (37:24, 1.6 thumb
+  radii tall), swells 1.55× and fades its material to a
+  `LiquidGlassSurface` lens while held, and squashes by the drag speed
+  (`_SliderCore._stretch`, a step per move over 24, settling 60 ms after
+  the moves stop) with its radius half its shorter side. It grows by its
+  *size*, never a `Transform`: glass is laid out at the size it is drawn.
+- **A slider's drags are horizontal drags, not pans.** A pan waits for
+  twice the touch slop, so a horizontal pager, carousel or swipeable row
+  around a slider (the docs' preview/code `TabPages`) took the finger and
+  the card moved instead of the thumb. Of two horizontal drags the deeper
+  wins; a vertical swipe on a slider still scrolls
+  (`slider_drag_arena_test.dart`).
 - **A Liquid Glass surface claims the entrance fade too**, like a
   `BackdropSurface`, and fades the glass by `LiquidGlassSettings.visibility`
   with its content in a `FadeTransition`: the shader does not survive an
@@ -322,8 +333,7 @@ componentTheme.liquidGlass)` at build: never a window width, never cached.
   destinations) stays glass with the lens hidden (`showIndicator:
   false`), so it looks the same on every screen.
 - **Haptics stay una's rule**: the switch gets
-  `enableHaptics: Haptics.enabledOf(context)`. `GlassSlider` ticks on
-  division changes by itself and cannot be told not to.
+  `enableHaptics: Haptics.enabledOf(context)`.
 - **The phone metrics are Liquid Glass's** (`unaMobile`: app bar 44,
   bottom item 52 → a 64 bar, switch 58 × 26, slider thumb 28, popover and
   dialog radius `xl4` = 24), so a phone screen is laid out the same frosted

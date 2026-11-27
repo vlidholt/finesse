@@ -1,4 +1,5 @@
-import 'package:flutter/rendering.dart' show OverflowBoxFit;
+import 'dart:math' as math;
+
 import 'package:flutter/widgets.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
 import 'package:una/src/liquid_glass/liquid_glass.dart';
@@ -83,116 +84,8 @@ class LiquidGlassSwitch extends StatelessWidget {
   }
 }
 
-/// The package's `GlassSlider` with una's colours and size: its thumb
-/// turns into a lens of glass while it is dragged.
-///
-/// Built by `Slider` when Liquid Glass is active; not public.
-class LiquidGlassSlider extends StatelessWidget {
-  /// Creates a Liquid Glass slider.
-  const LiquidGlassSlider({
-    required this.value,
-    required this.onChanged,
-    required this.min,
-    required this.max,
-    required this.trackHeight,
-    required this.thumbSize,
-    required this.activeColor,
-    required this.inactiveColor,
-    required this.thumbColor,
-    this.divisions,
-    this.onChangeStart,
-    this.onChangeEnd,
-    this.focusNode,
-    this.autofocus = false,
-    this.semanticLabel,
-    super.key,
-  });
-
-  /// The value.
-  final double value;
-
-  /// Called while the value changes; null disables the slider.
-  final ValueChanged<double>? onChanged;
-
-  /// Called when a drag starts.
-  final ValueChanged<double>? onChangeStart;
-
-  /// Called when a drag ends.
-  final ValueChanged<double>? onChangeEnd;
-
-  /// The smallest value.
-  final double min;
-
-  /// The largest value.
-  final double max;
-
-  /// The number of discrete steps, or null for a continuous slider.
-  final int? divisions;
-
-  /// The height of the track.
-  final double trackHeight;
-
-  /// The diameter of the thumb at rest.
-  final double thumbSize;
-
-  /// The colour of the track up to the thumb.
-  final Color activeColor;
-
-  /// The colour of the rest of the track.
-  final Color inactiveColor;
-
-  /// The thumb's colour.
-  final Color thumbColor;
-
-  /// The focus node of the slider.
-  final FocusNode? focusNode;
-
-  /// Whether the slider takes the focus when it is first built.
-  final bool autofocus;
-
-  /// The slider's name for assistive technology, on the slider's own node.
-  /// Null is the package's "Slider".
-  final String? semanticLabel;
-
-  @override
-  Widget build(BuildContext context) {
-    // The package's slider is `thumbSize + 16` tall and places its thumb
-    // for that height, while its track is centred in whatever height it is
-    // given: squeezed into a shorter row, the thumb sat below the track.
-    // So it always has its own height, centred in the room it is given
-    // (and as tall as that where nothing bounds it).
-    return OverflowBox(
-      fit: OverflowBoxFit.deferToChild,
-      minHeight: thumbSize + 16,
-      maxHeight: thumbSize + 16,
-      child: LiquidGlassBridge(
-        child: lg.GlassSlider(
-          value: value,
-          onChanged: onChanged,
-          onChangeStart: onChangeStart,
-          onChangeEnd: onChangeEnd,
-          min: min,
-          max: max,
-          divisions: divisions,
-          trackHeight: trackHeight,
-          thumbRadius: thumbSize / 2,
-          activeColor: activeColor,
-          inactiveColor: inactiveColor,
-          thumbColor: thumbColor,
-          useOwnLayer: true,
-          focusNode: focusNode,
-          autofocus: autofocus,
-          // Only ever read out: the package draws no label.
-          label: semanticLabel,
-        ),
-      ),
-    );
-  }
-}
-
-/// The thumb of a una slider on Liquid Glass, for the sliders the
-/// package's own [LiquidGlassSlider] cannot be: a range, one with its
-/// value bubble always shown or with division marks.
+/// The thumb of a una slider on Liquid Glass, every kind of slider: one
+/// value or a range, with or without its bubble and division marks.
 ///
 /// It is drawn as the package's slider draws its thumb: a capsule 37:24
 /// as wide as it is tall (the height 1.6 thumb radii) in [color] with a
@@ -205,6 +98,7 @@ class LiquidGlassSliderThumb extends StatelessWidget {
     required this.thumbRadius,
     required this.color,
     required this.pressed,
+    this.stretch = 0,
     this.focusColor,
     super.key,
   });
@@ -218,6 +112,14 @@ class LiquidGlassSliderThumb extends StatelessWidget {
   /// Whether the thumb is held.
   final bool pressed;
 
+  /// How fast the held thumb is moving, 0 to 1. The lens squashes along
+  /// the track by up to 30 % and stretches across it by up to 18 %, as the
+  /// package's own thumb does, and settles back on a bouncy spring. Its
+  /// radius is half its shorter side whatever its shape, so its ends stay
+  /// round: the package's kept the resting radius, which flattened the top
+  /// and bottom of a squashed lens.
+  final double stretch;
+
   /// The colour of a focus ring around the capsule, or null for none.
   final Color? focusColor;
 
@@ -227,56 +129,64 @@ class LiquidGlassSliderThumb extends StatelessWidget {
     final width = height * 37 / 24;
     final motion = Motion.of(context);
     return SpringBuilder(
-      value: pressed ? 1 : 0,
+      value: pressed ? stretch : 0,
       spring: motion.bouncy,
-      builder: (context, t, _) {
-        final held = t.clamp(0.0, 1.0);
-        // The material is gone a little before the lens is full size.
-        final material = (1 - held * 1.35).clamp(0.0, 1.0);
-        final capsule = BorderRadius.circular(height / 2);
-        return OverflowBox(
-          minWidth: 0,
-          minHeight: 0,
-          maxWidth: double.infinity,
-          maxHeight: double.infinity,
-          child: Transform.scale(
-            scale: 1 + .55 * t,
-            child: SizedBox(
-              width: width,
-              height: height,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  if (held > .02)
-                    const LiquidGlassSurface(
-                      capsule: true,
-                      interactive: true,
-                      child: SizedBox.expand(),
+      builder: (context, s, _) => SpringBuilder(
+        value: pressed ? 1 : 0,
+        spring: motion.bouncy,
+        builder: (context, t, _) => _build(width, height, t, s),
+      ),
+    );
+  }
+
+  Widget _build(double width, double height, double t, double s) {
+    final held = t.clamp(0.0, 1.0);
+    // The material is gone a little before the lens is full size.
+    final material = (1 - held * 1.35).clamp(0.0, 1.0);
+    // It grows by its size, not by a transform, as the package's own
+    // thumb does: the glass is laid out at the size it is drawn.
+    final scale = 1 + .55 * t;
+    final w = width * scale * (1 - .3 * s);
+    final h = height * scale * (1 + .18 * s);
+    final capsule = BorderRadius.circular(math.min(w, h) / 2);
+    return OverflowBox(
+      minWidth: 0,
+      minHeight: 0,
+      maxWidth: double.infinity,
+      maxHeight: double.infinity,
+      child: SizedBox(
+        width: w,
+        height: h,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (held > .02)
+              const LiquidGlassSurface(
+                capsule: true,
+                interactive: true,
+                child: SizedBox.expand(),
+              ),
+            Opacity(
+              opacity: material,
+              child: DecoratedBox(
+                decoration: ShadowDecoration.box(
+                  color: color,
+                  borderRadius: capsule,
+                  shadows: [
+                    const BoxShadow(
+                      color: Color(0x1F000000),
+                      blurRadius: 6,
+                      offset: Offset(0, 2),
                     ),
-                  Opacity(
-                    opacity: material,
-                    child: DecoratedBox(
-                      decoration: ShadowDecoration.box(
-                        color: color,
-                        borderRadius: capsule,
-                        shadows: [
-                          const BoxShadow(
-                            color: Color(0x1F000000),
-                            blurRadius: 6,
-                            offset: Offset(0, 2),
-                          ),
-                          if (focusColor != null)
-                            BoxShadow(color: focusColor!, spreadRadius: 3),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+                    if (focusColor != null)
+                      BoxShadow(color: focusColor!, spreadRadius: 3),
+                  ],
+                ),
               ),
             ),
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
   }
 }

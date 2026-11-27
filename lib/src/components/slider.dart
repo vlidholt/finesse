@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart';
@@ -316,46 +317,10 @@ class _SliderState extends State<Slider> {
   @override
   Widget build(BuildContext context) {
     final value = widget.value ?? _value;
-    final theme = Theme.of(context);
-    final sliderTheme = theme.sliderTheme;
-    // A value bubble, division marks and restricted interaction are
-    // una's own; a slider that asks for one keeps una's look.
-    if (widget.valueIndicator != SliderValueIndicator.always &&
-        (widget.divisions == null || !widget.showDivisionMarks) &&
-        widget.allowedInteraction == null &&
-        LiquidGlass.isActive(context, sliderTheme.liquidGlass)) {
-      final scheme = theme.colorScheme;
-      final slider = LiquidGlassSlider(
-        value: value,
-        onChanged: widget.enabled
-            ? (next) {
-                if (widget.value == null) setState(() => _value = next);
-                widget.onChanged?.call(next);
-              }
-            : null,
-        onChangeStart: widget.onChangeStart,
-        onChangeEnd: widget.onChangeEnd,
-        min: widget.min ?? sliderTheme.min ?? 0,
-        max: widget.max ?? sliderTheme.max ?? 1,
-        divisions: widget.divisions,
-        trackHeight: widget.trackHeight ?? sliderTheme.trackHeight ?? 8,
-        thumbSize: 2 * (widget.thumbRadius ?? sliderTheme.thumbRadius ?? 10),
-        activeColor:
-            widget.activeTrackColor ??
-            sliderTheme.activeTrackColor ??
-            scheme.primary,
-        inactiveColor:
-            widget.inactiveTrackColor ??
-            sliderTheme.inactiveTrackColor ??
-            scheme.secondary,
-        thumbColor:
-            widget.thumbColor ?? sliderTheme.thumbColor ?? scheme.background,
-        focusNode: widget.focusNode,
-        autofocus: widget.autofocus,
-        semanticLabel: widget.semanticLabel,
-      );
-      return slider;
-    }
+    // On Liquid Glass the core draws the glass thumb itself (see
+    // `LiquidGlassSliderThumb`), for every kind of slider: the package's
+    // own slider kept its capsule's corner radius while it squashed, so a
+    // fast drag flattened the lens's top and bottom as if they were cut.
     final slider = _SliderCore(
       // One thumb: the multi-thumb core collapses to exactly the
       // single-value slider when handed a one-element list.
@@ -734,8 +699,30 @@ class _SliderCoreState extends State<_SliderCore> {
   int? draggingThumb;
 
   void _setDragging(int? index) {
+    if (index == null) _settleStretch();
     if (draggingThumb == index) return;
     setState(() => draggingThumb = index);
+  }
+
+  /// How fast the held thumb is moving, 0 at rest to 1 at a quick flick:
+  /// the glass thumb squashes along the track and stretches across it as
+  /// it does (see `LiquidGlassSliderThumb.stretch`).
+  final _stretch = ValueNotifier<double>(0);
+  Timer? _stretchSettle;
+
+  /// Records a drag step of [dx] logical pixels. A pointer reports a move
+  /// about once a frame, so the step is the speed; the stretch settles
+  /// once the moves stop.
+  void _dragMoved(double dx) {
+    _stretch.value = (dx.abs() / 24).clamp(0.0, 1.0);
+    _stretchSettle?.cancel();
+    _stretchSettle = Timer(const Duration(milliseconds: 60), _settleStretch);
+  }
+
+  void _settleStretch() {
+    _stretchSettle?.cancel();
+    _stretchSettle = null;
+    _stretch.value = 0;
   }
 
   @override
@@ -753,6 +740,8 @@ class _SliderCoreState extends State<_SliderCore> {
 
   @override
   void dispose() {
+    _stretchSettle?.cancel();
+    _stretch.dispose();
     for (final node in _ownedFocusNodes.values) {
       node.dispose();
     }
@@ -1186,14 +1175,18 @@ class _SliderCoreState extends State<_SliderCore> {
                     child: SizedBox(
                       width: effectiveThumbRadius * 2,
                       height: effectiveThumbRadius * 2,
-                      child: UnaGestureDetector(
-                        // The thumb's node above carries its actions.
+                      // A horizontal drag, not a pan: a pan waits for twice
+                      // the slop on a touch screen, so a horizontal pager,
+                      // carousel or swipeable row around the slider (a
+                      // `TabPages`, say) took the finger first and the card
+                      // moved instead of the thumb. Of two horizontal drags
+                      // the deeper one, this, wins; a vertical swipe still
+                      // scrolls the page.
+                      child: GestureDetector(
                         excludeFromSemantics: true,
-                        mouseCursor: widget.enabled
-                            ? effectiveMouseCursor
-                            : effectiveDisabledMouseCursor,
-                        onPanUpdate: canSlideThumb
+                        onHorizontalDragUpdate: canSlideThumb
                             ? (details) {
+                                _dragMoved(details.delta.dx);
                                 final dx = _localDx(
                                   layoutContext,
                                   details.globalPosition,
@@ -1209,7 +1202,7 @@ class _SliderCoreState extends State<_SliderCore> {
                                 );
                               }
                             : null,
-                        onPanDown: widget.enabled
+                        onHorizontalDragDown: widget.enabled
                             ? (details) {
                                 _grabOffset =
                                     details.localPosition.dx -
@@ -1217,79 +1210,94 @@ class _SliderCoreState extends State<_SliderCore> {
                                 _setDragging(index);
                               }
                             : null,
-                        onPanCancel: widget.enabled
+                        onHorizontalDragCancel: widget.enabled
                             ? () => _setDragging(null)
                             : null,
-                        onPanStart: widget.enabled
+                        onHorizontalDragStart: widget.enabled
                             ? (details) {
                                 _dragStarted(details);
                                 _setDragging(index);
                                 widget.onChangeStart?.call(widget.values);
                               }
                             : null,
-                        onPanEnd: widget.enabled
+                        onHorizontalDragEnd: widget.enabled
                             ? (details) {
                                 _setDragging(null);
                                 widget.onChangeEnd?.call(widget.values);
                               }
                             : null,
                         child: MouseRegion(
-                          onEnter: (_) => _setHovered(index),
-                          onExit: (_) => _setHovered(null),
-                          // On Liquid Glass the thumb is the package's
-                          // capsule, which turns to a lens while held.
-                          child: liquid
-                              ? LiquidGlassSliderThumb(
-                                  thumbRadius: effectiveThumbRadius,
-                                  color: resolvedThumbColor,
-                                  pressed:
-                                      draggingThumb == index && widget.enabled,
-                                  focusColor: focused && widget.enabled
-                                      ? ringColor
-                                      : null,
-                                )
-                              // The ring grows out of the thumb and the thumb
-                              // swells while it is held; both are paint only,
-                              // so the slider's box never changes.
-                              : SpringBuilder(
-                                  value:
-                                      draggingThumb == index && widget.enabled
-                                      ? 1
-                                      : 0,
-                                  spring: motion.bouncy,
-                                  builder: (context, press, child) =>
-                                      Transform.scale(
-                                        scale:
-                                            1 + (thumbPressScale - 1) * press,
-                                        child: child,
-                                      ),
-                                  child: SpringBuilder(
-                                    value: ringVisible ? 1 : 0,
-                                    spring: motion.snappy,
-                                    builder: (context, ring, _) => Container(
-                                      decoration: ShadowDecoration.box(
-                                        shape: BoxShape.circle,
-                                        color: resolvedThumbColor,
-                                        border: Border.all(
-                                          color: resolvedThumbBorderColor,
-                                          width: thumbBorderWidth,
+                          // The thumb's node above carries its actions.
+                          cursor: widget.enabled
+                              ? effectiveMouseCursor
+                              : effectiveDisabledMouseCursor,
+                          child: MouseRegion(
+                            onEnter: (_) => _setHovered(index),
+                            onExit: (_) => _setHovered(null),
+                            // On Liquid Glass the thumb is a capsule like
+                            // the package's, which turns to a lens while
+                            // held and squashes as it moves.
+                            child: liquid
+                                ? ValueListenableBuilder(
+                                    valueListenable: _stretch,
+                                    builder: (context, stretch, _) =>
+                                        LiquidGlassSliderThumb(
+                                          thumbRadius: effectiveThumbRadius,
+                                          color: resolvedThumbColor,
+                                          pressed:
+                                              draggingThumb == index &&
+                                              widget.enabled,
+                                          stretch: draggingThumb == index
+                                              ? stretch
+                                              : 0,
+                                          focusColor: focused && widget.enabled
+                                              ? ringColor
+                                              : null,
                                         ),
-                                        // A spread-only shadow is a ring: it
-                                        // grows outward without moving
-                                        // anything, as `hover:ring-4` does.
-                                        shadows: ring > 0
-                                            ? [
-                                                BoxShadow(
-                                                  color: ringColor,
-                                                  spreadRadius:
-                                                      ringWidth * ring,
-                                                ),
-                                              ]
-                                            : const <BoxShadow>[],
+                                  )
+                                // The ring grows out of the thumb and the thumb
+                                // swells while it is held; both are paint only,
+                                // so the slider's box never changes.
+                                : SpringBuilder(
+                                    value:
+                                        draggingThumb == index && widget.enabled
+                                        ? 1
+                                        : 0,
+                                    spring: motion.bouncy,
+                                    builder: (context, press, child) =>
+                                        Transform.scale(
+                                          scale:
+                                              1 + (thumbPressScale - 1) * press,
+                                          child: child,
+                                        ),
+                                    child: SpringBuilder(
+                                      value: ringVisible ? 1 : 0,
+                                      spring: motion.snappy,
+                                      builder: (context, ring, _) => Container(
+                                        decoration: ShadowDecoration.box(
+                                          shape: BoxShape.circle,
+                                          color: resolvedThumbColor,
+                                          border: Border.all(
+                                            color: resolvedThumbBorderColor,
+                                            width: thumbBorderWidth,
+                                          ),
+                                          // A spread-only shadow is a ring: it
+                                          // grows outward without moving
+                                          // anything, as `hover:ring-4` does.
+                                          shadows: ring > 0
+                                              ? [
+                                                  BoxShadow(
+                                                    color: ringColor,
+                                                    spreadRadius:
+                                                        ringWidth * ring,
+                                                  ),
+                                                ]
+                                              : const <BoxShadow>[],
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
+                          ),
                         ),
                       ),
                     ),
@@ -1329,31 +1337,14 @@ class _SliderCoreState extends State<_SliderCore> {
               // takes the slider's whole height, so a finger need not land
               // on the thin track itself.
               Positioned.fill(
-                child: UnaGestureDetector(
-                  // The thumbs' nodes are the slider to assistive
-                  // technology; the track adds an unnamed one otherwise.
+                // Horizontal drags, as on the thumb (see there), with the
+                // tap and the cursor on the detector inside.
+                child: GestureDetector(
                   excludeFromSemantics: true,
                   behavior: HitTestBehavior.opaque,
-                  mouseCursor: widget.enabled
-                      ? effectiveMouseCursor
-                      : effectiveDisabledMouseCursor,
-                  onTapDown: canTap && values.isNotEmpty
+                  onHorizontalDragUpdate: canSlideTrack
                       ? (details) {
-                          final dx = _localDx(
-                            layoutContext,
-                            details.globalPosition,
-                          );
-                          if (dx == null) return;
-                          final value = _valueFromDx(
-                            dx,
-                            effectiveTrackWidth,
-                            effectiveThumbRadius,
-                          );
-                          _updateThumb(_nearestThumb(value), value);
-                        }
-                      : null,
-                  onPanUpdate: canSlideTrack
-                      ? (details) {
+                          _dragMoved(details.delta.dx);
                           final index = draggingThumb;
                           if (index == null) return;
                           final dx = _localDx(
@@ -1374,7 +1365,7 @@ class _SliderCoreState extends State<_SliderCore> {
                   // The thumb the gesture grabs is decided once, when it
                   // starts: a drag that runs past another thumb keeps moving
                   // the one it picked up rather than swapping mid-gesture.
-                  onPanDown: widget.enabled && values.isNotEmpty
+                  onHorizontalDragDown: widget.enabled && values.isNotEmpty
                       ? (details) {
                           final dx = _localDx(
                             layoutContext,
@@ -1392,91 +1383,117 @@ class _SliderCoreState extends State<_SliderCore> {
                           );
                         }
                       : null,
-                  onPanCancel: widget.enabled ? () => _setDragging(null) : null,
-                  onPanStart: widget.enabled
+                  onHorizontalDragCancel: widget.enabled
+                      ? () => _setDragging(null)
+                      : null,
+                  onHorizontalDragStart: widget.enabled
                       ? (details) {
                           _dragStarted(details);
                           widget.onChangeStart?.call(widget.values);
                         }
                       : null,
-                  onPanEnd: widget.enabled
+                  onHorizontalDragEnd: widget.enabled
                       ? (details) {
                           _setDragging(null);
                           widget.onChangeEnd?.call(widget.values);
                         }
                       : null,
-                  // `.cn-slider-track` is `overflow-hidden`, so the active
-                  // range takes the track's own rounded ends and nothing else:
-                  // square where it stops mid-track, rounded where it reaches
-                  // an end.
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: ClipRRect(
-                      borderRadius: theme.radius,
-                      child: Stack(
-                        children: [
-                          // whole track
-                          SizedBox(
-                            width: effectiveTrackWidth,
-                            height: effectiveTrackHeight,
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                borderRadius: theme.radius,
-                                color: widget.enabled
-                                    ? effectiveInactiveTrackColor
-                                    : effectiveDisabledInactiveTrackColor,
+                  child: UnaGestureDetector(
+                    // The thumbs' nodes are the slider to assistive
+                    // technology; the track adds an unnamed one otherwise.
+                    excludeFromSemantics: true,
+                    behavior: HitTestBehavior.opaque,
+                    mouseCursor: widget.enabled
+                        ? effectiveMouseCursor
+                        : effectiveDisabledMouseCursor,
+                    onTapDown: canTap && values.isNotEmpty
+                        ? (details) {
+                            final dx = _localDx(
+                              layoutContext,
+                              details.globalPosition,
+                            );
+                            if (dx == null) return;
+                            final value = _valueFromDx(
+                              dx,
+                              effectiveTrackWidth,
+                              effectiveThumbRadius,
+                            );
+                            _updateThumb(_nearestThumb(value), value);
+                          }
+                        : null,
+                    // `.cn-slider-track` is `overflow-hidden`, so the
+                    // active range takes the track's own rounded ends and
+                    // nothing else: square where it stops mid-track,
+                    // rounded where it reaches an end.
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: ClipRRect(
+                        borderRadius: theme.radius,
+                        child: Stack(
+                          children: [
+                            // whole track
+                            SizedBox(
+                              width: effectiveTrackWidth,
+                              height: effectiveTrackHeight,
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  borderRadius: theme.radius,
+                                  color: widget.enabled
+                                      ? effectiveInactiveTrackColor
+                                      : effectiveDisabledInactiveTrackColor,
+                                ),
                               ),
                             ),
-                          ),
-                          // active track
-                          Positioned(
-                            left:
-                                (rtl ? 1 - highFraction : lowFraction) *
-                                effectiveTrackWidth,
-                            top: 0,
-                            width:
-                                (highFraction - lowFraction).clamp(0.0, 1.0) *
-                                effectiveTrackWidth,
-                            height: effectiveTrackHeight,
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                color: widget.enabled
-                                    ? effectiveActiveTrackColor
-                                    : effectiveDisabledActiveTrackColor,
+                            // active track
+                            Positioned(
+                              left:
+                                  (rtl ? 1 - highFraction : lowFraction) *
+                                  effectiveTrackWidth,
+                              top: 0,
+                              width:
+                                  (highFraction - lowFraction).clamp(0.0, 1.0) *
+                                  effectiveTrackWidth,
+                              height: effectiveTrackHeight,
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  color: widget.enabled
+                                      ? effectiveActiveTrackColor
+                                      : effectiveDisabledActiveTrackColor,
+                                ),
                               ),
                             ),
-                          ),
-                          // division marks
-                          if (widget.divisions != null &&
-                              widget.divisions! > 0 &&
-                              widget.showDivisionMarks)
-                            ...List.generate(widget.divisions! + 1, (index) {
-                              final position = index / widget.divisions!;
-                              return Positioned(
-                                left:
-                                    position * effectiveTrackWidth -
-                                    divisionMarkOffset,
-                                top:
-                                    (effectiveTrackHeight -
-                                        divisionMarkHeight) /
-                                    2,
-                                child: Container(
-                                  width: divisionMarkWidth,
-                                  height: divisionMarkHeight,
-                                  decoration: BoxDecoration(
-                                    color: widget.enabled
-                                        ? theme.colorScheme.border
-                                        : theme.colorScheme.border.withValues(
-                                            alpha: 0.5,
-                                          ),
-                                    borderRadius: BorderRadius.circular(
-                                      divisionMarkBorderRadius,
+                            // division marks
+                            if (widget.divisions != null &&
+                                widget.divisions! > 0 &&
+                                widget.showDivisionMarks)
+                              ...List.generate(widget.divisions! + 1, (index) {
+                                final position = index / widget.divisions!;
+                                return Positioned(
+                                  left:
+                                      position * effectiveTrackWidth -
+                                      divisionMarkOffset,
+                                  top:
+                                      (effectiveTrackHeight -
+                                          divisionMarkHeight) /
+                                      2,
+                                  child: Container(
+                                    width: divisionMarkWidth,
+                                    height: divisionMarkHeight,
+                                    decoration: BoxDecoration(
+                                      color: widget.enabled
+                                          ? theme.colorScheme.border
+                                          : theme.colorScheme.border.withValues(
+                                              alpha: 0.5,
+                                            ),
+                                      borderRadius: BorderRadius.circular(
+                                        divisionMarkBorderRadius,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              );
-                            }),
-                        ],
+                                );
+                              }),
+                          ],
+                        ),
                       ),
                     ),
                   ),
