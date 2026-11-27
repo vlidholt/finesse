@@ -295,44 +295,43 @@ class _SearchFieldState extends State<SearchField> {
                 ),
         );
 
-    final Widget field = Semantics(
-      label: widget.semanticLabel ?? l.search.placeholder,
-      // Directly around the field: a focused text field swallows Escape,
-      // so nothing further out would hear it. With nothing to clear the
-      // key goes on to whatever encloses the search.
-      child: DismissShortcut(
-        isActive: () =>
-            widget.clearOnEscape &&
-            widget.enabled &&
-            _controller.text.isNotEmpty,
-        onDismiss: _clear,
-        child: TextField(
-          controller: _controller,
-          focusNode: _focusNode,
-          autofocus: widget.autofocus,
-          enabled: widget.enabled,
-          decoration: widget.decoration,
-          constraints: widget.constraints,
-          padding: widget.padding,
-          groupId: widget.groupId,
-          onChanged: widget.onChanged,
-          onSubmitted: widget.onSubmitted,
-          onTap: widget.onTap,
-          // A tap on a field that has the focus already is one too.
-          onTapAlwaysCalled: widget.onTap != null,
-          textInputAction: TextInputAction.search,
-          keyboardType: TextInputType.text,
-          autocorrect: false,
-          clearable: widget.clearable,
-          onCleared: widget.onCleared,
-          placeholder: DefaultTextStyle.merge(
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            child: widget.placeholder ?? Text(l.search.placeholder),
-          ),
-          leading: leading,
-          trailing: widget.trailing,
+    // Directly around the field: a focused text field swallows Escape, so
+    // nothing further out would hear it. With nothing to clear the key goes
+    // on to whatever encloses the search.
+    final Widget field = DismissShortcut(
+      isActive: () =>
+          widget.clearOnEscape && widget.enabled && _controller.text.isNotEmpty,
+      onDismiss: _clear,
+      child: TextField(
+        controller: _controller,
+        focusNode: _focusNode,
+        autofocus: widget.autofocus,
+        enabled: widget.enabled,
+        // The default placeholder is the name already.
+        semanticLabel:
+            widget.semanticLabel ??
+            (widget.placeholder == null ? null : l.search.placeholder),
+        decoration: widget.decoration,
+        constraints: widget.constraints,
+        padding: widget.padding,
+        groupId: widget.groupId,
+        onChanged: widget.onChanged,
+        onSubmitted: widget.onSubmitted,
+        onTap: widget.onTap,
+        // A tap on a field that has the focus already is one too.
+        onTapAlwaysCalled: widget.onTap != null,
+        textInputAction: TextInputAction.search,
+        keyboardType: TextInputType.text,
+        autocorrect: false,
+        clearable: widget.clearable,
+        onCleared: widget.onCleared,
+        placeholder: DefaultTextStyle.merge(
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          child: widget.placeholder ?? Text(l.search.placeholder),
         ),
+        leading: leading,
+        trailing: widget.trailing,
       ),
     );
 

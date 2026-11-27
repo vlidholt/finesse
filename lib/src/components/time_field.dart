@@ -1,11 +1,13 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/input_decorator.dart';
 import 'package:una/src/components/select.dart';
 import 'package:una/src/components/text_field.dart';
 import 'package:una/src/i18n/localizations_delegate.dart';
 import 'package:una/src/theme/components/decorator.dart';
 import 'package:una/src/theme/theme.dart';
 import 'package:una/src/utils/extensions/text_style.dart';
+import 'package:una/src/utils/text_scaled_height.dart';
 
 /// Whether a [TimeOfDay] is before or after noon.
 enum DayPeriod {
@@ -415,12 +417,85 @@ class _TimeFieldState extends State<TimeField> {
     }
   }
 
+  /// Steps the number in [controller] by [by], wrapping at its ends: the
+  /// hours from 0 to 23 (1 to 12 on the 12-hour clock), the minutes and
+  /// seconds from 0 to 59. An empty field starts from the time it is now.
+  void _step(_TimeTextController controller, int by) {
+    final now = TimeOfDay.now();
+    final current = int.tryParse(controller.text);
+    final int next;
+    if (identical(controller, _hour)) {
+      if (_twentyFour!) {
+        next = current == null ? now.hour : (current + by) % 24;
+      } else {
+        next = current == null
+            ? now.hourOfPeriod
+            : (current - 1 + by) % TimeOfDay.hoursPerPeriod + 1;
+      }
+    } else {
+      final start = identical(controller, _minute) ? now.minute : now.second;
+      next = current == null ? start : (current + by) % 60;
+    }
+    controller.text = next.toString().padLeft(2, '0');
+    _changed();
+  }
+
+  /// The arrows of a number field: up and down step it, left and right
+  /// move between the fields, and Backspace in an empty one goes on
+  /// deleting in the one before.
+  KeyEventResult _onKey(
+    _TimeTextController controller,
+    FocusNode node,
+    KeyEvent event,
+  ) {
+    if (event is KeyUpEvent || !widget.enabled) return KeyEventResult.ignored;
+    final key = event.logicalKey;
+    final order = _order;
+    final index = order.indexOf(node);
+    if (key == LogicalKeyboardKey.arrowUp) {
+      _step(controller, 1);
+    } else if (key == LogicalKeyboardKey.arrowDown) {
+      _step(controller, -1);
+    } else if (key == LogicalKeyboardKey.arrowLeft && index > 0) {
+      order[index - 1].requestFocus();
+    } else if (key == LogicalKeyboardKey.arrowRight &&
+        index >= 0 &&
+        index + 1 < order.length) {
+      order[index + 1].requestFocus();
+    } else if (key == LogicalKeyboardKey.backspace &&
+        controller.text.isEmpty &&
+        index > 0) {
+      order[index - 1].requestFocus();
+    } else {
+      return KeyEventResult.ignored;
+    }
+    return KeyEventResult.handled;
+  }
+
+  /// The arrow back from the day period to the field before it.
+  KeyEventResult _onPeriodKey(KeyEvent event) {
+    if (event is KeyUpEvent || !widget.enabled) return KeyEventResult.ignored;
+    if (event.logicalKey != LogicalKeyboardKey.arrowLeft) {
+      return KeyEventResult.ignored;
+    }
+    final order = _order;
+    final index = order.indexOf(_periodNode);
+    if (index <= 0) return KeyEventResult.ignored;
+    order[index - 1].requestFocus();
+    return KeyEventResult.handled;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final field = theme.timeFieldTheme;
     final l = UnaLocalizations.of(context);
     final twentyFour = _twentyFour!;
+    // The name of the form field the time field is in, if any: each part
+    // is read as it and the part's own name.
+    final fieldLabel = InputDecoratorScope.maybeOf(context)?.label;
+    String named(String part) =>
+        fieldLabel == null ? part : '$fieldLabel, $part';
 
     final style = theme.textTheme.muted
         .copyWith(color: theme.colorScheme.foreground)
@@ -449,7 +524,8 @@ class _TimeFieldState extends State<TimeField> {
     }) {
       return _TimeUnitField(
         label: widget.showLabels ? Text(label) : null,
-        semanticLabel: label,
+        semanticLabel: named(label),
+        onKey: (event) => _onKey(controller, node, event),
         controller: controller,
         focusNode: node,
         autofocus: widget.autofocus && identical(node, nodes.first),
@@ -473,6 +549,7 @@ class _TimeFieldState extends State<TimeField> {
     }
 
     final showPeriod = widget.showHours && !twentyFour;
+    final periodHeight = field.periodHeight ?? 36;
     var slot = 0;
     // Beside the fields, not beside their names: centred on a field's
     // height at the foot of the row.
@@ -509,47 +586,72 @@ class _TimeFieldState extends State<TimeField> {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (widget.showLabels) ...[
-                DefaultTextStyle(
-                  style: labelStyle,
-                  child: Text(l.timePicker.period),
+                // Named below, shown or not.
+                ExcludeSemantics(
+                  child: DefaultTextStyle(
+                    style: labelStyle,
+                    child: Text(l.timePicker.period),
+                  ),
                 ),
                 SizedBox(height: gap),
               ],
-              SizedBox(
-                height: field.periodHeight ?? 36,
-                child: Select<DayPeriod>(
-                  // Rebuilt when a new time is written from outside: the
-                  // select holds its own value.
-                  key: ValueKey(_period),
-                  focusNode: _periodNode,
-                  minWidth: field.periodMinWidth ?? 65,
-                  placeholder: Text(
-                    l.timePicker.periodPlaceholder,
-                    style: theme.textTheme.muted,
+              Semantics(
+                label: named(l.timePicker.period),
+                // A height that grows with scaled text, as a button's does:
+                // fixed, it cut the select's text off.
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: periodHeight,
+                    maxHeight: textScaledMaxHeight(context, periodHeight),
                   ),
-                  initialValue: _period,
-                  decoration: (field.periodDecoration ?? const UnaDecoration())
-                      .merge(
-                        widget.decoration,
+                  child: Focus(
+                    canRequestFocus: false,
+                    skipTraversal: true,
+                    onKeyEvent: (_, event) => _onPeriodKey(event),
+                    child: Select<DayPeriod>(
+                      // Rebuilt when a new time is written from
+                      // outside: the select holds its own value.
+                      key: ValueKey(_period),
+                      focusNode: _periodNode,
+                      minWidth: field.periodMinWidth ?? 65,
+                      // On a phone the choices are a sheet under this name,
+                      // not under the placeholder.
+                      title: Text(l.timePicker.period),
+                      // A sample, not a value: not read out.
+                      placeholder: ExcludeSemantics(
+                        child: Text(
+                          l.timePicker.periodPlaceholder,
+                          style: theme.textTheme.muted,
+                        ),
                       ),
-                  enabled: widget.enabled,
-                  options: [
-                    SelectOption(
-                      value: DayPeriod.am,
-                      child: Text(l.timePicker.am),
+                      initialValue: _period,
+                      decoration:
+                          (field.periodDecoration ?? const UnaDecoration())
+                              .merge(
+                                widget.decoration,
+                              ),
+                      enabled: widget.enabled,
+                      options: [
+                        SelectOption(
+                          value: DayPeriod.am,
+                          child: Text(l.timePicker.am),
+                        ),
+                        SelectOption(
+                          value: DayPeriod.pm,
+                          child: Text(l.timePicker.pm),
+                        ),
+                      ],
+                      selectedOptionBuilder: (context, value) => Text(
+                        value == DayPeriod.am
+                            ? l.timePicker.am
+                            : l.timePicker.pm,
+                      ),
+                      onChanged: (value) {
+                        _period = value;
+                        _changed();
+                      },
                     ),
-                    SelectOption(
-                      value: DayPeriod.pm,
-                      child: Text(l.timePicker.pm),
-                    ),
-                  ],
-                  selectedOptionBuilder: (context, value) => Text(
-                    value == DayPeriod.am ? l.timePicker.am : l.timePicker.pm,
                   ),
-                  onChanged: (value) {
-                    _period = value;
-                    _changed();
-                  },
                 ),
               ),
             ],
@@ -594,6 +696,7 @@ class _TimeUnitField extends StatelessWidget {
     required this.enabled,
     required this.onChanged,
     required this.textInputAction,
+    required this.onKey,
     this.label,
     this.autofocus = false,
     this.keyboardToolbarBuilder,
@@ -601,6 +704,7 @@ class _TimeUnitField extends StatelessWidget {
 
   final Widget? label;
   final String semanticLabel;
+  final KeyEventResult Function(KeyEvent event) onKey;
   final _TimeTextController controller;
   final FocusNode focusNode;
   final bool autofocus;
@@ -622,46 +726,54 @@ class _TimeUnitField extends StatelessWidget {
     // the text scale or the glyphs are clipped.
     final textScale = MediaQuery.textScalerOf(context).scale(1);
     // One node per field, named by its label: a screen reader stops on
-    // "Hours" once, not on a label and then a nameless text field.
-    return MergeSemantics(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (label != null) ...[
-            DefaultTextStyle(style: labelStyle, child: label!),
-            SizedBox(height: gap),
-          ],
-          SizedBox(
-            width: width * textScale,
-            child: Semantics(
-              label: label == null ? semanticLabel : null,
-              child: TextField(
-                enabled: enabled,
-                focusNode: focusNode,
-                autofocus: autofocus,
-                style: style,
-                placeholderStyle: placeholderStyle,
-                controller: controller,
-                decoration: decoration,
-                placeholder: const Text('00'),
-                // The digits sit in the middle of the fixed box, like an OTP
-                // slot.
-                textAlign: TextAlign.center,
-                placeholderAlignment: Alignment.center,
-                keyboardType: TextInputType.number,
-                textInputAction: textInputAction,
-                maxLength: 2,
-                showCursor: false,
-                maxLengthEnforcement: MaxLengthEnforcement.none,
-                padding: padding,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                onChanged: onChanged,
-                keyboardToolbarBuilder: keyboardToolbarBuilder,
-              ),
+    // "Hours" once, not on a label and then a nameless text field. The
+    // field carries the name; the painted label is left out.
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (label != null) ...[
+          ExcludeSemantics(
+            child: DefaultTextStyle(style: labelStyle, child: label!),
+          ),
+          SizedBox(height: gap),
+        ],
+        SizedBox(
+          width: width * textScale,
+          // The arrows are heard above the field, which would keep them
+          // for moving its caret.
+          child: Focus(
+            canRequestFocus: false,
+            skipTraversal: true,
+            onKeyEvent: (_, event) => onKey(event),
+            child: TextField(
+              enabled: enabled,
+              focusNode: focusNode,
+              autofocus: autofocus,
+              semanticLabel: semanticLabel,
+              style: style,
+              placeholderStyle: placeholderStyle,
+              controller: controller,
+              decoration: decoration,
+              // A sample of the digits, not a value: "Hours", not
+              // "Hours 00".
+              placeholder: const ExcludeSemantics(child: Text('00')),
+              // The digits sit in the middle of the fixed box, like an OTP
+              // slot.
+              textAlign: TextAlign.center,
+              placeholderAlignment: Alignment.center,
+              keyboardType: TextInputType.number,
+              textInputAction: textInputAction,
+              maxLength: 2,
+              showCursor: false,
+              maxLengthEnforcement: MaxLengthEnforcement.none,
+              padding: padding,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              onChanged: onChanged,
+              keyboardToolbarBuilder: keyboardToolbarBuilder,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

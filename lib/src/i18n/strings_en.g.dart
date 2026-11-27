@@ -42,6 +42,7 @@ class UnaLocalizationsData with BaseTranslations<UnaLocale, UnaLocalizationsData
 	late final UnaLocalizationsData$calendar$en calendar = UnaLocalizationsData$calendar$en.internal(_root);
 	late final UnaLocalizationsData$input$en input = UnaLocalizationsData$input$en.internal(_root);
 	late final UnaLocalizationsData$autocomplete$en autocomplete = UnaLocalizationsData$autocomplete$en.internal(_root);
+	late final UnaLocalizationsData$otpField$en otpField = UnaLocalizationsData$otpField$en.internal(_root);
 	late final UnaLocalizationsData$numberField$en numberField = UnaLocalizationsData$numberField$en.internal(_root);
 	late final UnaLocalizationsData$search$en search = UnaLocalizationsData$search$en.internal(_root);
 	late final UnaLocalizationsData$tagField$en tagField = UnaLocalizationsData$tagField$en.internal(_root);
@@ -258,8 +259,23 @@ class UnaLocalizationsData$autocomplete$en {
 	/// en: '$count results available'
 	String results({required Object count}) => '${count} results available';
 
+	/// en: '$option, $index of $count'
+	String option({required Object option, required Object index, required Object count}) => '${option}, ${index} of ${count}';
+
 	/// en: 'Loading…'
 	String get loading => 'Loading…';
+}
+
+// Path: otpField
+class UnaLocalizationsData$otpField$en {
+	UnaLocalizationsData$otpField$en.internal(this._root);
+
+	final UnaLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Digit $index of $count'
+	String digit({required Object index, required Object count}) => 'Digit ${index} of ${count}';
 }
 
 // Path: numberField
@@ -873,7 +889,9 @@ extension on UnaLocalizationsData {
 			'autocomplete.noResults' => 'No results',
 			'autocomplete.oneResult' => '1 result available',
 			'autocomplete.results' => ({required Object count}) => '${count} results available',
+			'autocomplete.option' => ({required Object option, required Object index, required Object count}) => '${option}, ${index} of ${count}',
 			'autocomplete.loading' => 'Loading…',
+			'otpField.digit' => ({required Object index, required Object count}) => 'Digit ${index} of ${count}',
 			'numberField.increase' => 'Increase',
 			'numberField.decrease' => 'Decrease',
 			'search.placeholder' => 'Search',

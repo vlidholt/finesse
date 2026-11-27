@@ -3,7 +3,9 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/src/components/disabled.dart';
+import 'package:una/src/components/input_decorator.dart';
 import 'package:una/src/components/text_field.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
 import 'package:una/src/theme/components/decorator.dart';
 import 'package:una/src/theme/motion.dart';
 import 'package:una/src/theme/theme.dart';
@@ -63,6 +65,7 @@ class OtpField extends StatefulWidget {
     this.keyboardType,
     this.autofillHints = const [AutofillHints.oneTimeCode],
     this.obscureText = false,
+    this.semanticLabel,
   }) : assert(
          value == null || initialValue == null,
          'Give an OtpField a value (controlled) or an initialValue '
@@ -151,6 +154,16 @@ class OtpField extends StatefulWidget {
   /// to false.
   /// {@endtemplate}
   final bool obscureText;
+
+  /// {@template OtpField.semanticLabel}
+  /// The field's name for assistive technology, in place of the label of
+  /// the `InputDecorator` around it. Each slot is read as this name and its
+  /// place: "Verification code, digit 2 of 6".
+  ///
+  /// An [obscureText] field marks every slot obscured and gives away no
+  /// digit, only whether the slot is filled.
+  /// {@endtemplate}
+  final String? semanticLabel;
 
   @override
   State<OtpField> createState() => _OtpFieldState();
@@ -869,6 +882,15 @@ class _OtpFieldSlotState extends State<OtpFieldSlot> {
         : effectiveDecoration;
 
     final obscure = otpProvider.widget.obscureText;
+    final l = UnaLocalizations.of(context);
+    final fieldLabel =
+        otpProvider.widget.semanticLabel ??
+        InputDecoratorScope.maybeOf(context)?.label;
+    final digit = l.otpField.digit(
+      index: index + 1,
+      count: otpProvider.widget.maxLength,
+    );
+    final slotLabel = fieldLabel == null ? digit : '$fieldLabel, $digit';
     // An obscured slot keeps its character in the field — the caret, the
     // selection and the input connection are unchanged — and draws it
     // unseen, with a dot over it while it holds one. `obscureText` on the
@@ -890,6 +912,13 @@ class _OtpFieldSlotState extends State<OtpFieldSlot> {
         left: (theme.textFieldTheme.cursorWidth ?? 2.0) + 1,
       ),
       textInputAction: widget.textInputAction,
+      semanticLabel: slotLabel,
+      // Also what keeps the platform from learning or offering the digits;
+      // the glyph it draws is as unseen as the character.
+      obscureText: obscure,
+      // The slot's own placeholder character is one too: an empty slot is
+      // read as nothing, not as a dot.
+      obscuringCharacter: kInvisibleCharCode,
       onChanged: (v) {
         // sanitize the text and format it
         var sanitizedV = v.replaceAll(kInvisibleCharCode, '');
@@ -955,10 +984,25 @@ class _OtpFieldSlotState extends State<OtpFieldSlot> {
     );
     if (obscure) {
       final dotSize = (defaultStyle.fontSize ?? 14) * .5 * textScale;
+      final field = slot;
       slot = Stack(
         fit: StackFit.expand,
         children: [
-          slot,
+          // One node, obscured: a filled slot says a dot, an empty one
+          // nothing — never the digit.
+          MergeSemantics(
+            child: ValueListenableBuilder<TextEditingValue>(
+              valueListenable: controller,
+              builder: (context, value, child) => Semantics(
+                obscured: true,
+                value: value.text.replaceAll(kInvisibleCharCode, '').isNotEmpty
+                    ? '•'
+                    : null,
+                child: child,
+              ),
+              child: field,
+            ),
+          ),
           IgnorePointer(
             child: ValueListenableBuilder<TextEditingValue>(
               valueListenable: controller,

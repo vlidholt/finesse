@@ -103,6 +103,7 @@ class Textarea extends StatefulWidget {
     this.onPasteFiles,
     this.onPasteFilesError,
     this.showCounter = false,
+    this.semanticLabel,
   }) : enableInteractiveSelection = enableInteractiveSelection ?? !readOnly,
        assert(
          initialValue == null || controller == null,
@@ -472,6 +473,9 @@ class Textarea extends StatefulWidget {
   /// {@macro TextField.showCounter}
   final bool showCounter;
 
+  /// {@macro TextField.semanticLabel}
+  final String? semanticLabel;
+
   @override
   State<Textarea> createState() => _TextareaState();
 }
@@ -692,6 +696,7 @@ class _TextareaState extends State<Textarea> {
             onPasteFiles: widget.onPasteFiles,
             onPasteFilesError: widget.onPasteFilesError,
             showCounter: widget.showCounter,
+            semanticLabel: widget.semanticLabel,
           ),
         ),
         if (widget.resizable)
@@ -701,6 +706,9 @@ class _TextareaState extends State<Textarea> {
             child: MouseRegion(
               cursor: SystemMouseCursors.resizeUpDown,
               child: GestureDetector(
+                // A pointer handle: a node with no name and scroll
+                // actions is noise to a screen reader.
+                excludeFromSemantics: true,
                 onPanUpdate: _handleResize,
                 behavior: HitTestBehavior.translucent,
                 child: widget.resizeHandleBuilder != null

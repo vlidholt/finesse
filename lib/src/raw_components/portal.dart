@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 import 'package:una/src/components/bar_button_scope.dart';
+import 'package:una/src/components/input_decorator.dart';
 import 'package:una/src/theme/components/layout.dart';
 import 'package:una/src/theme/theme.dart';
 import 'package:una/src/utils/entrance.dart';
@@ -780,20 +781,26 @@ class _PortalState extends State<Portal> {
           // a button in a bar does not take the bar's look for its buttons,
           // and the text of a popover is not part of a `SelectionArea`
           // around the page — the long press that opens a hover card, or a
-          // Select All, would otherwise paint the selection over it.
+          // Select All, would otherwise paint the selection over it. Nor
+          // is a field in it the form field the anchor is in.
           return BarButtonScope.none(
-            child: SelectionContainer.disabled(
-              child: Center(
-                widthFactor: 1,
-                heightFactor: 1,
-                child: switch (widget.anchor) {
-                  final AnchorAuto anchor => buildAutoPosition(context, anchor),
-                  final Anchor anchor => buildManualPosition(context, anchor),
-                  final GlobalAnchor anchor => buildGlobalPosition(
-                    context,
-                    anchor,
-                  ),
-                },
+            child: InputDecoratorScope.none(
+              child: SelectionContainer.disabled(
+                child: Center(
+                  widthFactor: 1,
+                  heightFactor: 1,
+                  child: switch (widget.anchor) {
+                    final AnchorAuto anchor => buildAutoPosition(
+                      context,
+                      anchor,
+                    ),
+                    final Anchor anchor => buildManualPosition(context, anchor),
+                    final GlobalAnchor anchor => buildGlobalPosition(
+                      context,
+                      anchor,
+                    ),
+                  },
+                ),
               ),
             ),
           );

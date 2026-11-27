@@ -6,11 +6,14 @@ import 'dart:ui' as ui;
 import 'package:boxy/flex.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/src/components/context_menu.dart';
 import 'package:una/src/components/decorator.dart';
 import 'package:una/src/components/disabled.dart';
+import 'package:una/src/components/field_semantics.dart';
+import 'package:una/src/components/input_decorator.dart';
 import 'package:una/src/components/text_magnifier.dart';
 import 'package:una/src/components/text_selection.dart';
 import 'package:una/src/i18n/localizations_delegate.dart';
@@ -24,8 +27,12 @@ import 'package:una/src/theme/components/decorator.dart';
 import 'package:una/src/theme/theme.dart';
 import 'package:una/src/utils/clipboard/clipboard_service.dart';
 import 'package:una/src/utils/extensions/text_style.dart';
+import 'package:una/src/utils/hit_slop.dart';
 import 'package:una/src/utils/pop_in.dart';
 import 'package:una/src/utils/separated_iterable.dart';
+
+/// The smallest pointer target, in logical pixels: WCAG 2.5.8's 24.
+const double _minTarget = 24;
 
 String? _localizedLabel(
   ContextMenuButtonType type,
@@ -163,6 +170,7 @@ class TextField extends StatefulWidget {
     this.onCleared,
     this.revealable = false,
     this.showCounter = false,
+    this.semanticLabel,
   }) : smartDashesType =
            smartDashesType ??
            (obscureText ? SmartDashesType.disabled : SmartDashesType.enabled),
@@ -217,6 +225,7 @@ class TextField extends StatefulWidget {
     bool showCounter = false,
     Object? groupId,
     WidgetBuilder? keyboardToolbarBuilder,
+    String? semanticLabel,
   }) : this(
          key: key,
          initialValue: initialValue,
@@ -242,6 +251,7 @@ class TextField extends StatefulWidget {
          showCounter: showCounter,
          groupId: groupId,
          keyboardToolbarBuilder: keyboardToolbarBuilder,
+         semanticLabel: semanticLabel,
          obscureText: true,
          revealable: true,
          autocorrect: false,
@@ -823,6 +833,19 @@ class TextField extends StatefulWidget {
   /// {@endtemplate}
   final bool showCounter;
 
+  /// {@template TextField.semanticLabel}
+  /// The field's name for assistive technology, in place of the label of
+  /// the `InputDecorator` around it.
+  ///
+  /// The field is one node: this name, the [placeholder] (which stays in
+  /// the node, unseen, once there is text, so the field keeps its name),
+  /// and the text. Inside a form field the node also takes the form
+  /// field's label as its name when this is null, its description and
+  /// error as its hint, and an error marks it invalid (see
+  /// `InputDecoratorScope`).
+  /// {@endtemplate}
+  final String? semanticLabel;
+
   /// A constant representing no maximum length for the input.
   static const int noMaxLength = -1;
 
@@ -1092,6 +1115,20 @@ class TextFieldState extends State<TextField>
           _editableText?.hideToolbar();
         }
     }
+  }
+
+  /// A screen reader's activation: what a tap on the field does.
+  void _handleSemanticsTap() {
+    if (!widget.readOnly) {
+      final controller = effectiveController;
+      if (!controller.selection.isValid) {
+        controller.selection = TextSelection.collapsed(
+          offset: controller.text.length,
+        );
+      }
+      _editableText?.requestKeyboard();
+    }
+    widget.onTap?.call();
   }
 
   void _onPasteFiles(List<ClipboardItem> files) {
@@ -1388,6 +1425,16 @@ class TextFieldState extends State<TextField>
     // As tall as a line of the field's text, so a button never makes the
     // field taller than its style says.
     final adornmentExtent = maxFontSizeScaled > 0 ? maxFontSizeScaled : 20.0;
+    // A button smaller than a 24-point target takes the taps around it as
+    // well (WCAG 2.5.8), and the row it is in takes them from the padding
+    // around it, so the drawn size and the layout stay as they are.
+    final adornmentSlop = showClear || showReveal
+        ? max<double>(0, (_minTarget - adornmentExtent) / 2)
+        : 0.0;
+
+    final decoratorScope = InputDecoratorScope.maybeOf(context);
+    final fieldSemantics = FieldSemantics.maybeOf(context);
+    final semanticLabel = widget.semanticLabel ?? decoratorScope?.label;
 
     return ConstrainedBox(
       constraints: effectiveConstraints,
@@ -1555,110 +1602,163 @@ class TextFieldState extends State<TextField>
                               controller: effectiveScrollController,
                               padding: effectivePadding,
                               physics: widget.scrollPhysics,
-                              child: Row(
-                                mainAxisAlignment: effectiveMainAxisAlignment,
-                                crossAxisAlignment: effectiveCrossAxisAlignment,
-                                children: [
-                                  if (widget.leading != null) ...[
-                                    widget.leading!,
-                                    SizedBox(width: effectiveGap),
-                                  ],
-                                  Flexible(
-                                    child: AbsorbPointer(
-                                      // AbsorbPointer is needed when the input is
-                                      // readOnly so the onTap callback is fired on
-                                      // each part of the input
-                                      absorbing: widget.readOnly,
-                                      child: Padding(
-                                        padding: effectiveInputPadding,
-                                        child: Stack(
-                                          children: [
-                                            // placeholder. Scoped to its own
-                                            // listener so typing rebuilds only
-                                            // this subtree.
-                                            if (widget.placeholder != null)
-                                              Positioned.fill(
-                                                child: ValueListenableBuilder(
-                                                  valueListenable: _isEmpty,
-                                                  builder: (context, isEmpty, _) {
-                                                    if (!isEmpty) {
-                                                      return const SizedBox.shrink();
-                                                    }
-                                                    return Align(
-                                                      alignment:
-                                                          effectivePlaceholderAlignment,
-                                                      child: DefaultTextStyle(
-                                                        style:
-                                                            effectivePlaceholderStyle,
-                                                        child:
-                                                            widget.placeholder!,
+                              child: HitSlop(
+                                slop: adornmentSlop,
+                                child: Row(
+                                  mainAxisAlignment: effectiveMainAxisAlignment,
+                                  crossAxisAlignment:
+                                      effectiveCrossAxisAlignment,
+                                  children: [
+                                    if (widget.leading != null) ...[
+                                      widget.leading!,
+                                      SizedBox(width: effectiveGap),
+                                    ],
+                                    Flexible(
+                                      child: AbsorbPointer(
+                                        // AbsorbPointer is needed when the input is
+                                        // readOnly so the onTap callback is fired on
+                                        // each part of the input
+                                        absorbing: widget.readOnly,
+                                        child: Padding(
+                                          padding: effectiveInputPadding,
+                                          // One node for assistive
+                                          // technology: the name, the
+                                          // placeholder and the text. The
+                                          // adornments beside it stay buttons
+                                          // of their own.
+                                          child: MergeSemantics(
+                                            child: Semantics(
+                                              label: semanticLabel,
+                                              hint: decoratorScope?.hint,
+                                              validationResult:
+                                                  decoratorScope?.error != null
+                                                  ? SemanticsValidationResult
+                                                        .invalid
+                                                  : SemanticsValidationResult
+                                                        .none,
+                                              enabled: widget.enabled,
+                                              expanded:
+                                                  fieldSemantics?.expanded,
+                                              // What a pointer's tap does:
+                                              // the focus and the keyboard.
+                                              onTap: widget.enabled
+                                                  ? _handleSemanticsTap
+                                                  : null,
+                                              onFocus:
+                                                  widget.enabled &&
+                                                      !widget.readOnly
+                                                  ? effectiveFocusNode
+                                                        .requestFocus
+                                                  : null,
+                                              child: Stack(
+                                                children: [
+                                                  // placeholder. Scoped to its
+                                                  // own listener so typing
+                                                  // rebuilds only this subtree.
+                                                  if (widget.placeholder !=
+                                                      null)
+                                                    Positioned.fill(
+                                                      child: ValueListenableBuilder(
+                                                        valueListenable:
+                                                            _isEmpty,
+                                                        builder:
+                                                            (
+                                                              context,
+                                                              isEmpty,
+                                                              child,
+                                                            ) {
+                                                              // Unseen once there
+                                                              // is text, but still
+                                                              // the field's name.
+                                                              return Opacity(
+                                                                opacity: isEmpty
+                                                                    ? 1
+                                                                    : 0,
+                                                                alwaysIncludeSemantics:
+                                                                    true,
+                                                                child: child,
+                                                              );
+                                                            },
+                                                        child: Align(
+                                                          alignment:
+                                                              effectivePlaceholderAlignment,
+                                                          child: DefaultTextStyle(
+                                                            style:
+                                                                effectivePlaceholderStyle,
+                                                            child: widget
+                                                                .placeholder!,
+                                                          ),
+                                                        ),
                                                       ),
-                                                    );
-                                                  },
-                                                ),
-                                              ),
-                                            RepaintBoundary(
-                                              child: UnmanagedRestorationScope(
-                                                bucket: bucket,
-                                                child: Align(
-                                                  alignment: effectiveAlignemnt,
-                                                  child: editableText,
-                                                ),
+                                                    ),
+                                                  RepaintBoundary(
+                                                    child: UnmanagedRestorationScope(
+                                                      bucket: bucket,
+                                                      child: Align(
+                                                        alignment:
+                                                            effectiveAlignemnt,
+                                                        child: editableText,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
-                                          ],
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  if (showClear)
-                                    // Its gap comes and goes with it.
-                                    ValueListenableBuilder(
-                                      valueListenable: _isEmpty,
-                                      builder: (context, isEmpty, child) =>
-                                          PopIn(
-                                            visible: !isEmpty,
-                                            child: child!,
+                                    if (showClear)
+                                      // Its gap comes and goes with it.
+                                      ValueListenableBuilder(
+                                        valueListenable: _isEmpty,
+                                        builder: (context, isEmpty, child) =>
+                                            PopIn(
+                                              visible: !isEmpty,
+                                              child: child!,
+                                            ),
+                                        child: Padding(
+                                          padding: EdgeInsetsDirectional.only(
+                                            start: effectiveGap,
                                           ),
-                                      child: Padding(
+                                          child: ExcludeFocus(
+                                            child: _AdornmentButton(
+                                              icon: PhosphorIconsRegular.x,
+                                              semanticLabel: l.input.clear,
+                                              extent: adornmentExtent,
+                                              slop: adornmentSlop,
+                                              onPressed: clear,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    if (showReveal)
+                                      Padding(
                                         padding: EdgeInsetsDirectional.only(
                                           start: effectiveGap,
                                         ),
-                                        child: ExcludeFocus(
-                                          child: _AdornmentButton(
-                                            icon: PhosphorIconsRegular.x,
-                                            semanticLabel: l.input.clear,
-                                            extent: adornmentExtent,
-                                            onPressed: clear,
+                                        child: _AdornmentButton(
+                                          // The icon shows the state: a
+                                          // crossed-out eye while the text is
+                                          // hidden, an open one while it shows.
+                                          icon: _obscured
+                                              ? PhosphorIconsRegular.eyeSlash
+                                              : PhosphorIconsRegular.eye,
+                                          semanticLabel: l.input.showPassword,
+                                          toggled: !_obscured,
+                                          extent: adornmentExtent,
+                                          slop: adornmentSlop,
+                                          onPressed: () => setState(
+                                            () => _obscured = !_obscured,
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  if (showReveal)
-                                    Padding(
-                                      padding: EdgeInsetsDirectional.only(
-                                        start: effectiveGap,
-                                      ),
-                                      child: _AdornmentButton(
-                                        // The icon shows the state: a
-                                        // crossed-out eye while the text is
-                                        // hidden, an open one while it shows.
-                                        icon: _obscured
-                                            ? PhosphorIconsRegular.eyeSlash
-                                            : PhosphorIconsRegular.eye,
-                                        semanticLabel: l.input.showPassword,
-                                        toggled: !_obscured,
-                                        extent: adornmentExtent,
-                                        onPressed: () => setState(
-                                          () => _obscured = !_obscured,
-                                        ),
-                                      ),
-                                    ),
-                                  if (widget.trailing != null) ...[
-                                    SizedBox(width: effectiveGap),
-                                    widget.trailing!,
+                                    if (widget.trailing != null) ...[
+                                      SizedBox(width: effectiveGap),
+                                      widget.trailing!,
+                                    ],
                                   ],
-                                ],
+                                ),
                               ),
                             ),
                           ),
@@ -1743,6 +1843,7 @@ class _AdornmentButton extends StatelessWidget {
     required this.icon,
     required this.semanticLabel,
     required this.extent,
+    required this.slop,
     required this.onPressed,
     this.toggled,
   });
@@ -1750,6 +1851,9 @@ class _AdornmentButton extends StatelessWidget {
   final IconData icon;
   final String semanticLabel;
   final double extent;
+
+  /// How far around the drawn square taps still land on the button.
+  final double slop;
   final VoidCallback onPressed;
 
   /// For a button that switches something on and off: whether it is on.
@@ -1760,35 +1864,38 @@ class _AdornmentButton extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     const radius = BorderRadius.all(Radius.circular(9999));
-    return Semantics(
-      toggled: toggled,
-      child: Pressable(
-        onPressed: onPressed,
-        semanticLabel: semanticLabel,
-        builder: (context, states) {
-          final lit =
-              states.contains(WidgetState.hovered) ||
-              states.contains(WidgetState.pressed);
-          return FocusRing(
-            visible: states.contains(WidgetState.focused),
-            borderRadius: radius,
-            child: AnimatedFill(
-              color: lit ? colors.muted : colors.muted.withValues(alpha: 0),
-              borderWidth: 0,
+    return HitSlop(
+      slop: slop,
+      child: Semantics(
+        toggled: toggled,
+        child: Pressable(
+          onPressed: onPressed,
+          semanticLabel: semanticLabel,
+          builder: (context, states) {
+            final lit =
+                states.contains(WidgetState.hovered) ||
+                states.contains(WidgetState.pressed);
+            return FocusRing(
+              visible: states.contains(WidgetState.focused),
               borderRadius: radius,
-              child: SizedBox.square(
-                dimension: extent,
-                child: Center(
-                  child: PhosphorIcon(
-                    icon,
-                    size: extent * .8,
-                    color: lit ? colors.foreground : colors.mutedForeground,
+              child: AnimatedFill(
+                color: lit ? colors.muted : colors.muted.withValues(alpha: 0),
+                borderWidth: 0,
+                borderRadius: radius,
+                child: SizedBox.square(
+                  dimension: extent,
+                  child: Center(
+                    child: PhosphorIcon(
+                      icon,
+                      size: extent * .8,
+                      color: lit ? colors.foreground : colors.mutedForeground,
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
