@@ -24,6 +24,13 @@ datePicker:
   month: "Month"
   year: "Year"
 
+calendar:
+  previousMonth: "Previous month"
+  nextMonth: "Next month"
+  today: "Today"
+  rangeStart: "Start of range"
+  rangeEnd: "End of range"
+
 input:
   cut: "Cut"
   copy: "Copy"

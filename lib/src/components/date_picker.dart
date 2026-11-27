@@ -224,6 +224,7 @@ class _DatePickerState extends State<DatePicker> {
       required ValueChanged<DateTime?> onChanged,
       required int numberOfMonths,
       CalendarTheme? override,
+      bool autofocus = false,
     }) {
       return Calendar(
         value: value,
@@ -231,6 +232,7 @@ class _DatePickerState extends State<DatePicker> {
         allowDeselection: allowDeselection,
         initialMonth: value ?? _initialDay(widget.min, widget.max),
         numberOfMonths: numberOfMonths,
+        autofocus: autofocus,
         min: widget.min,
         max: widget.max,
         selectableDayPredicate: widget.selectableDayPredicate,
@@ -268,6 +270,11 @@ class _DatePickerState extends State<DatePicker> {
               : widget.formatDate?.call(value) ??
                     formatPickedDate(context, value),
           placeholder: placeholder,
+          // What the field is for, once it no longer shows the default
+          // placeholder that says so.
+          semanticHint: value != null || widget.placeholder != null
+              ? l.datePicker.selectDate
+              : null,
           leading:
               widget.leading ??
               const PhosphorIcon(PhosphorIconsRegular.calendarBlank),
@@ -284,6 +291,9 @@ class _DatePickerState extends State<DatePicker> {
         DatePickerMode.calendar => calendar(
           value: value,
           numberOfMonths: widget.numberOfMonths,
+          // The selected day takes the focus, else today, as the hours of
+          // a time picker do: the arrows move from there at once.
+          autofocus: widget.requestFocus,
           onChanged: (day) {
             widget.onChanged?.call(day);
             if (closeOnSelection && day != null) close();
@@ -639,6 +649,7 @@ class _DateRangePickerState extends State<DateRangePicker> {
       required ValueChanged<DateTimeRange?> onChanged,
       required int numberOfMonths,
       CalendarTheme? override,
+      bool autofocus = false,
     }) {
       return Calendar.range(
         range: range,
@@ -646,6 +657,7 @@ class _DateRangePickerState extends State<DateRangePicker> {
         allowDeselection: allowDeselection,
         initialMonth: range?.start ?? _initialDay(widget.min, widget.max),
         numberOfMonths: numberOfMonths,
+        autofocus: autofocus,
         min: widget.min,
         max: widget.max,
         minDays: widget.minDays,
@@ -681,6 +693,9 @@ class _DateRangePickerState extends State<DateRangePicker> {
               : widget.formatDateRange?.call(value!) ??
                     formatPickedDateRange(context, value!),
           placeholder: placeholder,
+          semanticHint: hasValue || widget.placeholder != null
+              ? l.datePicker.selectDateRange
+              : null,
           leading:
               widget.leading ??
               const PhosphorIcon(PhosphorIconsRegular.calendarBlank),
@@ -696,6 +711,7 @@ class _DateRangePickerState extends State<DateRangePicker> {
       popoverBuilder: (context, close) => calendar(
         range: value,
         numberOfMonths: widget.numberOfMonths,
+        autofocus: widget.requestFocus,
         onChanged: (range) {
           widget.onChanged?.call(range?.start == null ? null : range);
           if (closeOnSelection && range?.start != null && range?.end != null) {

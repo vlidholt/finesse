@@ -78,6 +78,7 @@ class Select<T> extends StatefulWidget {
     this.title,
     this.placeholder,
     this.placeholderStyle,
+    this.semanticLabel,
     this.value,
     this.initialValue,
     this.onChanged,
@@ -156,6 +157,7 @@ class Select<T> extends StatefulWidget {
     this.title,
     this.placeholder,
     this.placeholderStyle,
+    this.semanticLabel,
     this.value,
     this.initialValue,
     this.focusNode,
@@ -217,6 +219,7 @@ class Select<T> extends StatefulWidget {
     this.title,
     this.placeholder,
     this.placeholderStyle,
+    this.semanticLabel,
     this.values,
     this.initialValues = const {},
     this.onValuesChanged,
@@ -296,6 +299,7 @@ class Select<T> extends StatefulWidget {
     this.title,
     this.placeholder,
     this.placeholderStyle,
+    this.semanticLabel,
     this.values,
     this.initialValues = const {},
     this.focusNode,
@@ -417,6 +421,15 @@ class Select<T> extends StatefulWidget {
   /// Typically a [Text] widget prompting the user to make a selection.
   /// {@endtemplate}
   final Widget? placeholder;
+
+  /// {@template Select.semanticLabel}
+  /// What assistive technology calls the select — "Country", "Month" —
+  /// with the selected option read as its value.
+  ///
+  /// Defaults to the [placeholder]'s text, when the placeholder is a
+  /// [Text].
+  /// {@endtemplate}
+  final String? semanticLabel;
 
   /// {@template Select.placeholderStyle}
   /// The text style to apply by default to the placeholder widget.
@@ -760,6 +773,15 @@ class SelectState<T> extends State<Select<T>> {
   /// shows when it is given no builder.
   final _labels = <T, String>{};
 
+  /// The options built now, in the popover or the sheet, for the keys that
+  /// move the focus between them.
+  final _options = <_OptionState<T>>{};
+
+  /// Whether the variant holds several values.
+  bool get _isMultiple =>
+      widget.variant == SelectVariant.multiple ||
+      widget.variant == SelectVariant.multipleWithSearch;
+
   /// The label of the option for [value]: among [Select.options], or of an
   /// option that has been built; failing both, the value itself.
   String labelOf(T value) {
@@ -846,6 +868,37 @@ class SelectState<T> extends State<Select<T>> {
   bool isSearchVariant() {
     return widget.variant == SelectVariant.search ||
         widget.variant == SelectVariant.multipleWithSearch;
+  }
+
+  /// Enter and Space open and close the list from a focused trigger; Down,
+  /// Up and Alt+Down open it, as a native select's do (inside the list the
+  /// arrows walk the options).
+  KeyEventResult _onTriggerKey(FocusNode node, KeyEvent event) {
+    if (!focusNode.hasPrimaryFocus || event is! KeyDownEvent) {
+      return KeyEventResult.ignored;
+    }
+    final keyboard = HardwareKeyboard.instance;
+    if (keyboard.isControlPressed ||
+        keyboard.isMetaPressed ||
+        keyboard.isShiftPressed) {
+      return KeyEventResult.ignored;
+    }
+    final key = event.logicalKey;
+    final alt = keyboard.isAltPressed;
+    if (!alt &&
+        (key == LogicalKeyboardKey.enter || key == LogicalKeyboardKey.space)) {
+      desktopTogglePopover();
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.arrowDown ||
+        (!alt && key == LogicalKeyboardKey.arrowUp)) {
+      if (popoverController.isOpen || widget.onTap != null) {
+        return KeyEventResult.ignored;
+      }
+      desktopTogglePopover();
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
   }
 
   /// Opens or closes the popover, and focuses the search field when it opens.
@@ -986,6 +1039,10 @@ class SelectState<T> extends State<Select<T>> {
         widget.variant == SelectVariant.multiple ||
         widget.variant == SelectVariant.multipleWithSearch;
 
+    final placeholder = widget.placeholder;
+    final semanticName =
+        widget.semanticLabel ?? (placeholder is Text ? placeholder.data : null);
+
     // make effectiveText listen to controller changes
     final effectiveText = ListenableBuilder(
       listenable: _selection,
@@ -1047,7 +1104,11 @@ class SelectState<T> extends State<Select<T>> {
                   .fallback(color: theme.colorScheme.mutedForeground);
           result = widget.placeholder!;
         }
-        return DefaultTextStyle(style: resultDefaultTextStyle, child: result);
+        // The trigger's node says what is shown, as its label or value.
+        return ExcludeSemantics(
+          excluding: selected.isNotEmpty || semanticName != null,
+          child: DefaultTextStyle(style: resultDefaultTextStyle, child: result),
+        );
       },
     );
 
@@ -1115,253 +1176,274 @@ class SelectState<T> extends State<Select<T>> {
     };
 
     // Enter and Space open and close the list from the trigger only: they
-    // would also reach these bindings from inside the list, where a search
+    // would also reach this handler from inside the list, where a search
     // field — this select's own or one the app passed — has to take them.
-    return ListenableBuilder(
-      listenable: focusNode,
-      builder: (context, child) {
-        return DismissShortcut(
-          isActive: () => popoverController.isOpen,
-          onDismiss: popoverController.close,
-          child: CallbackShortcuts(
-            bindings: !focusNode.hasFocus
-                ? const {}
-                : {
-                    const SingleActivator(LogicalKeyboardKey.enter):
-                        desktopTogglePopover,
-                    const SingleActivator(LogicalKeyboardKey.space):
-                        desktopTogglePopover,
-                  },
-            child: child!,
-          ),
-        );
-      },
-      child: FocusTraversalGroup(
-        policy: WidgetOrderTraversalPolicy(),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final calculatedMinWidth =
-                max(effectiveMinWidth, constraints.minWidth) -
-                decorationHorizontalPadding;
+    // Asked when the key comes, so it holds from the frame the trigger is
+    // focused in.
+    return DismissShortcut(
+      isActive: () => popoverController.isOpen,
+      onDismiss: popoverController.close,
+      child: Focus(
+        canRequestFocus: false,
+        skipTraversal: true,
+        onKeyEvent: _onTriggerKey,
+        child: FocusTraversalGroup(
+          policy: WidgetOrderTraversalPolicy(),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final calculatedMinWidth =
+                  max(effectiveMinWidth, constraints.minWidth) -
+                  decorationHorizontalPadding;
 
-            final effectiveConstraints = BoxConstraints(
-              minWidth: calculatedMinWidth,
-              maxWidth: effectiveMaxWidth,
-            );
+              final effectiveConstraints = BoxConstraints(
+                minWidth: calculatedMinWidth,
+                maxWidth: effectiveMaxWidth,
+              );
 
-            // Built lazily inside the `builder:` callback below rather than
-            // here. This LayoutBuilder wraps the whole select — anchor
-            // included — so it re-runs on every layout pass of the *closed*
-            // select. `widget.options` is a lazy Iterable, so materialising it
-            // eagerly meant constructing every option widget on each of those
-            // passes. Calendar's year dropdown passes 201 options, each
-            // building a DateFormat.
-            Widget buildOptions({bool sheet = false}) {
-              if (widget.options != null) {
-                return SingleChildScrollView(
+              // Built lazily inside the `builder:` callback below rather
+              // than here. This LayoutBuilder wraps the whole select —
+              // anchor included — so it re-runs on every layout pass of the
+              // *closed* select. `widget.options` is a lazy Iterable, so
+              // materialising it eagerly meant constructing every option
+              // widget on each of those passes. Calendar's year dropdown
+              // passes 201 options, each building a DateFormat.
+              Widget buildOptionList({bool sheet = false}) {
+                if (widget.options != null) {
+                  return SingleChildScrollView(
+                    padding: effectiveOptionsPadding,
+                    controller: scrollController,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisSize: MainAxisSize.min,
+                      // The first and last option follow the list's corners;
+                      // a sheet's list has none to follow.
+                      children: sheet
+                          ? widget.options!.toList()
+                          : MenuEdge.mark(widget.options!.toList()),
+                    ),
+                  );
+                }
+                return ListView.builder(
                   padding: effectiveOptionsPadding,
                   controller: scrollController,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisSize: MainAxisSize.min,
-                    // The first and last option follow the list's corners;
-                    // a sheet's list has none to follow.
-                    children: sheet
-                        ? widget.options!.toList()
-                        : MenuEdge.mark(widget.options!.toList()),
-                  ),
+                  itemCount: widget.itemCount,
+                  // A sheet is as tall as a short list needs.
+                  shrinkWrap:
+                      widget.shrinkWrap ??
+                      (sheet && (widget.itemCount ?? 1000) <= 40),
+                  itemBuilder: (context, index) {
+                    final option = widget.optionsBuilder?.call(context, index);
+                    final count = widget.itemCount;
+                    if (option == null || sheet) return option;
+                    return MenuEdge(
+                      top: index == 0,
+                      bottom: count != null && index == count - 1,
+                      child: option,
+                    );
+                  },
                 );
               }
-              return ListView.builder(
-                padding: effectiveOptionsPadding,
-                controller: scrollController,
-                itemCount: widget.itemCount,
-                // A sheet is as tall as a short list needs.
-                shrinkWrap:
-                    widget.shrinkWrap ??
-                    (sheet && (widget.itemCount ?? 1000) <= 40),
-                itemBuilder: (context, index) {
-                  final option = widget.optionsBuilder?.call(context, index);
-                  final count = widget.itemCount;
-                  if (option == null || sheet) return option;
-                  return MenuEdge(
-                    top: index == 0,
-                    bottom: count != null && index == count - 1,
-                    child: option,
-                  );
-                },
-              );
-            }
 
-            final Widget select = Disabled(
-              enabled: _enabled,
-              child: Focusable(
-                visibleOnly: true,
-                autofocus: widget.autofocus,
-                onFocusChange: widget.onFocusChange,
-                canRequestFocus: _enabled,
-                focusNode: focusNode,
-                builder: (context, focused, child) {
-                  final decorated = Decorator(
-                    focused: focused,
-                    decoration: effectiveDecoration,
+              Widget buildOptions({bool sheet = false}) => _OptionList(
+                select: this,
+                // A search field takes the focus instead, and a sheet is a
+                // list for a finger.
+                focusFirst: !sheet && !isSearchVariant(),
+                child: buildOptionList(sheet: sheet),
+              );
+
+              // One node: a button that says what it chooses, what it holds
+              // and whether its list is open. The focus and the tap of the
+              // widgets inside are merged into it.
+              final Widget select = ListenableBuilder(
+                listenable: Listenable.merge([popoverController, _selection]),
+                builder: (context, child) {
+                  final selected = _selection.value;
+                  return Semantics(
+                    container: true,
+                    button: true,
+                    enabled: _enabled,
+                    expanded: _enabled && widget.onTap == null
+                        ? popoverController.isOpen
+                        : null,
+                    label: semanticName,
+                    value: selected.isEmpty
+                        ? null
+                        : selected.map(labelOf).join(', '),
                     child: child,
                   );
-                  if (effectiveMinHeight == null) return decorated;
-                  // The reference pins the trigger's height (`h-9` and
-                  // friends), border included, and centres the content in
-                  // it. Constraining outside the decorator counts the
-                  // border's implicit padding in, like CSS border-box.
-                  return ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: effectiveMinHeight,
-                      // A small trigger is that height, not a floor under
-                      // the field's own.
-                      maxHeight: metrics == null
-                          ? double.infinity
-                          : effectiveMinHeight,
-                    ),
-                    child: decorated,
-                  );
                 },
-                child: UnaGestureDetector(
-                  mouseCursor: SystemMouseCursors.click,
-                  behavior: HitTestBehavior.opaque,
-                  onTapDown: (details) {
-                    if (widget.onTap != null) {
-                      widget.onTap!();
-                      return;
-                    }
-                    FocusScope.of(context).unfocus();
-                    if (details.kind == PointerDeviceKind.touch) {
-                      popoverController.toggle();
-                    } else {
-                      desktopTogglePopover();
-                    }
-                  },
-                  child: ConstrainedBox(
-                    constraints: effectiveConstraints,
-                    child: Padding(
-                      padding: effectivePadding,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Flexible(child: effectiveText),
-                          effectiveTrailing,
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            );
-
-            return Provider(
-              data: this as SelectState<dynamic>,
-              notifyUpdate: (_) => true,
-              child: PickerHost(
-                // A plain single select is a menu, and stays one on a
-                // phone; the others have a search field or need a Done.
-                presentation:
-                    widget.presentation == PickerPresentation.auto &&
-                        widget.variant == SelectVariant.primary
-                    ? PickerPresentation.popover
-                    : widget.presentation,
-                popoverPadding: EdgeInsets.zero,
-                controller: popoverController,
-                anchor: effectiveAnchor,
-                closeOnTapOutside: widget.closeOnTapOutside,
-                // The choice shows in the trigger at once, and the list
-                // is gone with it rather than fading over it.
-                exitDuration: Duration.zero,
-                shadows: effectiveShadows,
-                filter: effectiveFilter,
-                // The options surface is a menu, and menus can carry their
-                // own palette; without this it would inherit the page
-                // popover's decoration.
-                decoration: theme.selectTheme.popoverDecoration,
-                triggerBuilder: (_, _) => select,
-                sheetBuilder: (sheetContext, close) => ListenableBuilder(
-                  // The sheet is a route of its own: nothing rebuilds it
-                  // when the selection changes but this.
-                  listenable: _selection,
-                  builder: (context, _) => Provider(
-                    data: this as SelectState<dynamic>,
-                    notifyUpdate: (_) => true,
-                    child: _SelectSheetScope(
-                      child: Sheet(
-                        title: widget.title ?? widget.placeholder,
-                        // The search stays put and the list scrolls.
-                        scrollable: false,
-                        style: SheetTheme(
-                          constraints: BoxConstraints(
-                            maxWidth: 560,
-                            maxHeight: MediaQuery.sizeOf(context).height * .8,
+                child: Disabled(
+                  enabled: _enabled,
+                  child: Focusable(
+                    visibleOnly: true,
+                    autofocus: widget.autofocus,
+                    onFocusChange: widget.onFocusChange,
+                    canRequestFocus: _enabled,
+                    focusNode: focusNode,
+                    builder: (context, focused, child) {
+                      final decorated = Decorator(
+                        focused: focused,
+                        decoration: effectiveDecoration,
+                        child: child,
+                      );
+                      if (effectiveMinHeight == null) return decorated;
+                      // The reference pins the trigger's height (`h-9` and
+                      // friends), border included, and centres the content in
+                      // it. Constraining outside the decorator counts the
+                      // border's implicit padding in, like CSS border-box.
+                      return ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: effectiveMinHeight,
+                          // A small trigger is that height, not a floor under
+                          // the field's own.
+                          maxHeight: metrics == null
+                              ? double.infinity
+                              : effectiveMinHeight,
+                        ),
+                        child: decorated,
+                      );
+                    },
+                    child: UnaGestureDetector(
+                      mouseCursor: SystemMouseCursors.click,
+                      behavior: HitTestBehavior.opaque,
+                      onTapDown: (details) {
+                        if (widget.onTap != null) {
+                          widget.onTap!();
+                          return;
+                        }
+                        FocusScope.of(context).unfocus();
+                        if (details.kind == PointerDeviceKind.touch) {
+                          popoverController.toggle();
+                        } else {
+                          desktopTogglePopover();
+                        }
+                      },
+                      child: ConstrainedBox(
+                        constraints: effectiveConstraints,
+                        child: Padding(
+                          padding: effectivePadding,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Flexible(child: effectiveText),
+                              effectiveTrailing,
+                            ],
                           ),
                         ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            ?search,
-                            ?widget.header,
-                            Flexible(child: buildOptions(sheet: true)),
-                            ?widget.footer,
-                            if (isMultiSelect)
-                              Padding(
-                                padding: EdgeInsets.only(
-                                  top: theme.layoutTheme.gap(GapSize.md),
-                                ),
-                                child: Button(
-                                  expands: true,
-                                  onPressed: close,
-                                  child: Text(
-                                    UnaLocalizations.of(
-                                      context,
-                                    ).datePicker.done,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
                       ),
                     ),
                   ),
                 ),
-                popoverBuilder: (_, _) {
-                  Widget effectiveColumn = Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (search != null) Flexible(child: search),
-                      if (widget.header != null)
-                        Flexible(child: widget.header!),
-                      Flexible(child: buildOptions()),
-                      if (widget.footer != null)
-                        Flexible(child: widget.footer!),
-                    ],
-                  );
+              );
 
-                  if (widget.optionsBuilder == null) {
-                    effectiveColumn = IntrinsicWidth(child: effectiveColumn);
-                  }
-
-                  return ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxHeight: effectiveMaxHeight,
-                      minWidth: calculatedMinWidth,
-                      maxWidth: effectiveMaxWidth,
+              return Provider(
+                data: this as SelectState<dynamic>,
+                notifyUpdate: (_) => true,
+                child: PickerHost(
+                  // A plain single select is a menu, and stays one on a
+                  // phone; the others have a search field or need a Done.
+                  presentation:
+                      widget.presentation == PickerPresentation.auto &&
+                          widget.variant == SelectVariant.primary
+                      ? PickerPresentation.popover
+                      : widget.presentation,
+                  popoverPadding: EdgeInsets.zero,
+                  controller: popoverController,
+                  anchor: effectiveAnchor,
+                  closeOnTapOutside: widget.closeOnTapOutside,
+                  // The choice shows in the trigger at once, and the list
+                  // is gone with it rather than fading over it.
+                  exitDuration: Duration.zero,
+                  shadows: effectiveShadows,
+                  filter: effectiveFilter,
+                  // The options surface is a menu, and menus can carry their
+                  // own palette; without this it would inherit the page
+                  // popover's decoration.
+                  decoration: theme.selectTheme.popoverDecoration,
+                  triggerBuilder: (_, _) => select,
+                  sheetBuilder: (sheetContext, close) => ListenableBuilder(
+                    // The sheet is a route of its own: nothing rebuilds it
+                    // when the selection changes but this.
+                    listenable: _selection,
+                    builder: (context, _) => Provider(
+                      data: this as SelectState<dynamic>,
+                      notifyUpdate: (_) => true,
+                      child: _SelectSheetScope(
+                        child: Sheet(
+                          title: widget.title ?? widget.placeholder,
+                          // The search stays put and the list scrolls.
+                          scrollable: false,
+                          style: SheetTheme(
+                            constraints: BoxConstraints(
+                              maxWidth: 560,
+                              maxHeight: MediaQuery.sizeOf(context).height * .8,
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              ?search,
+                              ?widget.header,
+                              Flexible(child: buildOptions(sheet: true)),
+                              ?widget.footer,
+                              if (isMultiSelect)
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                    top: theme.layoutTheme.gap(GapSize.md),
+                                  ),
+                                  child: Button(
+                                    expands: true,
+                                    onPressed: close,
+                                    child: Text(
+                                      UnaLocalizations.of(
+                                        context,
+                                      ).datePicker.done,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
-                    // The arrows walk the options wherever the app runs;
-                    // the web's default shortcuts would scroll the page
-                    // instead.
-                    child: ArrowKeyFocus(child: effectiveColumn),
-                  );
-                },
-              ),
-            );
-          },
+                  ),
+                  popoverBuilder: (_, _) {
+                    Widget effectiveColumn = Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (search != null) Flexible(child: search),
+                        if (widget.header != null)
+                          Flexible(child: widget.header!),
+                        Flexible(child: buildOptions()),
+                        if (widget.footer != null)
+                          Flexible(child: widget.footer!),
+                      ],
+                    );
+
+                    if (widget.optionsBuilder == null) {
+                      effectiveColumn = IntrinsicWidth(child: effectiveColumn);
+                    }
+
+                    return ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxHeight: effectiveMaxHeight,
+                        minWidth: calculatedMinWidth,
+                        maxWidth: effectiveMaxWidth,
+                      ),
+                      // The arrows walk the options wherever the app runs;
+                      // the web's default shortcuts would scroll the page
+                      // instead.
+                      child: ArrowKeyFocus(child: effectiveColumn),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -1480,12 +1562,39 @@ class _OptionState<T> extends State<SelectOption<T>> {
     });
   }
 
+  /// The select this option belongs to.
+  late final SelectState<T> _select =
+      context.read<SelectState<dynamic>>() as SelectState<T>;
+
+  /// The option as text, for type-ahead: its label, or its child's text.
+  String? get typeAheadLabel {
+    final label = widget.label;
+    if (label != null) return label;
+    final child = widget.child;
+    return child is Text ? child.data : null;
+  }
+
+  /// Gives the option the focus and scrolls it into view.
+  void show([
+    ScrollPositionAlignmentPolicy policy =
+        ScrollPositionAlignmentPolicy.explicit,
+  ]) {
+    focusNode.requestFocus();
+    final box = context.findRenderObject();
+    if (box == null) return;
+    Scrollable.maybeOf(context)?.position.ensureVisible(
+      box,
+      alignment: policy == ScrollPositionAlignmentPolicy.explicit ? .5 : 0,
+      alignmentPolicy: policy,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     focusNode.addListener(onFocusChange);
 
-    final inherited = context.read<SelectState<dynamic>>() as SelectState<T>;
+    final inherited = _select.._options.add(this);
     final selected = inherited.selection.contains(widget.value);
     final label = widget.label;
     if (label != null) inherited._labels[widget.value] = label;
@@ -1517,6 +1626,7 @@ class _OptionState<T> extends State<SelectOption<T>> {
         });
       }
     }
+    _select._options.remove(this);
     focusNode
       ..removeListener(onFocusChange)
       ..dispose();
@@ -1620,81 +1730,238 @@ class _OptionState<T> extends State<SelectOption<T>> {
           ),
     );
 
-    return CallbackShortcuts(
-      bindings: {
-        const SingleActivator(LogicalKeyboardKey.enter): () {
-          _choose(inheritedSelect);
-        },
-      },
-      child: Focus(
-        focusNode: focusNode,
-        child: UnaGestureDetector(
-          behavior: HitTestBehavior.opaque,
-          mouseCursor: SystemMouseCursors.click,
-          onHover: (value) {
-            if (_confirming) return;
-            hovered.value = value;
+    // One node per option, a choice among the others: of one, or of several
+    // in a multiple select.
+    return Semantics(
+      container: true,
+      button: true,
+      selected: selected,
+      inMutuallyExclusiveGroup: !inheritedSelect._isMultiple,
+      child: CallbackShortcuts(
+        bindings: {
+          const SingleActivator(LogicalKeyboardKey.enter): () {
+            _choose(inheritedSelect);
           },
-          onTap: () => _choose(inheritedSelect),
-          child: ValueListenableBuilder(
-            valueListenable: hovered,
-            builder: (context, hovered, child) {
-              // The highlight is this row's own fill, there or not: it
-              // does not fade or travel between the options.
-              final resolvedBackgroundColor = hovered
-                  ? effectiveHoveredBackgroundColor
-                  : selected
-                  ? effectiveSelectedBackgroundColor
-                  : effectiveBackgroundColor;
-
-              // The label follows the *painted* background. A selected row
-              // with no fill of its own (the reference marks selection with
-              // the check alone) keeps the resting style — switching it to
-              // the highlight's foreground would be unreadable the moment
-              // the highlight is a strong colour.
-              final highlighted =
-                  hovered ||
-                  (selected && effectiveSelectedBackgroundColor != null);
-
-              return Container(
-                padding: effectivePadding,
-                // A touch target in a sheet: as tall as a control.
-                constraints: inSheet
-                    ? BoxConstraints(minHeight: theme.style.inputHeight)
-                    : null,
-                alignment: inSheet ? AlignmentDirectional.centerStart : null,
-                decoration: BoxDecoration(
-                  color: resolvedBackgroundColor,
-                  borderRadius: effectiveRadius,
-                ),
-                // The icon theme mirrors the text: the check indicator and
-                // any icons in the row follow the highlight's foreground
-                // while it is painted.
-                child: IconTheme.merge(
-                  data: IconThemeData(
-                    color: hovered
-                        ? effectiveSelectedHoveredIconColor
-                        : effectiveSelectedIconColor,
-                  ),
-                  child: DefaultTextStyle(
-                    style: highlighted
-                        ? effectiveSelectedTextStyle
-                        : effectiveTextStyle,
-                    child: child!,
-                  ),
-                ),
-              );
+          const SingleActivator(LogicalKeyboardKey.numpadEnter): () {
+            _choose(inheritedSelect);
+          },
+          const SingleActivator(LogicalKeyboardKey.space): () {
+            _choose(inheritedSelect);
+          },
+        },
+        child: Focus(
+          focusNode: focusNode,
+          child: UnaGestureDetector(
+            behavior: HitTestBehavior.opaque,
+            mouseCursor: SystemMouseCursors.click,
+            onHover: (value) {
+              if (_confirming) return;
+              hovered.value = value;
             },
-            child: Row(
-              children: [
-                Expanded(child: widget.child ?? Text(widget.label!)),
-                effectiveSelectedIcon,
-              ],
+            onTap: () => _choose(inheritedSelect),
+            child: ValueListenableBuilder(
+              valueListenable: hovered,
+              builder: (context, hovered, child) {
+                // The highlight is this row's own fill, there or not: it
+                // does not fade or travel between the options.
+                final resolvedBackgroundColor = hovered
+                    ? effectiveHoveredBackgroundColor
+                    : selected
+                    ? effectiveSelectedBackgroundColor
+                    : effectiveBackgroundColor;
+
+                // The label follows the *painted* background. A selected row
+                // with no fill of its own (the reference marks selection with
+                // the check alone) keeps the resting style — switching it to
+                // the highlight's foreground would be unreadable the moment
+                // the highlight is a strong colour.
+                final highlighted =
+                    hovered ||
+                    (selected && effectiveSelectedBackgroundColor != null);
+
+                return Container(
+                  padding: effectivePadding,
+                  // A touch target in a sheet: as tall as a control.
+                  constraints: inSheet
+                      ? BoxConstraints(minHeight: theme.style.inputHeight)
+                      : null,
+                  alignment: inSheet ? AlignmentDirectional.centerStart : null,
+                  decoration: BoxDecoration(
+                    color: resolvedBackgroundColor,
+                    borderRadius: effectiveRadius,
+                  ),
+                  // The icon theme mirrors the text: the check indicator and
+                  // any icons in the row follow the highlight's foreground
+                  // while it is painted.
+                  child: IconTheme.merge(
+                    data: IconThemeData(
+                      color: hovered
+                          ? effectiveSelectedHoveredIconColor
+                          : effectiveSelectedIconColor,
+                    ),
+                    child: DefaultTextStyle(
+                      style: highlighted
+                          ? effectiveSelectedTextStyle
+                          : effectiveTextStyle,
+                      child: child!,
+                    ),
+                  ),
+                );
+              },
+              child: Row(
+                children: [
+                  Expanded(child: widget.child ?? Text(widget.label!)),
+                  effectiveSelectedIcon,
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
+  }
+}
+
+/// The options of a select, with the keys a list of them answers to: Home
+/// and End go to the first and the last, and typing goes to the option
+/// whose text starts with what was typed.
+class _OptionList<T> extends StatefulWidget {
+  const _OptionList({
+    required this.select,
+    required this.focusFirst,
+    required this.child,
+  });
+
+  final SelectState<T> select;
+
+  /// Whether the first option takes the focus when the list opens with
+  /// none focused, so the arrows walk the list from there.
+  final bool focusFirst;
+
+  final Widget child;
+
+  @override
+  State<_OptionList<T>> createState() => _OptionListState<T>();
+}
+
+class _OptionListState<T> extends State<_OptionList<T>> {
+  final _node = FocusNode(
+    debugLabel: 'Select options',
+    canRequestFocus: false,
+    skipTraversal: true,
+  );
+
+  /// What has been typed in a row, for type-ahead.
+  String _typed = '';
+  Timer? _typedTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.focusFirst) {
+      // After the frame, and after the focus changes asked for in it have
+      // been made: the popover asks for the focus as it opens, and a
+      // selected option as it is built.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        scheduleMicrotask(() {
+          if (!mounted || _node.hasFocus) return;
+          _ordered().firstOrNull?.show();
+        });
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _typedTimer?.cancel();
+    _node.dispose();
+    super.dispose();
+  }
+
+  /// The options laid out now, from the top.
+  List<_OptionState<T>> _ordered() {
+    final placed = <(double, _OptionState<T>)>[];
+    for (final option in widget.select._options) {
+      if (!option.mounted) continue;
+      final box = option.context.findRenderObject();
+      if (box is! RenderBox || !box.attached || !box.hasSize) continue;
+      placed.add((box.localToGlobal(Offset.zero).dy, option));
+    }
+    placed.sort((a, b) => a.$1.compareTo(b.$1));
+    return [for (final (_, option) in placed) option];
+  }
+
+  KeyEventResult _onKey(FocusNode node, KeyEvent event) {
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
+      return KeyEventResult.ignored;
+    }
+    final keyboard = HardwareKeyboard.instance;
+    if (keyboard.isControlPressed ||
+        keyboard.isMetaPressed ||
+        keyboard.isAltPressed) {
+      return KeyEventResult.ignored;
+    }
+    final key = event.logicalKey;
+    if (key == LogicalKeyboardKey.home || key == LogicalKeyboardKey.end) {
+      final toEnd = key == LogicalKeyboardKey.end;
+      final scroll = widget.select.scrollController;
+      if (scroll.hasClients) {
+        final position = scroll.position;
+        scroll.jumpTo(
+          toEnd ? position.maxScrollExtent : position.minScrollExtent,
+        );
+      }
+      // After the frame: a lazy list builds the options at its far end only
+      // once it is there.
+      WidgetsBinding.instance
+        ..addPostFrameCallback((_) {
+          if (!mounted) return;
+          final options = _ordered();
+          if (toEnd) {
+            options.lastOrNull?.show(
+              ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+            );
+          } else {
+            options.firstOrNull?.show(
+              ScrollPositionAlignmentPolicy.keepVisibleAtStart,
+            );
+          }
+        })
+        ..scheduleFrame();
+      return KeyEventResult.handled;
+    }
+
+    final character = event.character;
+    if (character == null ||
+        character.length != 1 ||
+        character.codeUnitAt(0) < 0x21 ||
+        character.codeUnitAt(0) == 0x7f) {
+      return KeyEventResult.ignored;
+    }
+    _typedTimer?.cancel();
+    _typedTimer = Timer(const Duration(seconds: 1), () => _typed = '');
+    _typed += character.toLowerCase();
+    final options = _ordered();
+    if (options.isEmpty) return KeyEventResult.ignored;
+    final current = options.indexWhere((option) => option.focusNode.hasFocus);
+    // A first letter moves on from the focused option, so pressing it again
+    // goes through the options it starts; more letters narrow the match
+    // from there.
+    final from = _typed.length == 1 ? current + 1 : max(current, 0);
+    for (var i = 0; i < options.length; i++) {
+      final option = options[(from + i) % options.length];
+      final label = option.typeAheadLabel?.toLowerCase();
+      if (label != null && label.startsWith(_typed)) {
+        option.show();
+        break;
+      }
+    }
+    return KeyEventResult.handled;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Focus(focusNode: _node, onKeyEvent: _onKey, child: widget.child);
   }
 }
 
