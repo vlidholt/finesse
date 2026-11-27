@@ -93,6 +93,44 @@ void main() {
     expect(filters(tester), isEmpty);
   });
 
+  testWidgets('a rebuild with an equal image does not reveal it again', (
+    tester,
+  ) async {
+    final bytes = Uint8List.fromList(kTransparentImage);
+    late StateSetter rebuild;
+    await pumpUna(
+      tester,
+      StatefulBuilder(
+        builder: (context, setState) {
+          rebuild = setState;
+          // A new, equal provider on every build, as an app makes one.
+          return Center(
+            child: RevealImage(
+              image: MemoryImage(bytes),
+              width: 10,
+              height: 10,
+            ),
+          );
+        },
+      ),
+    );
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 50)),
+    );
+    // The reveal plays once, to its end.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+    expect(filters(tester), isNotEmpty);
+    await tester.pump(const Duration(seconds: 2));
+    expect(find.byType(RawImage), findsOneWidget);
+    expect(filters(tester), isEmpty);
+
+    rebuild(() {});
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 16));
+    expect(filters(tester), isEmpty);
+  });
+
   testWidgets('no motion shows the image without a reveal', (tester) async {
     final image = _LateImage();
     await pumpUna(

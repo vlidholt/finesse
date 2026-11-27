@@ -152,8 +152,9 @@ class RevealImage extends StatelessWidget {
       frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
         if (wasSynchronouslyLoaded) return child;
         return _Reveal(
-          // A new picture is revealed afresh.
-          key: ObjectKey(image),
+          // A new picture is revealed afresh, and only a new one: providers
+          // compare by value, and a rebuild makes an equal one each time.
+          key: ValueKey(image),
           loaded: frame != null,
           reveal: reveal,
           placeholder: empty,
