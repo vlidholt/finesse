@@ -292,6 +292,17 @@ class ColorEdits {
     return ColorEdits(Map.unmodifiable(next));
   }
 
+  /// These edits without the chart colours, for a new chart palette.
+  ColorEdits get withoutCharts {
+    if (!colors.keys.any((name) => name.startsWith('chart'))) return this;
+    return ColorEdits(
+      Map.unmodifiable({
+        for (final MapEntry(:key, :value) in colors.entries)
+          if (!key.startsWith('chart')) key: value,
+      }),
+    );
+  }
+
   @override
   bool operator ==(Object other) =>
       other is ColorEdits && mapEquals(other.colors, colors);

@@ -77,7 +77,7 @@ own default look and its own rules.
     the subtree.
 - **No deprecation shims.** The fork is pre-1.0; a rename is a changelog
   entry under "Changed from shad", not a `@Deprecated` typedef.
-- **The default look** is `StyleTokens.fluid` on `OceanColorScheme`. The
+- **The default look** is `StyleTokens.fluid` on `SlateColorScheme`. The
   style was measured from the Demo designs (four screens, desktop and
   mobile, light and dark) that [`una_demo`](https://github.com/vlidholt/una_demo),
   a repository of its own, replicates; the Demo keeps the designs' own
@@ -86,7 +86,7 @@ own default look and its own rules.
   `pebble` and `sharp`, made from shadcn's Nova, Maia and Lyra (the notes
   below and the token docs quote shadcn's names where they quote its CSS);
   `reference/ui/` (below) is still the source of truth for those three.
-  The colour schemes are the six of `ColorSchemes` (see "Colour tokens").
+  The colour schemes are the seven of `ColorSchemes` (see "Colour tokens").
 - **Icons are Phosphor**, vendored into this package (see "Fonts" below) and
   exported from the barrel: `PhosphorIconsRegular`, `PhosphorIconsFill`,
   `PhosphorIconsBold`, `Light`, `Thin` and `Duotone`. `PhosphorIcon` is an
@@ -699,9 +699,11 @@ weight, another font, at or above the reference — is a plain `Icon`.
 - The dark card and popover are a step lighter than the page.
 - Overlays are `bg-black/10` with `backdrop-blur-xs` in both modes — the blur is
   what lets the tint stay that light.
-- **Six colour schemes, one ladder of lightness.** `ColorSchemes` lists
-  them: `ocean` (the default, a standard blue that keeps 4.5:1 for white
-  text), `graphite` (monochrome), `forest`, `iris`, `ember` and `rose`.
+- **Seven colour schemes, one ladder of lightness.** `ColorSchemes` lists
+  them: `slate` (the default, a quiet slate blue: Ocean's ladder at
+  `accentChroma` .45, which is what `fromSeed` makes of Tailwind's
+  slate-500), `ocean` (a standard blue that keeps 4.5:1 for white text),
+  `graphite` (monochrome), `forest`, `iris`, `ember` and `rose`.
   They are *generated* (`dart run scripts/generate_color_schemes.dart`):
   Ocean is the template, hand-tuned against the contrast tests, and every
   other scheme keeps its OKLCH lightness token by token with a hue of its
@@ -711,6 +713,18 @@ weight, another font, at or above the reference — is a plain `Icon`.
   rerun. shadcn's palettes and its seventeen `AccentScheme`s are gone (the
   accents' lightness varied wildly); `applyAccent(Color)` remains, and
   any token is a `copyWith`. The Demo keeps its own `TealColorScheme`.
+- **Charts are green in every scheme**, not the accent: the template's
+  `chart*` tokens are `ChartPalette.green` with the `fixed` role, in the
+  generator and in `fromSeed`. `ThemeData(chartPalette:)` writes another
+  palette into the scheme's five chart tokens (the factory does it after
+  resolving the brightness, so `copyWith` re-applies it to a new scheme);
+  `ChartTheme.palette` still wins under it. The presets' shades alternate
+  around the first (600, 400, 800, 500, 700 on a light page; 500, 300,
+  700, 400, 600 on a dark one), so neighbouring slices stay apart. In the
+  editor a palette is applied to the base scheme, under the colours
+  picked by hand; with a chart colour picked by hand the snippet states
+  the chart colours instead of naming the palette, which would replace
+  them.
 - The optional scheme tokens — `tint`, `foregroundSubtle`, `success`,
   `successMuted`, `warning`, `borderStrong`, `accentBorder`, `bar` — each
   fall back to an existing token, so a hand-written scheme keeps working.
@@ -1998,8 +2012,10 @@ come from it.
   opening by itself in a window at least 1100 wide. Tests start on the
   reference with the editor closed: `pumpApp` sets `initialAppSection`
   and `openEditorOnDesktop` (and puts them back).
-- **Palettes** (`ColorPalette`): the six schemes and fifteen seeds for
-  `ColorScheme.fromSeed`, offered as the Color row's swatches; `seed`
+- **Palettes** (`ColorPalette`): eighteen in Tailwind's order (Slate,
+  Graphite, then red to rose), seven built-in schemes and eleven seeds
+  (Tailwind's 600 shades) for `ColorScheme.fromSeed`, offered as the Color
+  row's swatches; a swatch is the light primary, so Graphite shows dark; `seed`
   stands in for `colors` when set, and `neutral` makes the scheme a seeded
   one too (from the scheme's own primary when no seed is set). A colour
   or a style field set back to the value it has without the edit is no

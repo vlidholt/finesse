@@ -65,6 +65,8 @@ void main() {
   ) async {
     await pumpPanel(tester);
     // The default body font is the one the picker shows.
+    await tester.ensureVisible(find.text(const ThemeEditorConfig().fontTitle));
+    await tester.pump();
     await tester.tap(find.text(const ThemeEditorConfig().fontTitle));
     await settle(tester);
 
@@ -98,6 +100,8 @@ void main() {
 
   testWidgets('scrolling a row into view fetches its preview', (tester) async {
     await pumpPanel(tester);
+    await tester.ensureVisible(find.text('Font'));
+    await tester.pump();
     await tester.tap(find.text('Font'));
     await settle(tester);
     expect(EditorFont.debugPreviewedFamilies, isNot(contains('Roboto Slab')));
@@ -126,6 +130,8 @@ void main() {
       tester,
       initial: const ThemeEditorConfig(fontTitle: 'Lora'),
     );
+    await tester.ensureVisible(find.text('Font'));
+    await tester.pump();
     await tester.tap(find.text('Font'));
     await settle(tester);
 
@@ -144,6 +150,8 @@ void main() {
     tester,
   ) async {
     await pumpPanel(tester);
+    await tester.ensureVisible(find.text('Font'));
+    await tester.pump();
     await tester.tap(find.text('Font'));
     await settle(tester);
     await tester.tap(
@@ -171,6 +179,8 @@ void main() {
     await pumpPanel(tester);
 
     Future<void> pick(String title) async {
+      await tester.ensureVisible(find.text('Font'));
+      await tester.pump();
       await tester.tap(find.text('Font'));
       await settle(tester);
       await tester.tap(find.descendant(of: list(), matching: find.text(title)));

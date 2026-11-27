@@ -6,7 +6,7 @@ import 'package:una/src/theme/color_scheme/base.dart';
 
 /// A deep green on greys with a breath of sage.
 ///
-/// One of the six built-in schemes, all made from one ladder of lightness
+/// One of the seven built-in schemes, all made from one ladder of lightness
 /// so none is louder than another. It sets every optional token, and its
 /// fills, borders and muted surfaces are translucent washes of the
 /// foreground, so they sit correctly on glass.
@@ -81,11 +81,11 @@ class ForestColorScheme extends ColorScheme {
     super.input = const Color(0x17161b19),
     super.ring = const Color(0xff028744),
     super.selection = const Color(0x3d028744),
-    super.chart1 = const Color(0xff028744),
-    super.chart2 = const Color(0xff51bc75),
-    super.chart3 = const Color(0xff15803d),
-    super.chart4 = const Color(0xffb45309),
-    super.chart5 = const Color(0xffdc2626),
+    super.chart1 = const Color(0xff00a63e),
+    super.chart2 = const Color(0xff05df72),
+    super.chart3 = const Color(0xff016630),
+    super.chart4 = const Color(0xff00c950),
+    super.chart5 = const Color(0xff008236),
     super.sidebar = const Color(0xffffffff),
     super.sidebarForeground = const Color(0xff161b19),
     super.sidebarPrimary = const Color(0xff028744),
@@ -128,11 +128,11 @@ class ForestColorScheme extends ColorScheme {
     super.input = const Color(0x14e9eeec),
     super.ring = const Color(0xff67c383),
     super.selection = const Color(0x4c67c383),
-    super.chart1 = const Color(0xff67c383),
-    super.chart2 = const Color(0xff028744),
-    super.chart3 = const Color(0xff86d3a8),
-    super.chart4 = const Color(0xfffbbf24),
-    super.chart5 = const Color(0xfff87171),
+    super.chart1 = const Color(0xff00c950),
+    super.chart2 = const Color(0xff7bf1a8),
+    super.chart3 = const Color(0xff008236),
+    super.chart4 = const Color(0xff05df72),
+    super.chart5 = const Color(0xff00a63e),
     super.sidebar = const Color(0xff1d2421),
     super.sidebarForeground = const Color(0xffeff1f0),
     super.sidebarPrimary = const Color(0xff67c383),

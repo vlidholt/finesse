@@ -31,13 +31,13 @@ theme.formFactor;            // desktop or mobile''',
         title: 'Color schemes',
         children: [
           DocParagraph(
-            'Six schemes ship, each a light and a dark palette: Ocean '
-            '(the default, a standard blue), Graphite (monochrome), '
-            'Forest, Iris, Ember and Rose. Each supplies the whole '
-            'palette — page, surfaces, text, lines, the primary and its '
-            'tint, status colors and a chart ramp — and all six are made '
-            'from one ladder of lightness, so none is louder than '
-            'another.',
+            'Seven schemes ship, each a light and a dark palette: Slate '
+            '(the default, a quiet slate blue), Ocean (a standard blue), '
+            'Graphite (monochrome), Forest, Iris, Ember and Rose. Each '
+            'supplies the whole palette — page, surfaces, text, lines, the '
+            'primary and its tint, status colors and the chart colors — '
+            'and all seven are made from one ladder of lightness, so none '
+            'is louder than another.',
           ),
           CodeBlock(
             code: '''
@@ -58,10 +58,40 @@ UnaApp(
           CodeBlock(
             code: '''
 for (final scheme in ColorSchemes.values) {
-  scheme.label;              // 'Ocean', 'Graphite', …
+  scheme.label;              // 'Slate', 'Ocean', …
   scheme.of(Brightness.dark); // its dark palette
 }
 ColorScheme.fromName('forest', brightness: Brightness.dark);''',
+          ),
+        ],
+      ),
+      DocSection(
+        title: 'Chart colors',
+        children: [
+          DocParagraph(
+            'Charts draw their series in the scheme\'s `chart1`…`chart5`, '
+            'which every built-in scheme sets to `ChartPalette.green`: five '
+            'shades of one green, a darker one first on a light page and a '
+            'lighter one on a dark page. `ThemeData(chartPalette:)` swaps in '
+            'another. The presets are shadcn/ui\'s chart themes — '
+            '`ChartPalette.multicolor`, `slate`, and one per color from '
+            '`red` around to `rose` — and a palette of your own is any '
+            'colors, light and dark:',
+          ),
+          CodeBlock(
+            code: '''
+ThemeData(chartPalette: ChartPalette.blue)
+
+ThemeData(
+  chartPalette: const ChartPalette(
+    light: [Color(0xFF0F766E), Color(0xFFF59E0B), Color(0xFF6366F1)],
+    dark: [Color(0xFF2DD4BF), Color(0xFFFBBF24), Color(0xFF818CF8)],
+  ),
+)''',
+          ),
+          DocParagraph(
+            'For one chart, or a chart with more series than five, '
+            '`ChartTheme(palette:)` sets the colors of the charts below it.',
           ),
         ],
       ),

@@ -28,7 +28,7 @@ once per ambient theme and keeps it.
 ## Which colour to use
 
 Pick a token by what the colour *does*, never by how it looks in the
-default scheme: six schemes ship, and in each the same role is a
+default scheme: seven schemes ship, and in each the same role is a
 different colour.
 
 | Token | For |
@@ -44,7 +44,7 @@ different colour.
 | `border`, `borderStrong`, `input` | Hairlines; `borderStrong` for outline buttons and key caps on a surface of nearly the same colour; `input` for field outlines. |
 | `success` / `successMuted`, `warning`, `destructive` | Status ink and its soft fill. |
 | `bar` | The solid colour under app and navigation bars (the style makes it translucent). |
-| `chart1`...`chart5` | A data ramp. |
+| `chart1`...`chart5` | The series of a chart: `ChartPalette.green` in every built-in scheme, or `ThemeData(chartPalette:)`'s. |
 
 ```dart
 final theme = Theme.of(context);
@@ -63,12 +63,13 @@ scheme's `custom` map (below), so it switches with light and dark.
 
 ## Color schemes
 
-Six schemes ship, each a light and a dark palette made from one ladder of
+Seven schemes ship, each a light and a dark palette made from one ladder of
 lightness, so none is louder than another:
 
 | `ColorSchemes` | Classes | Character |
 | --- | --- | --- |
-| `ocean` (the default) | `OceanColorScheme.light()` / `.dark()` | A standard blue on a cool grey page. |
+| `slate` (the default) | `SlateColorScheme.light()` / `.dark()` | A quiet slate blue on cool slate greys. |
+| `ocean` | `OceanColorScheme` | A standard blue on a cool grey page. |
 | `graphite` | `GraphiteColorScheme` | Monochrome: near-black ink as the primary, near-white in the dark. |
 | `forest` | `ForestColorScheme` | A deep green on greys with a breath of sage. |
 | `iris` | `IrisColorScheme` | A clear violet on cool, faintly violet greys. |
@@ -76,7 +77,14 @@ lightness, so none is louder than another:
 | `rose` | `RoseColorScheme` | A rose red on soft, warm greys. |
 
 Each supplies the whole palette, every optional token included. With no
-`colorScheme`, `ThemeData` uses Ocean in the theme's brightness.
+`colorScheme`, `ThemeData` uses Slate in the theme's brightness.
+
+Charts draw in `chart1`…`chart5`, which every built-in scheme (and every
+`ColorScheme.fromSeed`) sets to `ChartPalette.green`. `ThemeData(chartPalette:
+ChartPalette.blue)` picks another preset — `multicolor`, `slate`, and one
+per Tailwind colour from `red` to `rose`, shadcn/ui's chart themes — and
+`ChartPalette(light: [...], dark: [...])` is your own. `ChartTheme(palette:)`
+sets the colours of the charts under it, any number of them.
 
 ```dart
 UnaApp(

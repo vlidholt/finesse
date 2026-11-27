@@ -105,7 +105,7 @@ was measured from (Strand, until it moved), is its own repository,
 #### Look and theme
 
 - **A new default look.** `ThemeData()` is the `fluid` style on the
-  `OceanColorScheme`: 10-point controls, 18-point translucent cards, bars
+  `SlateColorScheme`: 10-point controls, 18-point translucent cards, bars
   and menus of frosted glass, soft tinted shadows. Pass
   `style: StyleTokens.crisp` and
   `colorScheme: const GraphiteColorScheme.light()` for the classic
@@ -114,8 +114,10 @@ was measured from (Strand, until it moved), is its own repository,
   designs), and `crisp`, `pebble` and `sharp`, made from shadcn's Nova,
   Maia and Lyra; `StyleTokens.fluidMobile` is Fluid's phone metrics. Every
   token a style sets can be set on its own through `StyleTokens.copyWith`.
-- **Six colour schemes instead of shadcn's palettes and accents.**
-  `ColorSchemes` lists `ocean` (the default, a standard blue), `graphite`
+- **Seven colour schemes instead of shadcn's palettes and accents.**
+  `ColorSchemes` lists `slate` (the default, a quiet slate blue — what
+  `ColorScheme.fromSeed` makes of Tailwind's slate-500), `ocean` (a
+  standard blue), `graphite`
   (monochrome), `forest`, `iris`, `ember` and `rose`, each a light and a
   dark palette setting every token. They are generated from one ladder of
   lightness (`scripts/generate_color_schemes.dart`), so none is louder or
@@ -419,8 +421,10 @@ was measured from (Strand, until it moved), is its own repository,
   its swatches are a finger's size on a phone. The example's theme
   editor uses it for a custom accent colour, exported as
   `applyAccent`.
-- **The theme editor edits everything.** Pick one of the six colour
-  schemes, then any of its colours (a colour picked in light mode carries
+- **The theme editor edits everything.** Pick one of eighteen colours in
+  Tailwind's order — Slate, Graphite, then red around the wheel to rose,
+  seven of them the built-in schemes and the rest seeds — or a chart
+  palette, then any of its colours (a colour picked in light mode carries
   over to dark, adjusted to the dark palette, until one is picked there),
   and every field of the style under "All settings", grouped and
   searchable, for the form factor the app shows. Liquid Glass Auto / On /
@@ -434,7 +438,7 @@ was measured from (Strand, until it moved), is its own repository,
 - **A Liquid Glass bottom bar with no `action` stays at the bottom**; it
   took the whole height of its slot and sat mid-screen.
 - **`ColorScheme.fromSeed`**: a whole scheme from one colour, made the
-  way the six built-in schemes are (Ocean's lightness, the seed's hue), so
+  way the seven built-in schemes are (Ocean's lightness, the seed's hue), so
   any seed gets their contrast; a grey seed gives a monochrome scheme. A
   `neutral` sets the greys' colour on its own.
 - **`ControlSize.sm`** on `NumberField`, `Select` and `SegmentedControl`:
@@ -650,6 +654,15 @@ was measured from (Strand, until it moved), is its own repository,
   `DataTableColumn(sortable: true)` sorts at the source.
 - `ResizableController.sizes`, `setSizes` and `reset`.
 - `AvatarGroup`, `IconTile`, `StatTile`, `Timeline`, `IndicatorBadge`.
+- **Chart palettes.** `ChartPalette` holds the colours a chart's series
+  are drawn in, five for a light page and five for a dark one, and
+  `ThemeData(chartPalette:)` writes one into the scheme's `chart1`…`chart5`.
+  The presets are shadcn/ui's chart themes: `multicolor` (its categorical
+  set), `slate`, and one per Tailwind colour from `red` to `rose`, each five
+  shades that alternate lighter and darker around the first. Every built-in
+  scheme, and every `ColorScheme.fromSeed`, charts in `ChartPalette.green`
+  (the chart colours used to follow the accent). The theme editor offers
+  them under Color, and exports `chartPalette:`.
 - **Charts.** `LineChart` (over categories or `xValues`; monotone, straight
   or stepped lines, `area`, `dots`), `BarChart` (grouped or `stacked`,
   vertical or `direction: Axis.horizontal`), `DonutChart` (a pie with

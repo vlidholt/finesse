@@ -232,6 +232,26 @@ class _SettingsState extends State<_Settings> {
           _section(_SectionId.color, [
             _ColorRow(config: config, onChanged: onChanged),
             _NeutralRow(config: config, onChanged: onChanged),
+            ThemePicker<ChartPreset>(
+              label: 'Charts',
+              value: config.charts,
+              options: [
+                for (final c in ChartPreset.values)
+                  PickerOption(
+                    value: c,
+                    label: c.label,
+                    swatches: c.palette.of(widget.brightness),
+                  ),
+              ],
+              // Picking a palette starts the chart colours afresh.
+              onChanged: (v) => onChanged(
+                config.copyWith(
+                  charts: v,
+                  lightColors: config.lightColors.withoutCharts,
+                  darkColors: config.darkColors.withoutCharts,
+                ),
+              ),
+            ),
             ColorTokenList(
               config: config,
               brightness: widget.brightness,
@@ -899,8 +919,8 @@ class _ColorRow extends StatelessWidget {
       swatches: [for (final p in ColorPalette.values) p.swatch],
       clearLabel: 'Default',
       // Back to the package default's.
-      clearable: config.seed != null || config.colors != ColorSchemes.ocean,
-      onClear: () => onChanged(ColorPalette.ocean.applyTo(config)),
+      clearable: config.seed != null || config.colors != ColorSchemes.slate,
+      onClear: () => onChanged(ColorPalette.slate.applyTo(config)),
       onChanged: (color) {
         if (color == null) return;
         // A swatch of a palette is that palette; a colour of its own a

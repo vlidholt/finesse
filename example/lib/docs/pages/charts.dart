@@ -19,8 +19,9 @@ final chartsDoc = ComponentDoc(
       title: 'Line chart',
       description:
           '`LineChart` draws a `ChartSeries` per line over `labels`. Each '
-          'series takes the next of the scheme\'s `chart1`…`chart5` unless '
-          'it names a `color`; `area` fills under the line, fading to the '
+          'series takes the next of the scheme\'s `chart1`…`chart5` (shades '
+          'of green unless `ThemeData(chartPalette:)` picks another palette) '
+          'unless it names a `color`; `area` fills under the line, fading to the '
           'baseline. `ChartLegend` takes the same list. Hover, touch or Tab '
           'into the chart: the tooltip follows the pointer, and the arrow '
           'keys step from point to point.',

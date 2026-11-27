@@ -10,6 +10,7 @@ class PickerOption<T> {
     required this.value,
     required this.label,
     this.swatch,
+    this.swatches,
     this.labelStyleBuilder,
   });
 
@@ -27,7 +28,18 @@ class PickerOption<T> {
 
   /// Shown as a colour dot before the label, as shadcn's colour pickers do.
   final Color? swatch;
+
+  /// Shown as a strip of colours before the label, for a palette: a chart
+  /// palette's series colours.
+  final List<Color>? swatches;
 }
+
+/// [option]'s swatch: a palette's strip, a colour's dot, or none.
+Widget? _swatchOf(PickerOption<Object?> option) => option.swatches != null
+    ? _PaletteSwatch(colors: option.swatches!)
+    : option.swatch != null
+    ? _Swatch(color: option.swatch!)
+    : null;
 
 /// The style of a setting row's small heading, e.g. "Style" or "Base Color".
 ///
@@ -223,11 +235,8 @@ class _ThemePickerState<T> extends State<ThemePicker<T>> {
         // two-line stack.
         trailing: widget.busy
             ? Spinner(size: 15, color: theme.colorScheme.mutedForeground)
-            : selected.swatch != null
-            ? _Swatch(color: selected.swatch!)
-            : widget.icon != null
-            ? _RowIcon(widget.icon!)
-            : null,
+            : _swatchOf(selected) ??
+                  (widget.icon != null ? _RowIcon(widget.icon!) : null),
       ),
     );
   }
@@ -298,7 +307,7 @@ class _PickerListState<T> extends State<_PickerList<T>> {
             return _PickerItem(
               label: option.label,
               labelStyleBuilder: option.labelStyleBuilder,
-              swatch: option.swatch,
+              swatch: _swatchOf(option),
               selected: index == widget.selectedIndex,
               onTap: () => widget.onSelected(option),
             );
@@ -322,7 +331,7 @@ class _PickerItem extends StatefulWidget {
   final ValueGetter<TextStyle>? labelStyleBuilder;
   final bool selected;
   final VoidCallback onTap;
-  final Color? swatch;
+  final Widget? swatch;
 
   @override
   State<_PickerItem> createState() => _PickerItemState();
@@ -348,8 +357,8 @@ class _PickerItemState extends State<_PickerItem> {
         ),
         child: Row(
           children: [
-            if (widget.swatch != null) ...[
-              _Swatch(color: widget.swatch!),
+            if (widget.swatch case final swatch?) ...[
+              swatch,
               const SizedBox(width: 8),
             ],
             Expanded(
@@ -368,6 +377,35 @@ class _PickerItemState extends State<_PickerItem> {
                 size: 14,
                 color: theme.colorScheme.foreground,
               ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A palette as a capsule of its colours side by side.
+class _PaletteSwatch extends StatelessWidget {
+  const _PaletteSwatch({required this.colors});
+
+  final List<Color> colors;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 30,
+      height: 14,
+      foregroundDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(7),
+        border: Border.all(color: Theme.of(context).colorScheme.border),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(7),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final color in colors)
+              Expanded(child: ColoredBox(color: color)),
           ],
         ),
       ),

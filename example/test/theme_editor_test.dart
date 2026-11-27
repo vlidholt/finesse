@@ -69,7 +69,7 @@ void main() {
     test('the default config is the package default look', () {
       const config = ThemeEditorConfig();
       expect(config.style, StylePreset.fluid);
-      expect(config.colors, ColorSchemes.ocean);
+      expect(config.colors, ColorSchemes.slate);
       expect(config.fontTitle, 'Geist');
       // The radius is left to the style, which is 10 for Fluid.
       expect(config.usesStyleRadius, isTrue);
@@ -89,8 +89,8 @@ void main() {
         expect(
           theme.colorScheme,
           brightness == Brightness.light
-              ? const OceanColorScheme.light()
-              : const OceanColorScheme.dark(),
+              ? const SlateColorScheme.light()
+              : const SlateColorScheme.dark(),
         );
         expect(theme, packageDefault, reason: '$brightness');
       }
@@ -208,12 +208,45 @@ void main() {
       expect(snippet, startsWith('ThemeData('));
     });
 
+    test('a chart palette is exported by name, under hand-picked colours', () {
+      const config = ThemeEditorConfig(charts: ChartPreset.blue);
+      expect(
+        config.toDartSnippet(),
+        contains('  chartPalette: ChartPalette.blue,\n'),
+      );
+      expect(config.colorScheme.charts, ChartPalette.blue.light);
+      expect(
+        config.copyWith(brightness: Brightness.dark).colorScheme.charts,
+        ChartPalette.blue.dark,
+      );
+      expect(config.build().colorScheme.charts, ChartPalette.blue.light);
+      // The default is the package's own: nothing to export.
+      expect(
+        const ThemeEditorConfig().toDartSnippet(),
+        isNot(contains('chartPalette')),
+      );
+      // A chart colour picked by hand wins, and the snippet states the
+      // colours rather than naming a palette that would replace them.
+      final token = colorTokens.firstWhere((t) => t.name == 'chart1');
+      final edited = config.withColor(
+        token,
+        Brightness.light,
+        const Color(0xFFFF00FF),
+      );
+      expect(edited.colorScheme.chart1, const Color(0xFFFF00FF));
+      expect(edited.colorScheme.chart2, ChartPalette.blue.light[1]);
+      final snippet = edited.toDartSnippet();
+      expect(snippet, isNot(contains('chartPalette')));
+      expect(snippet, contains('chart1: const Color(0xFFFF00FF)'));
+      expect(snippet, contains('chart2: const Color(0xFF51A2FF)'));
+    });
+
     test('the snippet names every colour theme', () {
       for (final colors in ColorSchemes.values) {
         final snippet = ThemeEditorConfig(colors: colors).toDartSnippet();
         final name =
             '${colors.name[0].toUpperCase()}${colors.name.substring(1)}';
-        if (colors == ColorSchemes.ocean) {
+        if (colors == ColorSchemes.slate) {
           // The package default: `ThemeData` picks it by itself.
           expect(snippet, isNot(contains('colorScheme:')));
         } else {
@@ -276,7 +309,7 @@ void main() {
       // Nothing else moves.
       expect(
         config.colorScheme.background,
-        const OceanColorScheme.light().background,
+        const SlateColorScheme.light().background,
       );
       // It is part of the look, so no preset matches it.
       expect(config.look, isNot(const ThemeEditorConfig().look));
@@ -291,7 +324,7 @@ void main() {
       );
       final dark = config.copyWith(brightness: Brightness.dark).colorScheme;
       expect(config.colorSource(primary, Brightness.dark), ColorSource.derived);
-      // A pink, not Ocean's blue: the hue followed.
+      // A pink, not Slate's blue: the hue followed.
       final hue = Oklch.of(dark.primary).h;
       expect(hue, closeTo(Oklch.of(pink).h, 6));
       // Picked in dark too, the dark one is that.
@@ -332,7 +365,7 @@ void main() {
     });
 
     test('picking the original colour back is no edit at all', () {
-      final original = const OceanColorScheme.light().primary;
+      final original = const SlateColorScheme.light().primary;
       final config = const ThemeEditorConfig()
           .withColor(primary, Brightness.light, pink)
           .withColor(primary, Brightness.light, original);
@@ -371,9 +404,9 @@ void main() {
           expect(config.copyWith(brightness: b).build(), isNotNull);
         }
       }
-      // Ocean is the package default, with no seed.
+      // Slate is the package default, with no seed.
       expect(
-        ColorPalette.ocean.applyTo(const ThemeEditorConfig()),
+        ColorPalette.slate.applyTo(const ThemeEditorConfig()),
         const ThemeEditorConfig(),
       );
     });
@@ -505,8 +538,9 @@ void main() {
         expect(find.text(label), findsOneWidget, reason: 'missing $label');
       }
       // The defaults, as the rows show them.
-      expect(find.text('Ocean'), findsOneWidget);
+      expect(find.text('Slate'), findsOneWidget);
       expect(find.text('Follows the color'), findsOneWidget);
+      expect(find.text('Green'), findsOneWidget);
       expect(find.text('Geist'), findsOneWidget);
       // Light/dark and direction are app-wide switches, not settings this
       // panel duplicates.

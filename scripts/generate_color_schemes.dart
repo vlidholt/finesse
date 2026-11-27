@@ -1,4 +1,4 @@
-// Generates the six built-in colour schemes in lib/src/theme/color_scheme/.
+// Generates the seven built-in colour schemes in lib/src/theme/color_scheme/.
 //
 //   dart run scripts/generate_color_schemes.dart
 //
@@ -9,8 +9,9 @@
 // strong as an accent of another: no theme is loud and no theme washed
 // out. Graphite has no accent hue; its primary is its ink.
 //
-// Status colours (destructive, success, warning) and the chart ramp's last
-// three steps are the same in every scheme.
+// Status colours (destructive, success, warning) and the chart ramp — the
+// green `ChartPalette.green`, una's default for charts — are the same in
+// every scheme.
 
 import 'dart:io';
 import 'dart:math' as math;
@@ -43,6 +44,7 @@ class _Spec {
     required this.greyHue,
     required this.greyChroma,
     this.accentHue,
+    this.accentChroma = 1,
   });
 
   final String name;
@@ -58,14 +60,27 @@ class _Spec {
   /// The accent's hue, or null for a monochrome scheme.
   final double? accentHue;
 
+  /// How strong the accent is, relative to Ocean's.
+  final double accentChroma;
+
   String get className => '${name}ColorScheme';
 }
 
 const _specs = [
   _Spec(
+    name: 'Slate',
+    file: 'slate',
+    doc: "Una's default palette: a quiet slate blue on cool slate greys.",
+    greyHue: 257,
+    greyChroma: 1.1,
+    accentHue: 257,
+    // `ColorScheme.fromSeed` of Tailwind's slate-500 gives the same.
+    accentChroma: .45,
+  ),
+  _Spec(
     name: 'Ocean',
     file: 'ocean',
-    doc: "Una's default palette: a standard blue on a cool grey page.",
+    doc: 'A standard blue on a cool grey page.',
     greyHue: _oceanGreyHue,
     greyChroma: 1,
     accentHue: _oceanAccentHue,
@@ -140,11 +155,12 @@ const _light = <_Token>[
   ('input', 0x17161a22, _Role.neutral),
   ('ring', 0xff2563eb, _Role.accent),
   ('selection', 0x3d2563eb, _Role.accent),
-  ('chart1', 0xff2563eb, _Role.accent),
-  ('chart2', 0xff60a5fa, _Role.accent),
-  ('chart3', 0xff15803d, _Role.fixed),
-  ('chart4', 0xffb45309, _Role.fixed),
-  ('chart5', 0xffdc2626, _Role.fixed),
+  // ChartPalette.green, light.
+  ('chart1', 0xff00a63e, _Role.fixed),
+  ('chart2', 0xff05df72, _Role.fixed),
+  ('chart3', 0xff016630, _Role.fixed),
+  ('chart4', 0xff00c950, _Role.fixed),
+  ('chart5', 0xff008236, _Role.fixed),
   ('sidebar', 0xffffffff, _Role.fixed),
   ('sidebarForeground', 0xff161a22, _Role.neutral),
   ('sidebarPrimary', 0xff2563eb, _Role.accent),
@@ -186,11 +202,12 @@ const _dark = <_Token>[
   ('input', 0x14e8edf5, _Role.neutral),
   ('ring', 0xff6eb0fb, _Role.accent),
   ('selection', 0x4c6eb0fb, _Role.accent),
-  ('chart1', 0xff6eb0fb, _Role.accent),
-  ('chart2', 0xff2563eb, _Role.accent),
-  ('chart3', 0xff86d3a8, _Role.fixed),
-  ('chart4', 0xfffbbf24, _Role.fixed),
-  ('chart5', 0xfff87171, _Role.fixed),
+  // ChartPalette.green, dark.
+  ('chart1', 0xff00c950, _Role.fixed),
+  ('chart2', 0xff7bf1a8, _Role.fixed),
+  ('chart3', 0xff008236, _Role.fixed),
+  ('chart4', 0xff05df72, _Role.fixed),
+  ('chart5', 0xff00a63e, _Role.fixed),
   ('sidebar', 0xff1c222e, _Role.neutral),
   ('sidebarForeground', 0xffeef1f5, _Role.neutral),
   ('sidebarPrimary', 0xff6eb0fb, _Role.accent),
@@ -217,7 +234,7 @@ int? _graphite(String name, bool dark, Map<String, int> greys) {
   final page = greys['background']!;
   final rgb = ink & 0xffffff;
   return switch ((name, dark)) {
-    ('primary' || 'ring' || 'chart1' || 'sidebarPrimary' || 'sidebarRing', _) ||
+    ('primary' || 'ring' || 'sidebarPrimary' || 'sidebarRing', _) ||
     ('tint' || 'accentForeground' || 'sidebarAccentForeground', _) => ink,
     (
       'primaryForeground' || 'tintForeground' || 'sidebarPrimaryForeground',
@@ -228,7 +245,6 @@ int? _graphite(String name, bool dark, Map<String, int> greys) {
     ('accent' || 'sidebarAccent', true) => 0x1f000000 | rgb,
     ('selection', _) => 0x33000000 | rgb,
     ('accentBorder', _) => 0x3d000000 | rgb,
-    ('chart2', _) => greys['mutedForeground'],
     _ => null,
   };
 }
@@ -258,7 +274,7 @@ import 'package:una/src/theme/color_scheme/base.dart';
 
 /// ${spec.doc}
 ///
-/// One of the six built-in schemes, all made from one ladder of lightness
+/// One of the seven built-in schemes, all made from one ladder of lightness
 /// so none is louder than another. It sets every optional token, and its
 /// fills, borders and muted surfaces are translucent washes of the
 /// foreground, so they sit correctly on glass.
@@ -320,7 +336,7 @@ Map<String, int> _resolve(
       _Role.fixed => argb,
       _Role.neutral => _shift(argb, spec.greyHue, spec.greyChroma),
       _Role.accent when spec.accentHue == null => argb, // replaced below
-      _Role.accent => _shift(argb, spec.accentHue!, 1),
+      _Role.accent => _shift(argb, spec.accentHue!, spec.accentChroma),
     };
   }
   if (spec.accentHue == null) {

@@ -6,9 +6,9 @@ import '../harness.dart';
 import 'common.dart';
 
 /// The size of the palette grid.
-const palettesSize = Size(2040, 680);
+const palettesSize = Size(2380, 680);
 
-/// The six colour schemes, light over dark.
+/// The seven colour schemes, light over dark.
 class PalettesScene extends StatelessWidget {
   /// Creates the grid.
   const PalettesScene({super.key});

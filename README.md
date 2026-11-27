@@ -27,7 +27,7 @@ See it in a whole app in [Demo](https://vlidholt.github.io/una_demo/), a small p
 - **Liquid Glass on Apple platforms.** On iOS and macOS, natively and on the web, the bars, menus, popovers, dialogs, sheets, toasts, switches, sliders and segmented controls are drawn with Liquid Glass through [`liquid_glass_widgets`](https://pub.dev/packages/liquid_glass_widgets), with no change to your code; `ThemeData(liquidGlass: LiquidGlassTheme(mode: ...))` turns it on everywhere or off. Call `await LiquidGlass.initialize()` in `main()` to load its shaders before the first frame.
 - **Motion from the theme.** Durations, curves and springs come from one `Motion` on the style: overlays grow from their anchor, selections travel, controls respond to a press, and the platform's reduced-motion setting is honoured everywhere. No component takes its own effects or durations.
 - **Spacing from the theme.** A named gap scale (`Gap.md()`, `UnaRow(gap: GapSize.lg)`) and `PageContainer` keep screens consistent and let a theme change their rhythm.
-- **Styles and colour schemes.** Four styles (`fluid`, `crisp`, `pebble`, `sharp`) and six colour schemes (Ocean, Graphite, Forest, Iris, Ember, Rose), each in light and dark, and every token overridable through `copyWith`.
+- **Styles and colour schemes.** Four styles (`fluid`, `crisp`, `pebble`, `sharp`) seven colour schemes (Slate, Ocean, Graphite, Forest, Iris, Ember, Rose), each in light and dark, chart palettes in shades of any colour, and every token overridable through `copyWith`.
 - **Icons included.** The [Phosphor](https://phosphoricons.com) icon set ships in the package in six weights.
 - **Forms.** `UnaForm` and a `*FormField` widget for every input, with per-field validation.
 - **Localization.** 82 locales, built on `slang`.
@@ -92,7 +92,7 @@ Widgets have no prefix: `Button`, `Card`, `Theme`, `ThemeData`. A name that woul
 
 ## Theming
 
-`ThemeData()` is the default look: the `fluid` style on the Ocean colours. A theme is a style, a colour scheme and a text theme, and each can be replaced on its own:
+`ThemeData()` is the default look: the `fluid` style on the Slate colours. A theme is a style, a colour scheme and a text theme, and each can be replaced on its own:
 
 ```dart
 ThemeData(
@@ -108,9 +108,9 @@ Four styles ship with the package. `fluid` is the default; `crisp`, `pebble` and
 
 ![The same card in the fluid, crisp, pebble and sharp styles](https://raw.githubusercontent.com/vlidholt/una/main/doc/images/styles.webp)
 
-Six colour schemes, each a light and a dark palette made from one ladder of lightness, so none is louder than another (`ColorSchemes` lists them):
+Seven colour schemes, each a light and a dark palette made from one ladder of lightness, so none is louder than another (`ColorSchemes` lists them):
 
-![The Ocean, Graphite, Forest, Iris, Ember and Rose colour schemes, light and dark](https://raw.githubusercontent.com/vlidholt/una/main/doc/images/palettes.webp)
+![The Slate, Ocean, Graphite, Forest, Iris, Ember and Rose colour schemes, light and dark](https://raw.githubusercontent.com/vlidholt/una/main/doc/images/palettes.webp)
 
 Any colour of a scheme can be changed with `copyWith`, or the accent from one colour with `applyAccent`.
 

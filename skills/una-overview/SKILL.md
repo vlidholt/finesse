@@ -17,9 +17,10 @@ it is on a desktop or a phone.
   through `package:una/material.dart` ([theming.md](guides/theming.md)).
 - **Four styles**: `StyleTokens.fluid` (the default: soft glass, lively
   motion), and `crisp`, `pebble` and `sharp`, made from shadcn's styles
-  ([styles.md](guides/styles.md)). **Six colour schemes** in light and
-  dark: `ColorSchemes.ocean` (the default), `graphite`, `forest`, `iris`,
-  `ember`, `rose` ([theming.md](guides/theming.md)).
+  ([styles.md](guides/styles.md)). **Seven colour schemes** in light and
+  dark: `ColorSchemes.slate` (the default), `ocean`, `graphite`, `forest`,
+  `iris`, `ember`, `rose`, and chart palettes (`ChartPalette.green`, the
+  default, and one per colour) ([theming.md](guides/theming.md)).
 - **Liquid Glass on iOS and macOS**, by itself: bars, sheets, menus and
   some controls switch material; app code does not change
   ([liquid-glass.md](guides/liquid-glass.md)).
@@ -44,7 +45,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return UnaApp(
-      theme: ThemeData(), // StyleTokens.fluid on OceanColorScheme
+      theme: ThemeData(), // StyleTokens.fluid on SlateColorScheme
       darkTheme: ThemeData(brightness: Brightness.dark),
       themeMode: ThemeMode.system,
       home: const CounterPage(),
@@ -352,7 +353,8 @@ a description, then every example's real source. Regenerate with
 **Data**
 
 - [Charts](components/charts.md): `LineChart`, `BarChart`, `DonutChart`,
-  `Sparkline` and `ChartLegend`, in the scheme's `chart1`…`chart5`.
+  `Sparkline` and `ChartLegend`, in the scheme's `chart1`…`chart5`
+  (`ThemeData(chartPalette:)`).
 
 ## Testing una widgets
 

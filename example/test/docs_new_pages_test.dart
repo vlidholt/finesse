@@ -217,10 +217,10 @@ void main() {
     // these is describing shad, not una.
     final stale = [
       RegExp(
-        r'\b(eight|vega|mira|luma|sera|rhea|slate|gray|lucide|playground)\b',
+        r'\b(eight|vega|mira|luma|sera|rhea|gray|lucide|playground)\b',
         caseSensitive: false,
       ),
-      RegExp(r'\bShad[A-Z]\w*|\bshad\b|\b(Slate|Gray)ColorScheme\b'),
+      RegExp(r'\bShad[A-Z]\w*|\bshad\b|\bGrayColorScheme\b'),
       // The widgets that were renamed to Flutter's vocabulary.
       RegExp(r'\b(Input|InputOTP|Separator|Progress)\('),
     ];

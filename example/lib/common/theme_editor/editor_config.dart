@@ -6,40 +6,39 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/una.dart';
 
-/// The colour options the editor offers: the six built-in schemes, and
-/// more made from a seed colour with `ColorScheme.fromSeed`, which builds
-/// them on the same ladder of lightness.
+/// The colour options the editor offers, in the order of Tailwind's palette:
+/// the two quiet ones, then around the colour wheel from red to rose.
+///
+/// Seven are the package's built-in schemes (Slate, the default, Graphite,
+/// Ember, Forest, Ocean, Iris and Rose stand for Tailwind's slate, a
+/// monochrome, orange, green, blue, violet and rose); the rest are made
+/// from Tailwind's 600 shade with `ColorScheme.fromSeed`, which builds them
+/// on the same ladder of lightness.
 enum ColorPalette {
-  ocean('Ocean', scheme: ColorSchemes.ocean),
+  slate('Slate', scheme: ColorSchemes.slate),
   graphite('Graphite', scheme: ColorSchemes.graphite),
-  forest('Forest', scheme: ColorSchemes.forest),
-  iris('Iris', scheme: ColorSchemes.iris),
+  red('Red', seed: Color(0xFFE7000B)),
   ember('Ember', scheme: ColorSchemes.ember),
-  rose('Rose', scheme: ColorSchemes.rose),
-  sky('Sky', seed: Color(0xFF0EA5E9)),
-  cyan('Lagoon', seed: Color(0xFF0891B2)),
-  teal('Teal', seed: Color(0xFF0D9488)),
-  emerald('Emerald', seed: Color(0xFF059669)),
-  lime('Lime', seed: Color(0xFF4CB81A)),
-  moss('Moss', seed: Color(0xFF65A30D)),
-  citron('Citron', seed: Color(0xFFB5AC00)),
-  gold('Gold', seed: Color(0xFFCA8A04)),
-  amber('Amber', seed: Color(0xFFD97706)),
-  coral('Coral', seed: Color(0xFFF2643C)),
-  crimson('Crimson', seed: Color(0xFFDC2626)),
-  berry('Berry', seed: Color(0xFFDB2777)),
-  orchid('Orchid', seed: Color(0xFFC026D3)),
-  grape('Grape', seed: Color(0xFF9B3FE0)),
-  violet('Violet', seed: Color(0xFF7C3AED)),
-  indigo('Indigo', seed: Color(0xFF4F46E5)),
-  slate('Slate', seed: Color(0xFF64748B)),
-  sand('Sand', seed: Color(0xFF8A8178));
+  amber('Amber', seed: Color(0xFFE17100)),
+  lime('Lime', seed: Color(0xFF5EA500)),
+  forest('Forest', scheme: ColorSchemes.forest),
+  emerald('Emerald', seed: Color(0xFF009966)),
+  teal('Teal', seed: Color(0xFF009689)),
+  cyan('Cyan', seed: Color(0xFF0092B8)),
+  sky('Sky', seed: Color(0xFF0084D1)),
+  ocean('Ocean', scheme: ColorSchemes.ocean),
+  indigo('Indigo', seed: Color(0xFF4F39F6)),
+  iris('Iris', scheme: ColorSchemes.iris),
+  purple('Purple', seed: Color(0xFF9810FA)),
+  fuchsia('Fuchsia', seed: Color(0xFFC800DE)),
+  pink('Pink', seed: Color(0xFFE60076)),
+  rose('Rose', scheme: ColorSchemes.rose);
 
   const ColorPalette(this.label, {this.scheme, this.seed});
 
   final String label;
 
-  /// The built-in scheme, for the first six.
+  /// The built-in scheme, for the seven that have one.
   final ColorSchemes? scheme;
 
   /// The seed, for the rest.
@@ -66,15 +65,42 @@ enum ColorPalette {
     darkColors: const ColorEdits(),
   );
 
-  /// The dot shown for it: its light primary — or, for a monochrome one,
-  /// its dark primary, which reads on the panel's dark surface.
-  Color get swatch {
-    final light = seed != null ? ColorScheme.fromSeed(seed!) : scheme!.light;
-    final dark = seed != null
-        ? ColorScheme.fromSeed(seed!, brightness: Brightness.dark)
-        : scheme!.dark;
-    return light.primary == light.foreground ? dark.primary : light.primary;
-  }
+  /// The dot shown for it: its light primary, which is what its buttons
+  /// are filled with — near-black for the monochrome Graphite.
+  Color get swatch => seed != null
+      ? ColorScheme.fromSeed(seed!).primary
+      : scheme!.light.primary;
+}
+
+/// The chart palettes the editor offers: the package's presets
+/// (`ChartPalette`), shadcn/ui's chart themes.
+enum ChartPreset {
+  multicolor('Multicolor', ChartPalette.multicolor),
+  slate('Slate', ChartPalette.slate),
+  red('Red', ChartPalette.red),
+  orange('Orange', ChartPalette.orange),
+  amber('Amber', ChartPalette.amber),
+  lime('Lime', ChartPalette.lime),
+  green('Green', ChartPalette.green),
+  emerald('Emerald', ChartPalette.emerald),
+  teal('Teal', ChartPalette.teal),
+  cyan('Cyan', ChartPalette.cyan),
+  sky('Sky', ChartPalette.sky),
+  blue('Blue', ChartPalette.blue),
+  indigo('Indigo', ChartPalette.indigo),
+  violet('Violet', ChartPalette.violet),
+  purple('Purple', ChartPalette.purple),
+  fuchsia('Fuchsia', ChartPalette.fuchsia),
+  pink('Pink', ChartPalette.pink),
+  rose('Rose', ChartPalette.rose);
+
+  const ChartPreset(this.label, this.palette);
+
+  final String label;
+  final ChartPalette palette;
+
+  /// The package's default: the built-in schemes chart in green.
+  static const standard = green;
 }
 
 /// The neutrals the editor offers: the colour the greys — page, cards,
@@ -268,9 +294,10 @@ class ThemeEditorConfig {
   const ThemeEditorConfig({
     this.brightness = Brightness.light,
     this.style = StylePreset.fluid,
-    this.colors = ColorSchemes.ocean,
+    this.colors = ColorSchemes.slate,
     this.seed,
     this.neutral,
+    this.charts = ChartPreset.standard,
     this.lightColors = const ColorEdits(),
     this.darkColors = const ColorEdits(),
     this.styleEdits = const StyleEdits(),
@@ -309,6 +336,10 @@ class ThemeEditorConfig {
   /// The colour the greys lean towards (`ColorScheme.fromSeed`'s
   /// `neutral`), or null to follow the colour.
   final Color? neutral;
+
+  /// The palette charts draw in. Colours picked by hand for the chart
+  /// tokens are applied over it.
+  final ChartPreset charts;
 
   /// The colours picked by hand in light mode, and in dark. A colour picked
   /// in one only is carried over to the other (see [applyColorEdits]).
@@ -432,6 +463,7 @@ class ThemeEditorConfig {
     ColorSchemes? colors,
     ValueGetter<Color?>? seed,
     ValueGetter<Color?>? neutral,
+    ChartPreset? charts,
     ColorEdits? lightColors,
     ColorEdits? darkColors,
     StyleEdits? styleEdits,
@@ -464,6 +496,7 @@ class ThemeEditorConfig {
       colors: colors ?? this.colors,
       seed: seed == null ? this.seed : seed(),
       neutral: neutral == null ? this.neutral : neutral(),
+      charts: charts ?? this.charts,
       lightColors: lightColors ?? this.lightColors,
       darkColors: darkColors ?? this.darkColors,
       styleEdits: styleEdits ?? this.styleEdits,
@@ -520,6 +553,7 @@ class ThemeEditorConfig {
         other.colors == colors &&
         other.seed == seed &&
         other.neutral == neutral &&
+        other.charts == charts &&
         other.lightColors == lightColors &&
         other.darkColors == darkColors &&
         other.styleEdits == styleEdits &&
@@ -552,6 +586,7 @@ class ThemeEditorConfig {
     colors,
     seed,
     neutral,
+    charts,
     lightColors,
     darkColors,
     styleEdits,
@@ -583,7 +618,7 @@ class ThemeEditorConfig {
 
   ColorScheme _scheme(Brightness b) {
     final dark = b == Brightness.dark;
-    final key = (colors, seed, neutral, lightColors, darkColors, dark);
+    final key = (colors, seed, neutral, charts, lightColors, darkColors, dark);
     final cached = _schemes[key];
     if (cached != null) return cached;
     if (_schemes.length >= _maxCachedStyles) {
@@ -599,13 +634,35 @@ class ThemeEditorConfig {
 
   static final _schemes =
       <
-        (ColorSchemes, Color?, Color?, ColorEdits, ColorEdits, bool),
+        (
+          ColorSchemes,
+          Color?,
+          Color?,
+          ChartPreset,
+          ColorEdits,
+          ColorEdits,
+          bool,
+        ),
         ColorScheme
       >{};
 
   /// The scheme before any colour picked by hand: the seed's, or the
-  /// colour theme's.
+  /// colour theme's, charting in [charts].
   ColorScheme baseScheme(Brightness b) {
+    final scheme = themeScheme(b);
+    if (charts == ChartPreset.standard) return scheme;
+    final c = charts.palette.tokensFor(b);
+    return scheme.copyWith(
+      chart1: c[0],
+      chart2: c[1],
+      chart3: c[2],
+      chart4: c[3],
+      chart5: c[4],
+    );
+  }
+
+  /// The seed's scheme, or the colour theme's, as the package makes it.
+  ColorScheme themeScheme(Brightness b) {
     if (seed == null && neutral == null) return colors.of(b);
     return _seeded[(seedColor, neutral, b)] ??= ColorScheme.fromSeed(
       seedColor,
@@ -613,6 +670,15 @@ class ThemeEditorConfig {
       neutral: neutral,
     );
   }
+
+  /// Whether a chart colour was picked by hand, in either brightness. The
+  /// exported code then states every chart colour on the scheme rather
+  /// than naming the palette, which would replace them.
+  bool get chartColorsEdited => [lightColors, darkColors].any(
+    (edits) => [
+      for (var i = 1; i <= 5; i++) 'chart$i',
+    ].any((name) => edits[name] != null),
+  );
 
   /// The colour the scheme is made from: the seed, or the colour theme's
   /// primary when only a neutral is set.
@@ -872,12 +938,14 @@ class ThemeEditorConfig {
     final dark = brightness == Brightness.dark;
     final lines = <String>[
       if (dark) 'brightness: Brightness.dark,',
-      if (colors != ColorSchemes.ocean ||
+      if (colors != ColorSchemes.slate ||
           seed != null ||
           neutral != null ||
           !lightColors.isEmpty ||
           !darkColors.isEmpty)
         ..._prefixed('colorScheme: ', _schemeCode(brightness)),
+      if (charts != ChartPreset.standard && !chartColorsEdited)
+        'chartPalette: ChartPalette.${charts.name},',
       if (!usesStyleRadius)
         'radius: BorderRadius.circular(${_number(effectiveRadius)}),',
       ..._prefixed('textTheme: ', _textThemeCode()),
@@ -936,7 +1004,9 @@ class ThemeEditorConfig {
               '$neutralArg$darkArg)'
         : 'const ${name[0].toUpperCase()}${name.substring(1)}ColorScheme'
               '.${b.name}()';
-    final theme = baseScheme(b);
+    // With a chart colour picked by hand the palette is not named, so the
+    // scheme states every chart colour that differs from the package's.
+    final theme = chartColorsEdited ? themeScheme(b) : baseScheme(b);
     final resolved = _scheme(b);
     final changed = [
       for (final token in colorTokens)

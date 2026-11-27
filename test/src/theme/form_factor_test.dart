@@ -698,7 +698,7 @@ void main() {
         ),
       );
       expect(seen.brightness, Brightness.dark);
-      expect(seen.colorScheme, const OceanColorScheme.dark());
+      expect(seen.colorScheme, const SlateColorScheme.dark());
       expect(seen.formFactor, FormFactor.mobile);
     });
 

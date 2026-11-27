@@ -4,8 +4,8 @@
     "start_url": ".",
     "display": "standalone",
     "background_color": "#F4F5F7",
-    "theme_color": "#2563EB",
-    "description": "Una: components, docs and a theme editor for Flutter.",
+    "theme_color": "#4B71A8",
+    "description": "Una: over a hundred components for Flutter that adapt across desktop, mobile and web, with a theme editor, docs and Liquid Glass on Apple platforms.",
     "orientation": "any",
     "prefer_related_applications": false,
     "icons": [

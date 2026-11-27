@@ -1,8 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:theme_extensions_builder_annotation/theme_extensions_builder_annotation.dart';
 import 'package:una/src/liquid_glass/liquid_glass_theme.dart';
+import 'package:una/src/theme/chart_palette.dart';
 import 'package:una/src/theme/color_scheme/base.dart';
-import 'package:una/src/theme/color_scheme/ocean.dart';
+import 'package:una/src/theme/color_scheme/slate.dart';
 import 'package:una/src/theme/components/accordion.dart';
 import 'package:una/src/theme/components/action_sheet.dart';
 import 'package:una/src/theme/components/alert.dart';
@@ -106,7 +107,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
   /// is true.
   factory ThemeData({
     /// The color scheme to use for the theme.
-    /// Defaults to [OceanColorScheme] based on the [brightness].
+    /// Defaults to [SlateColorScheme] based on the [brightness].
     ColorScheme? colorScheme,
 
     /// The overall brightness of the theme, defaults to [Brightness.light].
@@ -259,6 +260,12 @@ class ThemeData extends BaseTheme with _$ThemeData {
     /// transition off; [Motion.calm] and [Motion.lively] are the shipped
     /// characters.
     Motion? motion,
+
+    /// The colours charts draw their series in, written into the colour
+    /// scheme's `chart1`…`chart5` for the theme's brightness. Null keeps
+    /// the scheme's own, which for the built-in schemes is
+    /// [ChartPalette.green].
+    ChartPalette? chartPalette,
   }) {
     // A motion override is a style override: the variant reads its motion
     // from the style, on both form factors.
@@ -302,13 +309,20 @@ class ThemeData extends BaseTheme with _$ThemeData {
         (schemeForBrightness == null
             ? Brightness.light
             : _brightnessOf(schemeForBrightness.background));
-    final effectiveColorScheme =
+    final schemeWithoutPalette =
         colorScheme ??
         variant?.colorScheme ??
         switch (effectiveBrightness) {
-          Brightness.light => const OceanColorScheme.light(),
-          Brightness.dark => const OceanColorScheme.dark(),
+          Brightness.light => const SlateColorScheme.light(),
+          Brightness.dark => const SlateColorScheme.dark(),
         };
+    final effectiveColorScheme = chartPalette == null
+        ? schemeWithoutPalette
+        : _withChartPalette(
+            schemeWithoutPalette,
+            chartPalette,
+            effectiveBrightness,
+          );
 
     // A supplied variant already baked the colour scheme, radius and text
     // theme into its component themes, so any of those that arrived separately
@@ -497,6 +511,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
         menuTranslucent: menuTranslucent,
         menuAccent: menuAccent,
         motion: motion,
+        chartPalette: chartPalette,
       ),
       colorScheme: effectiveColorScheme,
       brightness: effectiveBrightness,
@@ -889,6 +904,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     bool? menuTranslucent,
     MenuAccent? menuAccent,
     Motion? motion,
+    ChartPalette? chartPalette,
   }) {
     final i = _inputs;
     return ThemeData(
@@ -997,6 +1013,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
       menuTranslucent: menuTranslucent ?? i.menuTranslucent,
       menuAccent: menuAccent ?? i.menuAccent,
       motion: motion ?? i.motion,
+      chartPalette: chartPalette ?? i.chartPalette,
     );
   }
 
@@ -1205,6 +1222,7 @@ final class _ThemeInputs {
     this.menuTranslucent,
     this.menuAccent,
     this.motion,
+    this.chartPalette,
   });
 
   final ColorScheme? colorScheme;
@@ -1307,4 +1325,21 @@ final class _ThemeInputs {
   final bool? menuTranslucent;
   final MenuAccent? menuAccent;
   final Motion? motion;
+  final ChartPalette? chartPalette;
+}
+
+/// [scheme] with its chart tokens taken from [palette] for [brightness].
+ColorScheme _withChartPalette(
+  ColorScheme scheme,
+  ChartPalette palette,
+  Brightness brightness,
+) {
+  final c = palette.tokensFor(brightness);
+  return scheme.copyWith(
+    chart1: c[0],
+    chart2: c[1],
+    chart3: c[2],
+    chart4: c[3],
+    chart5: c[4],
+  );
 }

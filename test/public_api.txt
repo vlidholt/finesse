@@ -85,6 +85,7 @@ CarouselController
 CarouselTheme
 ChartEntry
 ChartLegend
+ChartPalette
 ChartSegment
 ChartSeries
 ChartTheme
@@ -397,6 +398,7 @@ SidebarTrigger
 SidebarVariant
 Skeleton
 SkeletonTheme
+SlateColorScheme
 Slider
 SliderFormField
 SliderInteraction

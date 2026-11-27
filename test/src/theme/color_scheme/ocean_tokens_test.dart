@@ -33,13 +33,20 @@ void main() {
   );
 
   group('OceanColorScheme', () {
-    test('is the default scheme of a theme, per brightness', () {
-      expect(ThemeData().colorScheme, const OceanColorScheme.light());
+    test('Slate is the default scheme of a theme, per brightness', () {
+      expect(ThemeData().colorScheme, const SlateColorScheme.light());
       expect(ThemeData().brightness, Brightness.light);
       expect(
         ThemeData(brightness: Brightness.dark).colorScheme,
-        const OceanColorScheme.dark(),
+        const SlateColorScheme.dark(),
       );
+      // Made the way `ColorScheme.fromSeed` makes one from Tailwind's
+      // slate-500: the same primary, to the rounding of a channel.
+      final seeded = ColorScheme.fromSeed(const Color(0xFF64748B)).primary;
+      const slate = SlateColorScheme.light();
+      expect((seeded.r - slate.primary.r).abs(), lessThan(1.5 / 255));
+      expect((seeded.g - slate.primary.g).abs(), lessThan(1.5 / 255));
+      expect((seeded.b - slate.primary.b).abs(), lessThan(1.5 / 255));
       // And a theme given only the dark scheme reads its brightness off it.
       expect(
         ThemeData(colorScheme: const OceanColorScheme.dark()).brightness,
@@ -88,8 +95,8 @@ void main() {
       expect(s.warning, const Color(0xffb45309));
       expect(s.accentBorder, const Color(0x522563eb));
       expect(s.bar, const Color(0xffffffff));
-      expect(s.chart1, const Color(0xff2563eb));
-      expect(s.chart5, const Color(0xffdc2626));
+      expect(s.chart1, const Color(0xff00a63e));
+      expect(s.chart5, const Color(0xff008236));
       expect(s.sidebar, const Color(0xffffffff));
       expect(s.sidebarPrimary, const Color(0xff2563eb));
     });

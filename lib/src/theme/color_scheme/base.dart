@@ -7,12 +7,15 @@ import 'package:una/src/theme/color_scheme/iris.dart';
 import 'package:una/src/theme/color_scheme/ocean.dart';
 import 'package:una/src/theme/color_scheme/rose.dart';
 import 'package:una/src/theme/color_scheme/seed.dart';
+import 'package:una/src/theme/color_scheme/slate.dart';
 
 /// The colour tokens of a theme.
 ///
-/// Start from one of the six built-in schemes ([ColorSchemes]: Ocean, the
-/// default, Graphite, Forest, Iris, Ember and Rose), change any token with
-/// [copyWith], or recolour the accent from one colour with [applyAccent].
+/// Start from one of the seven built-in schemes ([ColorSchemes]: Slate, the
+/// default, Ocean, Graphite, Forest, Iris, Ember and Rose), change any token
+/// with [copyWith], or recolour the accent from one colour with
+/// [applyAccent]. The built-in schemes, and those made with `fromSeed`, chart
+/// in `ChartPalette.green`; `ThemeData(chartPalette:)` picks another.
 /// The `chart*` and `sidebar*` tokens and the ones after them are optional
 /// and fall back to the closest core token.
 @immutable
@@ -95,11 +98,12 @@ class ColorScheme {
   ///
   /// Every token keeps the lightness of Ocean's (`OceanColorScheme`), which
   /// is tuned against contrast, and takes [seed]'s hue: the accent tokens
-  /// (primary, tint, ring, selection, accent wash, the first chart colours)
+  /// (primary, tint, ring, selection, accent wash)
   /// at a strength that follows the seed's, the greys with a breath of it.
   /// So a seed of any lightness gives a primary that carries white text and
   /// a tint that reads on the page, in light and dark. A grey seed gives a
-  /// monochrome scheme, its primary its ink. Status colours are Ocean's.
+  /// monochrome scheme, its primary its ink. Status colours are Ocean's,
+  /// and the chart colours are `ChartPalette.green`.
   ///
   /// The primary is the seed's hue, not the seed itself; set it exactly
   /// with `copyWith(primary: seed)` where the seed must be the brand colour.
@@ -234,10 +238,12 @@ class ColorScheme {
   final Color? _accentBorder;
   final Color? _bar;
 
-  /// The first categorical chart colour.
+  /// The first chart colour, `--chart-1`.
   ///
-  /// Defaults to [primary]; the remaining four step towards [mutedForeground]
-  /// so an unspecified scheme still yields a usable, ordered ramp.
+  /// The built-in schemes set all five to `ChartPalette.green`, and
+  /// `ThemeData(chartPalette:)` sets them from a palette. A scheme that
+  /// sets none defaults to [primary], the remaining four stepping towards
+  /// [mutedForeground], so it still yields a usable, ordered ramp.
   Color get chart1 => _chart1 ?? primary;
 
   /// The second chart colour, `--chart-2`. Defaults to a quarter of the way
@@ -807,10 +813,13 @@ class ColorScheme {
   }
 }
 
-/// The six built-in colour schemes, each a light and a dark palette made
+/// The seven built-in colour schemes, each a light and a dark palette made
 /// from one ladder of lightness, so no theme is louder than another.
 enum ColorSchemes {
-  /// A standard blue on a cool grey page: una's default.
+  /// A quiet slate blue on cool slate greys: una's default.
+  slate('Slate', SlateColorScheme.light(), SlateColorScheme.dark()),
+
+  /// A standard blue on a cool grey page.
   ocean('Ocean', OceanColorScheme.light(), OceanColorScheme.dark()),
 
   /// Monochrome: near-black ink as the primary, near-white in the dark.

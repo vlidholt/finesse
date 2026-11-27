@@ -10,7 +10,7 @@ survive. Check a screen against the list before calling it done.
 | `import 'package:flutter/material.dart';` in a una app | `package:flutter/widgets.dart` + `package:una/una.dart`. Material widgets only through `package:una/material.dart` and `UnaMaterial` ([theming.md](theming.md)). |
 | `MaterialApp`, `Scaffold` from Material, `Icons.home` | `UnaApp`, una's `Scaffold`, `PhosphorIcon(PhosphorIconsRegular.house)` |
 | `StyleTokens.una`, `.nova`, `.maia`, `.lyra`, `unaMobile` | `StyleTokens.fluid`, `.crisp`, `.pebble`, `.sharp`, `fluidMobile` |
-| `TealColorScheme`, `ZincColorScheme`, `NeutralColorScheme`, `StoneColorScheme`, `BlueColorScheme` | `OceanColorScheme` (default), `GraphiteColorScheme`, `ForestColorScheme`, `IrisColorScheme`, `EmberColorScheme`, `RoseColorScheme` |
+| `TealColorScheme`, `ZincColorScheme`, `NeutralColorScheme`, `StoneColorScheme`, `BlueColorScheme` | `SlateColorScheme` (default), `OceanColorScheme`, `GraphiteColorScheme`, `ForestColorScheme`, `IrisColorScheme`, `EmberColorScheme`, `RoseColorScheme` |
 | `scheme.applyAccentScheme(AccentScheme.violetLight)` | `scheme.applyAccent(const Color(0xFF7C3AED))` |
 | `Shad*`, `LucideIcons`, `Button.raw`, `ButtonSize.icon`, `TooltipController`, `effects:` | none of these exist ([SKILL.md](../SKILL.md)) |
 | `Row`/`Column`/`Form`/`Table` where una's is meant | `UnaRow`, `UnaColumn`, `UnaForm`, `UnaTable` (plain `Row` and `Column` are fine when you want Flutter's) |

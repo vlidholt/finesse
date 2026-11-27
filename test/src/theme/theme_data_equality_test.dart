@@ -466,7 +466,7 @@ void main() {
         base,
         ThemeData(
           style: StyleTokens.fluid,
-          colorScheme: const OceanColorScheme.light(),
+          colorScheme: const SlateColorScheme.light(),
           formFactor: FormFactor.desktop,
           brightness: Brightness.light,
           radius: const BorderRadius.all(Radius.circular(10)),

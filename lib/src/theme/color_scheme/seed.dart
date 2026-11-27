@@ -5,7 +5,7 @@ import 'package:una/src/theme/color_scheme/base.dart';
 import 'package:una/src/theme/color_scheme/ocean.dart';
 
 // `ColorScheme.fromSeed`: a whole scheme from one colour, made the way the
-// six built-in schemes are (scripts/generate_color_schemes.dart): Ocean's
+// seven built-in schemes are (scripts/generate_color_schemes.dart): Ocean's
 // lightness, token by token, with the seed's hue for the accent and a
 // breath of it in the greys.
 
@@ -33,8 +33,8 @@ const _roles = <String, _Role>{
   'input': _Role.neutral,
   'ring': _Role.accent,
   'selection': _Role.accent,
-  'chart1': _Role.accent,
-  'chart2': _Role.accent,
+  'chart1': _Role.fixed,
+  'chart2': _Role.fixed,
   'chart3': _Role.fixed,
   'chart4': _Role.fixed,
   'chart5': _Role.fixed,
@@ -146,7 +146,7 @@ ColorScheme schemeFromSeed(
     final ink = out['foreground']!;
     final page = out['background']!;
     Color wash(double alpha) => ink.withValues(alpha: alpha);
-    for (final name in ['primary', 'ring', 'chart1', 'sidebarPrimary']) {
+    for (final name in ['primary', 'ring', 'sidebarPrimary']) {
       out[name] = ink;
     }
     for (final name in ['sidebarRing', 'tint', 'accentForeground']) {
@@ -161,7 +161,6 @@ ColorScheme schemeFromSeed(
     out['sidebarAccent'] = out['accent']!;
     out['selection'] = wash(.2);
     out['accentBorder'] = wash(.24);
-    out['chart2'] = out['mutedForeground']!;
   }
   Color t(String name) => out[name]!;
   return ColorScheme(

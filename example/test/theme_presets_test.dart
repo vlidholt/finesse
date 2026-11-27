@@ -721,7 +721,7 @@ ThemeData(
         expect(snippet, contains('UnaApp('));
         expect(snippet, contains('darkTheme: ThemeData('));
         // The dark half names the dark scheme.
-        if (preset.config.colors != ColorSchemes.ocean) {
+        if (preset.config.colors != ColorSchemes.slate) {
           expect(snippet, contains('ColorScheme.light()'));
           expect(snippet, contains('ColorScheme.dark()'));
         }

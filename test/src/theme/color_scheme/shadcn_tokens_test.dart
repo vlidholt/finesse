@@ -16,6 +16,7 @@ void main() {
         expect(scheme.of(Brightness.dark), scheme.dark);
       }
       expect(ColorSchemes.values.map((s) => s.name), [
+        'slate',
         'ocean',
         'graphite',
         'forest',
@@ -31,11 +32,23 @@ void main() {
       }
     });
 
-    test('each carries its own chart ramp', () {
-      const s = IrisColorScheme.light();
-      expect(s.charts, hasLength(5));
-      expect(s.chart1, isNot(s.chart5));
-      expect(s.chart1, s.primary);
+    test('each charts in the green palette, per brightness', () {
+      for (final scheme in ColorSchemes.values) {
+        expect(scheme.light.charts, ChartPalette.green.light);
+        expect(scheme.dark.charts, ChartPalette.green.dark);
+      }
+      // A seeded scheme too: the charts do not follow the accent.
+      expect(
+        ColorScheme.fromSeed(const Color(0xFFE60076)).charts,
+        ChartPalette.green.light,
+      );
+      expect(
+        ColorScheme.fromSeed(
+          const Color(0xFF808080),
+          brightness: Brightness.dark,
+        ).charts,
+        ChartPalette.green.dark,
+      );
     });
 
     test('every scheme is equally strong: the primaries share a lightness '

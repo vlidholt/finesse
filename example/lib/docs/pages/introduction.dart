@@ -42,10 +42,11 @@ final introductionDoc = ComponentDoc(
               'Two form factors per style. The same widgets come out '
                   'with 36-point buttons in a desktop window and '
                   '44-point ones on a phone.',
-              'Six color schemes (Ocean, the default, Graphite, Forest, '
-                  'Iris, Ember and Rose), each in light and dark, every '
-                  'color of them changeable, and three menu finishes: '
-                  'inverted, translucent, and bold accent.',
+              'Seven color schemes (Slate, the default, Ocean, Graphite, '
+                  'Forest, Iris, Ember and Rose), each in light and dark, '
+                  'every color of them changeable, chart palettes in '
+                  'shades of any color, and three menu finishes: inverted, '
+                  'translucent, and bold accent.',
               'The Phosphor icon set in six weights, bundled, and one '
                   'motion vocabulary — springs, entrances and moving '
                   'indicators — so a single import covers them.',

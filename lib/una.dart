@@ -195,6 +195,7 @@ export 'src/raw_components/portal.dart' hide PositionDelegate;
 export 'src/raw_components/pressable.dart';
 export 'src/raw_components/roving_focus.dart';
 // App Themes & Color Schemes
+export 'src/theme/chart_palette.dart';
 export 'src/theme/color_scheme/base.dart';
 export 'src/theme/color_scheme/ember.dart';
 export 'src/theme/color_scheme/forest.dart';
@@ -202,6 +203,7 @@ export 'src/theme/color_scheme/graphite.dart';
 export 'src/theme/color_scheme/iris.dart';
 export 'src/theme/color_scheme/ocean.dart';
 export 'src/theme/color_scheme/rose.dart';
+export 'src/theme/color_scheme/slate.dart';
 // Component Themes
 export 'src/theme/components/accordion.dart';
 export 'src/theme/components/action_sheet.dart';

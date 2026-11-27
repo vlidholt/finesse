@@ -4,9 +4,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:una/src/theme/color_scheme/base.dart';
 
-/// Una's default palette: a standard blue on a cool grey page.
+/// A standard blue on a cool grey page.
 ///
-/// One of the six built-in schemes, all made from one ladder of lightness
+/// One of the seven built-in schemes, all made from one ladder of lightness
 /// so none is louder than another. It sets every optional token, and its
 /// fills, borders and muted surfaces are translucent washes of the
 /// foreground, so they sit correctly on glass.
@@ -81,11 +81,11 @@ class OceanColorScheme extends ColorScheme {
     super.input = const Color(0x17161a22),
     super.ring = const Color(0xff2563eb),
     super.selection = const Color(0x3d2563eb),
-    super.chart1 = const Color(0xff2563eb),
-    super.chart2 = const Color(0xff60a5fa),
-    super.chart3 = const Color(0xff15803d),
-    super.chart4 = const Color(0xffb45309),
-    super.chart5 = const Color(0xffdc2626),
+    super.chart1 = const Color(0xff00a63e),
+    super.chart2 = const Color(0xff05df72),
+    super.chart3 = const Color(0xff016630),
+    super.chart4 = const Color(0xff00c950),
+    super.chart5 = const Color(0xff008236),
     super.sidebar = const Color(0xffffffff),
     super.sidebarForeground = const Color(0xff161a22),
     super.sidebarPrimary = const Color(0xff2563eb),
@@ -128,11 +128,11 @@ class OceanColorScheme extends ColorScheme {
     super.input = const Color(0x14e8edf5),
     super.ring = const Color(0xff6eb0fb),
     super.selection = const Color(0x4c6eb0fb),
-    super.chart1 = const Color(0xff6eb0fb),
-    super.chart2 = const Color(0xff2563eb),
-    super.chart3 = const Color(0xff86d3a8),
-    super.chart4 = const Color(0xfffbbf24),
-    super.chart5 = const Color(0xfff87171),
+    super.chart1 = const Color(0xff00c950),
+    super.chart2 = const Color(0xff7bf1a8),
+    super.chart3 = const Color(0xff008236),
+    super.chart4 = const Color(0xff05df72),
+    super.chart5 = const Color(0xff00a63e),
     super.sidebar = const Color(0xff1c222e),
     super.sidebarForeground = const Color(0xffeef1f5),
     super.sidebarPrimary = const Color(0xff6eb0fb),

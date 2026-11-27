@@ -148,7 +148,7 @@ void main() {
         }
       }
       // The defaults, as the rows show them.
-      expect(find.text('Ocean'), findsOneWidget);
+      expect(find.text('Slate'), findsOneWidget);
       expect(find.text('Geist'), findsOneWidget);
       expect(find.text('Fluid'), findsOneWidget);
       // Form factor and Liquid Glass.
@@ -404,7 +404,7 @@ void main() {
       expect(inPanel(find.text('Forest')), findsOneWidget);
       // The colour row's button, above the Radius row's own "Default".
       await tapInPanel(tester, inPanel(find.text('Default')).first);
-      expect(config.colors, ColorSchemes.ocean);
+      expect(config.colors, ColorSchemes.slate);
       expect(config.seed, isNull);
     });
 
