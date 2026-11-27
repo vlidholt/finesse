@@ -77,7 +77,7 @@ class _ShowcaseEventCardState extends State<ShowcaseEventCard> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _CardPicture(
-            asset: 'photo_conference_stage',
+            asset: 'photo_summit_stage',
             label: 'An audience facing a lit stage and its screens',
             overlay: PositionedDirectional(
               start: 12,
@@ -263,7 +263,7 @@ class ShowcaseGalleryCard extends StatelessWidget {
   static const _photos = [
     ('story_mountain_meadow', 'Wildflowers on a mountain meadow'),
     ('photo_alpine_lake', 'A still alpine lake under snowy peaks'),
-    ('photo_conference_stage', 'An audience before a conference stage'),
+    ('photo_summit_stage', 'An audience before a conference stage'),
     ('photo_workshop_team', 'A team at a whiteboard'),
   ];
 

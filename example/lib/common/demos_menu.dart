@@ -4,10 +4,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 /// An app built with the package, published on its own page.
 class _Demo {
-  const _Demo(this.name, this.line, this.slug);
+  const _Demo(this.name, this.slug);
 
   final String name;
-  final String line;
   final String slug;
 
   String get icon => 'assets/images/demo_$slug.png';
@@ -15,10 +14,10 @@ class _Demo {
 }
 
 const _demos = [
-  _Demo('Una Social', 'A feed, stories and chat', 'social'),
-  _Demo('Una Cowork', 'Team boards you drag cards across', 'cowork'),
-  _Demo('Una Banking', 'Cards, accounts and payments', 'banking'),
-  _Demo('Una Dating', 'Swipe, match and talk', 'dating'),
+  _Demo('Una Social', 'social'),
+  _Demo('Una Cowork', 'cowork'),
+  _Demo('Una Banking', 'banking'),
+  _Demo('Una Dating', 'dating'),
 ];
 
 /// "Demos" beside the logo: a menu of the apps made with the package, each
@@ -28,27 +27,19 @@ class DemosMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return DropdownMenu(
-      constraints: const BoxConstraints(minWidth: 260),
+      constraints: const BoxConstraints(minWidth: 220),
       items: [
         const MenuLabel(child: Text('Apps built with una')),
         for (final demo in _demos)
           MenuItem(
             leading: ClipRRect(
-              borderRadius: BorderRadius.circular(7),
-              child: Image.asset(demo.icon, width: 28, height: 28),
+              borderRadius: BorderRadius.circular(5),
+              child: Image.asset(demo.icon, width: 20, height: 20),
             ),
             trailing: const PhosphorIcon(PhosphorIconsRegular.arrowUpRight),
             onPressed: () => launchUrl(demo.url, webOnlyWindowName: '_blank'),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(demo.name),
-                Text(demo.line, style: theme.textTheme.caption),
-              ],
-            ),
+            child: Text(demo.name),
           ),
       ],
       builder: (context, controller, _) => Button.ghost(
