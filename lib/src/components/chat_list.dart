@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:una/src/components/chat_bubble.dart';
 import 'package:una/src/components/icon_button.dart';
 import 'package:una/src/components/indicator_badge.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
 import 'package:una/src/icons/phosphor_icon.dart';
 import 'package:una/src/icons/phosphor_icons_regular.dart';
 import 'package:una/src/theme/components/button.dart';
@@ -181,6 +182,10 @@ typedef ChatListJumpBuilder = Widget Function(
 /// with motion switched off it simply appears. The list must be given a
 /// bounded height.
 ///
+/// A message that arrives at the end is announced to assistive technology,
+/// politely, in the words [announcementOf] gives for it — "Omar: see you
+/// at six" — and not at all without it.
+///
 /// See also:
 ///
 ///  * `StreamingText`, for a message that arrives a piece at a time.
@@ -207,7 +212,8 @@ class ChatList<T> extends StatefulWidget {
     this.onStartReached,
     this.showJumpToLatest = true,
     this.jumpToLatestBuilder,
-    this.jumpToLatestLabel = 'Jump to latest',
+    this.jumpToLatestLabel,
+    this.announcementOf,
     super.key,
   });
 
@@ -286,8 +292,18 @@ class ChatList<T> extends StatefulWidget {
   /// Builds that button, in place of the default round one with a count.
   final ChatListJumpBuilder? jumpToLatestBuilder;
 
-  /// What assistive technology calls the default button.
-  final String jumpToLatestLabel;
+  /// What assistive technology calls the default button. Defaults to the
+  /// localised "Jump to latest".
+  final String? jumpToLatestLabel;
+
+  /// What assistive technology announces when a message arrives at the end
+  /// of the conversation: who sent it and what it says. Null — the
+  /// callback, or its result — announces nothing.
+  ///
+  /// Only messages appended to a conversation that was already there are
+  /// announced, a few at most, so a page of history or the first load stays
+  /// quiet. A message of your own reader's is best left unannounced.
+  final String? Function(T message)? announcementOf;
 
   @override
   State<ChatList<T>> createState() => _ChatListState<T>();
@@ -352,6 +368,11 @@ class _ChatListState<T> extends State<ChatList<T>> {
 
   /// More messages than this at once are a page loading, not an arrival.
   static const _maxAnimated = 6;
+
+  /// The most messages announced at once; more than that at the end is a
+  /// sync, not a conversation, and reading it all out would drown the
+  /// reader.
+  static const _maxAnnounced = 3;
 
   ScrollController get _scroll =>
       widget.scrollController ?? (_ownScroll ??= ScrollController());
@@ -500,6 +521,31 @@ class _ChatListState<T> extends State<ChatList<T>> {
       _afterFrame(_scope.entering.clear);
     }
     if (appended > 0 || arrived) _contentArrived(appended);
+    if (appended > 0 && (hadMessages || appended == 1)) {
+      _announce(messages.sublist(messages.length - appended));
+    }
+  }
+
+  /// Tells assistive technology of [arrived], the messages added at the
+  /// end, in the words of `announcementOf`.
+  void _announce(List<T> arrived) {
+    final announcementOf = widget.announcementOf;
+    if (announcementOf == null || arrived.length > _maxAnnounced) return;
+    final view = View.maybeOf(context);
+    if (view == null) return;
+    final textDirection = Directionality.of(context);
+    for (final message in arrived) {
+      final text = announcementOf(message);
+      if (text == null || text.isEmpty) continue;
+      // Polite, the default: it waits for whatever is being read.
+      unawaited(
+        SemanticsService.sendAnnouncement(
+          view,
+          text,
+          textDirection,
+        ),
+      );
+    }
   }
 
   bool _sameIds(List<T> messages) {
@@ -903,7 +949,9 @@ class _ChatListState<T> extends State<ChatList<T>> {
                         icon: const PhosphorIcon(
                           PhosphorIconsRegular.arrowDown,
                         ),
-                        semanticLabel: widget.jumpToLatestLabel,
+                        semanticLabel:
+                            widget.jumpToLatestLabel ??
+                            UnaLocalizations.of(context).chat.jumpToLatest,
                         // Opaque and lifted: the messages scroll under it.
                         style: ButtonTheme(
                           backgroundColor: Theme.of(context).colorScheme.card,
@@ -1059,31 +1107,39 @@ class _ChatListTransitionState extends State<_ChatListTransition>
         final p = _presence.value;
         final t = p.clamp(0.0, 1.0);
         final moving = t < 1;
+        // A message on its way out is gone for every kind of input: it
+        // takes no taps, no focus, and is not read.
         return IgnorePointer(
           ignoring: widget.leaving,
-          child: ClipRect(
-            clipBehavior: moving && !still && !widget.newest
-                ? Clip.hardEdge
-                : Clip.none,
-            child: Align(
-              alignment: Alignment.topCenter,
-              heightFactor: still ? 1 : t,
-              child: SizedBox(
-                width: double.infinity,
-                child: Opacity(
-                  // Readable well before it has settled.
-                  opacity: still ? t : (t / .6).clamp(0.0, 1.0),
-                  child: Transform(
-                    transform: Matrix4.identity()
-                      ..translateByDouble(travel * (1 - t), 0, 0, 1)
-                      ..scaleByDouble(
-                        fromScale + (1 - fromScale) * p,
-                        fromScale + (1 - fromScale) * p,
-                        1,
-                        1,
+          child: ExcludeFocus(
+            excluding: widget.leaving,
+            child: ExcludeSemantics(
+              excluding: widget.leaving,
+              child: ClipRect(
+                clipBehavior: moving && !still && !widget.newest
+                    ? Clip.hardEdge
+                    : Clip.none,
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  heightFactor: still ? 1 : t,
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Opacity(
+                      // Readable well before it has settled.
+                      opacity: still ? t : (t / .6).clamp(0.0, 1.0),
+                      child: Transform(
+                        transform: Matrix4.identity()
+                          ..translateByDouble(travel * (1 - t), 0, 0, 1)
+                          ..scaleByDouble(
+                            fromScale + (1 - fromScale) * p,
+                            fromScale + (1 - fromScale) * p,
+                            1,
+                            1,
+                          ),
+                        alignment: origin,
+                        child: child,
                       ),
-                    alignment: origin,
-                    child: child,
+                    ),
                   ),
                 ),
               ),

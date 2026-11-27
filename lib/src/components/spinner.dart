@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:una/src/components/ring_painter.dart';
 import 'package:una/src/theme/theme.dart';
 import 'package:una/src/utils/debug_check.dart';
+import 'package:una/src/utils/progress_semantics.dart';
 
 /// {@template Spinner}
 /// An indeterminate circular loading indicator.
@@ -147,8 +148,10 @@ class _SpinnerState extends State<Spinner> with SingleTickerProviderStateMixin {
     );
 
     if (widget.semanticLabel != null) {
-      spinner = Semantics(
+      spinner = progressSemantics(
+        determinate: false,
         label: widget.semanticLabel,
+        value: null,
         liveRegion: true,
         child: spinner,
       );

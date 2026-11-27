@@ -1,9 +1,15 @@
+import 'dart:math' as math;
+
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/src/components/decorator.dart';
 import 'package:una/src/components/divider.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
 import 'package:una/src/icons/phosphor_icons.dart';
+import 'package:una/src/raw_components/focusable.dart';
+import 'package:una/src/raw_components/pressable.dart';
 import 'package:una/src/theme/components/decorator.dart';
 import 'package:una/src/theme/theme.dart';
 import 'package:una/src/utils/border.dart';
@@ -420,6 +426,13 @@ class ResizableController extends ChangeNotifier {
 ///
 /// This widget is useful for creating flexible layouts where users can adjust
 /// the size of different sections of the UI according to their preferences.
+///
+/// Each divider is also a Tab stop, as a window splitter is: the arrow keys
+/// along the axis move it a step (mirrored in a right-to-left row), Home
+/// and End take the panel before it to its smallest and largest, and Enter
+/// collapses that panel and brings it back. Assistive technology hears it
+/// as "Resize panel" with the size of that panel, and can make it larger or
+/// smaller.
 /// {@endtemplate}
 class ResizablePanelGroup extends StatefulWidget {
   /// {@macro ResizablePanelGroup}
@@ -556,6 +569,18 @@ class _ResizablePanelGroupState extends State<ResizablePanelGroup> {
 
   /// Global pointer position at drag start.
   double? _pointerDownPosition;
+
+  /// How far an arrow key, or an increase or decrease from assistive
+  /// technology, moves a divider: a fraction of the group.
+  static const _keyboardStep = .05;
+
+  /// The smallest side of the region a divider takes a pointer in, around
+  /// the thin line that is drawn.
+  static const _minHitExtent = 24.0;
+
+  /// The size each panel had before Enter collapsed it, by the index of the
+  /// divider after it, so that Enter can bring it back.
+  final _sizesBeforeCollapse = <int, double>{};
 
   /// Whether the panels are laid out in a row.
   bool get isHorizontal => widget.axis == Axis.horizontal;
@@ -714,6 +739,86 @@ class _ResizablePanelGroupState extends State<ResizablePanelGroup> {
     }
   }
 
+  /// Moves the divider after the panel at [index] by [delta], a fraction of
+  /// the group: forward, growing that panel, when positive. As far as the
+  /// panels' limits let it.
+  void _moveDivider(int index, double delta) {
+    controller.resize(
+      delta: delta,
+      initialLayout: controller.sizes,
+      pivotIndices: [index, index + 1],
+    );
+  }
+
+  /// Collapses the panel at [index] to its smallest, or gives it back the
+  /// size it had when it is already there.
+  void _toggleCollapsed(int index) {
+    final panel = controller.panelsInfo[index];
+    if (panel.size - panel.minSize > 1e-6) {
+      _sizesBeforeCollapse[index] = panel.size;
+      _moveDivider(index, panel.minSize - panel.size);
+    } else {
+      final before = _sizesBeforeCollapse.remove(index);
+      if (before != null) _moveDivider(index, before - panel.size);
+    }
+  }
+
+  KeyEventResult _onDividerKey(int index, KeyEvent event) {
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
+      return KeyEventResult.ignored;
+    }
+    final key = event.logicalKey;
+    // Forward is towards the end of the row: right in a left-to-right row,
+    // left in a right-to-left one, down in a column.
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    final forward = isHorizontal
+        ? (rtl ? LogicalKeyboardKey.arrowLeft : LogicalKeyboardKey.arrowRight)
+        : LogicalKeyboardKey.arrowDown;
+    final backward = isHorizontal
+        ? (rtl ? LogicalKeyboardKey.arrowRight : LogicalKeyboardKey.arrowLeft)
+        : LogicalKeyboardKey.arrowUp;
+    if (key == forward) {
+      _moveDivider(index, _keyboardStep);
+    } else if (key == backward) {
+      _moveDivider(index, -_keyboardStep);
+    } else if (key == LogicalKeyboardKey.home) {
+      // As far as the other panels let it go.
+      final panel = controller.panelsInfo[index];
+      _moveDivider(index, panel.minSize - panel.size);
+    } else if (key == LogicalKeyboardKey.end) {
+      final panel = controller.panelsInfo[index];
+      _moveDivider(index, panel.maxSize - panel.size);
+    } else if ((key == LogicalKeyboardKey.enter ||
+            key == LogicalKeyboardKey.numpadEnter) &&
+        event is KeyDownEvent) {
+      _toggleCollapsed(index);
+    } else {
+      return KeyEventResult.ignored;
+    }
+    return KeyEventResult.handled;
+  }
+
+  /// The size of the panel at [index] after moving the divider after it by
+  /// [delta], as assistive technology reads it.
+  String _percentAfter(int index, double delta) {
+    final panel = controller.panelsInfo[index];
+    final next = controller.panelsInfo[index + 1];
+    // Bounded by both panels' limits, as the resize is.
+    final grow = delta >= 0
+        ? delta.clamp(
+            0.0,
+            (panel.maxSize - panel.size).clamp(0.0, next.size - next.minSize),
+          )
+        : -(-delta).clamp(
+            0.0,
+            (panel.size - panel.minSize).clamp(0.0, next.maxSize - next.size),
+          );
+    return _percent(panel.size + grow);
+  }
+
+  String _percent(double size) =>
+      '${(size / (controller.base == 0 ? 1 : controller.base) * 100).round()}%';
+
   /// Resets the two panels on each side of a divider to their default sizes.
   ///
   /// The indexes must be adjacent.
@@ -825,13 +930,18 @@ class _ResizablePanelGroupState extends State<ResizablePanelGroup> {
                   final flex =
                       ((effectivesSizes.elementAtOrNull(i) ?? 1) * 1000)
                           .toInt();
+                  final collapsed = flex <= 0.015;
                   return KeyedSubtree(
                     key: ValueKey(e.id),
                     child: Expanded(
                       flex: flex,
-                      child: Offstage(
-                        offstage: flex <= 0.015,
-                        child: e,
+                      // A panel collapsed to nothing has no Tab stops.
+                      child: ExcludeFocus(
+                        excluding: collapsed,
+                        child: Offstage(
+                          offstage: collapsed,
+                          child: e,
+                        ),
                       ),
                     ),
                   );
@@ -873,69 +983,57 @@ class _ResizablePanelGroupState extends State<ResizablePanelGroup> {
                   ? effectiveDividerSize / 2
                   : effectiveHandleSize / 2;
 
+              // The line is thin; the region that takes the pointer is
+              // grown around it, and the line stays where it was drawn.
+              final hitPadding = math.max<double>(
+                0,
+                (_minHitExtent -
+                        effectiveDividerSize -
+                        effectiveDividerThickness) /
+                    2,
+              );
+              leadingPosition -= hitPadding;
+
+              final visual = effectiveShowHandle
+                  ? Stack(
+                      alignment: AlignmentDirectional.center,
+                      children: [
+                        divider,
+                        handle,
+                      ],
+                    )
+                  : divider;
+
               dividers.add(
                 Positioned(
+                  key: ValueKey(i),
                   top: isHorizontal ? 0 : leadingPosition,
                   left: isHorizontal && !rtl ? leadingPosition : null,
                   right: isHorizontal && rtl ? leadingPosition : null,
                   bottom: isHorizontal ? 0 : null,
-                  child: GestureDetector(
-                    onDoubleTap:
-                        widget.onDividerDoubleTap ??
-                        () {
-                          if (!effectiveResetOnDoubleTap) return;
-                          resetDefaultSizes(i, i + 1);
-                        },
-                    onHorizontalDragStart: isHorizontal
-                        ? (details) =>
-                              onHandleDragStart(index: i, details: details)
-                        : null,
-                    onHorizontalDragEnd: (_) =>
-                        isHorizontal ? onHandleDragEnd() : null,
-                    onHorizontalDragCancel: () =>
-                        isHorizontal ? onHandleDragEnd() : null,
-                    onHorizontalDragUpdate: (details) => isHorizontal
-                        ? onHandleDragUpdate(
-                            details: details,
-                            index: i,
-                          )
-                        : null,
-                    onVerticalDragStart: isVertical
-                        ? (details) =>
-                              onHandleDragStart(index: i, details: details)
-                        : null,
-                    onVerticalDragEnd: (_) =>
-                        isVertical ? onHandleDragEnd() : null,
-                    onVerticalDragCancel: () =>
-                        isVertical ? onHandleDragEnd() : null,
-                    onVerticalDragUpdate: (details) => isVertical
-                        ? onHandleDragUpdate(
-                            details: details,
-                            index: i,
-                          )
-                        : null,
-                    child: MouseRegion(
-                      onEnter: (_) {
-                        final cursor = switch (widget.axis) {
-                          Axis.horizontal => SystemMouseCursors.resizeLeftRight,
-                          Axis.vertical => SystemMouseCursors.resizeUpDown,
-                        };
-
-                        mouseCursorController.cursor = cursor;
-                      },
-                      onExit: (details) async {
-                        if (dragging.value) return;
-                        mouseCursorController.cursor = MouseCursor.defer;
-                      },
-                      child: effectiveShowHandle
-                          ? Stack(
-                              alignment: AlignmentDirectional.center,
-                              children: [
-                                divider,
-                                handle,
-                              ],
-                            )
-                          : divider,
+                  child: Semantics(
+                    container: true,
+                    label: UnaLocalizations.of(
+                      context,
+                    ).resizable.resizePanel,
+                    value: _percent(effectivesSizes[i]),
+                    increasedValue: _percentAfter(i, _keyboardStep),
+                    decreasedValue: _percentAfter(i, -_keyboardStep),
+                    onIncrease: () => _moveDivider(i, _keyboardStep),
+                    onDecrease: () => _moveDivider(i, -_keyboardStep),
+                    child: Focusable(
+                      visibleOnly: true,
+                      onKeyEvent: (node, event) => _onDividerKey(i, event),
+                      builder: (context, focused, child) => _dividerGestures(
+                        index: i,
+                        resetOnDoubleTap: effectiveResetOnDoubleTap,
+                        child: Padding(
+                          padding: isHorizontal
+                              ? EdgeInsets.symmetric(horizontal: hitPadding)
+                              : EdgeInsets.symmetric(vertical: hitPadding),
+                          child: FocusRing(visible: focused, child: visual),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -952,6 +1050,63 @@ class _ResizablePanelGroupState extends State<ResizablePanelGroup> {
           },
         );
       },
+    );
+  }
+
+  /// The pointer's ways of moving the divider after the panel at [index]:
+  /// a drag along the axis and a double tap.
+  Widget _dividerGestures({
+    required int index,
+    required bool resetOnDoubleTap,
+    required Widget child,
+  }) {
+    final i = index;
+    return GestureDetector(
+      // The whole region, not only the line, takes the drag.
+      behavior: HitTestBehavior.opaque,
+      onDoubleTap:
+          widget.onDividerDoubleTap ??
+          () {
+            if (!resetOnDoubleTap) return;
+            resetDefaultSizes(i, i + 1);
+          },
+      onHorizontalDragStart: isHorizontal
+          ? (details) => onHandleDragStart(index: i, details: details)
+          : null,
+      onHorizontalDragEnd: (_) => isHorizontal ? onHandleDragEnd() : null,
+      onHorizontalDragCancel: () => isHorizontal ? onHandleDragEnd() : null,
+      onHorizontalDragUpdate: (details) => isHorizontal
+          ? onHandleDragUpdate(
+              details: details,
+              index: i,
+            )
+          : null,
+      onVerticalDragStart: isVertical
+          ? (details) => onHandleDragStart(index: i, details: details)
+          : null,
+      onVerticalDragEnd: (_) => isVertical ? onHandleDragEnd() : null,
+      onVerticalDragCancel: () => isVertical ? onHandleDragEnd() : null,
+      onVerticalDragUpdate: (details) => isVertical
+          ? onHandleDragUpdate(
+              details: details,
+              index: i,
+            )
+          : null,
+      child: MouseRegion(
+        onEnter: (_) {
+          final cursor = switch (widget.axis) {
+            Axis.horizontal => SystemMouseCursors.resizeLeftRight,
+            Axis.vertical => SystemMouseCursors.resizeUpDown,
+          };
+
+          mouseCursorController.cursor = cursor;
+        },
+        onExit: (details) async {
+          if (dragging.value) return;
+          mouseCursorController.cursor = MouseCursor.defer;
+        },
+        child: child,
+      ),
     );
   }
 }

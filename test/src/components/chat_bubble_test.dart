@@ -954,7 +954,8 @@ void main() {
       );
       expect(find.bySemanticsLabel('Omar is typing'), findsOneWidget);
       expect(find.bySemanticsLabel('Typing'), findsNothing);
-      expect(const TypingIndicator().semanticLabel, 'Typing');
+      // Without one, the localised "Typing" is read.
+      expect(const TypingIndicator().semanticLabel, isNull);
       // The label is still there half a cycle later: it is not rebuilt
       // away by the animation.
       await tester.pump(const Duration(milliseconds: 600));

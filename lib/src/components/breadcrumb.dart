@@ -1,10 +1,13 @@
+import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/src/components/button.dart';
 import 'package:una/src/components/popover.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
 import 'package:una/src/icons/phosphor_icons.dart';
 import 'package:una/src/raw_components/portal.dart';
 import 'package:una/src/theme/components/button.dart';
 import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/motion.dart';
 import 'package:una/src/theme/theme.dart';
 import 'package:una/src/utils/extensions/text_style.dart';
 
@@ -14,6 +17,9 @@ import 'package:una/src/utils/extensions/text_style.dart';
 ///
 /// Breadcrumbs provide users with a clear understanding of their current
 /// location and allow them to navigate back to parent pages in the hierarchy.
+///
+/// It is a navigation landmark for assistive technology, and its last item
+/// is announced as the selected one: the page the reader is on.
 /// {@endtemplate}
 class Breadcrumb extends StatelessWidget {
   /// {@macro Breadcrumb}
@@ -27,6 +33,7 @@ class Breadcrumb extends StatelessWidget {
     this.spacing,
     this.textStyle,
     this.lastItemTextColor,
+    this.semanticLabel,
   });
 
   /// The list of breadcrumb items to display.
@@ -69,6 +76,10 @@ class Breadcrumb extends StatelessWidget {
   /// {@endtemplate}
   final Color? lastItemTextColor;
 
+  /// The name assistive technology gives the breadcrumb's navigation
+  /// landmark. Defaults to the localised "Breadcrumb".
+  final String? semanticLabel;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -101,34 +112,52 @@ class Breadcrumb extends StatelessWidget {
         breadcrumbTheme.lastItemTextColor ??
         theme.colorScheme.foreground;
 
-    return Wrap(
-      alignment: effectiveMainAxisAlignment,
-      crossAxisAlignment: effectiveCrossAxisAlignment,
-      runSpacing: effectiveSpacing,
-      verticalDirection: verticalDirection ?? VerticalDirection.down,
-      children: List.generate(
-        children.length,
-        (int index) => Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            DefaultTextStyle(
-              style: effectiveTextStyle.copyWith(
-                color: index == children.length - 1
-                    ? effectiveLastItemColor
-                    : effectiveTextStyle.color,
-              ),
-              child: children[index],
+    return Semantics(
+      container: true,
+      explicitChildNodes: true,
+      role: SemanticsRole.navigation,
+      label:
+          semanticLabel ?? UnaLocalizations.of(context).navigation.breadcrumb,
+      child: Wrap(
+        alignment: effectiveMainAxisAlignment,
+        crossAxisAlignment: effectiveCrossAxisAlignment,
+        runSpacing: effectiveSpacing,
+        verticalDirection: verticalDirection ?? VerticalDirection.down,
+        children: List.generate(children.length, (int index) {
+          final current = index == children.length - 1;
+          Widget item = DefaultTextStyle(
+            style: effectiveTextStyle.copyWith(
+              color: current
+                  ? effectiveLastItemColor
+                  : effectiveTextStyle.color,
             ),
-            if (index < children.length - 1)
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: effectiveSpacing),
-                child: IconTheme.merge(
-                  data: IconThemeData(color: theme.colorScheme.mutedForeground),
-                  child: effectiveSeparator,
+            child: children[index],
+          );
+          // The page the reader is on: one node, announced as selected,
+          // whether it is plain text or a link.
+          if (current) {
+            item = MergeSemantics(
+              child: Semantics(selected: true, child: item),
+            );
+          }
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              item,
+              if (!current)
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: effectiveSpacing),
+                  child: IconTheme.merge(
+                    data: IconThemeData(
+                      color: theme.colorScheme.mutedForeground,
+                    ),
+                    // A picture of the hierarchy, not something to read.
+                    child: ExcludeSemantics(child: effectiveSeparator),
+                  ),
                 ),
-              ),
-          ],
-        ),
+            ],
+          );
+        }),
       ),
     );
   }
@@ -301,14 +330,20 @@ class BreadcrumbEllipsis extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final custom = theme.breadcrumbTheme.ellipsis;
-    if (custom != null) return custom;
     final effectiveSize = size ?? theme.breadcrumbTheme.ellipsisSize ?? 16.0;
-
-    return PhosphorIcon(
-      PhosphorIconsRegular.dotsThree,
-      size: effectiveSize,
-      color: theme.colorScheme.mutedForeground,
+    // Read as what it stands for; inside a `BreadcrumbDropdown` it names the
+    // button.
+    return Semantics(
+      label: UnaLocalizations.of(context).navigation.morePages,
+      child: ExcludeSemantics(
+        child:
+            theme.breadcrumbTheme.ellipsis ??
+            PhosphorIcon(
+              PhosphorIconsRegular.dotsThree,
+              size: effectiveSize,
+              color: theme.colorScheme.mutedForeground,
+            ),
+      ),
     );
   }
 }
@@ -395,12 +430,20 @@ class BreadcrumbDropdown extends StatefulWidget {
 }
 
 class _BreadcrumbDropdownState extends State<BreadcrumbDropdown> {
-  final controller = PopoverController();
+  // The trigger's colour, caret and expanded state follow the menu however
+  // it opens or closes: its own tap, Escape, a tap outside.
+  late final controller = PopoverController()..addListener(_openChanged);
   bool isHovered = false;
+
+  void _openChanged() {
+    if (mounted) setState(() {});
+  }
 
   @override
   void dispose() {
-    controller.dispose();
+    controller
+      ..removeListener(_openChanged)
+      ..dispose();
     super.dispose();
   }
 
@@ -454,6 +497,8 @@ class _BreadcrumbDropdownState extends State<BreadcrumbDropdown> {
         theme.breadcrumbTheme.showDropdownArrow ??
         true;
 
+    final motion = Motion.of(context);
+
     return Popover(
       anchor: effectiveAnchor,
       decoration: UnaDecoration(
@@ -468,26 +513,36 @@ class _BreadcrumbDropdownState extends State<BreadcrumbDropdown> {
           children: widget.items,
         ),
       ),
-      child: BreadcrumbLink(
-        normalColor: effectiveTextColor,
-        onHover: (isHovered) => setState(() => this.isHovered = isHovered),
-        onPressed: controller.toggle,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: effectiveArrowGap,
-          children: [
-            widget.child,
-            if (effectiveShowDropdownArrow)
-              AnimatedRotation(
-                turns: controller.isOpen ? 0.5 : 0.0,
-                duration: const Duration(milliseconds: 200),
-                child: PhosphorIcon(
-                  PhosphorIconsRegular.caretDown,
-                  size: theme.breadcrumbTheme.separatorSize ?? 14,
-                  color: effectiveTextColor,
-                ),
-              ),
-          ],
+      // The link is a node of its own; merged, whether its menu is open is
+      // part of it.
+      child: MergeSemantics(
+        child: Semantics(
+          expanded: controller.isOpen,
+          child: BreadcrumbLink(
+            normalColor: effectiveTextColor,
+            onHover: (isHovered) => setState(() => this.isHovered = isHovered),
+            onPressed: controller.toggle,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: effectiveArrowGap,
+              children: [
+                widget.child,
+                if (effectiveShowDropdownArrow)
+                  AnimatedRotation(
+                    turns: controller.isOpen ? 0.5 : 0.0,
+                    // A turn is movement: under reduced motion it is
+                    // immediate.
+                    duration: motion.reduced ? Duration.zero : motion.normal,
+                    curve: motion.standard,
+                    child: PhosphorIcon(
+                      PhosphorIconsRegular.caretDown,
+                      size: theme.breadcrumbTheme.separatorSize ?? 14,
+                      color: effectiveTextColor,
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
     );

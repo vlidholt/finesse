@@ -888,19 +888,23 @@ class _DataTableState<T> extends State<DataTable<T>> {
     final keys = visibleRows.map(widget.keyOf!).toList();
     final allSelected = keys.isNotEmpty && keys.every(controller.isSelected);
 
-    return Checkbox(
-      value: allSelected,
-      // Nothing to select while a page is on its way.
-      enabled: !controller.isLoading,
-      onChanged: (value) {
-        if (value) {
-          controller.selectAll(keys);
-        } else {
-          for (final key in keys) {
-            controller.setSelected(key, selected: false);
+    return Semantics(
+      container: true,
+      label: UnaLocalizations.of(context).dataTable.selectAll,
+      child: Checkbox(
+        value: allSelected,
+        // Nothing to select while a page is on its way.
+        enabled: !controller.isLoading,
+        onChanged: (value) {
+          if (value) {
+            controller.selectAll(keys);
+          } else {
+            for (final key in keys) {
+              controller.setSelected(key, selected: false);
+            }
           }
-        }
-      },
+        },
+      ),
     );
   }
 
@@ -984,9 +988,20 @@ class _DataTableState<T> extends State<DataTable<T>> {
             return UnaTableCell(
               height: widget.rowHeight,
               padding: _kSelectionCellPadding,
-              child: Checkbox(
-                value: controller.isSelected(key),
-                onChanged: (_) => controller.toggleSelected(key),
+              // A box with no text beside it: named for its row, counted
+              // among all the rows rather than the page's.
+              child: Semantics(
+                container: true,
+                label: UnaLocalizations.of(context).dataTable.selectRow(
+                  row:
+                      (controller.page - 1) * (controller.pageSize ?? 0) +
+                      vicinity.row +
+                      1,
+                ),
+                child: Checkbox(
+                  value: controller.isSelected(key),
+                  onChanged: (_) => controller.toggleSelected(key),
+                ),
               ),
             );
           }

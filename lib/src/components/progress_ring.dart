@@ -5,6 +5,7 @@ import 'package:una/src/components/ring_painter.dart';
 import 'package:una/src/theme/motion.dart';
 import 'package:una/src/theme/theme.dart';
 import 'package:una/src/utils/debug_check.dart';
+import 'package:una/src/utils/progress_semantics.dart';
 import 'package:una/src/utils/spring.dart';
 
 /// A ring that fills as something progresses: an upload, a quota, a goal —
@@ -185,7 +186,8 @@ class _ProgressRingState extends State<ProgressRing>
     final strokeWidth = widget.strokeWidth ?? (size / 10).clamp(2.0, 6.0);
     final value = widget.value;
 
-    return Semantics(
+    return progressSemantics(
+      determinate: value != null,
       label: widget.semanticLabel,
       value:
           widget.semanticValue ??
