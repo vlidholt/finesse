@@ -36,9 +36,17 @@ double _menuIndicatorSize(BuildContext context, ThemeData theme) =>
 /// checkbox or radio item that is checked or not — as one node with the
 /// row's label and its tap action.
 class _CheckableSemantics extends StatelessWidget {
-  const _CheckableSemantics({required this.checkable, required this.child});
+  const _CheckableSemantics({
+    required this.checkable,
+    required this.child,
+    this.expanded,
+  });
 
   final _MenuCheckable? checkable;
+
+  /// Whether the row's submenu is open; null for a row without one.
+  final bool? expanded;
+
   final Widget child;
 
   @override
@@ -58,6 +66,7 @@ class _CheckableSemantics extends StatelessWidget {
             : SemanticsRole.menuItemCheckbox,
         checked: checkable?.checked,
         inMutuallyExclusiveGroup: checkable?.radio,
+        expanded: expanded,
         child: child,
       ),
     );

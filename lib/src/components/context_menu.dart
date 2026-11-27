@@ -31,6 +31,7 @@ import 'package:una/src/utils/browser_context_menu/browser_context_menu.dart';
 import 'package:una/src/utils/dismiss_shortcut.dart';
 import 'package:una/src/utils/entrance.dart';
 import 'package:una/src/utils/extensions/text_style.dart';
+import 'package:una/src/utils/focus_visibility.dart';
 import 'package:una/src/utils/gesture_detector.dart';
 import 'package:una/src/utils/haptics.dart';
 import 'package:una/src/utils/mouse_area.dart';
@@ -170,6 +171,29 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
     showAtOffset(offset);
   }
 
+  /// The context menu key, or Shift+F10, with the focus in the child:
+  /// opens the menu at the child's bottom start corner, where a pointer
+  /// would have nothing to say about the place.
+  KeyEventResult _onKey(FocusNode node, KeyEvent event) {
+    if (event is! KeyDownEvent) return KeyEventResult.ignored;
+    final key = event.logicalKey;
+    final menuKey =
+        key == LogicalKeyboardKey.contextMenu ||
+        (key == LogicalKeyboardKey.f10 &&
+            HardwareKeyboard.instance.isShiftPressed);
+    if (!menuKey) return KeyEventResult.ignored;
+    if (widget.items.isEmpty && widget.itemsBuilder == null) {
+      return KeyEventResult.ignored;
+    }
+    final box = context.findRenderObject();
+    if (box is! RenderBox || !box.hasSize) return KeyEventResult.ignored;
+    final corner = Directionality.of(context) == TextDirection.ltr
+        ? box.size.bottomLeft(Offset.zero)
+        : box.size.bottomRight(Offset.zero);
+    showAtOffset(box.localToGlobal(corner));
+    return KeyEventResult.handled;
+  }
+
   void onLongPress() {
     assert(offset != null, 'offset must not be null');
     // A held finger is answered with a firm tick as the menu comes up.
@@ -245,7 +269,15 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
               }
             : null,
         onLongPress: effectiveLongPressEnabled ? onLongPress : null,
-        child: widget.child,
+        // Hears the menu key with the focus anywhere in the child, and is
+        // no stop of its own.
+        child: Focus(
+          canRequestFocus: false,
+          skipTraversal: true,
+          includeSemantics: false,
+          onKeyEvent: _onKey,
+          child: widget.child,
+        ),
       ),
     );
   }
@@ -281,6 +313,8 @@ class ContextMenu extends StatefulWidget {
        onTapOutside = null,
        onTapUpInside = null,
        onDismissed = null,
+       onMoveAcross = null,
+       announcesOpen = true,
        liquidGlassMorph = true;
 
   /// Creates a context menu with the plumbing the package's own menus need:
@@ -307,8 +341,22 @@ class ContextMenu extends StatefulWidget {
     this.onTapOutside,
     this.onTapUpInside,
     this.onDismissed,
+    this.onMoveAcross,
+    this.announcesOpen = false,
     this.liquidGlassMorph = false,
   });
+
+  /// Called with 1 or -1 when Right or Left, in the reading direction,
+  /// leads out of the menu sideways: from a row with no submenu that way,
+  /// or back from the top level. A menubar moves to the next menu.
+  @internal
+  final ValueChanged<int>? onMoveAcross;
+
+  /// Whether the trigger tells a screen reader whether the menu is open
+  /// (`expanded`). A [ContextMenuRegion], which opens at the pointer, and a
+  /// submenu's row, which says it itself, do not.
+  @internal
+  final bool announcesOpen;
 
   /// Whether the menu may morph out of [child] on Liquid Glass (see
   /// `LiquidGlassMorphPopover`): on a phone or a tablet, for a root menu
@@ -520,14 +568,82 @@ class _ContextMenuState extends State<ContextMenu> {
     if (!controller.isOpen && (widget.open ?? false)) {
       widget.onDismissed?.call();
     }
+    if (controller.isOpen && !_wasOpen) {
+      // Where Tab moves on from; see [_leaveByTab].
+      _focusBeforeOpen = FocusManager.instance.primaryFocus;
+      _contentFocusNode.descendantsAreFocusable = true;
+      _skippedScope?.skipTraversal = false;
+      _skippedScope = null;
+    }
+    _wasOpen = controller.isOpen;
     // A hover-opened submenu leaves focus where it is, and so does a menu
     // that was asked to.
     if (!controller.isOpen || _root != null || !widget.requestFocus) return;
+    // Opened from the keyboard, the first row takes the focus, as in Radix;
+    // opened by a pointer, the menu does, and the arrows enter it at either
+    // end.
+    FocusVisibility.ensureInstalled();
+    final byKeyboard =
+        FocusManager.instance.highlightMode == FocusHighlightMode.traditional;
+    _focusOnOpen(byKeyboard: byKeyboard, framesLeft: 4);
+  }
+
+  /// Focuses the menu, or its first row, after the frame. The rows are
+  /// built a frame or two after the menu opens — the portal lays the
+  /// overlay out unseen first — so a first row that is not there yet is
+  /// asked for again after the next frame, the menu having the focus
+  /// meanwhile.
+  void _focusOnOpen({required bool byKeyboard, required int framesLeft}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && controller.isOpen && !_hasFocusedItem) {
-        _contentFocusNode.requestFocus();
+      if (!mounted || !controller.isOpen || _hasFocusedItem) return;
+      final first = byKeyboard ? _itemNodes.firstOrNull : null;
+      if (first != null) {
+        first.requestFocus();
+        return;
+      }
+      if (!_contentFocusNode.hasFocus) _contentFocusNode.requestFocus();
+      if (byKeyboard && framesLeft > 0) {
+        _focusOnOpen(byKeyboard: true, framesLeft: framesLeft - 1);
+        WidgetsBinding.instance.scheduleFrame();
       }
     });
+  }
+
+  bool _wasOpen = false;
+
+  /// What had the focus when the menu opened: the trigger, as a rule.
+  FocusNode? _focusBeforeOpen;
+
+  /// The popover's scope, taken out of the traversal by [_leaveByTab]
+  /// until the menu opens again.
+  FocusScopeNode? _skippedScope;
+
+  /// Tab or Shift+Tab in a menu: the menu does not trap the focus, it
+  /// closes, and the focus moves on from the trigger as if the menu had not
+  /// been there (WAI-ARIA's menu button).
+  void _leaveByTab({required bool forward}) {
+    final root = _root ?? this;
+    final from = root._focusBeforeOpen;
+    if (from != null && from.context != null && from.canRequestFocus) {
+      // The rows go out of the traversal at once: the menu is still in the
+      // tree while it leaves, and Tab from the trigger would land in it —
+      // in its rows, or in the scope of the popover around them.
+      root._contentFocusNode.descendantsAreFocusable = false;
+      final scope = root._contentFocusNode.ancestors
+          .whereType<FocusScopeNode>()
+          .firstOrNull;
+      if (scope != null && !identical(scope, from.nearestScope)) {
+        scope.skipTraversal = true;
+        root._skippedScope = scope;
+      }
+      // Traversal moves on from the scope's focused child, which is the
+      // menu: back on the trigger first, synchronously, and on from there.
+      // Before the menu closes: the focus it hands back to the trigger is
+      // only asked for when the focus is still in it by then.
+      from.requestFocus();
+      forward ? from.nextFocus() : from.previousFocus();
+    }
+    root.controller.close();
   }
 
   /// The focusable items of this menu level, in order. Submenu items are
@@ -546,10 +662,50 @@ class _ContextMenuState extends State<ContextMenu> {
     if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
       return KeyEventResult.ignored;
     }
+    final key = event.logicalKey;
+    final keyboard = HardwareKeyboard.instance;
+    if (key == LogicalKeyboardKey.tab &&
+        event is KeyDownEvent &&
+        !keyboard.isControlPressed &&
+        !keyboard.isMetaPressed &&
+        !keyboard.isAltPressed) {
+      _leaveByTab(forward: !keyboard.isShiftPressed);
+      return KeyEventResult.handled;
+    }
     final items = _itemNodes;
     if (items.isEmpty) return KeyEventResult.ignored;
     final current = items.indexWhere((n) => n.hasPrimaryFocus);
-    final key = event.logicalKey;
+
+    final across = (_root ?? this).widget.onMoveAcross;
+    if (across != null &&
+        (key == LogicalKeyboardKey.arrowRight ||
+            key == LogicalKeyboardKey.arrowLeft)) {
+      final forward =
+          (key == LogicalKeyboardKey.arrowRight) ==
+          (Directionality.of(context) == TextDirection.ltr);
+      final row = current == -1
+          ? null
+          : items[current].context?.findAncestorStateOfType<_MenuItemState>();
+      // Into the focused row's submenu, or back out of this one, is the
+      // arrow keys' own move.
+      final intoSubmenu = forward && (row?.widget.items.isNotEmpty ?? false);
+      final outOfSubmenu = !forward && _root != null;
+      if (!intoSubmenu && !outOfSubmenu) {
+        across(forward ? 1 : -1);
+        return KeyEventResult.handled;
+      }
+    }
+    // Back out of a submenu: it closes, as with Escape, and the focus goes
+    // back to its row. The submenu is a focus scope of its own, which the
+    // arrows' directional focus does not leave.
+    if (_root != null &&
+        (key == LogicalKeyboardKey.arrowLeft ||
+            key == LogicalKeyboardKey.arrowRight) &&
+        (key == LogicalKeyboardKey.arrowLeft) ==
+            (Directionality.of(context) == TextDirection.ltr)) {
+      controller.close();
+      return KeyEventResult.handled;
+    }
 
     if (key == LogicalKeyboardKey.home) {
       items.first.requestFocus();
@@ -571,7 +727,6 @@ class _ContextMenuState extends State<ContextMenu> {
     }
 
     final character = event.character;
-    final keyboard = HardwareKeyboard.instance;
     if (character == null ||
         character.trim().isEmpty ||
         keyboard.isControlPressed ||
@@ -774,11 +929,23 @@ class _ContextMenuState extends State<ContextMenu> {
       );
     }
 
+    var triggerChild = widget.child;
+    if (widget.announcesOpen) {
+      // A menu button says whether its menu is open, as one node with the
+      // trigger's own label and action.
+      triggerChild = ListenableBuilder(
+        listenable: controller,
+        builder: (context, child) => MergeSemantics(
+          child: Semantics(expanded: controller.isOpen, child: child),
+        ),
+        child: triggerChild,
+      );
+    }
     final trigger = MouseArea(
       groupId: widget.areaGroupId,
       onEnter: (_) => widget.onHoverArea?.call(true),
       onExit: (_) => widget.onHoverArea?.call(false),
-      child: TapRegion(groupId: tapRegionGroupId, child: widget.child),
+      child: TapRegion(groupId: tapRegionGroupId, child: triggerChild),
     );
 
     _builtMorph =
@@ -1413,6 +1580,10 @@ class _MenuItemState extends State<MenuItem> {
             padding: effectivePadding,
             child: _CheckableSemantics(
               checkable: checkable,
+              // A row with a submenu says whether it is open.
+              expanded: widget.items.isEmpty
+                  ? null
+                  : controller.selected && !_submenuDismissed,
               child: Button(
                 enabled: widget.enabled,
                 variant: effectiveButtonVariant,

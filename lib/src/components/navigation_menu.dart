@@ -636,9 +636,12 @@ class _NavigationMenuState extends State<NavigationMenu>
       ),
     );
 
+    // A navigation landmark, named so that it can be told from any other
+    // on the page.
     return Semantics(
       container: true,
       explicitChildNodes: true,
+      role: SemanticsRole.navigation,
       label: widget.semanticLabel ?? strings.menu,
       child: TapRegion(
         groupId: _tapGroup,
@@ -1141,10 +1144,18 @@ class _CollapsedMenuState extends State<_CollapsedMenu> {
   @override
   Widget build(BuildContext context) {
     final strings = UnaLocalizations.of(context).navigation;
-    return IconButton.ghost(
-      icon: const PhosphorIcon(PhosphorIconsRegular.list),
-      semanticLabel: strings.openMenu,
-      onPressed: _show,
+    // Still the page's navigation landmark, holding the button that opens
+    // it.
+    return Semantics(
+      container: true,
+      explicitChildNodes: true,
+      role: SemanticsRole.navigation,
+      label: widget.semanticLabel ?? strings.menu,
+      child: IconButton.ghost(
+        icon: const PhosphorIcon(PhosphorIconsRegular.list),
+        semanticLabel: strings.openMenu,
+        onPressed: _show,
+      ),
     );
   }
 }

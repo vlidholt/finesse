@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/src/components/surface.dart';
+import 'package:una/src/i18n/localizations_delegate.dart';
 import 'package:una/src/raw_components/portal.dart';
 import 'package:una/src/theme/components/decorator.dart';
 import 'package:una/src/theme/components/layout.dart';
@@ -788,6 +789,9 @@ class PopoverTapGroups extends InheritedWidget {
 /// caret. Escape still closes the popover then, before anything under it.
 /// Its content is another route, though, and no Tab stop from the page:
 /// anchor a `Popover` to a widget when it should be one.
+///
+/// [barrierLabel] names the barrier that dismisses the popover for a screen
+/// reader; it defaults to the localized "Dismiss", as `showDialog`'s does.
 Future<T?> showPopover<T>({
   required BuildContext context,
   required Rect anchorRect,
@@ -841,7 +845,7 @@ Future<T?> showPopover<T>({
           : motion.snappy.settleDuration,
       reverseTransitionDuration: motion.fast,
       barrierDismissible: barrierDismissible,
-      barrierLabel: barrierLabel ?? '',
+      barrierLabel: barrierLabel ?? UnaLocalizations.of(context).dialog.dismiss,
       takesFocus: requestFocus,
       settings: routeSettings,
       builder: (routeContext) {

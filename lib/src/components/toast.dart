@@ -14,12 +14,14 @@ import 'package:una/src/icons/phosphor_icons.dart';
 import 'package:una/src/liquid_glass/liquid_glass.dart';
 import 'package:una/src/raw_components/pressable.dart';
 import 'package:una/src/theme/data.dart';
+import 'package:una/src/theme/form_factor.dart';
 import 'package:una/src/theme/motion.dart';
 import 'package:una/src/theme/theme.dart';
 import 'package:una/src/theme/themes/shadows.dart';
 import 'package:una/src/utils/backdrop.dart';
 import 'package:una/src/utils/border.dart';
 import 'package:una/src/utils/dismiss_shortcut.dart';
+import 'package:una/src/utils/hit_area.dart';
 import 'package:una/src/utils/overlay_insets.dart';
 import 'package:una/src/utils/pop_in.dart';
 import 'package:una/src/utils/shadow.dart';
@@ -111,6 +113,10 @@ class Toast extends StatelessWidget {
   /// Null uses the theme's (five seconds), except for
   /// [ToastVariant.loading], which stays. `Duration.zero` keeps the toast
   /// until it is dismissed.
+  ///
+  /// While a screen reader is in use (`MediaQuery.accessibleNavigationOf`)
+  /// a toast with an [action] stays until it is dismissed, whatever this
+  /// says: finding the action takes longer than any time out.
   final Duration? duration;
 
   /// Whether the user can dismiss the toast: by swiping it away, with its
@@ -507,12 +513,25 @@ class ToasterState extends State<Toaster> with TickerProviderStateMixin {
   late Motion _motion;
   late ThemeData _theme;
 
+  /// Whether a screen reader is in use; see [Toast.duration].
+  bool _accessibleNavigation = false;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _theme = Theme.of(context);
     _motion = Motion.of(context);
     final media = MediaQuery.maybeOf(context);
+    final accessibleNavigation = media?.accessibleNavigation ?? false;
+    if (accessibleNavigation != _accessibleNavigation) {
+      _accessibleNavigation = accessibleNavigation;
+      // After the build: a time out that ends now dismisses a toast.
+      if (_entries.isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _syncTimers();
+        });
+      }
+    }
     _systemInsets =
         (media?.padding ?? EdgeInsets.zero) +
         EdgeInsets.only(bottom: media?.viewInsets.bottom ?? 0);
@@ -836,7 +855,10 @@ class ToasterState extends State<Toaster> with TickerProviderStateMixin {
       if (entry.leaving) continue;
       final duration = entry.toast._durationUnder(_theme);
       final runs =
-          !paused && entry.rank < _maxVisible && duration > Duration.zero;
+          !paused &&
+          entry.rank < _maxVisible &&
+          duration > Duration.zero &&
+          !(_accessibleNavigation && entry.toast.action != null);
       if (!runs) {
         entry.timer?.cancel();
         entry.timer = null;
@@ -1300,11 +1322,22 @@ class _ToastSlot extends StatelessWidget {
                     PositionedDirectional(
                       top: 0,
                       start: 0,
-                      child: FadeTransition(
-                        opacity: entry.opacity,
-                        child: _CloseButton(
-                          visible: closeVisible,
-                          onPressed: dismiss,
+                      // Drawn at 20, it takes pointers over the minimum
+                      // target (24, 44 on a phone) without moving. It sits
+                      // in the slot's corner, which takes no pointers
+                      // beyond it, so it grows into the toast.
+                      child: HitArea(
+                        minSize:
+                            Theme.of(context).formFactor == FormFactor.mobile
+                            ? 44
+                            : 24,
+                        alignment: AlignmentDirectional.topStart,
+                        child: FadeTransition(
+                          opacity: entry.opacity,
+                          child: _CloseButton(
+                            visible: closeVisible,
+                            onPressed: dismiss,
+                          ),
                         ),
                       ),
                     ),
