@@ -42,12 +42,22 @@ class DemosMenu extends StatelessWidget {
             child: Text(demo.name),
           ),
       ],
-      builder: (context, controller, _) => Button.ghost(
-        size: ButtonSize.sm,
-        onPressed: controller.toggle,
-        trailing: const PhosphorIcon(PhosphorIconsRegular.caretDown),
-        child: const Text('Demos'),
-      ),
+      // A phone's bar has no room for the word: the icon alone.
+      builder: (context, controller, _) =>
+          Theme.of(context).formFactor == FormFactor.mobile
+          ? IconButton.ghost(
+              icon: const PhosphorIcon(
+                PhosphorIconsRegular.appWindow,
+                semanticLabel: 'Demos',
+              ),
+              onPressed: controller.toggle,
+            )
+          : Button.ghost(
+              size: ButtonSize.sm,
+              onPressed: controller.toggle,
+              trailing: const PhosphorIcon(PhosphorIconsRegular.caretDown),
+              child: const Text('Demos'),
+            ),
     );
   }
 }
