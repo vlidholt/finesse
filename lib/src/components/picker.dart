@@ -128,8 +128,23 @@ class PickerHost extends StatefulWidget {
   /// The popover's decoration, when the picker has its own.
   final UnaDecoration? decoration;
 
+  /// Whether the picker around [context] is open, or null outside one. A
+  /// trigger reads it to tell assistive technology whether its choices are
+  /// showing.
+  static bool? isOpenOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_PickerOpenScope>()?.open;
+
   @override
   State<PickerHost> createState() => _PickerHostState();
+}
+
+class _PickerOpenScope extends InheritedWidget {
+  const _PickerOpenScope({required this.open, required super.child});
+
+  final bool open;
+
+  @override
+  bool updateShouldNotify(_PickerOpenScope oldWidget) => open != oldWidget.open;
 }
 
 const _noEntrance = EntranceSpec(duration: Duration.zero, curve: Curves.linear);
@@ -238,8 +253,14 @@ class _PickerHostState extends State<PickerHost> {
 
   @override
   Widget build(BuildContext context) {
-    final trigger = Builder(
-      builder: (context) => widget.triggerBuilder(context, _controller.toggle),
+    final trigger = ListenableBuilder(
+      listenable: _controller,
+      builder: (context, child) =>
+          _PickerOpenScope(open: _controller.isOpen, child: child!),
+      child: Builder(
+        builder: (context) =>
+            widget.triggerBuilder(context, _controller.toggle),
+      ),
     );
     if (_sheet) return trigger;
     return Popover.internal(
@@ -320,6 +341,7 @@ class PickerTrigger extends StatelessWidget {
     this.enabled = true,
     this.focusNode,
     this.autofocus = false,
+    this.semanticHint,
     super.key,
   });
 
@@ -359,6 +381,18 @@ class PickerTrigger extends StatelessWidget {
   /// Whether it takes the focus when it first appears.
   final bool autofocus;
 
+  /// What pressing it does, for assistive technology: "Select date". The
+  /// value or the placeholder it shows is its name.
+  final String? semanticHint;
+
+  /// The hint and whether the picker is open, merged into the trigger's
+  /// node.
+  Widget _semantics(BuildContext context, Widget child) => Semantics(
+    hint: semanticHint,
+    expanded: enabled ? PickerHost.isOpenOf(context) : null,
+    child: child,
+  );
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -393,18 +427,21 @@ class PickerTrigger extends StatelessWidget {
       // Flexible, so a date too long for a fixed-width button ends in an
       // ellipsis instead of overflowing it.
       child: Flexible(
-        child: label != null
-            ? Text(label, maxLines: 1, overflow: TextOverflow.ellipsis)
-            // The placeholder is the muted text style, as in a field: it
-            // is not the button's label.
-            : DefaultTextStyle(
-                style: theme.textTheme.muted.copyWith(
-                  color: scheme.mutedForeground,
+        child: _semantics(
+          context,
+          label != null
+              ? Text(label, maxLines: 1, overflow: TextOverflow.ellipsis)
+              // The placeholder is the muted text style, as in a field: it
+              // is not the button's label.
+              : DefaultTextStyle(
+                  style: theme.textTheme.muted.copyWith(
+                    color: scheme.mutedForeground,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  child: placeholder,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                child: placeholder,
-              ),
+        ),
       ),
     );
   }
@@ -475,7 +512,7 @@ class PickerTrigger extends StatelessWidget {
               alignment: AlignmentDirectional.centerStart,
               widthFactor: expands || width != null ? null : 1,
               heightFactor: 1,
-              child: row,
+              child: _semantics(context, row),
             ),
           ),
         ),

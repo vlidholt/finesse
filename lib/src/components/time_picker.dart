@@ -188,6 +188,9 @@ class _TimePickerState extends State<TimePicker> {
           enabled: _enabled,
           label: value == null ? null : _format(context, value),
           placeholder: widget.placeholder ?? Text(l.timePicker.selectTime),
+          semanticHint: value != null || widget.placeholder != null
+              ? l.timePicker.selectTime
+              : null,
           leading:
               widget.leading ?? const PhosphorIcon(PhosphorIconsRegular.clock),
           trailing: widget.trailing,

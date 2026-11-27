@@ -1,3 +1,6 @@
+import 'dart:ui' show Tristate;
+
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -147,6 +150,25 @@ void main() {
         ),
       );
       expect(find.text('7:45 PM'), findsOneWidget);
+    });
+
+    testWidgets('the trigger says what it is for and whether it is open', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await pumpUna(
+        tester,
+        const _Host(initial: TimeOfDay(hour: 9, minute: 30)),
+      );
+      SemanticsData trigger() => tester
+          .getSemantics(find.bySemanticsLabel('09:30'))
+          .getSemanticsData();
+      expect(trigger().hint, 'Select time');
+      expect(trigger().flagsCollection.isButton, isTrue);
+      expect(trigger().flagsCollection.isExpanded, Tristate.isFalse);
+      await open(tester);
+      expect(trigger().flagsCollection.isExpanded, Tristate.isTrue);
+      handle.dispose();
     });
 
     testWidgets('is as tall as a text field on each form factor', (

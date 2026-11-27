@@ -1,3 +1,5 @@
+import 'dart:ui' show Tristate;
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -614,6 +616,100 @@ void main() {
         DateTimeRange(start: may, end: DateTime(2024, 5, 22)),
       );
       expect(tester.takeException(), isNull);
+    });
+  });
+
+  group('focus and semantics', () {
+    /// The day whose button has the primary focus.
+    DateTime? focusedDay() {
+      final label = FocusManager.instance.primaryFocus?.debugLabel;
+      const prefix = 'Calendar day ';
+      if (label == null || !label.startsWith(prefix)) return null;
+      return DateTime.parse(label.substring(prefix.length));
+    }
+
+    testWidgets('the selected day takes the focus when the popover opens, '
+        'and the arrows move it at once', (tester) async {
+      await pumpUna(tester, _Host(initial: may));
+      await open(tester);
+      expect(focusedDay(), may);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pump();
+      expect(focusedDay(), DateTime(2024, 5, 16));
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await rest(tester);
+      expect(host(tester).changes, [DateTime(2024, 5, 16)]);
+    });
+
+    testWidgets('with no date, today takes it, moved inside the bounds', (
+      tester,
+    ) async {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      await pumpUna(tester, const _Host());
+      await open(tester);
+      expect(focusedDay(), today);
+
+      final min = today.add(const Duration(days: 40));
+      await pumpUna(
+        tester,
+        _Host(key: const ValueKey('min'), min: min),
+      );
+      await open(tester);
+      expect(focusedDay(), DateTime(min.year, min.month, min.day));
+    });
+
+    testWidgets("a range picker's first day takes it", (tester) async {
+      await pumpUna(
+        tester,
+        _RangeHost(
+          initial: DateTimeRange(
+            start: DateTime(2024, 5, 10),
+            end: DateTime(2024, 5, 16),
+          ),
+        ),
+      );
+      await open(tester);
+      expect(focusedDay(), DateTime(2024, 5, 10));
+    });
+
+    testWidgets('the trigger says what it is for and whether it is open', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await pumpUna(tester, _Host(initial: may));
+      SemanticsData trigger(String label) =>
+          tester.getSemantics(find.bySemanticsLabel(label)).getSemanticsData();
+      var data = trigger('May 15th, 2024');
+      expect(data.hint, 'Select date');
+      expect(data.flagsCollection.isButton, isTrue);
+      expect(data.flagsCollection.isExpanded, Tristate.isFalse);
+      await open(tester);
+      data = trigger('May 15th, 2024');
+      expect(data.flagsCollection.isExpanded, Tristate.isTrue);
+
+      // The default placeholder says it already.
+      await pumpUna(tester, const _Host(key: ValueKey('empty')));
+      expect(trigger('Select date').hint, '');
+
+      await pumpUna(
+        tester,
+        Center(
+          child: DateRangePicker(
+            value: DateTimeRange(
+              start: DateTime(2024, 5, 10),
+              end: DateTime(2024, 5, 16),
+            ),
+            onChanged: (_) {},
+            variant: ButtonVariant.outline,
+          ),
+        ),
+      );
+      data = trigger('May 10, 2024 - May 16, 2024');
+      expect(data.hint, 'Select dates');
+      expect(data.flagsCollection.isButton, isTrue);
+      expect(data.flagsCollection.isExpanded, Tristate.isFalse);
+      handle.dispose();
     });
   });
 

@@ -39,6 +39,7 @@ class UnaLocalizationsData with BaseTranslations<UnaLocale, UnaLocalizationsData
 	late final UnaLocalizationsData$alert$en alert = UnaLocalizationsData$alert$en.internal(_root);
 	late final UnaLocalizationsData$timePicker$en timePicker = UnaLocalizationsData$timePicker$en.internal(_root);
 	late final UnaLocalizationsData$datePicker$en datePicker = UnaLocalizationsData$datePicker$en.internal(_root);
+	late final UnaLocalizationsData$calendar$en calendar = UnaLocalizationsData$calendar$en.internal(_root);
 	late final UnaLocalizationsData$input$en input = UnaLocalizationsData$input$en.internal(_root);
 	late final UnaLocalizationsData$autocomplete$en autocomplete = UnaLocalizationsData$autocomplete$en.internal(_root);
 	late final UnaLocalizationsData$numberField$en numberField = UnaLocalizationsData$numberField$en.internal(_root);
@@ -157,6 +158,30 @@ class UnaLocalizationsData$datePicker$en {
 
 	/// en: 'Year'
 	String get year => 'Year';
+}
+
+// Path: calendar
+class UnaLocalizationsData$calendar$en {
+	UnaLocalizationsData$calendar$en.internal(this._root);
+
+	final UnaLocalizationsData _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Previous month'
+	String get previousMonth => 'Previous month';
+
+	/// en: 'Next month'
+	String get nextMonth => 'Next month';
+
+	/// en: 'Today'
+	String get today => 'Today';
+
+	/// en: 'Start of range'
+	String get rangeStart => 'Start of range';
+
+	/// en: 'End of range'
+	String get rangeEnd => 'End of range';
 }
 
 // Path: input
@@ -818,6 +843,11 @@ extension on UnaLocalizationsData {
 			'datePicker.day' => 'Day',
 			'datePicker.month' => 'Month',
 			'datePicker.year' => 'Year',
+			'calendar.previousMonth' => 'Previous month',
+			'calendar.nextMonth' => 'Next month',
+			'calendar.today' => 'Today',
+			'calendar.rangeStart' => 'Start of range',
+			'calendar.rangeEnd' => 'End of range',
 			'input.cut' => 'Cut',
 			'input.copy' => 'Copy',
 			'input.paste' => 'Paste',

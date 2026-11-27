@@ -360,7 +360,10 @@ void main() {
           ),
         );
 
-        await focusDay(tester, '8');
+        // The days are one Tab stop: Tab reaches the first, the arrows the
+        // others.
+        await focusDay(tester, '1');
+        await pressKey(tester, LogicalKeyboardKey.arrowDown);
 
         expect(isFocused(tester, '8'), isTrue);
 
