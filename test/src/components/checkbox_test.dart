@@ -344,11 +344,12 @@ void main() {
     testWidgets('Checkbox on matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const Checkbox(
+          Checkbox(
             value: true,
-            icon: Icon(Icons.air_rounded),
-            label: Text('Label'),
-            description: Text('Sublabel'),
+            onChanged: (_) {},
+            icon: const Icon(Icons.air_rounded),
+            label: const Text('Label'),
+            description: const Text('Sublabel'),
           ),
         ),
       );
@@ -362,11 +363,12 @@ void main() {
     testWidgets('Checkbox off matches goldens', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          const Checkbox(
+          Checkbox(
             value: false,
-            icon: Icon(Icons.air_rounded),
-            label: Text('Label'),
-            description: Text('Sublabel'),
+            onChanged: (_) {},
+            icon: const Icon(Icons.air_rounded),
+            label: const Text('Label'),
+            description: const Text('Sublabel'),
           ),
         ),
       );
