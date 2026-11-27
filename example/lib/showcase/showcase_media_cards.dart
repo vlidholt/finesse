@@ -122,9 +122,13 @@ class _ShowcaseEventCardState extends State<ShowcaseEventCard> {
                           size: 14,
                           color: scheme.mutedForeground,
                         ),
-                        Text(
-                          'Copenhagen · 9:00–17:00',
-                          style: theme.textTheme.muted,
+                        Flexible(
+                          child: Text(
+                            'Copenhagen · 9:00–17:00',
+                            style: theme.textTheme.muted,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ],
                     ),
