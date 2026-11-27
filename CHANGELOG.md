@@ -922,3 +922,41 @@ From the component review:
   with una; the mark is an uppercase U; the theme editor's look tiles show
   the shape alone, and it offers three more colours (Lime, Citron, Grape);
   the showcase's photographs develop in with `RevealImage`.
+- **Keyboard and assistive technology, across the library** (from a
+  review against the WAI-ARIA patterns and WCAG 2.2 AA):
+  - *Controls.* A null `onChanged` disables a switch or checkbox (Space
+    on a callback-less switch threw); checkbox, switch and radio are one
+    node with their label and state; a radio group, toggle group and chip
+    group are one Tab stop walked with the arrows; sliders are named on
+    the thumb, read as a percentage and take Home, End, Page Up and Down;
+    pagination pages are buttons; the accordion trigger shows focus; a
+    collapsed `Collapsible` is out of the Tab order; a chip's delete names
+    its chip; carousels stop auto-playing under a screen reader and get a
+    pause button; the colour picker's area and tracks are adjustable.
+  - *Fields.* Every text field is named (by `semanticLabel`, or the form
+    field's label through the new `InputDecoratorScope`) and carries its
+    description and error, announced when it appears; an obscured OTP
+    never exposes its digits; Autocomplete and TagField announce the
+    option the arrows reach; time-field parts step with Up and Down; the
+    clear and show-password buttons take taps over 24 × 24.
+  - *Pickers.* A select's trigger is a named button with its value and
+    open state, its options are selectable, and the keyboard reaches them
+    (Down opens, Home, End, type-ahead); the calendar is one Tab stop with
+    the date-grid keys, crossing months, each day named with its full
+    date, today and range ends, and its month changes announced; a date
+    picker opens on a day.
+  - *Overlays.* Focusing a menubar trigger no longer opens its menu, and
+    Left and Right move between menus; tooltips show on keyboard focus,
+    can be hovered and close on Escape; dialogs have a role, a name from
+    their title and focus their first control; `ContextMenuRegion` opens
+    from the Menu key or Shift+F10; menu triggers expose their open state,
+    a keyboard-opened menu focuses its first row and Tab leaves it; the
+    command palette announces its highlight and results; a toast with an
+    action waits under a screen reader; alerts are announced.
+  - *Navigation and data.* Sidebar rows, trigger and actions work from the
+    keyboard (they are `Pressable`s now) and a closed sidebar is out of the
+    Tab order; resizable dividers are focusable window splitters; table
+    rows with `onRowTap` are reachable and headers are headers; navigation
+    bars, the rail, the sidebar and breadcrumbs are labelled landmarks;
+    `Avatar.semanticLabel`; `ChatList.announcementOf` reads new messages;
+    progress bars, rings and spinners have their roles.

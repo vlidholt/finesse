@@ -1350,6 +1350,35 @@ rules below were all found there.
   wrappers in the tree either way.
 - A file importing both Material and una hides one `ButtonTheme`.
 
+## Accessibility
+
+The library was reviewed against the WAI-ARIA patterns and WCAG 2.2 AA;
+these are the rules that came out of it.
+
+- **A control is one node with its name.** A `Semantics(label:)` *around*
+  a control is a separate parent node and names nothing; the label goes
+  on the control's own node (`semanticLabel` parameters) or a
+  `MergeSemantics` joins label and control (checkbox, switch, radio,
+  their tiles, the data table's checkboxes).
+- **A field takes its form label.** `InputDecorator` provides an
+  `InputDecoratorScope` (label, description, error); a control that reads
+  it (`TextField`, `OtpField`, `TimeField`) names itself from it, and the
+  painted copies leave the semantics tree only once something has read
+  them. An overlay starts a `InputDecoratorScope.none`.
+- **A composite is one Tab stop walked with the arrows**: tab lists,
+  radio groups, toggle groups, chip groups and the calendar's day grid
+  (roving: `skipTraversal` set on each node, not `ExcludeFocusTraversal`,
+  whose inherited skip sticks to a plain `Focus`).
+- **Something that changes out of focus is announced**
+  (`SemanticsService.sendAnnouncement`): an autocomplete, tag field or
+  command palette highlight ("label, n of m"), a result count, a month
+  turned by a button, a form error, a chat message (`announcementOf`).
+- **Hidden is hidden from focus too.** `ExcludeSemantics` alone leaves
+  Tab stops behind (a closed collapsible or offcanvas sidebar, a leaving
+  chat message, a collapsed panel); exclude focus with it.
+- **Targets are 24 × 24 at least** (44 on a phone for close buttons):
+  `HitArea`/`HitSlop` grow the hit area without moving layout.
+
 ## Haptics
 
 Every tick goes through `Haptics` (`lib/src/utils/haptics.dart`):

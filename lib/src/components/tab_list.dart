@@ -385,7 +385,11 @@ class _TabListState extends State<TabList> {
   Widget _withTooltip(TabListItem item, Widget child) {
     final tooltip = item.tooltip;
     if (tooltip == null) return child;
-    return Tooltip(builder: (context) => Text(tooltip), child: child);
+    return Tooltip(
+      builder: (context) => Text(tooltip),
+      semanticMessage: tooltip,
+      child: child,
+    );
   }
 
   ScrollController get _scroll => _scrollController ??= ScrollController();
