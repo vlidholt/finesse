@@ -2,6 +2,12 @@ import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
+// The package's slider thumb, rebuilt (see `LiquidGlassSliderThumb`):
+// `GlassEffect` is not exported, and the inner shadow is in its `src`.
+// ignore: implementation_imports
+import 'package:liquid_glass_widgets/src/widgets/shared/lens_inner_shadow_painter.dart';
+import 'package:liquid_glass_widgets/theme/glass_theme_helpers.dart' as lg;
+import 'package:liquid_glass_widgets/widgets/shared/glass_effect.dart' as lg;
 import 'package:una/src/liquid_glass/liquid_glass.dart';
 import 'package:una/src/theme/motion.dart';
 import 'package:una/src/theme/theme.dart';
@@ -87,11 +93,12 @@ class LiquidGlassSwitch extends StatelessWidget {
 /// The thumb of a una slider on Liquid Glass, every kind of slider: one
 /// value or a range, with or without its bubble and division marks.
 ///
-/// It is drawn as the package's slider draws its thumb: a capsule 37:24
-/// as wide as it is tall (the height 1.6 thumb radii) in [color] with a
-/// soft shadow. Held, it swells by half again and its material fades to
-/// clear glass, a lens over the track; let go, it settles back. Only the
-/// picture: the slider keeps its own hit box, focus and semantics.
+/// It is the package's slider thumb: a capsule 37:24 as wide as it is
+/// tall (the height 1.6 thumb radii) in [color] with a soft shadow, drawn
+/// as the package's `GlassSlider` draws it. Held, it swells by half again
+/// and turns into the package's refracting lens over the track; let go, it
+/// settles back. Only the picture: the slider keeps its own hit
+/// box, focus and semantics.
 class LiquidGlassSliderThumb extends StatelessWidget {
   /// Creates the thumb for a slider whose thumb radius is [thumbRadius].
   const LiquidGlassSliderThumb({
@@ -140,15 +147,13 @@ class LiquidGlassSliderThumb extends StatelessWidget {
   }
 
   Widget _build(double width, double height, double t, double s) {
-    final held = t.clamp(0.0, 1.0);
-    // The material is gone a little before the lens is full size.
-    final material = (1 - held * 1.35).clamp(0.0, 1.0);
     // It grows by its size, not by a transform, as the package's own
     // thumb does: the glass is laid out at the size it is drawn.
     final scale = 1 + .55 * t;
     final w = width * scale * (1 - .3 * s);
     final h = height * scale * (1 + .18 * s);
-    final capsule = BorderRadius.circular(math.min(w, h) / 2);
+    // Half the shorter side, whatever the shape: the ends stay round.
+    final radius = math.min(w, h) / 2;
     return OverflowBox(
       minWidth: 0,
       minHeight: 0,
@@ -157,36 +162,142 @@ class LiquidGlassSliderThumb extends StatelessWidget {
       child: SizedBox(
         width: w,
         height: h,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            if (held > .02)
-              const LiquidGlassSurface(
-                capsule: true,
-                interactive: true,
-                child: SizedBox.expand(),
-              ),
-            Opacity(
-              opacity: material,
-              child: DecoratedBox(
-                decoration: ShadowDecoration.box(
-                  color: color,
-                  borderRadius: capsule,
-                  shadows: [
-                    const BoxShadow(
-                      color: Color(0x1F000000),
-                      blurRadius: 6,
-                      offset: Offset(0, 2),
+        child: LiquidGlassBridge(
+          child: Builder(
+            builder: (context) => _lens(context, w, h, radius, t),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// The package's slider thumb (`GlassSlider._buildThumbGlass`, 1.21),
+  /// at the size and radius given: the material capsule over a
+  /// `GlassEffect` lens that takes over as [t] rises, its shadow outside
+  /// the glass and the lens's inner shadow over it.
+  Widget _lens(
+    BuildContext context,
+    double w,
+    double h,
+    double radius,
+    double t,
+  ) {
+    final transition = t.clamp(0.0, 1.0);
+    final quality = lg.GlassThemeHelpers.resolveQuality(
+      context,
+      fallback: lg.GlassThemeHelpers.nativeStyleQuality(context),
+    );
+    final standard = quality == lg.GlassQuality.standard;
+    final dark = lg.GlassTheme.brightnessOf(context) == Brightness.dark;
+    final materialOpacity = (1 - transition * 1.35).clamp(0.0, 1.0);
+    final shadowOpacity = (1 - transition) * materialOpacity;
+    final theme = lg.GlassTheme.maybeOf(context)?.data;
+    final style = theme?.style ?? lg.GlassStyle.ios27;
+    final tint = dark
+        ? const Color.from(alpha: 0.08, red: 1, green: 1, blue: 1)
+        : const Color.from(alpha: 0.12, red: 0.88, green: 0.88, blue: 0.90);
+    final eraBase = switch (style) {
+      lg.GlassStyle.classic => lg.LiquidGlassSettings(
+        glassColor: tint,
+        refractiveIndex: dark ? 1.3 : 1.4,
+        thickness: dark ? 13 : 17,
+        lightIntensity: standard ? 0.0 : 1.8,
+        blur: 0,
+      ),
+      lg.GlassStyle.ios26 => lg.LiquidGlassSettings.ios26Indicator.copyWith(
+        refractiveIndex: 1.07,
+        rimShade: 1,
+        rimShadeEnds: 0.56,
+        rimLight: 1,
+      ),
+      lg.GlassStyle.ios27 => lg.LiquidGlassSettings.ios27Indicator.copyWith(
+        refractiveIndex: 1.07,
+      ),
+    };
+    final raw =
+        theme?.indicatorSettingsFor(context)?.applyTo(eraBase) ?? eraBase;
+    final nativeRim = raw.rimLight > 0 || raw.rimShade > 0;
+    final settings = raw.copyWith(
+      blur: 0,
+      frost: 0,
+      glassColor: standard && raw.glassColor.a == 0 && (dark || !nativeRim)
+          ? tint
+          : null,
+    );
+    final corners = BorderRadius.circular(radius);
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        // Outside the lens's clip; the material's fade is folded into it.
+        Positioned.fill(
+          child: DecoratedBox(
+            decoration: ShadowDecoration.box(
+              borderRadius: corners,
+              shadows: [
+                BoxShadow(
+                  color: Color.from(
+                    alpha: .15 * shadowOpacity,
+                    red: 0,
+                    green: 0,
+                    blue: 0,
+                  ),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+                if (focusColor != null)
+                  BoxShadow(color: focusColor!, spreadRadius: 3),
+              ],
+            ),
+          ),
+        ),
+        lg.GlassEffect(
+          shape: lg.LiquidRoundedRectangle(borderRadius: radius),
+          settings: settings,
+          quality: quality,
+          interactionIntensity: transition,
+          rimThickness: standard ? (dark ? 0.5 : 0.7) : 0.5,
+          ambientRim: standard ? (dark ? 0.08 : 0.15) : 0.1,
+          baseAlphaMultiplier: standard ? (dark ? 0.0 : 0.04) : 0.08,
+          edgeAlphaMultiplier: standard ? (dark ? 0.15 : 0.28) : 0,
+          child: SizedBox(
+            width: w,
+            height: h,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // The shell's footprint, which the shader needs.
+                const Positioned.fill(
+                  child: ColoredBox(color: Color(0x00000000)),
+                ),
+                Opacity(
+                  opacity: materialOpacity,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 1),
+                      borderRadius: corners,
                     ),
-                    if (focusColor != null)
-                      BoxShadow(color: focusColor!, spreadRadius: 3),
-                  ],
+                    child: const SizedBox.expand(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (transition > .05)
+          Positioned.fill(
+            child: IgnorePointer(
+              child: CustomPaint(
+                painter: LensInnerShadowPainter(
+                  borderRadius: radius,
+                  opacity: transition,
+                  shadowOpacity: settings.rimShade > 0
+                      ? LensInnerShadowPainter.defaultShadowOpacity
+                      : LensInnerShadowPainter.classicShadowOpacity,
                 ),
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+      ],
     );
   }
 }

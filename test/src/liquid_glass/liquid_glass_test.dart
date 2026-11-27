@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
+import 'package:liquid_glass_widgets/widgets/shared/glass_effect.dart';
 import 'package:una/src/liquid_glass/controls.dart' show LiquidGlassSliderThumb;
 import 'package:una/src/liquid_glass/liquid_glass.dart'
     show
@@ -336,21 +337,12 @@ void main() {
           moving.width / moving.height,
           lessThan(rest.width / rest.height),
         );
-        // The ends stay round: the corner radius is half the shorter side.
-        final decoration = tester
-            .widgetList<DecoratedBox>(
-              find.descendant(of: thumb, matching: find.byType(DecoratedBox)),
-            )
-            .map((d) => d.decoration)
-            .whereType<ShadowDecoration>()
-            .first;
-        final radius =
-            ((decoration.decoration as BoxDecoration).borderRadius!
-                    as BorderRadius)
-                .topLeft
-                .x;
+        // The ends stay round: the lens's radius is half its shorter side.
+        final lens = tester.widget<GlassEffect>(
+          find.descendant(of: thumb, matching: find.byType(GlassEffect)),
+        );
         expect(
-          radius,
+          (lens.shape as lg.LiquidRoundedRectangle).borderRadius,
           closeTo(math.min(moving.width, moving.height) / 2, .01),
         );
         await gesture.up();

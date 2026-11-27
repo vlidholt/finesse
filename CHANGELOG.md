@@ -769,9 +769,9 @@ was measured from (Strand, until it moved), is its own repository,
 - **The Liquid Glass slider's lens keeps round ends in a fast drag.** Every
   slider on Liquid Glass now draws una's glass thumb (a plain slider used
   the package's `GlassSlider`, whose squashed lens kept its resting corner
-  radius and lost its top and bottom curves). It squashes and stretches
-  with the speed of the drag, as the package's does, with its radius half
-  its shorter side.
+  radius and lost its top and bottom curves). It is the package's own lens,
+  drawn the same way, and it squashes and stretches with the speed of the
+  drag with its radius half its shorter side.
 
 Problems inherited from shad:
 

@@ -213,9 +213,12 @@ componentTheme.liquidGlass)` at build: never a window width, never cached.
   `GlassSlider` was used for plain sliders and dropped: its jelly squashed
   the capsule by 30 % and stretched it by 18 % with the resting corner
   radius, so a fast drag flattened the lens's top and bottom as if
-  clipped. `LiquidGlassSliderThumb` is the same capsule (37:24, 1.6 thumb
-  radii tall), swells 1.55× and fades its material to a
-  `LiquidGlassSurface` lens while held, and squashes by the drag speed
+  clipped. `LiquidGlassSliderThumb` is that thumb rebuilt
+  (`GlassSlider._buildThumbGlass` of 1.21: the same capsule, 37:24 and 1.6
+  thumb radii tall, the same `GlassEffect` settings and inner shadow,
+  imported from the package's unexported files), swells 1.55× and fades
+  its material to the lens while held. A `LiquidGlassSurface` there was
+  near invisible on a light page (a surface's settings, not a lens's); and squashes by the drag speed
   (`_SliderCore._stretch`, a step per move over 24, settling 60 ms after
   the moves stop) with its radius half its shorter side. It grows by its
   *size*, never a `Transform`: glass is laid out at the size it is drawn.
