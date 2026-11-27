@@ -774,7 +774,7 @@ void main() {
       expect(docked.size, shell.size);
       expect(
         docked.center.dx,
-        (desktopSize.width - ThemeCustomizerPanel.width) / 2,
+        (desktopSize.width - AppShell.dockedPanelWidth) / 2,
       );
       expect(tester.takeException(), isNull);
 
@@ -784,10 +784,7 @@ void main() {
       expect(find.byType(Sidebar), findsOneWidget);
       expect(
         tester.getSize(find.byType(ComponentsSection)),
-        Size(
-          desktopSize.width - ThemeCustomizerPanel.width,
-          desktopSize.height,
-        ),
+        Size(desktopSize.width - AppShell.dockedPanelWidth, desktopSize.height),
       );
       expect(tester.takeException(), isNull);
     });

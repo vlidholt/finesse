@@ -75,7 +75,7 @@ void main() {
             final panel = ThemeCustomizerPanel(
               config: config,
               onChanged: (next) => setState(() => config = next),
-              showLeadingBorder: docked,
+              docked: docked,
               onClose: docked ? null : () => closes++,
             );
             return docked

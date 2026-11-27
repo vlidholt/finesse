@@ -1,4 +1,6 @@
 import 'package:example/common/app_shell.dart';
+import 'package:example/common/app_state.dart';
+import 'package:example/common/una_logo.dart';
 import 'package:example/common/theme_editor/customizer_panel.dart';
 import 'package:example/docs/registry.dart';
 import 'package:example/screens/components_screen.dart';
@@ -37,6 +39,17 @@ void main() {
     await tester.tap(entry);
     await settle(tester);
   }
+
+  /// The window's top bar: the one the logo is in.
+  final topBar = find
+      .ancestor(of: find.byType(UnaLogo), matching: find.byType(AppBar))
+      .first;
+
+  ComponentsScreenState docs(WidgetTester tester) =>
+      tester.state<ComponentsScreenState>(find.byType(ComponentsScreen));
+
+  AppSection section(WidgetTester tester) =>
+      appSectionProvider.of(appContext(tester)).value;
 
   /// The paint-brush button in the component library's bar.
   Future<void> toggleEditor(WidgetTester tester) async {
@@ -123,6 +136,126 @@ void main() {
     });
   });
 
+  group('the top bar', () {
+    testWidgets('spans the window, with the logo at its start and the '
+        'settings at its end, the editor open or not', (tester) async {
+      await pumpApp(tester, size: wide);
+
+      Rect logo() => tester.getRect(find.byType(UnaLogo).first);
+      Rect brush() =>
+          tester.getRect(find.byIcon(PhosphorIconsRegular.paintBrush).first);
+
+      void expectAcrossTheWindow() {
+        expect(tester.getRect(topBar).left, 0);
+        expect(tester.getSize(topBar).width, wide.width);
+        // At the bar's own margins, not held to the page's measure.
+        expect(logo().left, lessThanOrEqualTo(32));
+        expect(brush().right, greaterThanOrEqualTo(wide.width - 32));
+      }
+
+      expectAcrossTheWindow();
+      final closed = (logo(), brush());
+
+      await toggleEditor(tester);
+      expect(find.byType(ThemeCustomizerPanel), findsOneWidget);
+      expectAcrossTheWindow();
+      expect((logo(), brush()), closed);
+      // The panel is under the bar, not beside it.
+      expect(
+        tester.getTopLeft(find.byType(ThemeCustomizerPanel)).dy,
+        greaterThan(tester.getBottomLeft(topBar).dy),
+      );
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('has three destinations; Introduction and Components open '
+        'their pages, and the one selected follows the page shown', (
+      tester,
+    ) async {
+      await pumpApp(tester);
+      Finder inBar(String label) =>
+          find.descendant(of: topBar, matching: find.text(label));
+      for (final label in ['Showcase', 'Introduction', 'Components']) {
+        expect(inBar(label), findsOneWidget, reason: label);
+      }
+      expect(
+        find.descendant(
+          of: topBar,
+          matching: find.byIcon(PhosphorIconsRegular.balloon),
+        ),
+        findsOneWidget,
+      );
+      expect(section(tester), AppSection.introduction);
+      expect(docs(tester).selectedSlug, 'introduction');
+
+      // Components: the overview, with the sidebar scrolled down to it.
+      final sidebarScroll = find
+          .ancestor(
+            of: inSidebar(find.text('Getting started')),
+            matching: find.byType(Scrollable),
+          )
+          .first;
+      expect(tester.state<ScrollableState>(sidebarScroll).position.pixels, 0);
+      await tester.tap(inBar('Components'));
+      await settle(tester);
+      expect(section(tester), AppSection.components);
+      expect(docs(tester).selectedSlug, 'overview');
+      expect(
+        tester.state<ScrollableState>(sidebarScroll).position.pixels,
+        greaterThan(0),
+      );
+
+      // A guide opened from the sidebar selects Introduction, a component
+      // Components.
+      await openPage(tester, 'Theming');
+      expect(section(tester), AppSection.introduction);
+      await openPage(tester, 'Badge');
+      expect(section(tester), AppSection.components);
+
+      // Away to the showcase and back: the page is kept.
+      await tester.tap(inBar('Showcase'));
+      await settle(tester);
+      expect(find.byType(ComponentsScreen), findsNothing);
+      await tester.tap(inBar('Components'));
+      await settle(tester);
+      expect(docs(tester).selectedSlug, 'badge');
+
+      // Introduction from a component page: the introduction.
+      await tester.tap(inBar('Introduction'));
+      await settle(tester);
+      expect(section(tester), AppSection.introduction);
+      expect(docs(tester).selectedSlug, 'introduction');
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('the showcase\'s way to the reference opens the components', (
+      tester,
+    ) async {
+      await pumpApp(tester, startOn: AppSection.showcase);
+      appSectionProvider.of(appContext(tester)).value = AppSection.components;
+      await settle(tester);
+      expect(docs(tester).selectedSlug, 'overview');
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('on a phone the three are in the bottom bar', (tester) async {
+      await pumpApp(tester, size: mobileSize);
+      final bar = find.byType(BottomNavigationBar);
+      expect(bar, findsOneWidget);
+      // Icons only, as a phone's bar is by default.
+      Finder inBar(IconData icon) =>
+          find.descendant(of: bar, matching: find.byIcon(icon));
+      expect(inBar(PhosphorIconsRegular.balloon), findsOneWidget);
+      expect(inBar(PhosphorIconsFill.bookOpen), findsOneWidget);
+      expect(inBar(PhosphorIconsRegular.squaresFour), findsOneWidget);
+      await tester.tap(inBar(PhosphorIconsRegular.squaresFour));
+      await settle(tester);
+      expect(section(tester), AppSection.components);
+      expect(docs(tester).selectedSlug, 'overview');
+      expect(tester.takeException(), isNull);
+    });
+  });
+
   group('the theme editor', () {
     testWidgets('docks beside the page, and closes again', (tester) async {
       await pumpApp(tester, size: wide);
@@ -133,15 +266,18 @@ void main() {
       final panel = find.byType(ThemeCustomizerPanel);
       expect(panel, findsOneWidget);
       // Docked, not covering: the page is still there beside it, narrower.
+      const margin = 12.0;
+      expect(ThemeCustomizerPanel.dockMargin, margin);
       expect(tester.getSize(panel).width, ThemeCustomizerPanel.width);
       expect(
         tester.getSize(find.byType(ComponentsSection)).width,
-        wide.width - ThemeCustomizerPanel.width,
+        wide.width - ThemeCustomizerPanel.width - 2 * margin,
       );
-      expect(
-        tester.getTopLeft(panel).dx,
-        wide.width - ThemeCustomizerPanel.width,
-      );
+      // A box under the top bar, clear of the window's edges.
+      final box = tester.getRect(panel);
+      expect(box.right, wide.width - margin);
+      expect(box.bottom, wide.height - margin);
+      expect(box.top, tester.getBottomLeft(topBar).dy + margin);
       // Docked, it needs no close button of its own.
       expect(find.byIcon(PhosphorIconsRegular.x), findsNothing);
 
@@ -222,10 +358,13 @@ void main() {
       await settle(tester);
 
       // In RTL the panel is at the left edge and the page beside it.
-      expect(tester.getTopLeft(find.byType(ThemeCustomizerPanel)).dx, 0);
+      expect(
+        tester.getTopLeft(find.byType(ThemeCustomizerPanel)).dx,
+        ThemeCustomizerPanel.dockMargin,
+      );
       expect(
         tester.getTopLeft(find.byType(ComponentsSection)).dx,
-        ThemeCustomizerPanel.width,
+        AppShell.dockedPanelWidth,
       );
       expect(tester.takeException(), isNull);
     });

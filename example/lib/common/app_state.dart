@@ -29,21 +29,33 @@ final themeConfigProvider = Provider(
 /// Whether that panel is docked beside the app.
 final themeEditorOpenProvider = Provider((_) => Signal(false));
 
-/// The two halves of the app, switched from the top bar.
+/// The app's destinations, switched from the top bar (the bottom bar on a
+/// phone).
+///
+/// [introduction] and [components] are two parts of one docs browser: the
+/// guides and the component reference. Which of them is selected follows
+/// the page the browser shows, and selecting one opens its first page when
+/// the browser is showing the other.
 enum AppSection {
   /// The components at their best, on one page: what the app opens on.
   showcase('Showcase'),
 
-  /// The reference: a page per component and guide.
+  /// The guides: what una is, installing it, theming, the foundations.
+  introduction('Introduction'),
+
+  /// The reference: the overview and a page per component.
   components('Components');
 
   const AppSection(this.label);
 
   final String label;
+
+  /// Whether this section is shown by the docs browser.
+  bool get isDocs => this != showcase;
 }
 
 /// Which section the app starts on. The showcase; tests about the docs
-/// browser start on the reference.
+/// browser start on the introduction.
 AppSection initialAppSection = AppSection.showcase;
 
 /// Whether the editor opens by itself when the app starts in a window wide
