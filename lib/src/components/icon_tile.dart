@@ -117,7 +117,7 @@ class StatTile extends StatelessWidget {
     final layout = theme.layoutTheme;
     final card = Card(
       style: CardTheme(
-        borderRadius: theme.radii.xl,
+        borderRadius: theme.cornerRadius(theme.radii.xl),
         padding:
             padding ??
             EdgeInsets.symmetric(
@@ -164,7 +164,7 @@ class StatTile extends StatelessWidget {
       onPressed: onTap,
       builder: (context, states) => FocusRing(
         visible: states.contains(WidgetState.focused),
-        borderRadius: theme.radii.xl,
+        borderRadius: theme.cornerRadius(theme.radii.xl),
         child: card,
       ),
     );

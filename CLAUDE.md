@@ -1232,6 +1232,11 @@ rules below were all found there.
   slivers, and not at all under an opaque fill; other shapes (a tooltip with
   its arrow) keep the per-contour even-odd clip. Do not replace it with one
   `clipPath`; `shadow_test.dart` counts and measures the clips.
+- **Images develop in through `RevealImage`**, whose reveal is one
+  `ColorFiltered` (alpha, exposure and saturation in one matrix) over the
+  placeholder while it plays and the bare `RawImage` after; a picture
+  already in the cache (`wasSynchronouslyLoaded`) gets no reveal, so an
+  app precaches what it knows comes next.
 - **Cards do not blur.** `cardBlur` is false in every style: a card lies on
   the flat page and a backdrop filter per card is paid every frame. Cards stay
   translucent. Bars, popovers, menus, tooltips, toasts and floating `Glass`
@@ -1323,7 +1328,10 @@ rules below were all found there.
   back to automatic on a key that is not a modifier, as CSS's
   `:focus-visible` does, and leaves a strategy an app set alone. A test of
   a ring after a mouse tap sets the strategy itself
-  (`useTraditionalHighlights`).
+  (`useTraditionalHighlights`). A control built on `Focusable` rather
+  than `Pressable` (a select's trigger, checkbox, radio, switch, slider,
+  sidebar row) passes `visibleOnly: true` for the same rule; only text
+  fields show focus after a click.
 - **Hover comes from a `MouseRegion`**, not from
   `FocusableActionDetector`'s highlight callback, which only fires in the
   traditional highlight mode.

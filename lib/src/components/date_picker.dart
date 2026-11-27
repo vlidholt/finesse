@@ -238,8 +238,12 @@ class _DatePickerState extends State<DatePicker> {
         showWeekNumbers: widget.showWeekNumbers,
         captionLayout: widget.captionLayout,
         // The popover or the sheet is the surface: no frame of its own.
-        calendarTheme: const CalendarTheme(
+        // Always six weeks, so the popover is the same height from month
+        // to month: a month of five rows left it short, with a gap
+        // between it and a trigger it opened above.
+        calendarTheme: CalendarTheme(
           decoration: UnaDecoration.none,
+          fixedWeeks: _sixWeeks(context, widget.calendarTheme),
         ).merge(widget.calendarTheme).merge(override),
       );
     }
@@ -650,8 +654,9 @@ class _DateRangePickerState extends State<DateRangePicker> {
         weekStartsOn: widget.weekStartsOn,
         showWeekNumbers: widget.showWeekNumbers,
         captionLayout: widget.captionLayout,
-        calendarTheme: const CalendarTheme(
+        calendarTheme: CalendarTheme(
           decoration: UnaDecoration.none,
+          fixedWeeks: _sixWeeks(context, widget.calendarTheme),
         ).merge(widget.calendarTheme).merge(override),
       );
     }
@@ -768,3 +773,10 @@ class _DateRangeSheetState extends State<_DateRangeSheet> {
     );
   }
 }
+
+/// Whether a picker's calendar shows six weeks whatever the month: it does
+/// unless the days outside the month are hidden, which six weeks need.
+bool _sixWeeks(BuildContext context, CalendarTheme? own) =>
+    own?.showOutsideDays ??
+    Theme.of(context).calendarTheme.showOutsideDays ??
+    true;

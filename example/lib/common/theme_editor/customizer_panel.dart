@@ -837,8 +837,9 @@ class _LookTileState extends State<_LookTile> {
   }
 }
 
-/// A look in 26 pixels: the page, with a button in the primary colour and
-/// the look's corner shape.
+/// A look in 26 pixels: a page with a button on it, in the look's corner
+/// shapes. Only the shape: drawn in the panel's own ink, not the theme's
+/// colours, so four tiles side by side compare corners and nothing else.
 class _LookSwatch extends StatelessWidget {
   const _LookSwatch({required this.config});
 
@@ -846,7 +847,7 @@ class _LookSwatch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = config.copyWith(brightness: Brightness.light).colorScheme;
+    final ink = Theme.of(context).colorScheme;
     final tokens = config.style.tokens;
     // Square stays square and a pill stays a pill; everything between is a
     // softened corner at this size.
@@ -860,17 +861,16 @@ class _LookSwatch extends StatelessWidget {
       height: 26,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: scheme.background,
         borderRadius: BorderRadius.circular(
           config.effectiveRadius == 0 ? 0 : 6,
         ),
-        border: Border.all(color: Theme.of(context).colorScheme.border),
+        border: Border.all(color: ink.mutedForeground, width: 1.25),
       ),
       child: Container(
         width: 14,
         height: 10,
         decoration: BoxDecoration(
-          color: scheme.primary,
+          color: ink.foreground,
           borderRadius: BorderRadius.circular(buttonRadius),
         ),
       ),

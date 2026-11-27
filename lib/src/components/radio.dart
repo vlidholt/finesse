@@ -468,6 +468,7 @@ class _RadioState<T> extends State<Radio<T>> {
               },
           },
           child: Focusable(
+            visibleOnly: true,
             autofocus: widget.autofocus,
             onFocusChange: widget.onFocusChange,
             focusNode: focusNode,

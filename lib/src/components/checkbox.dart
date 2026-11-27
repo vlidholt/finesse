@@ -277,6 +277,7 @@ class _CheckboxState extends State<Checkbox> {
               },
           },
           child: Focusable(
+            visibleOnly: true,
             autofocus: widget.autofocus,
             onFocusChange: widget.onFocusChange,
             focusNode: focusNode,

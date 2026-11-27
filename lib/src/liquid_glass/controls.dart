@@ -2,8 +2,11 @@ import 'package:flutter/rendering.dart' show OverflowBoxFit;
 import 'package:flutter/widgets.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
 import 'package:una/src/liquid_glass/liquid_glass.dart';
+import 'package:una/src/theme/motion.dart';
 import 'package:una/src/theme/theme.dart';
 import 'package:una/src/utils/haptics.dart';
+import 'package:una/src/utils/shadow.dart';
+import 'package:una/src/utils/spring.dart';
 
 /// The package's `GlassSwitch` with una's colours and size: flat at
 /// rest, a lens of glass while it is pressed or dragged.
@@ -169,6 +172,97 @@ class LiquidGlassSlider extends StatelessWidget {
           autofocus: autofocus,
         ),
       ),
+    );
+  }
+}
+
+/// The thumb of a una slider on Liquid Glass, for the sliders the
+/// package's own [LiquidGlassSlider] cannot be: a range, one with its
+/// value bubble always shown or with division marks.
+///
+/// It is drawn as the package's slider draws its thumb: a capsule 37:24
+/// as wide as it is tall (the height 1.6 thumb radii) in [color] with a
+/// soft shadow. Held, it swells by half again and its material fades to
+/// clear glass, a lens over the track; let go, it settles back. Only the
+/// picture: the slider keeps its own hit box, focus and semantics.
+class LiquidGlassSliderThumb extends StatelessWidget {
+  /// Creates the thumb for a slider whose thumb radius is [thumbRadius].
+  const LiquidGlassSliderThumb({
+    required this.thumbRadius,
+    required this.color,
+    required this.pressed,
+    this.focusColor,
+    super.key,
+  });
+
+  /// The slider's thumb radius.
+  final double thumbRadius;
+
+  /// The thumb's colour at rest.
+  final Color color;
+
+  /// Whether the thumb is held.
+  final bool pressed;
+
+  /// The colour of a focus ring around the capsule, or null for none.
+  final Color? focusColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final height = thumbRadius * 1.6;
+    final width = height * 37 / 24;
+    final motion = Motion.of(context);
+    return SpringBuilder(
+      value: pressed ? 1 : 0,
+      spring: motion.bouncy,
+      builder: (context, t, _) {
+        final held = t.clamp(0.0, 1.0);
+        // The material is gone a little before the lens is full size.
+        final material = (1 - held * 1.35).clamp(0.0, 1.0);
+        final capsule = BorderRadius.circular(height / 2);
+        return OverflowBox(
+          minWidth: 0,
+          minHeight: 0,
+          maxWidth: double.infinity,
+          maxHeight: double.infinity,
+          child: Transform.scale(
+            scale: 1 + .55 * t,
+            child: SizedBox(
+              width: width,
+              height: height,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  if (held > .02)
+                    const LiquidGlassSurface(
+                      capsule: true,
+                      interactive: true,
+                      child: SizedBox.expand(),
+                    ),
+                  Opacity(
+                    opacity: material,
+                    child: DecoratedBox(
+                      decoration: ShadowDecoration.box(
+                        color: color,
+                        borderRadius: capsule,
+                        shadows: [
+                          const BoxShadow(
+                            color: Color(0x1F000000),
+                            blurRadius: 6,
+                            offset: Offset(0, 2),
+                          ),
+                          if (focusColor != null)
+                            BoxShadow(color: focusColor!, spreadRadius: 3),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -434,7 +434,7 @@ class _PlayerCardState extends State<_PlayerCard> {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.asset(
+                  RevealImage.asset(
                     'assets/images/photo_alpine_lake.jpg',
                     fit: BoxFit.cover,
                   ),
@@ -450,7 +450,7 @@ class _PlayerCardState extends State<_PlayerCard> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           PhosphorIcon(
-                            PhosphorIconsFill.waveform,
+                            PhosphorIconsRegular.waveform,
                             size: 14,
                             color: scheme.foreground,
                           ),
@@ -514,7 +514,7 @@ class _PlayerCardState extends State<_PlayerCard> {
                   spacing: theme.layoutTheme.gap(GapSize.md),
                   children: [
                     IconButton.ghost(
-                      icon: const PhosphorIcon(PhosphorIconsFill.shuffle),
+                      icon: const PhosphorIcon(PhosphorIconsRegular.shuffle),
                       semanticLabel: 'Shuffle',
                       onPressed: () {},
                     ),
@@ -539,7 +539,7 @@ class _PlayerCardState extends State<_PlayerCard> {
                       onPressed: () {},
                     ),
                     IconButton.ghost(
-                      icon: const PhosphorIcon(PhosphorIconsFill.repeat),
+                      icon: const PhosphorIcon(PhosphorIconsRegular.repeat),
                       semanticLabel: 'Repeat',
                       onPressed: () {},
                     ),

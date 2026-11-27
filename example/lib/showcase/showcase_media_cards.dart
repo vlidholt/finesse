@@ -32,7 +32,7 @@ class _CardPicture extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.asset(
+            RevealImage.asset(
               'assets/images/$asset.jpg',
               fit: BoxFit.cover,
               semanticLabel: label,
@@ -78,7 +78,7 @@ class _ShowcaseEventCardState extends State<ShowcaseEventCard> {
         children: [
           _CardPicture(
             asset: 'photo_conference_stage',
-            label: 'A speaker on a stage in front of a large screen',
+            label: 'An audience facing a lit stage and its screens',
             overlay: PositionedDirectional(
               start: 12,
               top: 12,
@@ -263,7 +263,7 @@ class ShowcaseGalleryCard extends StatelessWidget {
   static const _photos = [
     ('story_mountain_meadow', 'Wildflowers on a mountain meadow'),
     ('photo_alpine_lake', 'A still alpine lake under snowy peaks'),
-    ('photo_conference_stage', 'A speaker on a conference stage'),
+    ('photo_conference_stage', 'An audience before a conference stage'),
     ('photo_workshop_team', 'A team at a whiteboard'),
   ];
 
@@ -286,7 +286,7 @@ class ShowcaseGalleryCard extends StatelessWidget {
         semanticLabel: 'Photos from the trip',
         children: [
           for (final (asset, alt) in _photos)
-            Image.asset(
+            RevealImage.asset(
               'assets/images/$asset.jpg',
               fit: BoxFit.cover,
               semanticLabel: alt,

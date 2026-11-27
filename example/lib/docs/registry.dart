@@ -74,6 +74,7 @@ import 'package:example/docs/pages/rating.dart';
 import 'package:example/docs/pages/refresh_indicator.dart';
 import 'package:example/docs/pages/reorderable_list_view.dart';
 import 'package:example/docs/pages/resizable.dart';
+import 'package:example/docs/pages/reveal_image.dart';
 import 'package:example/docs/pages/responsive.dart';
 import 'package:example/docs/pages/scaffold.dart';
 import 'package:example/docs/pages/scroll_area.dart';
@@ -217,6 +218,7 @@ final componentDocs = [
   refreshIndicatorDoc,
   reorderableListViewDoc,
   resizableDoc,
+  revealImageDoc,
   scaffoldDoc,
   scrollAreaDoc,
   searchFieldDoc,
@@ -442,6 +444,7 @@ final componentCategories = <DocCategory>[
       carouselDoc,
       iconTileDoc,
       kbdDoc,
+      revealImageDoc,
       selectionAreaDoc,
     ],
   ),

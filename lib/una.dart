@@ -135,6 +135,7 @@ export 'src/components/radio.dart';
 export 'src/components/rating.dart';
 export 'src/components/refresh_indicator.dart';
 export 'src/components/resizable.dart' hide PanelInfo, ResizeResult;
+export 'src/components/reveal_image.dart';
 export 'src/components/scaffold.dart';
 export 'src/components/scroll_area.dart';
 export 'src/components/search_field.dart';

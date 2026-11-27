@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:una/una.dart';
 
-/// The Una mark — a lowercase "u" on a soft tile in the
+/// The Una mark — an uppercase "U" on a soft tile in the
 /// theme's primary colour — and, beside it, the wordmark.
 ///
 /// Una is Latin for "one": one letter, one tile. The tile carries a faint
@@ -98,7 +98,7 @@ class UnaLogo extends StatelessWidget {
 
 /// Paints the Una mark into its whole box: the tile in [color] with a
 /// sheen from the top, corners [radius] of the side (0 for a square that
-/// a platform masks itself), and the "u" in [ink] at [glyph] of the side.
+/// a platform masks itself), and the "U" in [ink] at [glyph] of the side.
 class UnaMarkPainter extends CustomPainter {
   const UnaMarkPainter({
     required this.color,
@@ -148,24 +148,23 @@ class UnaMarkPainter extends CustomPainter {
       )
       ..restore();
 
-    // The "u": one stroke on a 24-unit grid, centred in [glyph] of the tile.
+    // The "U": one stroke on a 24-unit grid, centred in [glyph] of the tile.
     final unit = side * glyph / 24;
     canvas
       ..save()
       ..translate(side * (1 - glyph) / 2, side * (1 - glyph) / 2)
       ..scale(unit);
-    // A lowercase "u": a bowl, and its right stem running on down as the
-    // letter's tail.
+    // Two stems from the cap height, joined by a round bowl: as tall as
+    // the lowercase letter's stem and tail were, centred on the grid.
     final u = Path()
-      ..moveTo(7, 6)
-      ..lineTo(7, 12)
+      ..moveTo(7, 5.5)
+      ..lineTo(7, 13.5)
       ..arcToPoint(
-        const Offset(17, 12),
+        const Offset(17, 13.5),
         radius: const Radius.circular(5),
         clockwise: false,
       )
-      ..moveTo(17, 6)
-      ..lineTo(17, 18);
+      ..lineTo(17, 5.5);
     canvas
       ..drawPath(
         u,

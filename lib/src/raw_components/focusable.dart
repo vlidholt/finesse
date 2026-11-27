@@ -1,8 +1,10 @@
 import 'package:flutter/widgets.dart';
+import 'package:una/src/utils/focus_visibility.dart';
 
 /// Builds a widget from the focus state of a [Focusable].
 ///
-/// [focused] is true while the node has focus. [child] is the
+/// [focused] is true while the node has focus (and, with
+/// [Focusable.visibleOnly], while the focus is shown). [child] is the
 /// [Focusable.child], passed through so it does not rebuild.
 typedef FocusWidgetBuilder = Widget Function(
   BuildContext context,
@@ -26,6 +28,7 @@ class Focusable extends StatefulWidget {
     this.descendantsAreFocusable,
     this.descendantsAreTraversable,
     this.includeSemantics = true,
+    this.visibleOnly = false,
     this.debugLabel,
   });
 
@@ -65,6 +68,17 @@ class Focusable extends StatefulWidget {
   /// Whether the node adds focus semantics. Defaults to true.
   final bool includeSemantics;
 
+  /// Whether [builder] is told the node is focused only while the focus
+  /// manager shows focus: after a key, and not after a click, as CSS's
+  /// `:focus-visible` does (see `FocusVisibility`).
+  ///
+  /// For a control a click operates (a select's trigger, a checkbox, a
+  /// switch), whose ring would otherwise stay on after the click that
+  /// chose — and after a click elsewhere, since a click on nothing does
+  /// not move the focus. A text field shows its focus either way.
+  /// [onFocusChange] still reports the focus itself.
+  final bool visibleOnly;
+
   /// A label for the focus node in debug output.
   final String? debugLabel;
 
@@ -86,10 +100,41 @@ class _FocusableState extends State<Focusable> {
     isFocused
       ..value = focusNode.hasFocus
       ..addListener(onFocusChange);
+    _syncListening();
+  }
+
+  bool get _shown =>
+      !widget.visibleOnly ||
+      FocusManager.instance.highlightMode == FocusHighlightMode.traditional;
+
+  void _onHighlightMode(FocusHighlightMode mode) {
+    if (mounted && isFocused.value) setState(() {});
+  }
+
+  bool _listening = false;
+
+  void _syncListening() {
+    if (widget.visibleOnly == _listening) return;
+    _listening = widget.visibleOnly;
+    if (_listening) {
+      FocusVisibility.ensureInstalled();
+      FocusManager.instance.addHighlightModeListener(_onHighlightMode);
+    } else {
+      FocusManager.instance.removeHighlightModeListener(_onHighlightMode);
+    }
+  }
+
+  @override
+  void didUpdateWidget(Focusable oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _syncListening();
   }
 
   @override
   void dispose() {
+    if (_listening) {
+      FocusManager.instance.removeHighlightModeListener(_onHighlightMode);
+    }
     isFocused.removeListener(onFocusChange);
     _internal?.dispose();
     isFocused.dispose();
@@ -116,7 +161,7 @@ class _FocusableState extends State<Focusable> {
       child: ValueListenableBuilder(
         valueListenable: isFocused,
         builder: (context, value, child) =>
-            widget.builder(context, value, child),
+            widget.builder(context, value && _shown, child),
         child: widget.child,
       ),
     );

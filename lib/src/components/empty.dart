@@ -155,7 +155,7 @@ class Empty extends StatelessWidget {
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                         color: theme.colorScheme.muted,
-                        borderRadius: theme.radii.lg,
+                        borderRadius: theme.cornerRadius(theme.radii.lg),
                       ),
                       child: IconTheme(
                         data: IconThemeData(

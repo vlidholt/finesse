@@ -1823,7 +1823,8 @@ class _BoardState<T extends Object> extends State<Board<T>>
     final motion = Motion.of(context);
     final direction = Directionality.of(context);
     final columnColor = board.columnColor ?? scheme.muted;
-    final itemRadius = board.itemBorderRadius ?? theme.radii.xl;
+    final itemRadius =
+        board.itemBorderRadius ?? theme.cornerRadius(theme.radii.xl);
     final small = theme.textTheme.small;
 
     MotionSpring spring(MotionSpring? own, MotionSpring fallback) =>
@@ -1844,7 +1845,8 @@ class _BoardState<T extends Object> extends State<Board<T>>
       footerPadding:
           (board.footerPadding ?? const EdgeInsets.fromLTRB(8, 0, 8, 8))
               .resolve(direction),
-      columnRadius: board.columnBorderRadius ?? theme.radii.xl2,
+      columnRadius:
+          board.columnBorderRadius ?? theme.cornerRadius(theme.radii.xl2),
       columnColor: columnColor,
       columnBorderColor: board.columnBorderColor ?? const Color(0x00000000),
       targetColumnColor: board.targetColumnColor ?? columnColor,

@@ -734,6 +734,16 @@ was measured from (Strand, until it moved), is its own repository,
   `bottomNavigationRimOpacity` (each with a `Dark` twin).
 - `UnaLocalizations` strings for every new widget, in English; the
   other 81 locales fall back to it.
+- **`RevealImage`** (`.network`, `.asset`): a placeholder while the
+  picture loads, then Material's exposure reveal — a quick fade, an
+  over-exposed and colourless start that settles into its exposure and
+  then its colour — or a plain fade (`ImageReveal.fade`). A picture
+  already in the cache shows at once; `RevealImage.precache` and
+  `precacheNetwork` put one there ahead of time.
+- `ThemeData.cornerRadius`: a radius for a surface no component theme
+  covers, square under a style whose cards are square.
+- `Focusable.visibleOnly`: the focus reported only while focus shows
+  (after a key, not a click).
 
 ### Fixed
 
@@ -898,3 +908,17 @@ From the component review:
 - **Example.** Previews stand on a card, the browser's own context menu
   is off on the web, and a docs page runs on under the floating bottom
   bar on a phone.
+- **A select, checkbox, radio, switch, slider or sidebar row shows its
+  focus ring only after a key**, not after the click that chose: the
+  select's trigger kept its ring after an option was picked, and after a
+  click elsewhere.
+- **Every slider on Liquid Glass.** A range slider, a slider with its
+  value bubble always shown or with division marks draws the package's
+  capsule thumb, which swells into a lens while held, as the plain slider
+  does.
+- **The `sharp` look's stat tiles, icon tiles, board cards and empty-state
+  icons are square** like the rest of its surfaces.
+- **Example.** A Demos menu beside the logo links the four apps built
+  with una; the mark is an uppercase U; the theme editor's look tiles show
+  the shape alone, and it offers three more colours (Lime, Citron, Grape);
+  the showcase's photographs develop in with `RevealImage`.

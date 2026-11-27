@@ -337,7 +337,9 @@ a description, then every example's real source. Regenerate with
 - [Avatar](components/avatar.md), [Avatar Group](components/avatar-group.md),
   [Badge](components/badge.md) (a static label),
   [Indicator Badge](components/indicator-badge.md) (a count on a corner),
-  [Icon Tile](components/icon-tile.md) (and `StatTile`).
+  [Icon Tile](components/icon-tile.md) (and `StatTile`),
+  [Reveal Image](components/reveal-image.md) (a picture that develops in
+  as it loads).
 - [Alert](components/alert.md), [Empty](components/empty.md) (empty,
   loading and error states), [License Page](components/license-page.md).
 

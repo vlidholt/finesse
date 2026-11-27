@@ -371,6 +371,7 @@ class _SwitchState extends State<Switch> with SingleTickerProviderStateMixin {
               },
           },
           child: Focusable(
+            visibleOnly: true,
             autofocus: widget.autofocus,
             onFocusChange: widget.onFocusChange,
             focusNode: focusNode,

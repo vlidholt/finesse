@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:example/common/app_state.dart';
+import 'package:example/common/demos_menu.dart';
 import 'package:example/common/theme_editor/customizer_panel.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/una_logo.dart';
@@ -437,7 +438,11 @@ class ComponentsSection extends StatelessWidget {
           ],
           // Leading, not the title: a phone's bar keeps the leading widget
           // and its actions only.
-          leading: const UnaLogo(),
+          leading: const Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 12,
+            children: [UnaLogo(), DemosMenu()],
+          ),
           actions: const [
             _ThemeModeButton(),
             _DirectionButton(),

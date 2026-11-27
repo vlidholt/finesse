@@ -209,6 +209,7 @@ HoverCard
 IconButton
 IconTile
 IconTileTheme
+ImageReveal
 IndicatorBadge
 IndicatorBadgeTheme
 InputDecorator
@@ -339,6 +340,7 @@ ResizableTheme
 ResponsiveBuilder
 ResponsiveWidgetBuilder
 RestorableTabsController
+RevealImage
 RoseColorScheme
 RoundedSuperellipseBorderExt
 RovingFocus

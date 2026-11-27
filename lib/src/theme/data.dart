@@ -1007,6 +1007,13 @@ class ThemeData extends BaseTheme with _$ThemeData {
   /// proportion.
   Radii get radii => variant.radii;
 
+  /// [radius] for a rounded surface no component theme covers (a stat
+  /// tile, an icon tile, a board card), or square corners under a style
+  /// whose surfaces are square (`sharp`, whose `cardRadius` is
+  /// [RadiusToken.none]).
+  BorderRadius cornerRadius(BorderRadius radius) =>
+      style.cardRadius == RadiusToken.none ? BorderRadius.zero : radius;
+
   /// The shadcn/ui style this theme renders.
   /// The style's metrics for this theme's [formFactor]. Components read
   /// this.

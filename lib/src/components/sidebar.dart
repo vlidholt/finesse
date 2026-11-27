@@ -1410,6 +1410,7 @@ class _SidebarMenuButtonState extends State<SidebarMenuButton> {
     }
 
     Widget button = Focusable(
+      visibleOnly: true,
       canRequestFocus: widget.enabled,
       focusNode: widget.focusNode,
       builder: (context, focused, child) {
@@ -1729,6 +1730,7 @@ class _SidebarMenuSubButtonState extends State<SidebarMenuSubButton> {
       button: true,
       selected: widget.selected,
       child: Focusable(
+        visibleOnly: true,
         focusNode: widget.focusNode,
         builder: (context, focused, child) {
           return Decorator(

@@ -326,6 +326,13 @@ void main() {
       );
 
       // Focus the radio
+      // The ring is focus made visible: it shows after a key, as here.
+      FocusManager.instance.highlightStrategy =
+          FocusHighlightStrategy.alwaysTraditional;
+      addTearDown(
+        () => FocusManager.instance.highlightStrategy =
+            FocusHighlightStrategy.automatic,
+      );
       focusNode.requestFocus();
       await tester.pumpAndSettle();
 

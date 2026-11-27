@@ -2368,7 +2368,9 @@ class DefaultThemeVariant extends ThemeVariant {
     return IconTileTheme(
       size: scaled(40),
       iconSize: scaled(22),
-      borderRadius: radii.lg,
+      borderRadius: style.cardRadius == RadiusToken.none
+          ? BorderRadius.zero
+          : radii.lg,
       backgroundColor: colorScheme.accent,
       foregroundColor: colorScheme.tint,
     );
