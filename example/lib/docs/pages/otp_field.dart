@@ -1,6 +1,7 @@
 import 'package:example/docs/docs.dart';
 import 'package:example/docs/examples/otp_field/otp_field_basic.dart';
 import 'package:example/docs/examples/otp_field/otp_field_controlled.dart';
+import 'package:example/docs/examples/otp_field/otp_field_pin.dart';
 
 final otpFieldDoc = ComponentDoc(
   slug: 'otp_field',
@@ -25,6 +26,15 @@ final otpFieldDoc = ComponentDoc(
           'edit it does not hand back is undone. `onCompleted` fires when '
           'the last empty slot is filled.',
       builder: (_) => const OtpFieldControlledExample(),
+    ),
+    ComponentExample(
+      id: 'otp_field_pin',
+      title: 'PIN',
+      description:
+          'With `obscureText` a filled slot shows a dot, as a PIN is '
+          'entered; the digits are still what `onChanged` and '
+          '`onCompleted` report.',
+      builder: (_) => const OtpFieldPinExample(),
     ),
   ],
 );

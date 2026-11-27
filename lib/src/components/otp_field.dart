@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:una/src/components/disabled.dart';
 import 'package:una/src/components/text_field.dart';
 import 'package:una/src/theme/components/decorator.dart';
+import 'package:una/src/theme/motion.dart';
 import 'package:una/src/theme/theme.dart';
 import 'package:una/src/utils/border.dart';
 import 'package:una/src/utils/provider.dart';
@@ -61,6 +62,7 @@ class OtpField extends StatefulWidget {
     this.inputFormatters,
     this.keyboardType,
     this.autofillHints = const [AutofillHints.oneTimeCode],
+    this.obscureText = false,
   }) : assert(
          value == null || initialValue == null,
          'Give an OtpField a value (controlled) or an initialValue '
@@ -142,6 +144,13 @@ class OtpField extends StatefulWidget {
   /// out.
   /// {@endtemplate}
   final Iterable<String> autofillHints;
+
+  /// {@template OtpField.obscureText}
+  /// Whether a filled slot shows a dot in place of its character, as a PIN
+  /// is entered. The character is still what [onChanged] reports. Defaults
+  /// to false.
+  /// {@endtemplate}
+  final bool obscureText;
 
   @override
   State<OtpField> createState() => _OtpFieldState();
@@ -859,87 +868,128 @@ class _OtpFieldSlotState extends State<OtpFieldSlot> {
           )
         : effectiveDecoration;
 
+    final obscure = otpProvider.widget.obscureText;
+    // An obscured slot keeps its character in the field — the caret, the
+    // selection and the input connection are unchanged — and draws it
+    // unseen, with a dot over it while it holds one. `obscureText` on the
+    // field itself would draw the empty slot's placeholder as a dot too.
+    final fieldStyle = obscure
+        ? defaultStyle.copyWith(color: const Color(0x00000000))
+        : defaultStyle;
+    Widget slot = TextField(
+      focusNode: focusNode,
+      controller: controller,
+      decoration: inputDecoration,
+      textAlign: TextAlign.center,
+      // RenderEditable reserves `cursorWidth + 1` at the right edge of the
+      // line for the caret (regardless of text direction), so centred text
+      // sits half of that left of centre — visible in a slot this narrow.
+      // Reserving the same amount on the left recentres the glyph on the
+      // slot's midline.
+      inputPadding: EdgeInsets.only(
+        left: (theme.textFieldTheme.cursorWidth ?? 2.0) + 1,
+      ),
+      textInputAction: widget.textInputAction,
+      onChanged: (v) {
+        // sanitize the text and format it
+        var sanitizedV = v.replaceAll(kInvisibleCharCode, '');
+        final result = TextEditingValue(text: sanitizedV);
+        final formattedValue = effectiveInputFormatters.fold<TextEditingValue>(
+          result,
+          (TextEditingValue newValue, TextInputFormatter formatter) =>
+              formatter.formatEditUpdate(result, newValue),
+        );
+
+        final hasBeenFormatted = formattedValue.text != sanitizedV;
+        sanitizedV = formattedValue.text;
+
+        final previousText = controller.previousValue?.text ?? '';
+        // In a slot that already held a character, what counts is what
+        // was added to it, before or after.
+        final held = previousText.replaceAll(kInvisibleCharCode, '');
+        if (held.isNotEmpty && sanitizedV.length > held.length) {
+          if (sanitizedV.startsWith(held)) {
+            sanitizedV = sanitizedV.substring(held.length);
+          } else if (sanitizedV.endsWith(held)) {
+            sanitizedV = sanitizedV.substring(
+              0,
+              sanitizedV.length - held.length,
+            );
+          }
+        }
+
+        if (sanitizedV.characters.length > 1) {
+          // A pasted or autofilled code. A whole one starts at the first
+          // slot wherever the caret was; a shorter one where it was put.
+          final whole =
+              sanitizedV.characters.length >= otpProvider.widget.maxLength;
+          otpProvider.spread(sanitizedV, from: whole ? 0 : index);
+        } else {
+          if (sanitizedV.isEmpty) {
+            controller.text = kInvisibleCharCode;
+            // Jump to the previous slot only if the formatter was not
+            // applied
+            if (!hasBeenFormatted) {
+              otpProvider.jumpToPreviousSlot(
+                clear: previousText == kInvisibleCharCode,
+              );
+            }
+          } else {
+            controller.value = controller.value.copyWith(
+              text: sanitizedV,
+              selection: TextSelection.collapsed(offset: sanitizedV.length),
+              composing: TextRange.empty,
+            );
+            otpProvider.jumpToNextSlot();
+          }
+          otpProvider.settle();
+        }
+      },
+      autofillHints: otpProvider.widget.autofillHints,
+      maxLength: otpProvider.widget.maxLength + 1,
+      maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
+      padding: effectivePadding,
+      style: fieldStyle,
+      keyboardType: effectiveKeyboardType,
+      keyboardToolbarBuilder: widget.keyboardToolbarBuilder,
+    );
+    if (obscure) {
+      final dotSize = (defaultStyle.fontSize ?? 14) * .5 * textScale;
+      slot = Stack(
+        fit: StackFit.expand,
+        children: [
+          slot,
+          IgnorePointer(
+            child: ValueListenableBuilder<TextEditingValue>(
+              valueListenable: controller,
+              builder: (context, value, _) {
+                final filled = value.text
+                    .replaceAll(kInvisibleCharCode, '')
+                    .isNotEmpty;
+                return Center(
+                  child: AnimatedScale(
+                    scale: filled ? 1 : 0,
+                    duration: Motion.of(context).fast,
+                    child: Container(
+                      width: dotSize,
+                      height: dotSize,
+                      decoration: BoxDecoration(
+                        color: defaultStyle.color,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      );
+    }
     return SizedBox(
       width: effectiveWidth,
       height: effectiveHeight,
-      child: TextField(
-        focusNode: focusNode,
-        controller: controller,
-        decoration: inputDecoration,
-        textAlign: TextAlign.center,
-        // RenderEditable reserves `cursorWidth + 1` at the right edge of the
-        // line for the caret (regardless of text direction), so centred text
-        // sits half of that left of centre — visible in a slot this narrow.
-        // Reserving the same amount on the left recentres the glyph on the
-        // slot's midline.
-        inputPadding: EdgeInsets.only(
-          left: (theme.textFieldTheme.cursorWidth ?? 2.0) + 1,
-        ),
-        textInputAction: widget.textInputAction,
-        onChanged: (v) {
-          // sanitize the text and format it
-          var sanitizedV = v.replaceAll(kInvisibleCharCode, '');
-          final result = TextEditingValue(text: sanitizedV);
-          final formattedValue = effectiveInputFormatters
-              .fold<TextEditingValue>(
-                result,
-                (TextEditingValue newValue, TextInputFormatter formatter) =>
-                    formatter.formatEditUpdate(result, newValue),
-              );
-
-          final hasBeenFormatted = formattedValue.text != sanitizedV;
-          sanitizedV = formattedValue.text;
-
-          final previousText = controller.previousValue?.text ?? '';
-          // In a slot that already held a character, what counts is what
-          // was added to it, before or after.
-          final held = previousText.replaceAll(kInvisibleCharCode, '');
-          if (held.isNotEmpty && sanitizedV.length > held.length) {
-            if (sanitizedV.startsWith(held)) {
-              sanitizedV = sanitizedV.substring(held.length);
-            } else if (sanitizedV.endsWith(held)) {
-              sanitizedV = sanitizedV.substring(
-                0,
-                sanitizedV.length - held.length,
-              );
-            }
-          }
-
-          if (sanitizedV.characters.length > 1) {
-            // A pasted or autofilled code. A whole one starts at the first
-            // slot wherever the caret was; a shorter one where it was put.
-            final whole =
-                sanitizedV.characters.length >= otpProvider.widget.maxLength;
-            otpProvider.spread(sanitizedV, from: whole ? 0 : index);
-          } else {
-            if (sanitizedV.isEmpty) {
-              controller.text = kInvisibleCharCode;
-              // Jump to the previous slot only if the formatter was not
-              // applied
-              if (!hasBeenFormatted) {
-                otpProvider.jumpToPreviousSlot(
-                  clear: previousText == kInvisibleCharCode,
-                );
-              }
-            } else {
-              controller.value = controller.value.copyWith(
-                text: sanitizedV,
-                selection: TextSelection.collapsed(offset: sanitizedV.length),
-                composing: TextRange.empty,
-              );
-              otpProvider.jumpToNextSlot();
-            }
-            otpProvider.settle();
-          }
-        },
-        autofillHints: otpProvider.widget.autofillHints,
-        maxLength: otpProvider.widget.maxLength + 1,
-        maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
-        padding: effectivePadding,
-        style: defaultStyle,
-        keyboardType: effectiveKeyboardType,
-        keyboardToolbarBuilder: widget.keyboardToolbarBuilder,
-      ),
+      child: slot,
     );
   }
 }

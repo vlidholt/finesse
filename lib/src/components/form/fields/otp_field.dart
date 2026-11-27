@@ -59,6 +59,9 @@ class OtpFormField extends UnaFormField<String> {
     /// {@macro OtpField.autofillHints}
     Iterable<String> autofillHints = const [AutofillHints.oneTimeCode],
 
+    /// {@macro OtpField.obscureText}
+    bool obscureText = false,
+
     /// {@macro OtpField.onCompleted}
     ValueChanged<String>? onCompleted,
   }) : super(
@@ -78,6 +81,7 @@ class OtpFormField extends UnaFormField<String> {
              maxLength: maxLength,
              jumpToNextWhenFilled: jumpToNextWhenFilled,
              autofillHints: autofillHints,
+             obscureText: obscureText,
              onChanged: state.didChange,
              onCompleted: onCompleted,
              // The form field's state holds the value, so that a reset or
