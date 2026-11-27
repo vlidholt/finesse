@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:una/src/components/popover.dart';
 import 'package:una/src/raw_components/portal.dart';
 import 'package:una/src/theme/theme.dart';
+import 'package:una/src/utils/focus_visibility.dart';
 import 'package:una/src/utils/route_on_top.dart';
 
 /// {@template HoverCard}
@@ -127,6 +128,9 @@ class _HoverCardState extends State<HoverCard> {
   @override
   void initState() {
     super.initState();
+    // Keyboard focus is told from a click's by the highlight mode, which
+    // follows the pointer only once this is installed.
+    FocusVisibility.ensureInstalled();
     _controller.addListener(_onOpenChanged);
   }
 
