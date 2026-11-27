@@ -48,7 +48,7 @@ Future<void> settle(WidgetTester tester, {int frames = 12}) async {
 Future<void> pumpApp(
   WidgetTester tester, {
   Size size = desktopSize,
-  AppSection startOn = AppSection.components,
+  AppSection startOn = AppSection.introduction,
   bool openEditor = false,
 }) async {
   tester.view.physicalSize = size;

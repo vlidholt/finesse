@@ -31,7 +31,7 @@ class ThemeCustomizerPanel extends StatelessWidget {
     required this.onChanged,
     this.brightness = Brightness.light,
     this.formFactor = FormFactor.desktop,
-    this.showLeadingBorder = true,
+    this.docked = true,
     this.onClose,
   });
 
@@ -43,9 +43,11 @@ class ThemeCustomizerPanel extends StatelessWidget {
   final Brightness brightness;
   final FormFactor formFactor;
 
-  /// Drawn when the panel sits beside the app; dropped when it fills a narrow
-  /// viewport and there is nothing to separate it from.
-  final bool showLeadingBorder;
+  /// Whether the panel sits beside the app — a rounded box with a hairline
+  /// all round, which the shell keeps [dockMargin] clear of the window's
+  /// edges — rather than filling a narrow viewport edge to edge, where
+  /// there is nothing to separate it from.
+  final bool docked;
 
   /// When given, the panel opens with a title row and a close button that
   /// calls this. The shell passes it when the panel covers a narrow
@@ -75,6 +77,17 @@ class ThemeCustomizerPanel extends StatelessWidget {
   /// [_chrome] with touch-sized controls, for when the panel covers a phone.
   static final _touchChrome = _chrome.withFormFactor(FormFactor.mobile);
 
+  /// How far the docked panel's box keeps from the window's edges, the bar
+  /// above it and the page beside it.
+  ///
+  /// The panel's own chrome's gap, not the edited theme's: the shell takes
+  /// it out of the page's width before the theme — whose form factor
+  /// follows that width — is chosen.
+  static final double dockMargin = _chrome.layoutTheme.gap(GapSize.md);
+
+  /// The corners of the docked panel's box.
+  static final BorderRadius dockRadius = _chrome.radii.xl;
+
   @override
   Widget build(BuildContext context) {
     return ThemeScope(
@@ -94,49 +107,59 @@ class ThemeCustomizerPanel extends StatelessWidget {
     final theme = Theme.of(context);
     final safeArea = MediaQuery.paddingOf(context);
 
+    final radius = docked ? dockRadius : BorderRadius.zero;
+    // The hairline over the content, so a row scrolled to the edge does
+    // not cover it.
     return DecoratedBox(
+      position: DecorationPosition.foreground,
       decoration: BoxDecoration(
-        color: theme.colorScheme.background,
-        border: showLeadingBorder
-            ? BorderDirectional(
-                start: BorderSide(color: theme.colorScheme.border),
-              )
-            : null,
+        borderRadius: radius,
+        border: docked ? Border.all(color: theme.colorScheme.border) : null,
       ),
-      child: Column(
-        children: [
-          if (onClose != null)
-            Padding(
-              padding: EdgeInsets.fromLTRB(14, 8 + safeArea.top, 8, 0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text('Theme editor', style: theme.textTheme.large),
+      child: ClipRRect(
+        borderRadius: radius,
+        clipBehavior: docked ? Clip.antiAlias : Clip.none,
+        child: ColoredBox(
+          color: theme.colorScheme.background,
+          child: Column(
+            children: [
+              if (onClose != null)
+                Padding(
+                  padding: EdgeInsets.fromLTRB(14, 8 + safeArea.top, 8, 0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Theme editor',
+                          style: theme.textTheme.large,
+                        ),
+                      ),
+                      IconButton.ghost(
+                        icon: const PhosphorIcon(PhosphorIconsRegular.x),
+                        semanticLabel: 'Close the theme editor',
+                        onPressed: onClose,
+                      ),
+                    ],
                   ),
-                  IconButton.ghost(
-                    icon: const PhosphorIcon(PhosphorIconsRegular.x),
-                    semanticLabel: 'Close the theme editor',
-                    onPressed: onClose,
-                  ),
-                ],
+                ),
+              Expanded(
+                child: _Settings(
+                  config: config,
+                  onChanged: onChanged,
+                  brightness: brightness,
+                  formFactor: formFactor,
+                ),
               ),
-            ),
-          Expanded(
-            child: _Settings(
-              config: config,
-              onChanged: onChanged,
-              brightness: brightness,
-              formFactor: formFactor,
-            ),
+              const Divider(margin: EdgeInsets.zero),
+              Padding(
+                padding: EdgeInsets.only(
+                  bottom: onClose == null ? 0 : safeArea.bottom,
+                ),
+                child: _Actions(config: config, onChanged: onChanged),
+              ),
+            ],
           ),
-          const Divider(margin: EdgeInsets.zero),
-          Padding(
-            padding: EdgeInsets.only(
-              bottom: onClose == null ? 0 : safeArea.bottom,
-            ),
-            child: _Actions(config: config, onChanged: onChanged),
-          ),
-        ],
+        ),
       ),
     );
   }

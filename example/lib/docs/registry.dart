@@ -149,6 +149,16 @@ final docGroups = <DocGroup>[
   ),
 ];
 
+/// The component reference: the overview, then every component by
+/// [componentCategories]. The app's top bar calls it "Components" and
+/// everything above it "Introduction".
+///
+/// Looked up rather than declared on its own: the skills generator reads
+/// the pages `docGroups` names from its source.
+final componentsGroup = docGroups.firstWhere(
+  (group) => group.items.contains(overviewDoc),
+);
+
 /// Every component reference page, alphabetical by title.
 ///
 /// The sidebar and the overview show them by [componentCategories], which

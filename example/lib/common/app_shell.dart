@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:example/common/app_state.dart';
-import 'package:example/common/demos_menu.dart';
 import 'package:example/common/theme_editor/customizer_panel.dart';
 import 'package:example/common/theme_editor/editor_config.dart';
 import 'package:example/common/una_logo.dart';
@@ -11,14 +10,30 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_solidart/flutter_solidart.dart';
 import 'package:una/una.dart';
 
-/// The application frame: the page, with the theme customizer docked beside
-/// it when it is open.
+/// The application frame: the app's top bar across the window, the page
+/// under it, and the theme customizer docked beside the page when it is
+/// open.
 ///
-/// The page is a [Navigator] showing the component library and whatever
-/// full-screen routes a docs example pushes on top of it. Because the
-/// navigator is *inside* the frame, such a route covers the library's own
-/// chrome but leaves the editor panel docked, so it can still be re-themed
-/// live.
+/// The page is a [Navigator] showing the app's destinations
+/// ([ComponentsSection]) and whatever full-screen routes a docs example
+/// pushes on top of it. Because the navigator is *inside* the frame, such a
+/// route covers the page — and on a phone the page's own bars — but leaves
+/// the editor panel docked, so it can still be re-themed live, and on a
+/// desktop it leaves the top bar too.
+///
+/// Where the destinations are depends on the layout the page has:
+///
+/// * a desktop layout at its own size: in the shell's top bar, which spans
+///   the window — the logo at its leading edge and the settings at its
+///   trailing one, with the editor open or not — and lies over the page and
+///   the panel's column alike;
+/// * a phone layout, or a desktop one the editor pinned on a page too
+///   narrow for it (scaled down to fit): in the page's own bars, laid out
+///   with the rest of the page.
+///
+/// Docked, the panel is a rounded box under the top bar, clear of the
+/// window's edges by [ThemeCustomizerPanel.dockMargin]. Below
+/// [narrowBreakpoint] it covers the viewport instead.
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
 
@@ -31,6 +46,11 @@ class AppShell extends StatefulWidget {
   static bool docksEditor(double windowWidth) =>
       windowWidth >= narrowBreakpoint;
 
+  /// The width the docked panel takes out of the window: its own, and its
+  /// margin on either side.
+  static double get dockedPanelWidth =>
+      ThemeCustomizerPanel.width + 2 * ThemeCustomizerPanel.dockMargin;
+
   /// The width left for the page in a window [windowWidth] wide.
   ///
   /// `App` picks the theme's form factor from this rather than from the
@@ -38,7 +58,7 @@ class AppShell extends StatefulWidget {
   /// page out for the phone-sized space it actually has.
   static double pageWidth(double windowWidth, {required bool editorOpen}) =>
       editorOpen && docksEditor(windowWidth)
-      ? windowWidth - ThemeCustomizerPanel.width
+      ? windowWidth - dockedPanelWidth
       : windowWidth;
 
   /// The form factor the app is themed for in a window [windowWidth] wide:
@@ -96,11 +116,13 @@ class _AppShellState extends State<AppShell> {
       builder: (context, _) {
         final openSignal = themeEditorOpenProvider.of(context);
         final configSignal = themeConfigProvider.of(context);
-        // Read both here rather than inside the LayoutBuilder below: that
+        final sectionSignal = appSectionProvider.of(context);
+        // Read them here rather than inside the LayoutBuilder below: that
         // callback runs during layout, outside the scope SignalBuilder
         // tracks, so a read in there never subscribes.
         final open = openSignal.value;
         final config = configSignal.value;
+        final section = sectionSignal.value;
 
         ThemeCustomizerPanel panel({
           required bool docked,
@@ -111,7 +133,7 @@ class _AppShellState extends State<AppShell> {
           // The lists of colours and metrics edit what the app shows.
           brightness: theme.brightness,
           formFactor: theme.formFactor,
-          showLeadingBorder: docked,
+          docked: docked,
           // Covering the viewport, it also covers every button that
           // could close it again.
           onClose: docked ? null : () => openSignal.value = false,
@@ -121,7 +143,6 @@ class _AppShellState extends State<AppShell> {
           builder: (context, constraints) {
             final width = constraints.maxWidth;
             final docked = AppShell.docksEditor(width);
-            final media = MediaQuery.of(context);
             final theme = Theme.of(context);
 
             final height = constraints.maxHeight;
@@ -167,72 +188,134 @@ class _AppShellState extends State<AppShell> {
                 config.formFactor == EditorFormFactor.mobile &&
                 areaWidth >= breakpoint;
 
-            var box = Rect.fromLTWH(0, 0, areaWidth, height);
-            var layout = box.size;
-            if (fitsDesktop && areaWidth > 0) {
-              layout = Size(breakpoint, height * breakpoint / areaWidth);
-            } else if (framesPhone) {
-              final frame = Size(
-                AppShell.phoneFrame.width,
-                // A margin above and below, so it reads as a device.
-                math.min(AppShell.phoneFrame.height, math.max(0, height - 32)),
-              );
-              box = Alignment.center.inscribe(frame, box);
-              layout = frame;
-            }
+            // The destinations go in the window's own top bar when the page
+            // is a desktop layout at its own size. A phone layout keeps its
+            // bars, and a scaled-down desktop one its top bar, inside the
+            // page: they are part of what the page previews.
+            final barInShell = isDesktop && !fitsDesktop;
 
-            // The page is always the same child of the Stack, under the
-            // same ancestors, so opening the panel — or framing the page —
-            // never reshapes the element above it. Building it
-            // conditionally instead threw away the docs browser's state —
-            // which read as "the editor does not affect this page", since
-            // it also bounced you back to the first component.
-            return Stack(
-              children: [
-                // What shows around the phone frame.
-                PositionedDirectional(
-                  start: 0,
-                  top: 0,
-                  bottom: 0,
-                  width: areaWidth,
-                  child: ColoredBox(
-                    color: framesPhone
-                        ? theme.colorScheme.muted
-                        : theme.colorScheme.background,
-                  ),
-                ),
-                PositionedDirectional(
-                  start: box.left,
-                  top: box.top,
-                  width: box.width,
-                  height: box.height,
-                  child: _PageFrame(
-                    framed: framesPhone,
-                    layoutSize: layout,
-                    // Breakpoints below read the window width from
-                    // MediaQuery; tell them how wide the page really is.
-                    child: MediaQuery(
-                      data: media.copyWith(size: layout),
-                      child: _PageNavigator(navigatorKey: _navigatorKey),
-                    ),
-                  ),
-                ),
-                // Docked beside the page on a wide window. On a narrow one
-                // it covers the page rather than squeezing it, and carries
-                // its own close button. Always in the stack, after the
-                // page: it slides in and out, and builds nothing while it
-                // is away.
-                PositionedDirectional(
-                  end: 0,
-                  top: 0,
-                  bottom: 0,
-                  width: docked ? ThemeCustomizerPanel.width : width,
-                  child: _SlideFromEnd(
-                    visible: open,
-                    child: panel(docked: docked, theme: theme),
-                  ),
-                ),
-              ],
+            // A scaffold whatever the layout, with the bar or without it,
+            // so the page under it keeps its place in the tree. It lays the
+            // bar over the page and tells the page how far down the bar
+            // reaches, as a page's own scaffold does. The page's own
+            // scaffolds resize for the keyboard; this one does not.
+            return Scaffold(
+              resizeToAvoidBottomInset: false,
+              appBar: barInShell
+                  ? _TopBar(
+                      section: section,
+                      onSelected: (next) => sectionSignal.value = next,
+                    )
+                  : null,
+              body: Builder(
+                builder: (context) {
+                  // Under the bar's inset: the page and the panel keep
+                  // clear of it.
+                  final media = MediaQuery.of(context);
+
+                  var box = Rect.fromLTWH(0, 0, areaWidth, height);
+                  var layout = box.size;
+                  if (fitsDesktop && areaWidth > 0) {
+                    layout = Size(breakpoint, height * breakpoint / areaWidth);
+                  } else if (framesPhone) {
+                    final frame = Size(
+                      AppShell.phoneFrame.width,
+                      // A margin above and below, so it reads as a device.
+                      math.min(
+                        AppShell.phoneFrame.height,
+                        math.max(0, height - 32),
+                      ),
+                    );
+                    box = Alignment.center.inscribe(frame, box);
+                    layout = frame;
+                  }
+
+                  final margin = ThemeCustomizerPanel.dockMargin;
+
+                  // The page is always the same child of the Stack, under
+                  // the same ancestors, so opening the panel — or framing
+                  // the page, or moving the destinations between the top
+                  // bar and the page — never reshapes the element above
+                  // it. Building it conditionally instead threw away the
+                  // docs browser's state — which read as "the editor does
+                  // not affect this page", since it also bounced you back
+                  // to the first component.
+                  return Stack(
+                    children: [
+                      // What shows around the phone frame.
+                      PositionedDirectional(
+                        start: 0,
+                        top: 0,
+                        bottom: 0,
+                        width: areaWidth,
+                        child: ColoredBox(
+                          color: framesPhone
+                              ? theme.colorScheme.muted
+                              : theme.colorScheme.background,
+                        ),
+                      ),
+                      PositionedDirectional(
+                        start: box.left,
+                        top: box.top,
+                        width: box.width,
+                        height: box.height,
+                        child: _PageFrame(
+                          framed: framesPhone,
+                          layoutSize: layout,
+                          // Breakpoints below read the window width from
+                          // MediaQuery; tell them how wide the page really
+                          // is.
+                          child: MediaQuery(
+                            data: media.copyWith(size: layout),
+                            child: ShellBar(
+                              inShell: barInShell,
+                              child: _PageNavigator(
+                                navigatorKey: _navigatorKey,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Docked beside the page on a wide window: a rounded
+                      // box under the top bar, clear of the window's edges.
+                      // On a narrow one it covers the page rather than
+                      // squeezing it, and carries its own close button.
+                      // Always in the stack, after the page: it slides in
+                      // and out, and builds nothing while it is away.
+                      PositionedDirectional(
+                        end: 0,
+                        top: docked ? media.padding.top + margin : 0,
+                        bottom: docked ? media.padding.bottom + margin : 0,
+                        // Docked, its slot runs on to the window's edge, so
+                        // it slides in from there.
+                        width: docked
+                            ? ThemeCustomizerPanel.width + margin
+                            : width,
+                        child: _SlideFromEnd(
+                          visible: open,
+                          child: docked
+                              // In its box nothing has a bar or a notch to
+                              // keep clear of.
+                              ? MediaQuery.removePadding(
+                                  context: context,
+                                  removeTop: true,
+                                  removeBottom: true,
+                                  removeLeft: true,
+                                  removeRight: true,
+                                  child: Padding(
+                                    padding: EdgeInsetsDirectional.only(
+                                      end: margin,
+                                    ),
+                                    child: panel(docked: true, theme: theme),
+                                  ),
+                                )
+                              : panel(docked: false, theme: theme),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
             );
           },
         );
@@ -240,6 +323,73 @@ class _AppShellState extends State<AppShell> {
     );
   }
 }
+
+/// Whether the app's top bar, with the destinations, is the shell's — across
+/// the window — rather than the page's own.
+///
+/// The shell puts this above the page's navigator, so the page's first
+/// route can leave out what the shell already shows.
+class ShellBar extends InheritedWidget {
+  const ShellBar({super.key, required this.inShell, required super.child});
+
+  /// Whether the shell shows the top bar.
+  final bool inShell;
+
+  /// Whether the shell above [context] shows the top bar; false with no
+  /// shell.
+  static bool inShellOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<ShellBar>()?.inShell ?? false;
+
+  @override
+  bool updateShouldNotify(ShellBar oldWidget) => inShell != oldWidget.inShell;
+}
+
+/// The window-wide top bar of a desktop page: the logo at the leading edge,
+/// the destinations, and the settings at the trailing edge.
+class _TopBar extends StatelessWidget {
+  const _TopBar({required this.section, required this.onSelected});
+
+  final AppSection section;
+  final ValueChanged<AppSection> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      // Across the window, not held to the page's measure: the logo and
+      // the settings stay at the window's edges.
+      maxWidth: double.infinity,
+      leading: const UnaLogo(),
+      middle: NavigationBar(
+        destinations: _destinations,
+        selectedIndex: section.index,
+        onDestinationSelected: (index) => onSelected(AppSection.values[index]),
+      ),
+      actions: _actions,
+    );
+  }
+}
+
+/// The app's destinations, in [AppSection] order.
+const _destinations = [
+  NavigationDestination(
+    icon: PhosphorIcon(PhosphorIconsRegular.balloon),
+    selectedIcon: PhosphorIcon(PhosphorIconsFill.balloon),
+    label: 'Showcase',
+  ),
+  NavigationDestination(
+    icon: PhosphorIcon(PhosphorIconsRegular.bookOpen),
+    selectedIcon: PhosphorIcon(PhosphorIconsFill.bookOpen),
+    label: 'Introduction',
+  ),
+  NavigationDestination(
+    icon: PhosphorIcon(PhosphorIconsRegular.squaresFour),
+    selectedIcon: PhosphorIcon(PhosphorIconsFill.squaresFour),
+    label: 'Components',
+  ),
+];
+
+/// The bar's settings: light/dark, text direction and the theme editor.
+const _actions = [_ThemeModeButton(), _DirectionButton(), _ThemeEditorButton()];
 
 /// Slides the editor panel in from the end edge of the window, and out
 /// again, on the theme's surface spring.
@@ -407,66 +557,56 @@ class _CanPopObserver extends NavigatorObserver {
       _update();
 }
 
-/// The component-library browser under a slim app bar: light/dark, text
-/// direction and the theme editor.
+/// The app's destinations — the showcase, and the docs browser on its
+/// introduction or its components — with their bars when the shell does
+/// not show them (see [AppShell]): a phone's app bar and bottom bar, or the
+/// top bar of a desktop layout scaled down to fit.
 class ComponentsSection extends StatelessWidget {
   const ComponentsSection({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // The app's two halves are destinations, as in any app: tabs in the
-    // top bar on a desktop, the floating bar at the bottom on a phone.
+    final inShell = ShellBar.inShellOf(context);
     return SignalBuilder(
       builder: (context, _) {
         final section = appSectionProvider.of(context);
         final current = section.value;
         return NavigationScaffold(
+          // With the bar in the shell, the page has no bars of its own.
+          layout: inShell ? NavigationLayout.bottomBar : NavigationLayout.auto,
+          showMobileAppBar: !inShell,
+          showBottomNavigationBar: !inShell,
           selectedIndex: current.index,
           onDestinationSelected: (index) =>
               section.value = AppSection.values[index],
-          destinations: const [
-            NavigationDestination(
-              icon: PhosphorIcon(PhosphorIconsRegular.sparkle),
-              selectedIcon: PhosphorIcon(PhosphorIconsFill.sparkle),
-              label: 'Showcase',
-            ),
-            NavigationDestination(
-              icon: PhosphorIcon(PhosphorIconsRegular.squaresFour),
-              selectedIcon: PhosphorIcon(PhosphorIconsFill.squaresFour),
-              label: 'Components',
-            ),
-          ],
+          destinations: _destinations,
           // Leading, not the title: a phone's bar keeps the leading widget
           // and its actions only.
-          leading: const Row(
-            mainAxisSize: MainAxisSize.min,
-            spacing: 12,
-            children: [UnaLogo(), DemosMenu()],
-          ),
-          actions: const [
-            _ThemeModeButton(),
-            _DirectionButton(),
-            _ThemeEditorButton(),
-          ],
+          leading: const UnaLogo(),
+          actions: _actions,
           // Both stay built, so switching keeps the page you were on and
           // the showcase's scroll; the hidden one is off stage and its
-          // tickers stop.
+          // tickers stop. Introduction and Components are one docs
+          // browser, which opens the page each stands for.
           body: IndexedStack(
-            index: current.index,
+            index: current.isDocs ? 1 : 0,
             children: [
-              for (final s in AppSection.values)
-                TickerMode(
-                  enabled: s == current,
-                  child: switch (s) {
-                    AppSection.showcase => const ShowcaseScreen(),
-                    // The docs browser fills its box and does not inset
-                    // itself for bars laid over it: it starts below the top
-                    // bar and ends above the bottom one.
-                    AppSection.components => const _UnderBars(
-                      child: ComponentsScreen(),
-                    ),
-                  },
+              TickerMode(
+                enabled: !current.isDocs,
+                child: const ShowcaseScreen(),
+              ),
+              TickerMode(
+                enabled: current.isDocs,
+                // The docs browser fills its box and does not inset itself
+                // for bars laid over it: it starts below the top bar and
+                // ends above the bottom one.
+                child: _UnderBars(
+                  child: ComponentsScreen(
+                    section: current,
+                    onSectionChanged: (next) => section.value = next,
+                  ),
                 ),
+              ),
             ],
           ),
         );

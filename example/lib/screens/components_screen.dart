@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:example/common/app_state.dart';
 import 'package:example/common/page_switch.dart';
 import 'package:example/docs/docs.dart';
 import 'package:example/docs/registry.dart';
@@ -8,18 +9,51 @@ import 'package:una/una.dart';
 
 /// The documentation browser: a [Sidebar] of every doc page next to the
 /// selected page.
+///
+/// It holds two of the app's destinations: the guides
+/// ([AppSection.introduction]) and the component reference
+/// ([AppSection.components]). [section] says which the app's navigation
+/// has selected and [onSectionChanged] reports a page opened in the other.
 class ComponentsScreen extends StatefulWidget {
   const ComponentsScreen({
     super.key,
     this.initialSlug,
-    this.onSelectionChanged,
+    this.section,
+    this.onSectionChanged,
   });
 
+  /// The page to open first. Defaults to the first page of [section]: the
+  /// introduction, or the components' overview.
   final String? initialSlug;
 
-  /// Called with the sidebar group of the newly selected page, so the shell
-  /// can mirror the section in its top navigation.
-  final ValueChanged<DocGroup>? onSelectionChanged;
+  /// The destination the app's navigation has selected.
+  ///
+  /// When it changes to one the open page is not in, the browser opens that
+  /// destination's first page — [introductionDoc] or [overviewDoc] — and
+  /// scrolls the sidebar to its section. A page the destination already
+  /// shows stays open, so coming back from the showcase finds the page you
+  /// left. Null, or [AppSection.showcase] (the browser is hidden), changes
+  /// nothing.
+  final AppSection? section;
+
+  /// Called with the destination of a page the reader opened, from the
+  /// sidebar or the overview, when it is not [section]: the app's
+  /// navigation follows what is shown.
+  final ValueChanged<AppSection>? onSectionChanged;
+
+  /// The destination [slug]'s page is in: a component page, or the
+  /// components' overview, is [AppSection.components]; every other page a
+  /// guide.
+  static AppSection sectionOf(String slug) =>
+      componentsGroup.pages.any((doc) => doc.slug == slug)
+      ? AppSection.components
+      : AppSection.introduction;
+
+  /// The page a destination opens on.
+  static String landingOf(AppSection? section) => switch (section) {
+    AppSection.components => overviewDoc.slug,
+    _ => docGroups.first.items.first.slug,
+  };
 
   @override
   State<ComponentsScreen> createState() => ComponentsScreenState();
@@ -27,7 +61,7 @@ class ComponentsScreen extends StatefulWidget {
 
 class ComponentsScreenState extends State<ComponentsScreen> {
   late String selectedSlug =
-      widget.initialSlug ?? docGroups.first.items.first.slug;
+      widget.initialSlug ?? ComponentsScreen.landingOf(widget.section);
   String query = '';
 
   /// The titles of the component categories folded open in the sidebar:
@@ -63,6 +97,17 @@ class ComponentsScreenState extends State<ComponentsScreen> {
   static final List<ComponentDoc> _sidebarOrder = [
     for (final group in docGroups) ...group.pages,
   ];
+
+  @override
+  void didUpdateWidget(ComponentsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final section = widget.section;
+    if (section == oldWidget.section || section == null || !section.isDocs) {
+      return;
+    }
+    if (ComponentsScreen.sectionOf(selectedSlug) == section) return;
+    open(ComponentsScreen.landingOf(section));
+  }
 
   @override
   void dispose() {
@@ -122,7 +167,8 @@ class ComponentsScreenState extends State<ComponentsScreen> {
         openCategories.add(category.title);
       }
     });
-    widget.onSelectionChanged?.call(selectedGroup);
+    final section = ComponentsScreen.sectionOf(slug);
+    if (section != widget.section) widget.onSectionChanged?.call(section);
   }
 
   /// Opens the page a sidebar row names and, on a phone, puts the sheet

@@ -1901,9 +1901,10 @@ docked beside it. It is what the Pages site
 (<https://vlidholt.github.io/una/>) shows. App-wide state — theme mode,
 text direction, the editor's configuration and whether its panel is open —
 is solidart signals behind disco providers in `common/app_state.dart`,
-provided above `UnaApp`. The shell hosts a nested `Navigator`, so a
-full-screen route a docs example pushes covers the library's bar but not
-the docked editor.
+provided above `UnaApp`. The shell hosts a nested `Navigator` for the
+page, so a full-screen route a docs example pushes covers the page (and
+on a phone the page's bars) but not the docked editor, nor on a desktop
+the window's top bar.
 
 **Demo**, the social-network app that replicates the designs the default
 look was measured from (it was "Strand", in `example/lib/strand/`), is its
@@ -1989,15 +1990,33 @@ come from it.
   configuration: building the same configuration twice must give `==`
   themes, or every rebuild of the shell is a theme change (see "Theme
   equality is load-bearing").
-- **The app opens on the showcase** (`example/lib/showcase/`). Showcase and
-  Components are a `NavigationScaffold`'s destinations — tabs in the top
-  bar on a desktop, the floating bar on a phone (`appSectionProvider`; an
-  `IndexedStack` keeps both, the hidden one under `TickerMode(false)`; the
-  docs browser is inset by the bars, `_UnderBars`, as it does not inset
-  itself), with the editor
-  opening by itself in a window at least 1100 wide. Tests start on the
-  reference with the editor closed: `pumpApp` sets `initialAppSection`
+- **The app opens on the showcase** (`example/lib/showcase/`). Its
+  destinations are `AppSection`'s (`appSectionProvider`): Showcase,
+  Introduction and Components. The last two are one docs browser: the
+  selected one follows the page shown (a guide → Introduction, the
+  overview or a component → Components, reported by
+  `ComponentsScreen.onSectionChanged`), and selecting one whose part the
+  browser is not showing opens its first page — the introduction, or the
+  overview with the sidebar scrolled to the Components group
+  (`ComponentsScreen.section`, acted on in `didUpdateWidget`); one it is
+  showing keeps the page. An `IndexedStack` keeps the showcase and the
+  browser, the hidden one under `TickerMode(false)`; the docs browser is
+  inset by the bars, `_UnderBars`, as it does not inset itself. The editor
+  opens by itself in a window at least 1100 wide. Tests start on the
+  introduction with the editor closed: `pumpApp` sets `initialAppSection`
   and `openEditorOnDesktop` (and puts them back).
+- **Where the bar is follows the page's layout.** A desktop layout at its
+  own size has the destinations in the *shell's* top bar: an `AppBar`
+  with `maxWidth: double.infinity` in a `Scaffold` around the page and
+  the panel, so it spans the window, logo at the leading edge and
+  settings at the trailing one, editor open or not, and lies over both
+  (the page under it, told by the scaffold's padding). A phone layout,
+  and a desktop one pinned on a page too narrow for it (scaled), keep
+  their bars in the page — `ComponentsSection`'s `NavigationScaffold`,
+  told by the `ShellBar` inherited widget above the page's navigator to
+  show none while the shell shows its bar. The shell's `Scaffold` is
+  there with no bar too, so the page keeps its place in the tree; it does
+  not resize for the keyboard (the page's own scaffolds do).
 - **Palettes** (`ColorPalette`): the six schemes and fifteen seeds for
   `ColorScheme.fromSeed`, offered as the Color row's swatches; `seed`
   stands in for `colors` when set, and `neutral` makes the scheme a seeded
@@ -2034,10 +2053,18 @@ come from it.
   the panel's sliders are the package `Slider` with a value bubble while
   dragging, so `picker.dart` imports no Material.
 - `customizer_panel.dart` is the panel; `app_shell.dart` docks it beside the
-  page (`ThemeCustomizerPanel.width`) and lets it cover the viewport below
-  700px, where a docked panel leaves nothing usable.
-- The page is **always** the first child of the shell's `Stack` and `Row`,
-  and the panel is added after it. Building the page conditionally instead
+  page and lets it cover the viewport below 700px, where a docked panel
+  leaves nothing usable. Docked (`ThemeCustomizerPanel(docked: true)`) it
+  is a rounded box (`dockRadius`) under the top bar, `dockMargin` clear of
+  the window's edges and of the page: `AppShell.dockedPanelWidth` (its
+  width and a margin either side) is what `pageWidth` takes out of the
+  window. Both come from the panel's own pinned chrome theme, not the
+  edited one, because the edited theme's form factor is chosen from that
+  width. Its slot runs on to the window's edge, so it slides in from
+  there, and the scaffold's padding is removed inside the box.
+- The page is **always** the same child of the shell's `Stack`, under the
+  same ancestors (the shell's `Scaffold` with or without its bar, the
+  `ShellBar`), and the panel is added after it. Building the page conditionally instead
   reshaped the element above `ComponentsScreen` and threw its `State` away,
   so opening the editor bounced you back to the first component — which
   reads as "the editor does nothing to this page".

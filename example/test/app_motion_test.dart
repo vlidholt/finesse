@@ -155,7 +155,12 @@ void main() {
       _expectMonotone(lefts, reason: 'the panel');
       expect(
         lefts.last,
-        closeTo(desktopSize.width - ThemeCustomizerPanel.width, .5),
+        closeTo(
+          desktopSize.width -
+              ThemeCustomizerPanel.width -
+              ThemeCustomizerPanel.dockMargin,
+          .5,
+        ),
       );
       expect(
         lefts.where((x) => x > lefts.last + 1 && x < lefts.first - 1),
