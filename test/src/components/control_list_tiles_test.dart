@@ -359,17 +359,18 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('rows of a section have hairlines between them and take '
-        'arrow-free Tab order', (tester) async {
+    testWidgets('the rows are one Tab stop, and the arrows choose', (
+      tester,
+    ) async {
       useTraditionalHighlights();
       final seen = <String?>[];
       await pumpUna(
         tester,
         group(selected: 'Everyone', onChanged: seen.add),
       );
+      // The selected row is the stop; the next Tab leaves the group.
       await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
       await tester.pumpAndSettle();
       expect(seen, ['Connections']);
     });
@@ -498,9 +499,10 @@ void main() {
         ),
       );
       expect(dot(tester, 'Connections').visible, isTrue);
+      // Tab lands on the selected row; the arrow before it selects that.
       await tester.sendKeyEvent(LogicalKeyboardKey.tab);
       await tester.pump();
-      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
       await tester.pumpAndSettle();
       expect(dot(tester, 'Everyone').visible, isTrue);
       expect(dot(tester, 'Connections').visible, isFalse);

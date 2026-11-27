@@ -465,12 +465,13 @@ void main() {
         for (final node in sliders)
           node.getSemanticsData().value: node.getSemanticsData(),
       };
-      expect(values['25.0']!.increasedValue, '30.0');
-      expect(values['25.0']!.decreasedValue, '20.0');
+      // Read as how far along the range each thumb is.
+      expect(values['25%']!.increasedValue, '30%');
+      expect(values['25%']!.decreasedValue, '20%');
 
       final owner = tester.binding.pipelineOwner.semanticsOwner!;
       final high = sliders.firstWhere(
-        (node) => node.getSemanticsData().value == '75.0',
+        (node) => node.getSemanticsData().value == '75%',
       );
       owner.performAction(high.id, SemanticsAction.decrease);
       await tester.pump();

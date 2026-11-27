@@ -24,6 +24,7 @@ class LiquidGlassSwitch extends StatelessWidget {
     required this.thumbColor,
     this.focusNode,
     this.autofocus = false,
+    this.semanticLabel,
     super.key,
   });
 
@@ -54,10 +55,16 @@ class LiquidGlassSwitch extends StatelessWidget {
   /// Whether the switch takes the focus when it is first built.
   final bool autofocus;
 
+  /// The switch's name for assistive technology. Null is the package's
+  /// "Switch"; an empty string names it nothing, for a switch whose label
+  /// is merged into it from beside it.
+  final String? semanticLabel;
+
   @override
   Widget build(BuildContext context) {
     return LiquidGlassBridge(
       child: lg.GlassSwitch(
+        semanticLabel: semanticLabel,
         value: value,
         onChanged: onChanged,
         width: width,
@@ -97,6 +104,7 @@ class LiquidGlassSlider extends StatelessWidget {
     this.onChangeEnd,
     this.focusNode,
     this.autofocus = false,
+    this.semanticLabel,
     super.key,
   });
 
@@ -142,6 +150,10 @@ class LiquidGlassSlider extends StatelessWidget {
   /// Whether the slider takes the focus when it is first built.
   final bool autofocus;
 
+  /// The slider's name for assistive technology, on the slider's own node.
+  /// Null is the package's "Slider".
+  final String? semanticLabel;
+
   @override
   Widget build(BuildContext context) {
     // The package's slider is `thumbSize + 16` tall and places its thumb
@@ -170,6 +182,8 @@ class LiquidGlassSlider extends StatelessWidget {
           useOwnLayer: true,
           focusNode: focusNode,
           autofocus: autofocus,
+          // Only ever read out: the package draws no label.
+          label: semanticLabel,
         ),
       ),
     );

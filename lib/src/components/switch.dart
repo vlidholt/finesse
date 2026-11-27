@@ -58,7 +58,8 @@ class Switch extends StatefulWidget {
   /// Whether the switch is enabled and can be interacted with.
   ///
   /// Defaults to true. When disabled, it visually indicates it's inactive and
-  /// ignores user interactions.
+  /// ignores user interactions. A switch with no [onChanged] is disabled
+  /// too.
   /// {@endtemplate}
   final bool enabled;
 
@@ -66,7 +67,8 @@ class Switch extends StatefulWidget {
   /// Callback function invoked when the switch is toggled.
   ///
   /// Provides a boolean value indicating the new state of the switch (true for
-  /// on, false for off).
+  /// on, false for off). Null disables the switch: it is dimmed, takes no
+  /// input and is no Tab stop.
   /// {@endtemplate}
   final ValueChanged<bool>? onChanged;
 
@@ -210,9 +212,15 @@ class _SwitchState extends State<Switch> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
+  /// Whether the switch takes input: [Switch.enabled], and an
+  /// [Switch.onChanged] to report to.
+  bool get _interactive => widget.enabled && widget.onChanged != null;
+
   void onTap() {
+    final onChanged = widget.onChanged;
+    if (!_interactive || onChanged == null) return;
     Haptics.impact(context);
-    widget.onChanged!(!widget.value);
+    onChanged(!widget.value);
     if (!focusNode.hasFocus) {
       FocusScope.of(context).unfocus();
     }
@@ -260,7 +268,9 @@ class _SwitchState extends State<Switch> with SingleTickerProviderStateMixin {
     final switchWidget = liquid
         ? LiquidGlassSwitch(
             value: widget.value,
-            onChanged: widget.enabled ? widget.onChanged : null,
+            onChanged: _interactive ? widget.onChanged : null,
+            // The label beside it names it, merged into one node below.
+            semanticLabel: widget.label == null ? null : '',
             width: effectiveWidth,
             height: effectiveHeight,
             activeColor: effectiveCheckedTrackColor,
@@ -284,52 +294,60 @@ class _SwitchState extends State<Switch> with SingleTickerProviderStateMixin {
             baseDecoration: baseDecoration,
           );
 
-    return Disabled(
-      showForbiddenCursor: true,
-      enabled: widget.enabled,
-      disabledOpacity: 1,
-      child: GestureDetector(
-        // The glass switch takes its own taps and drags.
-        onTap: widget.onChanged == null || liquid ? null : onTap,
-        child: ControlLabelRow(
-          affinity: widget.controlAffinity,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          labelPadding: effectivePadding,
-          control: switchWidget,
-          label: widget.label == null
-              ? null
-              : Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: GestureDetector(
-                        onTap: widget.onChanged == null || !liquid
-                            ? null
-                            : onTap,
-                        child: DefaultTextStyle(
-                          style: theme.textTheme.muted.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: theme.colorScheme.foreground,
+    // One node: the switch, named by its label, with its state, whether or
+    // not it takes input.
+    return MergeSemantics(
+      child: Semantics(
+        enabled: _interactive,
+        toggled: widget.value,
+        child: Disabled(
+          showForbiddenCursor: true,
+          enabled: _interactive,
+          disabledOpacity: 1,
+          child: GestureDetector(
+            // The glass switch takes its own taps and drags.
+            onTap: !_interactive || liquid ? null : onTap,
+            child: ControlLabelRow(
+              affinity: widget.controlAffinity,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              labelPadding: effectivePadding,
+              control: switchWidget,
+              label: widget.label == null
+                  ? null
+                  : Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: GestureDetector(
+                            // The glass switch carries the tap action itself.
+                            excludeFromSemantics: true,
+                            onTap: !_interactive || !liquid ? null : onTap,
+                            child: DefaultTextStyle(
+                              style: theme.textTheme.muted.copyWith(
+                                fontWeight: FontWeight.w500,
+                                color: theme.colorScheme.foreground,
+                              ),
+                              child: widget.label!,
+                            ),
                           ),
-                          child: widget.label!,
                         ),
-                      ),
+                        if (widget.description != null)
+                          MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: DefaultTextStyle(
+                              style: theme.textTheme.muted.fallback(
+                                color: theme.colorScheme.mutedForeground,
+                              ),
+                              child: widget.description!,
+                            ),
+                          ),
+                      ],
                     ),
-                    if (widget.description != null)
-                      MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: DefaultTextStyle(
-                          style: theme.textTheme.muted.fallback(
-                            color: theme.colorScheme.mutedForeground,
-                          ),
-                          child: widget.description!,
-                        ),
-                      ),
-                  ],
-                ),
+            ),
+          ),
         ),
       ),
     );
@@ -357,95 +375,92 @@ class _SwitchState extends State<Switch> with SingleTickerProviderStateMixin {
     final effectiveMargin = margin;
     final effectiveThumbSize = thumbSize;
     final effectiveStretch = stretch;
-    return Semantics(
-      toggled: widget.value,
-      child: Disabled(
-        showForbiddenCursor: true,
-        enabled: widget.enabled,
-        child: CallbackShortcuts(
-          bindings: {
-            for (final trigger in activationKeys)
-              trigger: () {
-                if (!widget.enabled) return;
-                onTap();
-              },
-          },
-          child: Focusable(
-            visibleOnly: true,
-            autofocus: widget.autofocus,
-            onFocusChange: widget.onFocusChange,
-            focusNode: focusNode,
-            builder: (context, focused, child) {
-              // The track's colour follows the thumb: it blends from one
-              // state's to the other's as the thumb crosses.
-              return AnimatedBuilder(
-                animation: _position.animation,
-                builder: (context, child) => Decorator(
-                  focused: focused,
-                  decoration: baseDecoration.copyWith(
-                    color: lerpColorThroughAlpha(
-                      effectiveUncheckedTrackColor,
-                      effectiveCheckedTrackColor,
-                      _position.value.clamp(0.0, 1.0),
-                    ),
+    return Disabled(
+      showForbiddenCursor: true,
+      enabled: _interactive,
+      child: CallbackShortcuts(
+        bindings: {
+          for (final trigger in activationKeys)
+            trigger: () {
+              if (!_interactive) return;
+              onTap();
+            },
+        },
+        child: Focusable(
+          visibleOnly: true,
+          autofocus: widget.autofocus,
+          onFocusChange: widget.onFocusChange,
+          focusNode: focusNode,
+          builder: (context, focused, child) {
+            // The track's colour follows the thumb: it blends from one
+            // state's to the other's as the thumb crosses.
+            return AnimatedBuilder(
+              animation: _position.animation,
+              builder: (context, child) => Decorator(
+                focused: focused,
+                decoration: baseDecoration.copyWith(
+                  color: lerpColorThroughAlpha(
+                    effectiveUncheckedTrackColor,
+                    effectiveCheckedTrackColor,
+                    _position.value.clamp(0.0, 1.0),
                   ),
-                  child: child,
                 ),
                 child: child,
-              );
-            },
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: SizedBox(
-                width: effectiveWidth,
-                height: effectiveHeight,
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Padding(
-                    padding: EdgeInsets.all(effectiveMargin),
-                    child: Row(
-                      textDirection: direction,
-                      children: [
-                        AnimatedBuilder(
-                          animation: _position.animation,
-                          builder: (context, child) {
-                            final t = _position.value;
-                            // Widest mid-travel, round again at either end:
-                            // the thumb stretches as it crosses.
-                            final extra =
-                                effectiveThumbSize *
-                                effectiveStretch *
-                                math.sin(math.pi * t.clamp(0.0, 1.0));
-                            // The stretch stays inside the track: the thumb
-                            // grows towards where it is going.
-                            final dx = (transitionStep - extra) * t;
-                            return Transform.translate(
-                              offset: Offset(
-                                direction == TextDirection.ltr ? dx : -dx,
-                                0,
-                              ),
-                              child: SizedBox(
-                                width: effectiveThumbSize + extra,
-                                height: effectiveThumbSize,
-                                child: child,
-                              ),
-                            );
-                          },
-                          child: Decorator(
-                            decoration: UnaDecoration(
-                              color: effectiveThumbColor,
-                              border: UnaBorder.all(
-                                borderRadius: BorderRadius.circular(
-                                  effectiveThumbSize / 2,
-                                ),
-                                width: 0,
-                              ),
-                              canMerge: false,
+              ),
+              child: child,
+            );
+          },
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: SizedBox(
+              width: effectiveWidth,
+              height: effectiveHeight,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: EdgeInsets.all(effectiveMargin),
+                  child: Row(
+                    textDirection: direction,
+                    children: [
+                      AnimatedBuilder(
+                        animation: _position.animation,
+                        builder: (context, child) {
+                          final t = _position.value;
+                          // Widest mid-travel, round again at either end:
+                          // the thumb stretches as it crosses.
+                          final extra =
+                              effectiveThumbSize *
+                              effectiveStretch *
+                              math.sin(math.pi * t.clamp(0.0, 1.0));
+                          // The stretch stays inside the track: the thumb
+                          // grows towards where it is going.
+                          final dx = (transitionStep - extra) * t;
+                          return Transform.translate(
+                            offset: Offset(
+                              direction == TextDirection.ltr ? dx : -dx,
+                              0,
                             ),
+                            child: SizedBox(
+                              width: effectiveThumbSize + extra,
+                              height: effectiveThumbSize,
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: Decorator(
+                          decoration: UnaDecoration(
+                            color: effectiveThumbColor,
+                            border: UnaBorder.all(
+                              borderRadius: BorderRadius.circular(
+                                effectiveThumbSize / 2,
+                              ),
+                              width: 0,
+                            ),
+                            canMerge: false,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),

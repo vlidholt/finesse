@@ -173,6 +173,8 @@ class _ColorPickerState extends State<ColorPicker> {
           child: _ColorArea(
             hsv: _hsv,
             semanticLabel: l.colorPicker.saturationAndBrightness,
+            saturationLabel: l.colorPicker.saturation,
+            brightnessLabel: l.colorPicker.brightness,
             onChanged: (saturation, value) =>
                 _set(_hsv.withSaturation(saturation).withValue(value)),
           ),
@@ -180,7 +182,7 @@ class _ColorPickerState extends State<ColorPicker> {
         _ColorTrack(
           value: _hsv.hue / 360,
           semanticLabel: l.colorPicker.hue,
-          semanticValue: '${_hsv.hue.round()}°',
+          semanticValue: (t) => '${(t * 360).round()}°',
           thumbColor: HSVColor.fromAHSV(1, _hsv.hue, 1, 1).toColor(),
           gradient: const LinearGradient(
             colors: [
@@ -225,7 +227,7 @@ class _ColorPickerState extends State<ColorPicker> {
             child: _ColorTrack(
               value: value,
               semanticLabel: label,
-              semanticValue: '${byte(value)}',
+              semanticValue: (t) => '${byte(t)}',
               thumbColor: color,
               gradient: LinearGradient(colors: [from, to]),
               onChanged: (t) => _setOpaque(at(t)),
@@ -330,7 +332,7 @@ class _ColorPickerState extends State<ColorPicker> {
             _ColorTrack(
               value: _hsv.alpha,
               semanticLabel: l.colorPicker.opacity,
-              semanticValue: percent(_hsv.alpha),
+              semanticValue: percent,
               thumbColor: _hsv.toColor(),
               checkered: true,
               gradient: LinearGradient(
@@ -495,13 +497,26 @@ class _ColorGridState extends State<_ColorGrid> {
     final theme = Theme.of(context);
     final cell = _ColorGrid.cellOf(widget.selected);
     final rtl = Directionality.of(context) == TextDirection.rtl;
+    // To assistive technology the cells are one list, in reading order:
+    // increase picks the next, decrease the one before, with no action
+    // past either end. A colour that is in no cell starts at the first.
+    const count = _ColorGrid.columns * _ColorGrid.rows;
+    final index = cell == null ? null : cell.$2 * _ColorGrid.columns + cell.$1;
+    final next = index == null ? 0 : index + 1;
+    final previous = index == null ? -1 : index - 1;
+    Color colorOf(int index) => _ColorGrid.colorAt(
+      index % _ColorGrid.columns,
+      index ~/ _ColorGrid.columns,
+    );
     return Semantics(
       label: widget.semanticLabel,
       value: colorToHex(widget.selected),
-      onIncrease: () => _move(1, 0),
-      onDecrease: () => _move(-1, 0),
-      increasedValue: colorToHex(widget.selected),
-      decreasedValue: colorToHex(widget.selected),
+      onIncrease: next < count ? () => widget.onSelected(colorOf(next)) : null,
+      onDecrease: previous >= 0
+          ? () => widget.onSelected(colorOf(previous))
+          : null,
+      increasedValue: next < count ? colorToHex(colorOf(next)) : null,
+      decreasedValue: previous >= 0 ? colorToHex(colorOf(previous)) : null,
       child: Focus(
         onKeyEvent: _onKey,
         onFocusChange: (focused) => setState(() => _focused = focused),
@@ -514,6 +529,8 @@ class _ColorGridState extends State<_ColorGrid> {
               builder: (context, constraints) {
                 final size = constraints.biggest;
                 return GestureDetector(
+                  // The node above is the control: a drag is no scroll.
+                  excludeFromSemantics: true,
                   behavior: HitTestBehavior.opaque,
                   onTapDown: (d) => _pickAt(d.localPosition, size),
                   onPanDown: (d) => _pickAt(d.localPosition, size),
@@ -642,11 +659,15 @@ class _ColorArea extends StatefulWidget {
     required this.hsv,
     required this.onChanged,
     required this.semanticLabel,
+    required this.saturationLabel,
+    required this.brightnessLabel,
   });
 
   final HSVColor hsv;
   final void Function(double saturation, double value) onChanged;
   final String semanticLabel;
+  final String saturationLabel;
+  final String brightnessLabel;
 
   @override
   State<_ColorArea> createState() => _ColorAreaState();
@@ -712,12 +733,50 @@ class _ColorAreaState extends State<_ColorArea> {
     final hsv = widget.hsv;
     final radius = theme.radii.md;
     final thumb = theme.sliderTheme.thumbRadius ?? 10;
+    // A slider has one dimension, so the area is two to assistive
+    // technology, one per axis, as a web colour area is two range inputs.
+    String percent(double v) => '${(v * 100).round()}%';
+    Widget axis({
+      required String label,
+      required double value,
+      required void Function(double next) set,
+    }) {
+      final up = (value + .05).clamp(0.0, 1.0);
+      final down = (value - .05).clamp(0.0, 1.0);
+      return Expanded(
+        child: Semantics(
+          slider: true,
+          label: label,
+          value: percent(value),
+          increasedValue: up != value ? percent(up) : null,
+          decreasedValue: down != value ? percent(down) : null,
+          onIncrease: up != value ? () => set(up) : null,
+          onDecrease: down != value ? () => set(down) : null,
+          child: const SizedBox.expand(),
+        ),
+      );
+    }
+
+    final axes = Positioned.fill(
+      child: Column(
+        children: [
+          axis(
+            label: widget.saturationLabel,
+            value: hsv.saturation,
+            set: (s) => widget.onChanged(s, hsv.value),
+          ),
+          axis(
+            label: widget.brightnessLabel,
+            value: hsv.value,
+            set: (v) => widget.onChanged(hsv.saturation, v),
+          ),
+        ],
+      ),
+    );
     return Semantics(
-      slider: true,
+      container: true,
+      explicitChildNodes: true,
       label: widget.semanticLabel,
-      value:
-          '${(hsv.saturation * 100).round()}%, '
-          '${(hsv.value * 100).round()}%',
       child: Focus(
         canRequestFocus: false,
         skipTraversal: true,
@@ -731,6 +790,8 @@ class _ColorAreaState extends State<_ColorArea> {
             builder: (context, constraints) {
               final size = constraints.biggest;
               return GestureDetector(
+                // The node above is the control: a drag is no scroll.
+                excludeFromSemantics: true,
                 behavior: HitTestBehavior.opaque,
                 // A drag starts where the pointer came down, so the thumb is
                 // taken hold of where it was touched, not past the slop.
@@ -744,6 +805,8 @@ class _ColorAreaState extends State<_ColorArea> {
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
+                    // Nothing painted and nothing hit: only the two nodes.
+                    axes,
                     Positioned.fill(
                       child: DecoratedBox(
                         decoration: BoxDecoration(
@@ -835,7 +898,9 @@ class _ColorTrack extends StatefulWidget {
   final Gradient gradient;
   final Color thumbColor;
   final String semanticLabel;
-  final String semanticValue;
+
+  /// What assistive technology reads for a value of the track.
+  final String Function(double value) semanticValue;
   final bool checkered;
 
   @override
@@ -881,14 +946,17 @@ class _ColorTrackState extends State<_ColorTrack> {
       12,
     );
     final height = math.max(trackHeight, thumb * 2);
+    final value = widget.value;
+    final up = (value + .05).clamp(0.0, 1.0);
+    final down = (value - .05).clamp(0.0, 1.0);
     return Semantics(
       slider: true,
       label: widget.semanticLabel,
-      value: widget.semanticValue,
-      increasedValue: widget.semanticValue,
-      decreasedValue: widget.semanticValue,
-      onIncrease: () => _move(.05),
-      onDecrease: () => _move(-.05),
+      value: widget.semanticValue(value),
+      increasedValue: up != value ? widget.semanticValue(up) : null,
+      decreasedValue: down != value ? widget.semanticValue(down) : null,
+      onIncrease: up != value ? () => widget.onChanged(up) : null,
+      onDecrease: down != value ? () => widget.onChanged(down) : null,
       child: Focus(
         canRequestFocus: false,
         skipTraversal: true,
@@ -920,6 +988,8 @@ class _ColorTrackState extends State<_ColorTrack> {
                 }
 
                 return GestureDetector(
+                  // The node above is the control: a drag is no scroll.
+                  excludeFromSemantics: true,
                   behavior: HitTestBehavior.opaque,
                   dragStartBehavior: DragStartBehavior.down,
                   onTapDown: (details) => press(details.localPosition.dx),

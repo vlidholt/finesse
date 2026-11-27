@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/src/i18n/localizations_delegate.dart';
@@ -93,7 +95,8 @@ class Chip extends StatelessWidget {
   final Widget? deleteIcon;
 
   /// What assistive technology calls the delete button. Defaults to the
-  /// localized "Remove".
+  /// localized "Remove [semanticLabel]", or "Remove" for a chip with no
+  /// [semanticLabel].
   final String? deleteSemanticLabel;
 
   /// Whether a selected chip shows a check before its label. Defaults to
@@ -189,14 +192,20 @@ class Chip extends StatelessWidget {
                   chip.padding ??
                   const EdgeInsets.symmetric(horizontal: 12))
               .resolve(Directionality.of(context));
+      // The room between the cross's target and the chip's end, which the
+      // target takes over: it reaches to the chip's edge.
+      var deleteEnd = 0.0;
       if (onDeleted != null && enabled) {
         // The cross brings its own room: it sits closer to the end than a
         // label would.
         final ltr = Directionality.of(context) == TextDirection.ltr;
-        final end = contentPadding.horizontal / 2 - _deleteInset;
+        deleteEnd = (contentPadding.horizontal / 2 - _deleteInset).clamp(
+          0.0,
+          double.infinity,
+        );
         contentPadding = contentPadding.copyWith(
-          left: ltr ? null : end.clamp(0.0, double.infinity),
-          right: ltr ? end.clamp(0.0, double.infinity) : null,
+          left: ltr ? null : 0,
+          right: ltr ? 0 : null,
         );
       }
       Widget content = Padding(
@@ -222,6 +231,10 @@ class Chip extends StatelessWidget {
                 onDeleted: onDeleted!,
                 icon: deleteIcon,
                 semanticLabel: deleteSemanticLabel,
+                chipLabel: semanticLabel,
+                // Inside the chip's own vertical padding, if it has any.
+                height: math.max(0, effectiveHeight - contentPadding.vertical),
+                end: deleteEnd,
                 size: iconSize,
                 color: foreground,
                 // The chip is the Tab stop when it can take the focus;
@@ -377,6 +390,9 @@ class _ChipDelete extends StatelessWidget {
     required this.onDeleted,
     required this.icon,
     required this.semanticLabel,
+    required this.chipLabel,
+    required this.height,
+    required this.end,
     required this.size,
     required this.color,
     required this.focusable,
@@ -385,6 +401,15 @@ class _ChipDelete extends StatelessWidget {
   final VoidCallback onDeleted;
   final Widget? icon;
   final String? semanticLabel;
+
+  /// The chip's own name, which the button's says it removes.
+  final String? chipLabel;
+
+  /// The chip's height, which the target takes up whole.
+  final double height;
+
+  /// The room from the cross's padding to the chip's end edge.
+  final double end;
   final double size;
   final Color color;
   final bool focusable;
@@ -392,35 +417,49 @@ class _ChipDelete extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final strings = UnaLocalizations.of(context).chip;
     final button = Pressable(
       onPressed: onDeleted,
-      semanticLabel: semanticLabel ?? UnaLocalizations.of(context).chip.remove,
-      // The whole end of the chip is the target; only the disc is drawn.
+      semanticLabel:
+          semanticLabel ??
+          (chipLabel == null
+              ? strings.remove
+              : strings.removeNamed(label: chipLabel!)),
+      // The whole end of the chip is the target, its full height to its
+      // edge; only the disc is drawn.
       builder: (context, states) {
         final active =
             states.contains(WidgetState.hovered) ||
             states.contains(WidgetState.pressed);
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: FocusRing(
-            visible: states.contains(WidgetState.focused),
-            borderRadius: theme.radii.full,
-            child: AnimatedFill(
-              color: active
-                  ? color.withValues(alpha: color.a * .12)
-                  : const Color(0x00000000),
-              borderRadius: theme.radii.full,
-              child: SizedBox.square(
-                dimension: size + 4,
-                child: Center(
-                  child: IconTheme.merge(
-                    data: IconThemeData(
-                      size: size - 4,
-                      color: color.withValues(
-                        alpha: color.a * (active ? 1 : .7),
+        return ConstrainedBox(
+          constraints: BoxConstraints(minHeight: height),
+          // As tall as the chip and no taller, the disc in the middle.
+          child: Align(
+            widthFactor: 1,
+            heightFactor: 1,
+            child: Padding(
+              padding: EdgeInsetsDirectional.only(start: 4, end: 4 + end),
+              child: FocusRing(
+                visible: states.contains(WidgetState.focused),
+                borderRadius: theme.radii.full,
+                child: AnimatedFill(
+                  color: active
+                      ? color.withValues(alpha: color.a * .12)
+                      : const Color(0x00000000),
+                  borderRadius: theme.radii.full,
+                  child: SizedBox.square(
+                    dimension: size + 4,
+                    child: Center(
+                      child: IconTheme.merge(
+                        data: IconThemeData(
+                          size: size - 4,
+                          color: color.withValues(
+                            alpha: color.a * (active ? 1 : .7),
+                          ),
+                        ),
+                        child: icon ?? const PhosphorIcon(PhosphorIconsBold.x),
                       ),
                     ),
-                    child: icon ?? const PhosphorIcon(PhosphorIconsBold.x),
                   ),
                 ),
               ),

@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart' show NumberFormat;
+import 'package:una/src/i18n/localizations_delegate.dart';
 import 'package:una/src/liquid_glass/controls.dart';
 import 'package:una/src/liquid_glass/liquid_glass.dart';
 import 'package:una/src/raw_components/focusable.dart';
@@ -350,9 +352,9 @@ class _SliderState extends State<Slider> {
             widget.thumbColor ?? sliderTheme.thumbColor ?? scheme.background,
         focusNode: widget.focusNode,
         autofocus: widget.autofocus,
+        semanticLabel: widget.semanticLabel,
       );
-      if (widget.semanticLabel == null) return slider;
-      return Semantics(label: widget.semanticLabel, child: slider);
+      return slider;
     }
     final slider = _SliderCore(
       // One thumb: the multi-thumb core collapses to exactly the
@@ -391,9 +393,9 @@ class _SliderState extends State<Slider> {
       semanticFormatter: widget.semanticFormatterCallback == null
           ? null
           : (value, _) => widget.semanticFormatterCallback!(value),
+      semanticLabel: widget.semanticLabel,
     );
-    if (widget.semanticLabel == null) return slider;
-    return Semantics(label: widget.semanticLabel, child: slider);
+    return slider;
   }
 }
 
@@ -612,9 +614,9 @@ class _RangeSliderState extends State<RangeSlider> {
       valueIndicator: widget.valueIndicator,
       valueLabel: widget.valueLabel,
       semanticFormatter: widget.semanticFormatterCallback,
+      semanticLabel: widget.semanticLabel,
     );
-    if (widget.semanticLabel == null) return slider;
-    return Semantics(label: widget.semanticLabel, child: slider);
+    return slider;
   }
 }
 
@@ -653,6 +655,7 @@ class _SliderCore extends StatefulWidget {
     required this.semanticFormatter,
     required this.valueIndicator,
     required this.valueLabel,
+    required this.semanticLabel,
     this.focusNode,
     this.onFocusChange,
   });
@@ -688,6 +691,10 @@ class _SliderCore extends StatefulWidget {
   final String Function(double value, int index)? semanticFormatter;
   final SliderValueIndicator valueIndicator;
   final String Function(double value)? valueLabel;
+
+  /// The slider's name, on every thumb's node; a thumb of several also
+  /// says which it is.
+  final String? semanticLabel;
 
   @override
   State<_SliderCore> createState() => _SliderCoreState();
@@ -892,6 +899,22 @@ class _SliderCoreState extends State<_SliderCore> {
 
     if (index < 0 || index >= widget.values.length) return false;
     var newValue = widget.values[index];
+    // Home and End go to the ends, Page Up and Page Down ten steps, as on
+    // the web; a thumb of several still stops at its neighbour.
+    switch (event.logicalKey) {
+      case LogicalKeyboardKey.home:
+        _updateThumb(index, _min);
+        return true;
+      case LogicalKeyboardKey.end:
+        _updateThumb(index, _max);
+        return true;
+      case LogicalKeyboardKey.pageUp:
+        _updateThumb(index, newValue + _step * 10);
+        return true;
+      case LogicalKeyboardKey.pageDown:
+        _updateThumb(index, newValue - _step * 10);
+        return true;
+    }
     // Right to left, the left arrow points at the far end.
     final towardsEnd = _rtl
         ? LogicalKeyboardKey.arrowLeft
@@ -1063,11 +1086,37 @@ class _SliderCoreState extends State<_SliderCore> {
             theme.sliderTheme.thumbPressScale ??
             1 + (1 - motion.pressScale) * 4;
 
+        final localizations = UnaLocalizations.of(layoutContext);
+        final percent = NumberFormat.percentPattern(
+          Localizations.maybeLocaleOf(layoutContext)?.toLanguageTag(),
+        );
+
+        /// What thumb [index] is called: the slider's name, and which
+        /// thumb it is when there are several.
+        String? thumbLabel(int index) {
+          final name = widget.semanticLabel;
+          if (values.length < 2) return name;
+          final strings = localizations.slider;
+          final thumb = index == 0
+              ? strings.minimum
+              : index == values.length - 1
+              ? strings.maximum
+              : strings.thumb(index: index + 1, count: values.length);
+          return name == null
+              ? thumb
+              : strings.named(label: name, thumb: thumb);
+        }
+
         Widget buildThumb(int index) {
           final value = values[index];
+          // The caller's words, or what the bubble says, or else how far
+          // along the range the thumb is, as the platform sliders read.
           String semanticValue(double value) =>
               widget.semanticFormatter?.call(value, index) ??
-              (widget.valueLabel == null ? value.toString() : _labelOf(value));
+              (widget.valueLabel != null ||
+                      widget.valueIndicator != SliderValueIndicator.never
+                  ? _labelOf(value)
+                  : percent.format(fractionOf(value)));
           final increased = _constrain(index, value + _step);
           final decreased = _constrain(index, value - _step);
           // Radix keeps the thumb inside the slider's bounds
@@ -1085,49 +1134,61 @@ class _SliderCoreState extends State<_SliderCore> {
             key: ValueKey<int>(index),
             left: centre - effectiveThumbRadius,
             top: (effectiveHeight - effectiveThumbRadius * 2) / 2,
-            child: Focusable(
-              visibleOnly: true,
-              focusNode: _focusNodeFor(index),
-              canRequestFocus: widget.enabled,
-              // Only the first thumb reports focus to the caller: it is the
-              // one [Slider.focusNode] addresses.
-              onFocusChange: index == 0 ? widget.onFocusChange : null,
-              autofocus: widget.autofocus && index == 0,
-              onKeyEvent: (node, event) {
-                return _handleKeyEvent(index, event)
-                    ? KeyEventResult.handled
-                    : KeyEventResult.ignored;
-              },
-              builder: (context, focused, child) {
-                final ringVisible =
-                    widget.enabled &&
-                    (focused ||
-                        hoveredThumb == index ||
-                        draggingThumb == index);
-                final bubbleVisible = switch (widget.valueIndicator) {
-                  SliderValueIndicator.never => false,
-                  SliderValueIndicator.always => true,
-                  SliderValueIndicator.whileDragging => ringVisible,
-                };
-                return _SliderValueBubble(
-                  enabled: widget.valueIndicator != SliderValueIndicator.never,
-                  visible: bubbleVisible,
-                  label: _labelOf(value),
-                  child: Semantics(
-                    slider: true,
-                    value: semanticValue(value),
-                    increasedValue: semanticValue(increased),
-                    decreasedValue: semanticValue(decreased),
-                    onIncrease: widget.enabled && increased != value
-                        ? () => _updateThumb(index, increased)
-                        : null,
-                    onDecrease: widget.enabled && decreased != value
-                        ? () => _updateThumb(index, decreased)
-                        : null,
+            // One node per thumb, around its focus: named, with its value
+            // and the actions that change it.
+            child: Semantics(
+              container: true,
+              slider: true,
+              enabled: widget.enabled,
+              label: thumbLabel(index),
+              value: semanticValue(value),
+              increasedValue: increased != value
+                  ? semanticValue(increased)
+                  : null,
+              decreasedValue: decreased != value
+                  ? semanticValue(decreased)
+                  : null,
+              onIncrease: widget.enabled && increased != value
+                  ? () => _updateThumb(index, increased)
+                  : null,
+              onDecrease: widget.enabled && decreased != value
+                  ? () => _updateThumb(index, decreased)
+                  : null,
+              child: Focusable(
+                visibleOnly: true,
+                focusNode: _focusNodeFor(index),
+                canRequestFocus: widget.enabled,
+                // Only the first thumb reports focus to the caller: it is the
+                // one [Slider.focusNode] addresses.
+                onFocusChange: index == 0 ? widget.onFocusChange : null,
+                autofocus: widget.autofocus && index == 0,
+                onKeyEvent: (node, event) {
+                  return _handleKeyEvent(index, event)
+                      ? KeyEventResult.handled
+                      : KeyEventResult.ignored;
+                },
+                builder: (context, focused, child) {
+                  final ringVisible =
+                      widget.enabled &&
+                      (focused ||
+                          hoveredThumb == index ||
+                          draggingThumb == index);
+                  final bubbleVisible = switch (widget.valueIndicator) {
+                    SliderValueIndicator.never => false,
+                    SliderValueIndicator.always => true,
+                    SliderValueIndicator.whileDragging => ringVisible,
+                  };
+                  return _SliderValueBubble(
+                    enabled:
+                        widget.valueIndicator != SliderValueIndicator.never,
+                    visible: bubbleVisible,
+                    label: _labelOf(value),
                     child: SizedBox(
                       width: effectiveThumbRadius * 2,
                       height: effectiveThumbRadius * 2,
                       child: UnaGestureDetector(
+                        // The thumb's node above carries its actions.
+                        excludeFromSemantics: true,
                         mouseCursor: widget.enabled
                             ? effectiveMouseCursor
                             : effectiveDisabledMouseCursor,
@@ -1232,9 +1293,9 @@ class _SliderCoreState extends State<_SliderCore> {
                         ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           );
         }
@@ -1269,6 +1330,9 @@ class _SliderCoreState extends State<_SliderCore> {
               // on the thin track itself.
               Positioned.fill(
                 child: UnaGestureDetector(
+                  // The thumbs' nodes are the slider to assistive
+                  // technology; the track adds an unnamed one otherwise.
+                  excludeFromSemantics: true,
                   behavior: HitTestBehavior.opaque,
                   mouseCursor: widget.enabled
                       ? effectiveMouseCursor

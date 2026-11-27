@@ -92,7 +92,9 @@ class CarouselController extends ChangeNotifier {
 /// page to the first. [autoPlay] moves on by itself every so often; it
 /// waits while the pointer is over the carousel, while the focus is in it
 /// and while it is being touched, and does not run at all when the
-/// platform asks for reduced motion.
+/// platform asks for reduced motion or a screen reader is on. A carousel
+/// that plays by itself shows a pause button in its bottom corner, which
+/// stops it until it is pressed again.
 ///
 /// The carousel fills the space it is given along its [axis], and across
 /// it too unless [height] or [aspectRatio] says how tall (or, for a
@@ -226,6 +228,9 @@ class _CarouselState extends State<Carousel> {
   bool _pressed = false;
   bool _mouse = false;
   Timer? _timer;
+
+  /// Whether the pause button has stopped the auto-play.
+  bool _paused = false;
 
   /// The page view's index a programmatic move is heading for.
   int? _travellingTo;
@@ -376,17 +381,27 @@ class _CarouselState extends State<Carousel> {
 
   // --- Auto-play ------------------------------------------------------------
 
-  bool get _autoPlays {
+  /// Whether the carousel plays by itself at all, paused or not.
+  bool get _canAutoPlay {
     final interval = widget.autoPlay;
     if (interval == null || interval <= Duration.zero) return false;
     if (widget.itemCount < 2) return false;
+    // It moves by itself, which is what reduced motion asks not to happen;
+    // and a page that changes under a screen reader loses its place.
+    return !Motion.of(context).reduced &&
+        !MediaQuery.accessibleNavigationOf(context);
+  }
+
+  bool get _autoPlays {
+    if (!_canAutoPlay || _paused) return false;
     if (_hovered || _focused || _pressed) return false;
     // Not behind another route, nor in a hidden tab.
-    if (!TickerMode.valuesOf(context).enabled || !Visibility.of(context)) {
-      return false;
-    }
-    // It moves by itself, which is what reduced motion asks not to happen.
-    return !Motion.of(context).reduced;
+    return TickerMode.valuesOf(context).enabled && Visibility.of(context);
+  }
+
+  void _togglePaused() {
+    setState(() => _paused = !_paused);
+    _syncAutoPlay();
   }
 
   /// Starts the wait for the next page over, or stops waiting.
@@ -506,6 +521,20 @@ class _CarouselState extends State<Carousel> {
             onPressed: () => _step(1),
           ),
         ],
+        // WCAG 2.2.2: what moves by itself can be stopped.
+        if (_canAutoPlay)
+          PositionedDirectional(
+            end: carousel.indicatorInset ?? 8,
+            bottom: carousel.indicatorInset ?? 8,
+            child: _OverlayButton(
+              icon: _paused
+                  ? PhosphorIconsRegular.play
+                  : PhosphorIconsRegular.pause,
+              label: _paused ? strings.play : strings.pause,
+              size: carousel.arrowSize ?? 36,
+              onPressed: _togglePaused,
+            ),
+          ),
         if (widget.showIndicator && count > 1)
           Positioned(
             left: horizontal ? 0 : null,
@@ -638,42 +667,66 @@ class _ArrowSlot extends StatelessWidget {
                 opacity: visible ? 1 : 0,
                 duration: motion.fast,
                 curve: motion.standard,
-                child: Pressable(
+                child: _OverlayButton(
+                  icon: icon,
+                  label: label,
+                  size: size,
                   onPressed: visible ? onPressed : null,
-                  semanticLabel: label,
-                  builder: (context, states) => FocusRing(
-                    visible: states.contains(WidgetState.focused),
-                    borderRadius: theme.radii.full,
-                    child: DecoratedBox(
-                      position: DecorationPosition.foreground,
-                      decoration: ShadowDecoration.box(
-                        shape: BoxShape.circle,
-                        shadows: theme.style.controlShadow,
-                      ),
-                      child: AnimatedFill(
-                        color: states.contains(WidgetState.hovered)
-                            ? carousel.arrowHoverColor ??
-                                  theme.colorScheme.muted
-                            : carousel.arrowColor ?? theme.colorScheme.popover,
-                        borderColor:
-                            carousel.arrowBorderColor ??
-                            theme.colorScheme.border,
-                        borderRadius: theme.radii.full,
-                        child: SizedBox.square(
-                          dimension: size - 2,
-                          child: Center(
-                            child: PhosphorIcon(
-                              icon,
-                              size: carousel.arrowIconSize ?? 16,
-                              color:
-                                  carousel.arrowForegroundColor ??
-                                  theme.colorScheme.popoverForeground,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A round button laid over the pages: the arrows, and the pause button.
+class _OverlayButton extends StatelessWidget {
+  const _OverlayButton({
+    required this.icon,
+    required this.label,
+    required this.size,
+    required this.onPressed,
+  });
+
+  final IconData icon;
+  final String label;
+  final double size;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final carousel = theme.carouselTheme;
+    return Pressable(
+      onPressed: onPressed,
+      semanticLabel: label,
+      builder: (context, states) => FocusRing(
+        visible: states.contains(WidgetState.focused),
+        borderRadius: theme.radii.full,
+        child: DecoratedBox(
+          position: DecorationPosition.foreground,
+          decoration: ShadowDecoration.box(
+            shape: BoxShape.circle,
+            shadows: theme.style.controlShadow,
+          ),
+          child: AnimatedFill(
+            color: states.contains(WidgetState.hovered)
+                ? carousel.arrowHoverColor ?? theme.colorScheme.muted
+                : carousel.arrowColor ?? theme.colorScheme.popover,
+            borderColor: carousel.arrowBorderColor ?? theme.colorScheme.border,
+            borderRadius: theme.radii.full,
+            child: SizedBox.square(
+              dimension: size - 2,
+              child: Center(
+                child: PhosphorIcon(
+                  icon,
+                  size: carousel.arrowIconSize ?? 16,
+                  color:
+                      carousel.arrowForegroundColor ??
+                      theme.colorScheme.popoverForeground,
                 ),
               ),
             ),

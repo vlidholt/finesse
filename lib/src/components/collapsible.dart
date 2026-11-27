@@ -203,9 +203,13 @@ class _CollapsibleState extends State<Collapsible>
       crossAxisAlignment: effectiveCrossAxisAlignment,
       children: [
         if (widget.trigger != null)
-          Semantics(
-            container: true,
-            child: widget.trigger!(context, open, controller.toggle),
+          // One node: the trigger, saying whether its content is open, as
+          // a disclosure button is announced on the web.
+          MergeSemantics(
+            child: Semantics(
+              expanded: open,
+              child: widget.trigger!(context, open, controller.toggle),
+            ),
           ),
         AnimatedBuilder(
           animation: _sizeFactor,
@@ -223,9 +227,17 @@ class _CollapsibleState extends State<Collapsible>
               child: child!,
             );
           },
-          child: ExcludeSemantics(
+          // Kept while closing (or closed, with maintainState), it is not
+          // there to be used: not a Tab stop, not a target, not read out.
+          child: ExcludeFocus(
             excluding: !open,
-            child: widget.child,
+            child: IgnorePointer(
+              ignoring: !open,
+              child: ExcludeSemantics(
+                excluding: !open,
+                child: widget.child,
+              ),
+            ),
           ),
         ),
       ],
