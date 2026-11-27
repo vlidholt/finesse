@@ -1,5 +1,7 @@
 import 'package:example/common/app_state.dart';
 import 'package:example/showcase/showcase_cards.dart';
+import 'package:example/showcase/showcase_demos.dart';
+import 'package:example/showcase/showcase_layout.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/una.dart';
 
@@ -15,23 +17,40 @@ class ShowcaseScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final gap = theme.layoutTheme.gap(GapSize.lg);
     return ColoredBox(
       color: theme.colorScheme.background,
       child: PageContainer(
         scrollable: true,
         maxWidth: 1280,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const _Hero(),
-            const Gap.xl(),
-            const ShowcaseStats(),
-            const Gap.lg(),
-            const ShowcaseAnalytics(),
-            const Gap.lg(),
-            const _Grid(),
-            const Gap.xl(),
-          ],
+        // One grid for the whole page, so every row lines up with the
+        // columns of the others.
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final columns = ShowcaseColumns.of(constraints.maxWidth, gap);
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(top: gap),
+                  child: ShowcaseHeader(columns: columns, text: const _Hero()),
+                ),
+                const Gap.xl(),
+                ShowcaseMasonry(
+                  columns: columns,
+                  children: showcaseOpeningCards(columns: columns.count),
+                ),
+                SizedBox(height: gap),
+                ShowcaseAnalytics(columns: columns),
+                SizedBox(height: gap),
+                ShowcaseMasonry(
+                  columns: columns,
+                  children: showcaseClosingCards(columns: columns.count),
+                ),
+                const Gap.xl(),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -48,94 +67,50 @@ class _Hero extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final mobile = theme.formFactor == FormFactor.mobile;
-    return Padding(
-      padding: EdgeInsets.only(top: theme.layoutTheme.gap(GapSize.lg)),
-      child: Align(
-        alignment: AlignmentDirectional.centerStart,
-        child: ConstrainedBox(
-          // A measure a headline and a paragraph read well at.
-          constraints: const BoxConstraints(maxWidth: 720),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Interfaces that feel at home, on every screen.',
-                style: (mobile ? theme.textTheme.h2 : theme.textTheme.h1)
-                    .copyWith(color: scheme.foreground),
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: ConstrainedBox(
+        // A measure a headline and a paragraph read well at.
+        constraints: const BoxConstraints(maxWidth: 720),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Interfaces that feel at home, on every screen.',
+              style: (mobile ? theme.textTheme.h2 : theme.textTheme.h1)
+                  .copyWith(color: scheme.foreground),
+            ),
+            const Gap.sm(),
+            Text(
+              'Over a hundred beautifully crafted components that adapt '
+              'seamlessly across desktop, mobile, and web. Liquid Glass on '
+              'Apple platforms. Includes skills for agentic engineering.',
+              style: theme.textTheme.lead.copyWith(
+                color: scheme.mutedForeground,
               ),
-              const Gap.sm(),
-              Text(
-                'Over a hundred components, four looks and any colour you '
-                'like, with a phone layout for each — Liquid Glass on Apple '
-                'platforms, frosted glass everywhere else. Open the theme '
-                'editor and every card below follows.',
-                style: theme.textTheme.lead.copyWith(
-                  color: scheme.mutedForeground,
+            ),
+            const Gap.lg(),
+            Wrap(
+              spacing: theme.layoutTheme.gap(GapSize.sm),
+              runSpacing: theme.layoutTheme.gap(GapSize.sm),
+              children: [
+                Button(
+                  leading: const PhosphorIcon(PhosphorIconsRegular.paintBrush),
+                  onPressed: () =>
+                      themeEditorOpenProvider.of(context).value = true,
+                  child: const Text('Customize the theme'),
                 ),
-              ),
-              const Gap.lg(),
-              Wrap(
-                spacing: theme.layoutTheme.gap(GapSize.sm),
-                runSpacing: theme.layoutTheme.gap(GapSize.sm),
-                children: [
-                  Button(
-                    leading: const PhosphorIcon(
-                      PhosphorIconsRegular.paintBrush,
-                    ),
-                    onPressed: () =>
-                        themeEditorOpenProvider.of(context).value = true,
-                    child: const Text('Customize the theme'),
-                  ),
-                  Button.outline(
-                    onPressed: () => appSectionProvider.of(context).value =
-                        AppSection.components,
-                    child: const Text('Browse components'),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                Button.outline(
+                  onPressed: () => appSectionProvider.of(context).value =
+                      AppSection.components,
+                  child: const Text('Browse components'),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
-    );
-  }
-}
-
-/// The cards, in as many columns as the page has room for, each column
-/// filled in turn so the order reads across.
-class _Grid extends StatelessWidget {
-  const _Grid();
-
-  @override
-  Widget build(BuildContext context) {
-    final gap = Theme.of(context).layoutTheme.gap(GapSize.lg);
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth;
-        final columns = width >= 1040
-            ? 3
-            : width >= 680
-            ? 2
-            : 1;
-        final cards = showcaseCards(columns: columns);
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: gap,
-          children: [
-            for (var c = 0; c < columns; c++)
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: gap,
-                  children: [
-                    for (var i = c; i < cards.length; i += columns) cards[i],
-                  ],
-                ),
-              ),
-          ],
-        );
-      },
     );
   }
 }
