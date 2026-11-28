@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 import 'dart:ui' show ImageFilter;
 
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/src/components/back_button.dart';
@@ -36,32 +35,37 @@ enum AppBarMaterial {
   liquid,
 
   /// A bar that would be Liquid Glass where the renderer has no shader
-  /// filters (the web, Skia): the bar colour at full opacity, with its
-  /// hairline, no blur and no capsules, shown at rest too. The scroll edge
-  /// needs a graduated blur, which only shader filters draw in one pass;
-  /// built from backdrop filters it showed bands, and on an iPhone's
-  /// Safari every one of them is paid on every frame of a scroll.
+  /// filters (every browser), by default: the bar colour at full opacity,
+  /// with its hairline, no blur and no capsules, shown at rest too. The
+  /// scroll edge needs a graduated blur, which only shader filters draw in
+  /// one pass; una's own shader draws it there too, at the cost of a
+  /// snapshot of the page every frame, when the theme asks for it (see
+  /// `LiquidGlassTheme.webScrollEdge`).
   solid,
 }
 
 /// How a bar at the top of the page is drawn in [context], its component
-/// theme saying [mode].
+/// theme (or the bar itself) saying [mode].
 ///
 /// Liquid Glass only at the phone and tablet form factors: a desktop's top
 /// bar is una's own, as a Mac window's toolbar sits on its own material
-/// rather than floating free over the content, unless the bar's own theme
-/// asks for glass with [LiquidGlassMode.always].
+/// rather than floating free over the content, unless the bar asks for
+/// glass with [LiquidGlassMode.always].
+///
+/// Where the renderer has no shader filters — every browser — a bar that
+/// would be Liquid Glass is solid, unless it asks for the glass outright
+/// ([LiquidGlassMode.always]) or the theme's
+/// `LiquidGlassTheme.webScrollEdge` is on: then its scroll edge is una's
+/// own shader over a snapshot of the page.
 AppBarMaterial appBarMaterial(BuildContext context, LiquidGlassMode? mode) {
   if (Theme.of(context).formFactor == FormFactor.desktop &&
       mode != LiquidGlassMode.always) {
     return AppBarMaterial.frosted;
   }
   if (!LiquidGlass.isActive(context, mode)) return AppBarMaterial.frosted;
-  // In a browser the top bar is the filled one unless its theme asks for
-  // glass outright: a page there has no status bar for the capsules to
-  // hang under, and they met the top of the window.
-  if (kIsWeb && mode != LiquidGlassMode.always) return AppBarMaterial.solid;
-  return LiquidGlass.hasShaderFilters
+  if (LiquidGlass.hasShaderFilters) return AppBarMaterial.liquid;
+  return mode == LiquidGlassMode.always ||
+          Theme.of(context).liquidGlass.webScrollEdge
       ? AppBarMaterial.liquid
       : AppBarMaterial.solid;
 }
@@ -72,14 +76,17 @@ bool appBarUsesLiquidGlass(BuildContext context, LiquidGlassMode? mode) =>
     appBarMaterial(context, mode) == AppBarMaterial.liquid;
 
 /// The space above a primary bar's toolbar in [context]: the status bar,
-/// or — for a bar of floating glass where there is none (a browser, a
-/// desktop window, a simulator's frame) — a small margin, so its capsules
-/// do not touch the top of the window as they never touch a phone's
-/// status bar.
+/// or — where there is none (a browser, a desktop window, a phone frame in
+/// a page) — a small margin at the phone and tablet form factors, and for
+/// a bar of floating glass at any: a phone's bar is laid out to sit under
+/// a status bar, and without one its title and buttons met the top of the
+/// window.
 double appBarTopInset(BuildContext context, {required bool liquid}) {
   final top = MediaQuery.paddingOf(context).top;
-  if (!liquid || top > 0) return top;
-  return Theme.of(context).layoutTheme.gap(GapSize.sm);
+  if (top > 0) return top;
+  final theme = Theme.of(context);
+  if (!liquid && theme.formFactor == FormFactor.desktop) return 0;
+  return theme.layoutTheme.gap(GapSize.sm);
 }
 
 /// Whether [leading] is a button, which iOS 26 puts on a capsule of glass:

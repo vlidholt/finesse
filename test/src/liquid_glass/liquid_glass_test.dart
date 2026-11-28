@@ -810,6 +810,8 @@ void main() {
     testWidgets('the scroll edge is the graduated blur, below its box', (
       tester,
     ) async {
+      LiquidGlass.debugHasShaderFilters = true;
+      addTearDown(() => LiquidGlass.debugHasShaderFilters = null);
       await pump(
         tester,
         const Align(

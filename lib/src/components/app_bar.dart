@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/src/components/app_bar_layout.dart';
+import 'package:una/src/liquid_glass/liquid_glass_theme.dart';
 import 'package:una/src/theme/components/app_bar.dart';
 import 'package:una/src/theme/motion.dart';
 import 'package:una/src/theme/theme.dart';
@@ -73,6 +74,7 @@ class AppBar extends StatelessWidget {
     this.gap,
     this.actionsGap,
     this.primary = true,
+    this.liquidGlass,
     super.key,
   });
 
@@ -153,6 +155,17 @@ class AppBar extends StatelessWidget {
   /// the status bar.
   final bool primary;
 
+  /// Whether the bar is Liquid Glass: no fill and no hairline, its buttons
+  /// on capsules of glass, and the page that scrolls under it blurred and
+  /// faded into the page colour. Over `AppBarTheme.liquidGlass`, which is
+  /// over `ThemeData.liquidGlass`.
+  ///
+  /// [LiquidGlassMode.always] asks for the glass on every platform and form
+  /// factor, and in a browser too (see `LiquidGlassTheme.webScrollEdge`
+  /// for what the edge costs there). [LiquidGlassMode.never] keeps una's
+  /// own bar.
+  final LiquidGlassMode? liquidGlass;
+
   /// The height an [AppBar] without a `bottom` takes in [context],
   /// including the status bar when [primary], at the text scale of
   /// [context].
@@ -176,7 +189,7 @@ class AppBar extends StatelessWidget {
       context,
       height ?? bar.height ?? 64,
     );
-    final material = appBarMaterial(context, bar.liquidGlass);
+    final material = appBarMaterial(context, liquidGlass ?? bar.liquidGlass);
     final liquid = material == AppBarMaterial.liquid;
     // Liquid Glass without shader filters: the bar colour, opaque.
     final solid = material == AppBarMaterial.solid;

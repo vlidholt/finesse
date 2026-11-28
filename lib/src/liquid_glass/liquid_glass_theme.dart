@@ -49,6 +49,7 @@ class LiquidGlassTheme {
     this.adaptiveQuality = false,
     this.respectSystemAccessibility = true,
     this.tintFromColorScheme = true,
+    this.webScrollEdge = false,
     this.light,
     this.dark,
   });
@@ -81,6 +82,22 @@ class LiquidGlassTheme {
   /// colour. False keeps the package's own neutral tint.
   final bool tintFromColorScheme;
 
+  /// Whether a Liquid Glass top bar keeps its soft scroll edge where the
+  /// renderer has no shader image filters — every browser.
+  ///
+  /// The edge is the page under the bar blurred more the nearer it is to
+  /// the top and faded into the page colour. On Impeller the package draws
+  /// that graduated blur in one pass. A browser cannot, so there the bar is
+  /// a solid bar by default (false): no blur and no transparency, which
+  /// costs nothing. True draws the edge there as well, with una's own
+  /// shader over a small snapshot of the page under the bar, taken every
+  /// frame the edge shows. That copy of the page is the price: smooth to
+  /// the eye, but more of a phone's frames come late while a page scrolls.
+  ///
+  /// A bar whose own `liquidGlass` is `LiquidGlassMode.always` asks for the
+  /// glass outright and keeps the edge either way.
+  final bool webScrollEdge;
+
   /// Material settings for a light theme, over the package's and the
   /// scheme's. Null fields keep theirs.
   final lg.GlassThemeSettings? light;
@@ -97,6 +114,7 @@ class LiquidGlassTheme {
     bool? adaptiveQuality,
     bool? respectSystemAccessibility,
     bool? tintFromColorScheme,
+    bool? webScrollEdge,
     lg.GlassThemeSettings? light,
     lg.GlassThemeSettings? dark,
   }) {
@@ -108,6 +126,7 @@ class LiquidGlassTheme {
       respectSystemAccessibility:
           respectSystemAccessibility ?? this.respectSystemAccessibility,
       tintFromColorScheme: tintFromColorScheme ?? this.tintFromColorScheme,
+      webScrollEdge: webScrollEdge ?? this.webScrollEdge,
       light: light ?? this.light,
       dark: dark ?? this.dark,
     );
@@ -131,6 +150,7 @@ class LiquidGlassTheme {
           other.adaptiveQuality == adaptiveQuality &&
           other.respectSystemAccessibility == respectSystemAccessibility &&
           other.tintFromColorScheme == tintFromColorScheme &&
+          other.webScrollEdge == webScrollEdge &&
           other.light == light &&
           other.dark == dark;
 
@@ -142,6 +162,7 @@ class LiquidGlassTheme {
     adaptiveQuality,
     respectSystemAccessibility,
     tintFromColorScheme,
+    webScrollEdge,
     light,
     dark,
   );

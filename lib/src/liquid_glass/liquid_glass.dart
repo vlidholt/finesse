@@ -21,6 +21,7 @@ import 'package:una/src/theme/components/button.dart';
 import 'package:una/src/theme/data.dart';
 import 'package:una/src/theme/theme.dart';
 import 'package:una/src/utils/backdrop.dart';
+import 'package:una/src/utils/scroll_edge_shader.dart';
 
 /// Liquid Glass in una: setting it up, and asking whether a component
 /// draws with it.
@@ -53,6 +54,8 @@ abstract final class LiquidGlass {
   /// app and una's frosted glass is drawn in its place.
   static Future<void> initialize() async {
     _quietPackageLogs();
+    // A browser's scroll edge, so a bar that asks for it has it at once.
+    if (!hasShaderFilters) unawaited(ScrollEdgeShader.load());
     try {
       await lg.LiquidGlassWidgets.initialize(enablePerformanceMonitor: false);
     } on Object catch (error, stack) {
@@ -597,10 +600,10 @@ class LiquidGlassBarGroup extends StatelessWidget {
 /// what changes, not an opacity: a backdrop filter under an opacity layer
 /// does not survive on every renderer. The blur is the package's
 /// `ProgressiveBlur`, one graduated pass, which needs shader filters
-/// (Impeller). Without them — the web, Skia — a bar that would be Liquid
-/// Glass is drawn solid instead and has no scroll edge (see `AppBar`): every
-/// way of grading a blur there showed bands, and each backdrop filter is
-/// paid on every frame of a scroll.
+/// (Impeller). Without them — every browser — a bar that would be Liquid
+/// Glass is drawn solid by default (see `AppBar`); with
+/// `LiquidGlassTheme.webScrollEdge` the edge is una's own shader over a
+/// snapshot of the page under it, taken from the `Scaffold`'s body.
 class LiquidGlassScrollEdge extends StatelessWidget {
   /// Creates the scroll edge of a bar, faded in by [visibility].
   const LiquidGlassScrollEdge({
@@ -631,6 +634,17 @@ class LiquidGlassScrollEdge extends StatelessWidget {
 
   Widget _build(double t) {
     if (t <= 0) return const SizedBox.expand();
+    // Without shader filters (every browser) the graduated blur is una's
+    // own shader over a snapshot of the page; see
+    // `LiquidGlassTheme.webScrollEdge`.
+    if (!LiquidGlass.hasShaderFilters) {
+      return ShaderScrollEdge(
+        color: color,
+        maxSigma: maxSigma,
+        strength: t,
+        fromBottom: fromBottom,
+      );
+    }
     final a = color.a * t;
     return Stack(
       fit: StackFit.expand,

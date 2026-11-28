@@ -97,8 +97,18 @@ void main() {
       .opacity
       .value;
 
+  // The margin a phone's bar keeps above its toolbar where there is no
+  // status bar, as in these tests.
+  double topInset(WidgetTester tester) =>
+      themeOf(tester, bar()).layoutTheme.gap(GapSize.sm);
+
+  // How far down the toolbar reaches: its margin and its height.
   double toolbarHeight(WidgetTester tester) =>
-      themeOf(tester, bar()).appBarTheme.height!;
+      topInset(tester) + themeOf(tester, bar()).appBarTheme.height!;
+
+  // Where the middle of the toolbar's row is.
+  double toolbarCenter(WidgetTester tester) =>
+      topInset(tester) + themeOf(tester, bar()).appBarTheme.height! / 2;
 
   group('SliverAppBar.large', () {
     Widget large({
@@ -180,7 +190,10 @@ void main() {
         // Point for point with the page while it collapses.
         expect(tester.getRect(largeTitle('Library')).top, start - shift);
         // The toolbar and the small title do not move.
-        expect(tester.getRect(smallTitle('Library')).center.dy, toolbar / 2);
+        expect(
+          tester.getRect(smallTitle('Library')).center.dy,
+          toolbarCenter(tester),
+        );
         opacities.add(smallTitleOpacity(tester));
         reds.add((await sampler.pixel(tester, const Offset(300, 20))).r);
       }
@@ -236,11 +249,11 @@ void main() {
       // The fill is laid on once: the toolbar reads as the collapsed bar.
       await scrollTo(tester, 400);
       expect(await sampler.pixel(tester, const Offset(300, 20)), _fill);
-      expect(theme.appBarTheme.height, toolbar);
+      expect(theme.appBarTheme.height! + topInset(tester), toolbar);
     });
 
     testWidgets('over a pinned picture the titles dissolve before the '
-        'toolbar, and the picture is blurred only as they go', (
+        'toolbar, and on Liquid Glass the picture is blurred only as they go', (
       tester,
     ) async {
       const picture = Color(0xff00ff00);
@@ -279,8 +292,30 @@ void main() {
         Offset(title.left + 4, toolbar - 2),
       );
       expect(above.g, greaterThan(.5));
+      // A frosted bar veils the picture and ends on its hairline: a blur
+      // would only stop on a hard line there.
       await scrollTo(tester, 400);
-      expect(blurred(), isTrue);
+      expect(blurred(), isFalse);
+
+      // On Liquid Glass, with no fill of its own, the bar blurs it.
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      LiquidGlass.debugHasShaderFilters = true;
+      try {
+        await pump(
+          tester,
+          page(
+            large(
+              expandedHeight: 200,
+              background: const ColoredBox(color: picture),
+            ),
+          ),
+        );
+        await scrollTo(tester, 400);
+        expect(blurred(), isTrue);
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+        LiquidGlass.debugHasShaderFilters = null;
+      }
     });
 
     testWidgets('scrolling builds nothing in the bar', (tester) async {
@@ -429,7 +464,7 @@ void main() {
       // The expanded area went first; ten points of the toolbar are left.
       expect(
         tester.getRect(smallTitle('Library')).center.dy,
-        toolbar / 2 - (toolbar + 1 - 10),
+        toolbarCenter(tester) - (toolbar + 1 - 10),
       );
       await scrollTo(tester, full + 100);
       expect(await sampler.pixel(tester, const Offset(300, 20)), _page);
@@ -458,7 +493,10 @@ void main() {
       expect(pulled, greaterThan(40));
       // The toolbar stays; the list goes down with the pull, and the bar
       // fills the gap.
-      expect(tester.getRect(smallTitle('Library')).center.dy, toolbar / 2);
+      expect(
+        tester.getRect(smallTitle('Library')).center.dy,
+        toolbarCenter(tester),
+      );
       expect(tester.getRect(find.byKey(_row)).top, closeTo(row + pulled, .5));
       final stretched = tester.getRect(largeTitle('Library'));
       // (Grown about the bottom of its area, a gap below the text.)
@@ -697,7 +735,10 @@ void main() {
         theme: ThemeData(brightness: Brightness.dark),
       );
       final toolbar = toolbarHeight(tester);
-      expect(tester.getRect(smallTitle('Library')).center.dy, 44 + toolbar / 2);
+      expect(
+        tester.getRect(smallTitle('Library')).center.dy,
+        44 + themeOf(tester, bar()).appBarTheme.height! / 2,
+      );
       final style = tester.binding.renderViews.first.debugLayer!
           .find<SystemUiOverlayStyle>(const Offset(195, 10))!;
       expect(style.statusBarIconBrightness, Brightness.light);
@@ -842,7 +883,10 @@ void main() {
       expect(tester.getRect(find.byKey(_row)).top, toolbar + 1);
       expect(await sampler.pixel(tester, const Offset(300, 20)), _fill);
       await scrollTo(tester, 700);
-      expect(tester.getRect(find.text('Feed')).center.dy, toolbar / 2);
+      expect(
+        tester.getRect(find.text('Feed')).center.dy,
+        toolbarCenter(tester),
+      );
       expect(await sampler.pixel(tester, const Offset(300, 20)), _fill);
       expect(await sampler.pixel(tester, Offset(300, toolbar + 30)), _page);
     });
@@ -891,13 +935,19 @@ void main() {
       await pump(tester, page(plain(pinned: false)));
       final toolbar = toolbarHeight(tester);
       await scrollTo(tester, 30);
-      expect(tester.getRect(find.text('Feed')).center.dy, toolbar / 2 - 30);
+      expect(
+        tester.getRect(find.text('Feed')).center.dy,
+        toolbarCenter(tester) - 30,
+      );
       await scrollTo(tester, 600);
       expect(await sampler.pixel(tester, const Offset(300, 20)), _page);
       await scrollTo(tester, 500);
       expect(await sampler.pixel(tester, const Offset(300, 20)), _page);
       await scrollTo(tester, 0);
-      expect(tester.getRect(find.text('Feed')).center.dy, toolbar / 2);
+      expect(
+        tester.getRect(find.text('Feed')).center.dy,
+        toolbarCenter(tester),
+      );
     });
 
     testWidgets('floating, it comes back as soon as the page turns round, '
@@ -912,13 +962,19 @@ void main() {
       // Twenty points back: twenty points of bar.
       expect(
         tester.getRect(find.text('Feed')).center.dy,
-        toolbar / 2 - (full - 20),
+        toolbarCenter(tester) - (full - 20),
       );
       await scrollTo(tester, 600 - full);
-      expect(tester.getRect(find.text('Feed')).center.dy, toolbar / 2);
+      expect(
+        tester.getRect(find.text('Feed')).center.dy,
+        toolbarCenter(tester),
+      );
       // On down again and it goes out again.
       await scrollTo(tester, 600 - full + 25);
-      expect(tester.getRect(find.text('Feed')).center.dy, toolbar / 2 - 25);
+      expect(
+        tester.getRect(find.text('Feed')).center.dy,
+        toolbarCenter(tester) - 25,
+      );
       // The rows are where the page has them throughout.
       expect(
         tester.getRect(find.text('Row 20')).top,
@@ -940,7 +996,7 @@ void main() {
       await tester.pump();
       expect(
         tester.getRect(find.text('Feed')).center.dy,
-        inExclusiveRange(0, toolbar / 2),
+        inExclusiveRange(0, toolbarCenter(tester)),
       );
       await gesture.up();
       final positions = <double>[];
@@ -951,7 +1007,7 @@ void main() {
       for (var i = 1; i < positions.length; i++) {
         expect(positions[i], greaterThanOrEqualTo(positions[i - 1] - .01));
       }
-      expect(positions.last, toolbar / 2);
+      expect(positions.last, toolbarCenter(tester));
       await tester.pumpAndSettle();
 
       // A drag on that hides most of it: it goes out.

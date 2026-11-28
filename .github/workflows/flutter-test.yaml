@@ -51,7 +51,8 @@ jobs:
 
       - name: No bundled-font asset paths in lib
         run: |
-          if grep -rn "packages/una/" lib; then
+          # The scroll edge's shader is the one asset lib/ names by path.
+          if grep -rn "packages/una/" lib | grep -v "packages/una/shaders/"; then
             echo "::error::lib/ names a font asset una no longer ships"
             exit 1
           fi

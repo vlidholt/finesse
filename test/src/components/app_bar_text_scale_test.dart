@@ -62,13 +62,23 @@ void main() {
       tester,
     ) async {
       for (final formFactor in FormFactor.values) {
-        final style = ThemeData(formFactor: formFactor).appBarTheme.height!;
+        final theme = ThemeData(formFactor: formFactor);
+        final style = theme.appBarTheme.height!;
+        // A phone's or a tablet's bar keeps a margin above its toolbar
+        // where there is no status bar, as here.
+        final inset = formFactor == FormFactor.desktop
+            ? 0
+            : theme.layoutTheme.gap(GapSize.sm);
         for (final scale in [.85, 1.0]) {
           await tester.pumpWidget(const SizedBox.shrink());
           final reported = await pumpBar(tester, scale, formFactor: formFactor);
           // The toolbar and its hairline.
-          expect(barHeight(tester), style + 1, reason: '$formFactor $scale');
-          expect(reported, style + 1);
+          expect(
+            barHeight(tester),
+            style + 1 + inset,
+            reason: '$formFactor $scale',
+          );
+          expect(reported, style + 1 + inset);
         }
       }
     });

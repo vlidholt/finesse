@@ -52,6 +52,11 @@ dev_dependencies:
   very_good_analysis: ^10.0.0
 
 flutter:
+  # The soft scroll edge of a Liquid Glass bar where the renderer has no
+  # shader image filters (every browser); see lib/src/utils/scroll_edge_shader.dart.
+  shaders:
+    - shaders/scroll_edge.frag
+
   # The Phosphor icon fonts, copied unchanged from phosphor_flutter 2.1.0.
   # MIT licensed: see fonts/phosphor/LICENSE and this package's LICENSE.
   # They are the only fonts una bundles; text uses the platform font.

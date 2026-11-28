@@ -144,7 +144,12 @@ void main() {
           find.byType(AppBar),
         ).appBarTheme.height!;
         expect(themed, formFactor == FormFactor.mobile ? 44 : 64);
-        expect(size.height, themed + 1);
+        // On a phone or a tablet with no status bar above it, as here, the
+        // bar keeps a margin over its toolbar.
+        final inset = formFactor == FormFactor.desktop
+            ? 0
+            : themeOf(tester, find.byType(AppBar)).layoutTheme.gap(GapSize.sm);
+        expect(size.height, themed + 1 + inset);
       }
     });
 

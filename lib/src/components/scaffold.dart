@@ -14,6 +14,7 @@ import 'package:una/src/theme/theme.dart';
 import 'package:una/src/utils/backdrop.dart';
 import 'package:una/src/utils/expand_reveal.dart';
 import 'package:una/src/utils/overlay_insets.dart';
+import 'package:una/src/utils/scroll_edge_shader.dart';
 import 'package:una/src/utils/spring.dart';
 import 'package:una/src/utils/system_overlay_style.dart';
 
@@ -223,6 +224,9 @@ class Scaffold extends StatefulWidget {
 /// )
 /// ```
 class ScaffoldState extends State<Scaffold> with TickerProviderStateMixin {
+  // The body, for a bar's scroll edge drawn by una's shader.
+  final _edgeSource = ScrollEdgeSourceHandle();
+
   // Each drawer's content, handed to its route. The route is in the
   // navigator's overlay, not under this widget, so it cannot simply be
   // rebuilt from here.
@@ -654,19 +658,24 @@ class ScaffoldState extends State<Scaffold> with TickerProviderStateMixin {
           2,
           // The page learns its insets from the layout that measured the
           // bars: in the same frame, with nothing estimated.
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final insets = constraints as _BodyConstraints;
-              return MediaQuery(
-                data: lifted.copyWith(
-                  padding: media.padding.copyWith(
-                    top: insets.top,
-                    bottom: insets.bottom,
+          // The page a bar's scroll edge is a picture of, where it is
+          // drawn by una's shader (see `LiquidGlassTheme.webScrollEdge`).
+          ScrollEdgeSource(
+            handle: _edgeSource,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final insets = constraints as _BodyConstraints;
+                return MediaQuery(
+                  data: lifted.copyWith(
+                    padding: media.padding.copyWith(
+                      top: insets.top,
+                      bottom: insets.bottom,
+                    ),
                   ),
-                ),
-                child: body,
-              );
-            },
+                  child: body,
+                );
+              },
+            ),
           ),
         ),
         // The strips stay while a drawer is open: taking one away mid-drag
@@ -733,9 +742,12 @@ class ScaffoldState extends State<Scaffold> with TickerProviderStateMixin {
           color: background,
           // So that a bar can tell whether the page has scrolled under it.
           child: ScrollNotificationObserver(
-            child: FocusTraversalGroup(
-              policy: OrderedTraversalPolicy(),
-              child: layout,
+            child: ScrollEdgeSourceScope(
+              handle: _edgeSource,
+              child: FocusTraversalGroup(
+                policy: OrderedTraversalPolicy(),
+                child: layout,
+              ),
             ),
           ),
         ),

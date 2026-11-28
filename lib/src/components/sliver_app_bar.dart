@@ -6,10 +6,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:una/src/components/app_bar_layout.dart';
 import 'package:una/src/liquid_glass/liquid_glass.dart';
+import 'package:una/src/liquid_glass/liquid_glass_theme.dart';
 import 'package:una/src/theme/components/app_bar.dart';
 import 'package:una/src/theme/motion.dart';
 import 'package:una/src/theme/theme.dart';
 import 'package:una/src/utils/backdrop.dart';
+import 'package:una/src/utils/scroll_edge_shader.dart';
 import 'package:una/src/utils/spring.dart';
 import 'package:una/src/utils/system_overlay_style.dart';
 
@@ -72,6 +74,7 @@ class SliverAppBar extends StatefulWidget {
     this.gap,
     this.actionsGap,
     this.primary = true,
+    this.liquidGlass,
     super.key,
   }) : _large = false,
        subtitle = null,
@@ -104,6 +107,7 @@ class SliverAppBar extends StatefulWidget {
     this.gap,
     this.actionsGap,
     this.primary = true,
+    this.liquidGlass,
     super.key,
   }) : _large = true,
        middle = null,
@@ -152,9 +156,10 @@ class SliverAppBar extends StatefulWidget {
 
   /// Whether [background] stays behind the toolbar once the bar has
   /// collapsed, as a profile's cover does: as the bar collapses the picture
-  /// is blurred and veiled in the page colour, so the small title and the
-  /// buttons read on it. On Liquid Glass its lower edge dissolves into the
-  /// blurred page below; on a frosted or solid bar it ends on the hairline.
+  /// is veiled in the page colour, so the small title and the buttons read
+  /// on it. On Liquid Glass it is blurred as well and its lower edge
+  /// dissolves into the blurred page below; on a frosted or solid bar it
+  /// stays sharp and ends on the hairline.
   /// False fades it out, and the collapsed bar takes the bar's surface.
   final bool pinBackground;
 
@@ -208,6 +213,9 @@ class SliverAppBar extends StatefulWidget {
   /// Whether the bar is at the top of the screen and should extend under
   /// the status bar.
   final bool primary;
+
+  /// Whether the bar is Liquid Glass. See `AppBar.liquidGlass`.
+  final LiquidGlassMode? liquidGlass;
 
   @override
   State<SliverAppBar> createState() => _SliverAppBarState();
@@ -320,7 +328,10 @@ class _SliverAppBarState extends State<SliverAppBar>
     final motion = Motion.of(context);
     final large = widget._large;
     final direction = Directionality.of(context);
-    final material = appBarMaterial(context, bar.liquidGlass);
+    final material = appBarMaterial(
+      context,
+      widget.liquidGlass ?? bar.liquidGlass,
+    );
     final liquid = material == AppBarMaterial.liquid;
     // Liquid Glass without shader filters: the bar colour, opaque.
     final solid = material == AppBarMaterial.solid;
@@ -585,7 +596,14 @@ class _SliverAppBarState extends State<SliverAppBar>
       // A layer of its own: the viewport paints its slivers again on every
       // scroll frame, and without one the bar went with them, collapsed and
       // still or not. Its pieces repaint themselves when the bar moves.
-      child: RepaintBoundary(child: Semantics(container: true, child: body)),
+      child: RepaintBoundary(
+        // A scroll edge drawn by una's shader takes its picture of the page
+        // this bar is in: the bar itself, its buttons and title, stay out.
+        child: ScrollEdgeExclusion(
+          active: liquid && !LiquidGlass.hasShaderFilters,
+          child: Semantics(container: true, child: body),
+        ),
+      ),
     );
   }
 }
@@ -1654,7 +1672,12 @@ class _RenderSliverBarBody extends RenderBox
           // stands on its colours rather than on its detail.
           // As the titles go: blurred while they were still on it, the
           // picture read as a smeared block around them.
-          final sigma = pin && !reduceMotion ? 10 * (1 - titleFade) : 0.0;
+          // Only on Liquid Glass, where the bar has no fill of its own: a
+          // frosted or solid bar veils the picture and ends on its
+          // hairline, where a blur would only stop on a hard line.
+          final sigma = pin && _fadeBackground && !reduceMotion
+              ? 10 * (1 - titleFade)
+              : 0.0;
           if (sigma > .5) {
             _blur.layer = (_blur.layer ?? ImageFilterLayer())
               ..imageFilter = ImageFilter.blur(
