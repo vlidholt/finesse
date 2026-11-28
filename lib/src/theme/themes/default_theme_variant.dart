@@ -3009,11 +3009,30 @@ class DefaultThemeVariant extends ThemeVariant {
 
   @override
   SkeletonTheme skeletonTheme() {
+    // The muted wash, a little stronger so a block holds its shape on a
+    // card as well as on the page. The highlight is lighter in both modes:
+    // in the light it is the wash thinned towards the page, in the dark the
+    // wash thickened towards the foreground. Only the alpha changes, so the
+    // band and the pulse never pass through another colour.
+    // An opaque muted (a hand-written scheme) has no alpha to work with, so
+    // its highlight is mixed towards the page or the foreground instead.
+    final muted = colorScheme.muted;
+    final opaque = muted.a >= 1;
+    final base = opaque
+        ? muted
+        : muted.withValues(alpha: (muted.a * 1.5).clamp(0.0, 1.0));
+    final highlight = opaque
+        ? (_isDark
+              ? Color.lerp(muted, colorScheme.foreground, .1)!
+              : Color.lerp(muted, colorScheme.background, .6)!)
+        : base.withValues(
+            alpha: (base.a * (_isDark ? 2 : .45)).clamp(0.0, 1.0),
+          );
     return SkeletonTheme(
-      color: colorScheme.muted,
-      highlightColor: colorScheme.muted.withValues(alpha: .4),
+      color: base,
+      highlightColor: highlight,
       borderRadius: radius,
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1800),
       curve: Curves.easeInOut,
       animate: true,
     );
@@ -3061,11 +3080,9 @@ class DefaultThemeVariant extends ThemeVariant {
     // follows the ambient IconTheme — a primary button's spinner spins in
     // the primary foreground, a plain one in the page foreground. A colour
     // baked into the theme would override that everywhere.
-    return const SpinnerTheme(
-      size: 16,
-      strokeWidth: 2,
-      duration: Duration(milliseconds: 900),
-    );
+    // No stroke or duration either: the stroke follows the size and each
+    // variant keeps its own pace.
+    return const SpinnerTheme(size: 16);
   }
 
   @override

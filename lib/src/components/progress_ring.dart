@@ -21,8 +21,11 @@ import 'package:una/src/utils/spring.dart';
 ///
 /// [value] runs from 0 to 1 and eases to each new value on the theme's
 /// smooth spring. A null [value] spins instead: progress of unknown length,
-/// at any size and with a [child] in the middle. (`Spinner` stays the small
-/// inline indicator for a button or a line of text.)
+/// at any size and with a [child] in the middle. The arc turns while it
+/// grows and shrinks, head and tail on offset curves, as Material's
+/// indeterminate indicator does; under reduced motion it holds still and
+/// breathes. (`Spinner` stays the small inline indicator for a button or a
+/// line of text, and its default look is this ring.)
 ///
 /// With a [sweepAngle] of less than a full turn the ring is a gauge: an
 /// open arc, its gap at the bottom.
@@ -93,10 +96,20 @@ class ProgressRing extends StatefulWidget {
 
 class _ProgressRingState extends State<ProgressRing>
     with TickerProviderStateMixin {
+  // One clock over the arc's whole loop (see `indeterminateArcLoop`): the
+  // painter reads the time off it, so nothing is rebuilt while it turns.
   late final _spin = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 900),
+    duration: indeterminateArcLoop,
   );
+
+  /// How much faster than its own pace the arc runs: the spinner theme's
+  /// `duration` is one grow-and-shrink.
+  double _speed = 1;
+
+  /// Whether the spin holds still and breathes (reduced motion), or does
+  /// not move at all (`Motion.none`).
+  _Stillness _still = _Stillness.moving;
   late final _value = SpringController(
     vsync: this,
     value: _clamped(widget.value),
@@ -110,9 +123,16 @@ class _ProgressRingState extends State<ProgressRing>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _spin.duration =
-        Theme.of(context).spinnerTheme.duration ??
-        const Duration(milliseconds: 900);
+    final cycle = Theme.of(context).spinnerTheme.duration;
+    _speed = cycle == null || cycle <= Duration.zero
+        ? 1
+        : indeterminateArcCycle.inMicroseconds / cycle.inMicroseconds;
+    final motion = Motion.of(context);
+    _still = !motion.reduced
+        ? _Stillness.moving
+        : motion.fast == Duration.zero
+        ? _Stillness.still
+        : _Stillness.breathing;
     _syncSpin();
   }
 
@@ -140,7 +160,7 @@ class _ProgressRingState extends State<ProgressRing>
   }
 
   void _syncSpin() {
-    if (_spinning) {
+    if (_spinning && _still != _Stillness.still) {
       if (!_spin.isAnimating) _spin.repeat();
     } else if (_spin.isAnimating) {
       _spin
@@ -162,13 +182,21 @@ class _ProgressRingState extends State<ProgressRing>
       ? -math.pi / 2
       : -math.pi / 2 - widget.sweepAngle / 2;
 
+  /// How far into its loop the spin is, at the arc's own pace.
+  Duration get _elapsed => indeterminateArcLoop * _spin.value;
+
   ({double start, double sweep}) _arc() {
     if (_spinning) {
-      // The spinner's arc, kept inside a gauge's sweep by its own length.
-      final sweep = math.min(math.pi * .6, widget.sweepAngle);
-      return (
-        start: _trackStart + _spin.value * math.pi * 2,
-        sweep: sweep,
+      // Material's arc, its longest kept inside a gauge's sweep. Held
+      // still, it is a long arc, three quarters of the way grown.
+      final maxSweep = math.min(math.pi * 1.5, widget.sweepAngle);
+      return indeterminateArc(
+        _still == _Stillness.moving
+            ? _elapsed * _speed
+            : indeterminateArcCycle * .3,
+        start: _trackStart,
+        maxSweep: maxSweep,
+        minSweep: math.min(.12, maxSweep),
       );
     }
     return (
@@ -176,6 +204,8 @@ class _ProgressRingState extends State<ProgressRing>
       sweep: widget.sweepAngle * _value.value.clamp(0.0, 1.0),
     );
   }
+
+  double _breath() => spinnerBreath(_elapsed);
 
   @override
   Widget build(BuildContext context) {
@@ -213,6 +243,9 @@ class _ProgressRingState extends State<ProgressRing>
                   trackStart: _trackStart,
                   trackSweep: widget.sweepAngle,
                   arc: _arc,
+                  opacity: _spinning && _still == _Stillness.breathing
+                      ? _breath
+                      : null,
                   repaint: _repaint,
                 ),
               ),
@@ -240,3 +273,5 @@ class _ProgressRingState extends State<ProgressRing>
     );
   }
 }
+
+enum _Stillness { moving, breathing, still }

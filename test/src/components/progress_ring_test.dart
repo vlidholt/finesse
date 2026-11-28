@@ -201,9 +201,51 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
       final second = painterOf(tester).arc();
       expect(second.start, isNot(first.start));
-      expect(second.sweep, first.sweep);
       expect(builds, before);
       expect(tester.hasRunningAnimations, isTrue);
+    });
+
+    testWidgets('a null value grows and shrinks while it turns, as '
+        "Material's does", (tester) async {
+      await pumpUna(tester, ring(value: null));
+      final sweeps = <double>[];
+      for (var i = 0; i < 30; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+        sweeps.add(painterOf(tester).arc().sweep);
+      }
+      expect(sweeps.reduce(math.max), greaterThan(math.pi * 1.3));
+      expect(sweeps.reduce(math.min), lessThan(math.pi * .3));
+    });
+
+    testWidgets('a gauge spins within its own sweep', (tester) async {
+      const sweep = math.pi;
+      await pumpUna(tester, ring(value: null, sweepAngle: sweep));
+      for (var i = 0; i < 30; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+        expect(painterOf(tester).arc().sweep, lessThanOrEqualTo(sweep + 1e-9));
+      }
+    });
+
+    testWidgets('a null value under reduced motion holds still and breathes', (
+      tester,
+    ) async {
+      await pumpUna(
+        tester,
+        Builder(
+          builder: (context) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(disableAnimations: true),
+            child: ring(value: null),
+          ),
+        ),
+      );
+      final arc = painterOf(tester).arc();
+      final opacities = <double>{};
+      for (var i = 0; i < 5; i++) {
+        await tester.pump(const Duration(milliseconds: 300));
+        expect(painterOf(tester).arc(), arc);
+        opacities.add(painterOf(tester).opacity!());
+      }
+      expect(opacities.length, greaterThan(1));
     });
 
     testWidgets('a determinate ring schedules nothing at rest', (tester) async {
@@ -324,7 +366,7 @@ void main() {
       final first = painter.arc();
       await tester.pump(const Duration(milliseconds: 100));
       expect(painter.arc().start, isNot(first.start));
-      expect(painter.arc().sweep, moreOrLessEquals(math.pi * .6));
+      expect(painter.arc().sweep, isNot(first.sweep));
       expect(painter.strokeWidth, 2);
     });
   });

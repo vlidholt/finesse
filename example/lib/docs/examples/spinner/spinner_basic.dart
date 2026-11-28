@@ -10,9 +10,10 @@ class SpinnerBasicExample extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       spacing: 24,
       children: [
-        Spinner(size: 16),
         Spinner(),
+        Spinner(size: 24),
         Spinner(size: 32),
+        Spinner(size: 48),
       ],
     );
   }

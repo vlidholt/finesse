@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:una/src/components/skeleton_paint.dart';
 import 'package:una/src/utils/moving_indicator.dart';
 import 'package:una/una.dart';
 
@@ -967,22 +968,15 @@ void main() {
     testWidgets('shimmers in the una style and pulses in a shadcn one', (
       tester,
     ) async {
-      BoxDecoration decoration() =>
-          tester
-                  .widget<DecoratedBox>(
-                    find.descendant(
-                      of: find.byType(Skeleton),
-                      matching: find.byType(DecoratedBox),
-                    ),
-                  )
-                  .decoration
-              as BoxDecoration;
+      SkeletonMotion motion() => tester
+          .renderObject<RenderSkeleton>(find.byType(SkeletonPaint))
+          .motion;
 
       await tester.pumpWidget(
         const UnaApp(home: Skeleton(width: 100, height: 20)),
       );
       await tester.pump(const Duration(milliseconds: 100));
-      expect(decoration().gradient, isNotNull);
+      expect(motion(), SkeletonMotion.shimmer);
       await tester.pumpWidget(const SizedBox());
 
       await tester.pumpWidget(
@@ -992,8 +986,7 @@ void main() {
         ),
       );
       await tester.pump(const Duration(milliseconds: 100));
-      expect(decoration().gradient, isNull);
-      expect(decoration().color, isNotNull);
+      expect(motion(), SkeletonMotion.pulse);
       await tester.pumpWidget(const SizedBox());
     });
   });

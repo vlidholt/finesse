@@ -146,6 +146,7 @@ export 'src/components/selection_area.dart';
 export 'src/components/sheet.dart';
 export 'src/components/sidebar.dart';
 export 'src/components/skeleton.dart';
+export 'src/components/skeleton_shapes.dart';
 export 'src/components/slider.dart';
 export 'src/components/sliver_app_bar.dart';
 export 'src/components/sparkline.dart';
