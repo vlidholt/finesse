@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
@@ -174,6 +175,25 @@ bool _paintedInPlace(WidgetTester tester, String id) {
       .whereType<FlagProperty>()
       .firstWhere((property) => property.name == 'hidden');
   return hidden.value != true;
+}
+
+/// A lifted copy's scale and lean, read off its transform: its bounding
+/// rectangle widens and narrows with the lean as well.
+double _scale(WidgetTester tester, Finder finder) {
+  final m = tester.renderObject(finder).getTransformTo(null).storage;
+  return math.sqrt(m[0] * m[0] + m[1] * m[1]);
+}
+
+double _tilt(WidgetTester tester, Finder finder) {
+  final m = tester.renderObject(finder).getTransformTo(null).storage;
+  return math.atan2(m[1], m[0]).abs();
+}
+
+/// What a copy did between its release and its landing, a frame at a time.
+class _Landing {
+  final scales = <double>[];
+  final centres = <Offset>[];
+  Offset slot = Offset.zero;
 }
 
 List<String> _letters(int count, [String prefix = 'i']) => [
@@ -1248,12 +1268,96 @@ void main() {
         ),
       );
       final gesture = await _pickUp(tester, 'a1');
-      await _dragBy(tester, gesture, const Offset(240, 0), steps: 6);
-      final transform = tester.renderObject(_lifted('a1')).getTransformTo(null);
-      // A rotation: the matrix has a sine in it.
-      expect(transform.storage[1].abs(), greaterThan(.002));
+      final angles = <double>[];
+      for (var i = 0; i < 6; i++) {
+        await gesture.moveBy(const Offset(40, 0));
+        await tester.pump(const Duration(milliseconds: 16));
+        angles.add(_tilt(tester, _lifted('a1')));
+      }
+      // A rotation, and one to see: past the degree and a half it used to
+      // stop at, and within what the theme allows.
+      final tilt = ThemeData().boardTheme.dragTilt!;
+      final most = angles.reduce(math.max);
+      expect(most, greaterThan(.03));
+      expect(most, lessThanOrEqualTo(tilt + 1e-6));
       await gesture.up();
       await tester.pumpAndSettle();
+    });
+
+    // The pop of a landing was the same in both cases, but an item dropped
+    // further along its own column flew to a slot that was itself sliding
+    // from where the item had been picked up: the copy turned back towards
+    // its old place and was then carried to its new one, a landing twice
+    // the size of one in another column.
+    testWidgets('a drop within a column lands exactly as a drop into another '
+        'column does', (tester) async {
+      Future<_Landing> drop(Offset delta) async {
+        await tester.pumpWidget(const SizedBox.shrink());
+        await pumpUna(
+          tester,
+          const _Host(
+            lists: {
+              'a': ['a1', 'a2', 'a3'],
+              'b': ['b1'],
+            },
+          ),
+        );
+        final gesture = await _pickUp(tester, 'a1');
+        await tester.pump(const Duration(milliseconds: 300));
+        await tester.pump(const Duration(milliseconds: 300));
+        await _dragBy(tester, gesture, delta);
+        await gesture.up();
+        final landing = _Landing();
+        for (var i = 0; i < 200 && _lifted('a1').evaluate().isNotEmpty; i++) {
+          await tester.pump(const Duration(milliseconds: 16));
+          if (_lifted('a1').evaluate().isEmpty) break;
+          landing.scales.add(_scale(tester, _lifted('a1')));
+          landing.centres.add(tester.getRect(_lifted('a1')).center);
+        }
+        await tester.pumpAndSettle();
+        landing.slot = _rect(tester, 'a1').center;
+        return landing;
+      }
+
+      final within = await drop(const Offset(0, 50));
+      expect(_host(tester).lists['a'], ['a2', 'a1', 'a3']);
+      final across = await drop(const Offset(300, -20));
+      expect(_host(tester).lists['b'], ['a1', 'b1']);
+
+      for (final (name, landing) in [('within', within), ('across', across)]) {
+        // Straight to its slot: never further from it than a frame before.
+        final distances = [
+          for (final centre in landing.centres)
+            (centre - landing.slot).distance,
+        ];
+        for (var i = 1; i < distances.length; i++) {
+          expect(
+            distances[i],
+            lessThanOrEqualTo(distances[i - 1] + .01),
+            reason: '$name, frame $i: $distances',
+          );
+        }
+        expect(distances.last, lessThan(.5), reason: name);
+      }
+
+      // And the same pop, frame for frame, from the frame it starts in.
+      List<double> pop(_Landing landing) {
+        final dragScale = ThemeData().boardTheme.dragScale!;
+        final start = landing.scales.indexWhere((s) => s < dragScale - 1e-4);
+        expect(start, greaterThanOrEqualTo(0));
+        return landing.scales.sublist(start);
+      }
+
+      final a = pop(within);
+      final b = pop(across);
+      expect(a.length, greaterThan(20));
+      for (var i = 0; i < 20; i++) {
+        expect(a[i], moreOrLessEquals(b[i], epsilon: 1e-4), reason: 'frame $i');
+      }
+      expect(
+        a.reduce(math.min),
+        moreOrLessEquals(ThemeData().boardTheme.landScale!, epsilon: .002),
+      );
     });
 
     testWidgets('an item caught mid-flight is picked up where it is', (
