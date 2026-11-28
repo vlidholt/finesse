@@ -166,21 +166,21 @@ class ChartPalette {
     ],
   );
 
-  /// Shades of Tailwind's green. una's default.
+  /// Shades of Tailwind's green, a quarter less saturated. una's default.
   static const green = ChartPalette(
     light: [
-      Color(0xff00a63e),
-      Color(0xff05df72),
-      Color(0xff016630),
-      Color(0xff00c950),
-      Color(0xff008236),
+      Color(0xff45a056),
+      Color(0xff61d787),
+      Color(0xff28623a),
+      Color(0xff56c26b),
+      Color(0xff357d46),
     ],
     dark: [
-      Color(0xff00c950),
-      Color(0xff7bf1a8),
-      Color(0xff008236),
-      Color(0xff05df72),
-      Color(0xff00a63e),
+      Color(0xff56c26b),
+      Color(0xff97eab4),
+      Color(0xff357d46),
+      Color(0xff61d787),
+      Color(0xff45a056),
     ],
   );
 

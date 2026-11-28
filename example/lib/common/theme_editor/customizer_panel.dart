@@ -774,8 +774,8 @@ class _FontPickerState extends State<_FontPicker> {
   }
 }
 
-/// The four looks, two to a row: a style each, with a small picture of
-/// its shapes in the current colours.
+/// The four looks, two to a row: a style each, with its corners drawn
+/// beside its name.
 class _LookGrid extends StatelessWidget {
   const _LookGrid({required this.config, required this.onChanged});
 
@@ -797,7 +797,6 @@ class _LookGrid extends StatelessWidget {
                 width: width,
                 child: _LookTile(
                   style: style,
-                  config: config.copyWith(style: style),
                   selected: config.style == style,
                   onTap: () => onChanged(config.copyWith(style: style)),
                 ),
@@ -812,15 +811,11 @@ class _LookGrid extends StatelessWidget {
 class _LookTile extends StatefulWidget {
   const _LookTile({
     required this.style,
-    required this.config,
     required this.selected,
     required this.onTap,
   });
 
   final StylePreset style;
-
-  /// The configuration the tile's picture is drawn from.
-  final ThemeEditorConfig config;
   final bool selected;
   final VoidCallback onTap;
 
@@ -858,7 +853,7 @@ class _LookTileState extends State<_LookTile> {
           ),
           child: Row(
             children: [
-              _LookSwatch(config: widget.config),
+              _LookSwatch(style: widget.style),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -880,42 +875,28 @@ class _LookTileState extends State<_LookTile> {
   }
 }
 
-/// A look in 26 pixels: a page with a button on it, in the look's corner
-/// shapes. Only the shape: drawn in the panel's own ink, not the theme's
-/// colours, so four tiles side by side compare corners and nothing else.
+/// A look as one white rounded rectangle, its corners the look's: square
+/// for Sharp, a pill for Pebble, the two between for Crisp and Fluid. Only
+/// the corners differ, so the four side by side compare nothing else.
 class _LookSwatch extends StatelessWidget {
-  const _LookSwatch({required this.config});
+  const _LookSwatch({required this.style});
 
-  final ThemeEditorConfig config;
+  final StylePreset style;
 
   @override
   Widget build(BuildContext context) {
-    final ink = Theme.of(context).colorScheme;
-    final tokens = config.style.tokens;
-    // Square stays square and a pill stays a pill; everything between is a
-    // softened corner at this size.
-    final buttonRadius = config.effectiveRadius == 0
-        ? 0.0
-        : tokens.buttonRadius == RadiusToken.xl4
-        ? 5.0
-        : 2.5;
+    final radius = switch (style) {
+      StylePreset.sharp => 0.0,
+      StylePreset.crisp => 3.0,
+      StylePreset.fluid => 6.0,
+      StylePreset.pebble => 9.0,
+    };
     return Container(
       width: 26,
-      height: 26,
-      alignment: Alignment.center,
+      height: 18,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(
-          config.effectiveRadius == 0 ? 0 : 6,
-        ),
-        border: Border.all(color: ink.mutedForeground, width: 1.25),
-      ),
-      child: Container(
-        width: 14,
-        height: 10,
-        decoration: BoxDecoration(
-          color: ink.foreground,
-          borderRadius: BorderRadius.circular(buttonRadius),
-        ),
+        color: const Color(0xFFFFFFFF),
+        borderRadius: BorderRadius.circular(radius),
       ),
     );
   }

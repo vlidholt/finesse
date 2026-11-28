@@ -24,53 +24,38 @@ const _demos = [
   _Demo('Una Dating', 'dating', 'Profiles to swipe, matches and chat'),
 ];
 
-/// The apps made with the package, beside the header: one tile each, its
-/// icon, name and what it is, opening the app in a new tab.
-///
-/// [perRow] tiles to a row, which sit on the page's grid: two to a column
-/// or four across two.
+/// The apps made with the package, beside the header: one row each, its
+/// icon on the left and its name and what it is on the right, opening the
+/// app in a new tab. A plain list, not cards: the rows highlight as they
+/// are pointed at.
 class ShowcaseDemos extends StatelessWidget {
-  const ShowcaseDemos({required this.perRow, super.key});
+  const ShowcaseDemos({super.key});
 
-  final int perRow;
+  /// The rows' own inset, which the heading takes too so that its text
+  /// lines up with the icons.
+  static const _inset = 8.0;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final gap = theme.layoutTheme.gap(GapSize.lg);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Semantics(
-          header: true,
-          child: Text(
-            'Apps built with una',
-            style: theme.textTheme.small.copyWith(
-              color: theme.colorScheme.mutedForeground,
+        Padding(
+          padding: const EdgeInsetsDirectional.only(start: _inset),
+          child: Semantics(
+            header: true,
+            child: Text(
+              'Interactive examples',
+              style: theme.textTheme.small.copyWith(
+                color: theme.colorScheme.mutedForeground,
+              ),
             ),
           ),
         ),
-        const Gap.sm(),
-        // Rows of equal shares, not a wrap: the shares meet the page's
-        // columns to the pixel, and a row's tiles are as tall as each other.
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: gap,
-          children: [
-            for (var i = 0; i < _demos.length; i += perRow)
-              IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: gap,
-                  children: [
-                    for (final demo in _demos.skip(i).take(perRow))
-                      Expanded(child: _DemoTile(demo: demo)),
-                  ],
-                ),
-              ),
-          ],
-        ),
+        const Gap.xs(),
+        for (final demo in _demos) _DemoTile(demo: demo),
       ],
     );
   }
@@ -85,48 +70,31 @@ class _DemoTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final inset = theme.layoutTheme.gap(GapSize.md);
-    return Card(
-      style: CardTheme(padding: EdgeInsets.all(inset)),
-      semanticLabel: '${demo.name}: ${demo.description}. Opens in a new tab',
+    return ListTile(
+      padding: const EdgeInsets.symmetric(
+        horizontal: ShowcaseDemos._inset,
+        vertical: 8,
+      ),
+      gap: 12,
+      borderRadius: theme.radii.xl,
       onTap: () => launchUrl(demo.url, webOnlyWindowName: '_blank'),
-      // The label says it all; the tile's text would only repeat it.
-      child: ExcludeSemantics(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ClipRRect(
-                  borderRadius: theme.radii.lg,
-                  child: Image.asset(demo.icon, width: 40, height: 40),
-                ),
-                const Spacer(),
-                PhosphorIcon(
-                  PhosphorIconsRegular.arrowUpRight,
-                  size: 16,
-                  color: scheme.mutedForeground,
-                ),
-              ],
-            ),
-            const Gap.md(),
-            Text(
-              demo.name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.small.copyWith(
-                color: scheme.foreground,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            Text(
-              demo.description,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.caption,
-            ),
-          ],
+      leading: ClipRRect(
+        borderRadius: theme.radii.lg,
+        child: Image.asset(demo.icon, width: 40, height: 40),
+      ),
+      title: Text(demo.name),
+      titleStyle: theme.textTheme.small.copyWith(
+        color: scheme.foreground,
+        fontWeight: FontWeight.w600,
+      ),
+      subtitle: Text(demo.description),
+      subtitleStyle: theme.textTheme.caption,
+      trailing: Semantics(
+        label: 'Opens in a new tab',
+        child: PhosphorIcon(
+          PhosphorIconsRegular.arrowUpRight,
+          size: 16,
+          color: scheme.mutedForeground,
         ),
       ),
     );
@@ -134,8 +102,8 @@ class _DemoTile extends StatelessWidget {
 }
 
 /// The page's header and the demos beside it: the text two columns wide
-/// and the demos in the third on a desktop, the demos four across under
-/// the text at two columns, and two by two under it on a phone.
+/// and the list of demos in the third on a desktop, the list under the
+/// text on narrower pages.
 class ShowcaseHeader extends StatelessWidget {
   const ShowcaseHeader({
     required this.columns,
@@ -153,7 +121,7 @@ class ShowcaseHeader extends StatelessWidget {
         columns: columns,
         spans: const [2, 1],
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: [text, const ShowcaseDemos(perRow: 2)],
+        children: [text, const ShowcaseDemos()],
       );
     }
     return Column(
@@ -161,7 +129,7 @@ class ShowcaseHeader extends StatelessWidget {
       children: [
         text,
         const Gap.xl(),
-        ShowcaseDemos(perRow: columns.count >= 2 ? 4 : 2),
+        const ShowcaseDemos(),
       ],
     );
   }

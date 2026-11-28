@@ -95,8 +95,8 @@ void main() {
       expect(s.warning, const Color(0xffb45309));
       expect(s.accentBorder, const Color(0x522563eb));
       expect(s.bar, const Color(0xffffffff));
-      expect(s.chart1, const Color(0xff00a63e));
-      expect(s.chart5, const Color(0xff008236));
+      expect(s.chart1, const Color(0xff45a056));
+      expect(s.chart5, const Color(0xff357d46));
       expect(s.sidebar, const Color(0xffffffff));
       expect(s.sidebarPrimary, const Color(0xff2563eb));
     });
