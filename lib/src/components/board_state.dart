@@ -293,11 +293,20 @@ class _BoardState<T extends Object> extends State<Board<T>>
         final ancestor = slot.widget.columnState._listBox;
         if (box == null || ancestor == null) continue;
         final columnId = slot.widget.column.id;
-        origins[id] = (
-          columnId,
-          box.localToGlobal(Offset.zero, ancestor: ancestor).dy + box.shift,
-        );
-        box.markNeedsPaint();
+        // An item a lifted copy stands in for does not slide from where it
+        // was: its slot paints nothing, and the copy flies to wherever the
+        // slot is drawn. Started from its old place, the slot of an item
+        // dropped further along its own column would pull the copy back
+        // towards where it was picked up before carrying it to where it
+        // belongs — a landing twice as big as one in another column, whose
+        // slot has no origin to start from.
+        if (!_proxies.containsKey(id)) {
+          origins[id] = (
+            columnId,
+            box.localToGlobal(Offset.zero, ancestor: ancestor).dy + box.shift,
+          );
+          box.markNeedsPaint();
+        }
 
         // An item the parent moved to another column by itself flies there.
         final from = oldLocations[id];
@@ -1870,7 +1879,7 @@ class _BoardState<T extends Object> extends State<Board<T>>
           board.placeholderBorderColor ?? scheme.tint.withValues(alpha: .4),
       emptyHeight: board.emptyHeight ?? 72,
       dragScale: motion.reduced ? 1 : board.dragScale ?? 1.03,
-      dragTilt: motion.reduced ? 0 : board.dragTilt ?? .026,
+      dragTilt: motion.reduced ? 0 : board.dragTilt ?? .065,
       landScale: motion.reduced ? 1 : board.landScale ?? 1,
       dragShadows: board.dragShadows ?? theme.style.floatingShadow,
       highlightColor: board.highlightColor ?? scheme.tint,

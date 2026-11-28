@@ -2543,8 +2543,9 @@ class DefaultThemeVariant extends ThemeVariant {
       emptyHeight: scaled(72),
       dragScale: 1.03,
       landScale: .98,
-      // A degree and a half: enough to read as a card in the hand.
-      dragTilt: .026,
+      // Under four degrees at a brisk sideways drag: a card in the hand,
+      // not a card that has come loose.
+      dragTilt: .065,
       dragShadows: style.floatingShadow,
       highlightColor: colorScheme.tint,
       highlightDuration: style.motion.slow * 1.5,

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
@@ -595,6 +597,47 @@ void main() {
         closeTo(top + rowHeight * 2, .5),
       );
       expect(tester.binding.hasScheduledFrame, isFalse);
+    });
+
+    // Its slot used to slide from where the row was picked up, and the copy
+    // flew to the slot: back towards its old place first, then on to its
+    // new one — a landing far stronger than the press in alone.
+    testWidgets('let go, the copy heads straight for its slot and presses in '
+        'as deep as the theme says', (tester) async {
+      await pumpUna(tester, list());
+      final rowHeight = tester.getSize(rowOf('A')).height;
+      final gesture = await carry(tester, 'A', Offset(0, rowHeight * 1.6));
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 300));
+      await gesture.up();
+      final centres = <Offset>[];
+      final scales = <double>[];
+      for (var i = 0; i < 200 && lifted().evaluate().isNotEmpty; i++) {
+        await tester.pump(const Duration(milliseconds: 16));
+        if (lifted().evaluate().isEmpty) break;
+        centres.add(tester.getRect(liftedRowOf('A')).center);
+        final m = tester
+            .renderObject(liftedRowOf('A'))
+            .getTransformTo(null)
+            .storage;
+        scales.add(math.sqrt(m[0] * m[0] + m[1] * m[1]));
+      }
+      await tester.pumpAndSettle();
+      expect(items, ['B', 'C', 'A', 'D', 'E']);
+      final slot = tester.getRect(rowOf('A')).center;
+      final distances = [for (final c in centres) (c - slot).distance];
+      expect(distances.first, greaterThan(2));
+      for (var i = 1; i < distances.length; i++) {
+        expect(
+          distances[i],
+          lessThanOrEqualTo(distances[i - 1] + .01),
+          reason: 'frame $i: $distances',
+        );
+      }
+      expect(
+        scales.reduce(math.min),
+        moreOrLessEquals(ThemeData().boardTheme.landScale!, epsilon: .002),
+      );
     });
 
     testWidgets('a row caught in flight is picked up again', (tester) async {
