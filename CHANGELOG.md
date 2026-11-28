@@ -357,6 +357,41 @@ was measured from (Strand, until it moved), is its own repository,
 
 ### Added
 
+- **A Liquid Glass option on the bar itself.** `AppBar.liquidGlass` and
+  `SliverAppBar.liquidGlass` choose per bar, over `AppBarTheme.liquidGlass`.
+  `LiquidGlassMode.always` gives a transparent bar with its buttons on
+  capsules of glass on any platform and form factor.
+- **The soft scroll edge in a browser, on request.** A browser cannot draw
+  the graduated blur under a Liquid Glass bar, so by default the bar is
+  solid there, as before. `LiquidGlassTheme.webScrollEdge` (or a bar asking
+  for `LiquidGlassMode.always`) draws it with una's own fragment shader
+  (`shaders/scroll_edge.frag`) over a third-resolution snapshot of the
+  `Scaffold`'s body, taken while the frame's scene is built: the page under
+  the bar blurred more the nearer it is to the top and faded into the page
+  colour, with no line where it ends, over a list or a picture at the top
+  of the page alike. The snapshot costs a copy of that strip every frame
+  the edge shows, which is why it is not the default.
+- **A detached action on the floating bottom bar.**
+  `BottomNavigationBar.actionPlacement` /
+  `BottomNavigationBarTheme.actionPlacement`:
+  `NavigationActionPlacement.detached` puts the `NavigationAction` on a
+  disc of its own at the end of the bar and the destinations on a pill as
+  wide as they are — iOS 26's split bar, as on Liquid Glass — in una's
+  frosted glass too.
+- **Spinners.** `Spinner` defaults to the progress ring's look, and
+  `SpinnerVariant` adds `orbit` (three comets that bunch and fling apart),
+  `morph` (a blob turning through six shapes) and `goo` (droplets pushed
+  out on stretching necks and pulled back in); `Spinner.orbit`, `.morph`,
+  `.goo` and `SpinnerTheme.variant`. Each is one painter on one clock;
+  under reduced motion they hold still and breathe.
+- **Skeleton shapes.** `Skeleton.avatar`, `Skeleton.button`,
+  `Skeleton.chip`, `SkeletonText`, `SkeletonListTile`, `SkeletonCard`,
+  `SkeletonChatBubble` and `SkeletonTableRow`, sized from the real
+  components' themes.
+- **`SwipeActionsTheme`** (`edgeShadowColor`, `edgeShadowWidth`): a row
+  casts a soft shadow onto the actions it uncovers, stronger in dark
+  themes, and none at rest.
+
 #### Liquid Glass
 
 - **Liquid Glass on iOS and macOS**, natively and in a browser, through
@@ -759,6 +794,36 @@ was measured from (Strand, until it moved), is its own repository,
   (after a key, not a click).
 
 ### Fixed
+
+- **The date picker opens with no empty row and nothing springing into
+  place.** Its calendar's days were a `GridView`: in a popover it took the
+  padding of the overlay — under a scaffold's bar, the bar's height, a
+  blank row above the first week — and on a scrolled page it restored the
+  page's saved scroll offset and sprang back. The days are plain rows now,
+  and a popover's content no longer inherits the overlay's padding.
+- **A board card dropped further along its own column, or a row in a
+  `ReorderableListView`, lands like a card dropped into another column.**
+  Its own hidden slot slid to its new place under it, so the card turned
+  back towards where it was picked up before landing. A dragged card leans
+  2.5 times as far into a sideways drag (`BoardTheme.dragTilt` .065).
+- **A swipe action row shuts without flashing the other side's actions.**
+  The closing spring swung past shut for a few frames, further the faster
+  the flick; it closes without bounce now, and never draws past shut.
+- **An indeterminate `ProgressRing` grows and shrinks while it turns**, as
+  Material's does, instead of turning a fixed arc.
+- **A phone's bar keeps a margin above its toolbar where there is no
+  status bar** — a browser, a phone frame in a page — as a Liquid Glass bar
+  already did: its title and buttons met the top of the window.
+- **A filled bar does not blur a pinned picture.** Collapsing over a
+  `SliverAppBar.background`, a frosted or solid bar veils it more and ends
+  on its hairline; the blur, which stopped on a hard line there, is kept
+  for Liquid Glass, where the picture dissolves into the page below.
+- **Skeletons shimmer as one.** One clock drives every skeleton on screen
+  and a soft diagonal band crosses them together; the highlight is lighter
+  than the base in light and dark (it was a dark band on the translucent
+  schemes).
+- **Avatars clip only a picture**, to an oval or a rounded rectangle
+  rather than a path; initials need no clip.
 
 - **A slider takes a sideways swipe on a phone.** Inside something that
   swipes sideways — a pager, a carousel, the docs' preview and code

@@ -67,14 +67,15 @@ class _NavigationBarTopExampleState extends State<NavigationBarTopExample> {
 
 ## Floating bottom bar with an action
 
-In the default style the bottom bar floats: a glass pill as wide as its destinations. A `NavigationAction` sits between the two halves, for the one thing the app is for. Labels are read to assistive technology rather than shown.
+In the default style the bottom bar floats: a glass pill as wide as its destinations. A `NavigationAction` sits between the two halves, for the one thing the app is for — or, with `actionPlacement: NavigationActionPlacement.detached`, on a disc of its own at the end of the bar, the destinations on a pill as wide as they are: the split bar of iOS 26, which a bar on Liquid Glass always is. Labels are read to assistive technology rather than shown.
 
 ```dart
 import 'package:flutter/widgets.dart';
 import 'package:una/una.dart';
 
 /// The phone's bar: a floating glass pill with the primary action between
-/// the two halves of the destinations.
+/// the two halves of the destinations, or detached on a disc of its own
+/// at the end, as on Liquid Glass.
 class NavigationBarBottomExample extends StatefulWidget {
   const NavigationBarBottomExample({super.key});
 
@@ -87,6 +88,7 @@ class _NavigationBarBottomExampleState
     extends State<NavigationBarBottomExample> {
   int index = 0;
   int posts = 0;
+  var placement = NavigationActionPlacement.between;
 
   @override
   Widget build(BuildContext context) {
@@ -95,12 +97,27 @@ class _NavigationBarBottomExampleState
       mainAxisSize: MainAxisSize.min,
       spacing: 16,
       children: [
+        SegmentedControl<NavigationActionPlacement>(
+          value: placement,
+          onChanged: (value) => setState(() => placement = value),
+          segments: const [
+            Segment(
+              value: NavigationActionPlacement.between,
+              label: Text('Between'),
+            ),
+            Segment(
+              value: NavigationActionPlacement.detached,
+              label: Text('Detached'),
+            ),
+          ],
+        ),
         Text(
           posts == 0 ? 'Tap + to post' : 'Posts created: $posts',
           style: theme.textTheme.muted,
         ),
         BottomNavigationBar(
           floating: true,
+          actionPlacement: placement,
           selectedIndex: index,
           onDestinationSelected: (i) => setState(() => index = i),
           action: NavigationAction(

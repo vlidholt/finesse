@@ -74,7 +74,7 @@ class _Screen extends StatelessWidget {
                       title: Text('Night ${index + 1}'),
                       description: const Text('Main stage, 21:00'),
                       child: Text(
-                        'Doors at eight, the first act as the light goes, '
+                        'Doors at 20:00, the first act as the light goes, '
                         'and the headliner under the stars.',
                         style: theme.textTheme.small,
                       ),

@@ -261,6 +261,7 @@ MouseArea
 MovingIndicator
 MovingIndicatorTarget
 NavigationAction
+NavigationActionPlacement
 NavigationBar
 NavigationBarTheme
 NavigationDestination

@@ -169,7 +169,10 @@ class SliverAppBarBackgroundExample extends StatelessWidget {
               title: const Text('Lofoten'),
               subtitle: const Text('Seven days above the Arctic Circle'),
               expandedHeight: 220,
-              background: const _Sky(),
+              background: Image.asset(
+                'assets/images/photo_alpine_lake.jpg',
+                fit: BoxFit.cover,
+              ),
               leading: BackButton(onPressed: () {}),
               actions: [
                 IconButton.ghost(
@@ -201,22 +204,101 @@ class SliverAppBarBackgroundExample extends StatelessWidget {
     );
   }
 }
+```
 
-/// A stand-in for a photograph: any widget works here, an `Image` above
-/// all.
-class _Sky extends StatelessWidget {
-  const _Sky();
+## Filled or Liquid Glass, over a picture
+
+Over a `background` picture both bars put their buttons on discs. Collapsing, the filled bar veils the pinned picture and ends on its hairline, with no blur. On Liquid Glass the bar has no fill: the picture is blurred as the titles go, its lower edge dissolves into the page scrolled under it, and the buttons stand on capsules of glass. In a browser the glass bar keeps that soft edge only with `LiquidGlassMode.always` or `LiquidGlassTheme.webScrollEdge`.
+
+```dart
+import 'package:example/docs/phone_frame.dart';
+import 'package:flutter/widgets.dart';
+import 'package:una/una.dart';
+
+/// A large bar over a photograph, filled and on Liquid Glass. Collapsed,
+/// the filled bar veils the pinned picture and ends on its hairline; the
+/// glass bar blurs it and lets its lower edge dissolve into the page
+/// scrolled under it.
+class SliverAppBarLiquidGlassExample extends StatelessWidget {
+  const SliverAppBarLiquidGlassExample({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xff1f4e6b), Color(0xff4f9aa8), Color(0xfff2b880)],
+    return const Wrap(
+      spacing: 24,
+      runSpacing: 24,
+      alignment: WrapAlignment.center,
+      children: [
+        _Screen(label: 'Filled', liquidGlass: LiquidGlassMode.never),
+        _Screen(label: 'Liquid Glass', liquidGlass: LiquidGlassMode.always),
+      ],
+    );
+  }
+}
+
+class _Screen extends StatelessWidget {
+  const _Screen({required this.label, required this.liquidGlass});
+
+  final String label;
+  final LiquidGlassMode liquidGlass;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 12,
+      children: [
+        Text(label, style: theme.textTheme.small),
+        PhoneFrame(
+          height: 520,
+          child: Scaffold(
+            body: CustomScrollView(
+              physics: const BouncingScrollPhysics(
+                parent: AlwaysScrollableScrollPhysics(),
+              ),
+              slivers: [
+                SliverAppBar.large(
+                  liquidGlass: liquidGlass,
+                  title: const Text('Summit Stage'),
+                  subtitle: const Text('Three nights in the mountains'),
+                  expandedHeight: 200,
+                  background: Image.asset(
+                    'assets/images/photo_summit_stage.jpg',
+                    fit: BoxFit.cover,
+                  ),
+                  leading: BackButton(onPressed: () {}),
+                  actions: [
+                    IconButton.ghost(
+                      icon: const PhosphorIcon(
+                        PhosphorIconsRegular.shareNetwork,
+                      ),
+                      semanticLabel: 'Share',
+                      onPressed: () {},
+                    ),
+                  ],
+                ),
+                SliverPadding(
+                  padding: EdgeInsets.all(theme.layoutTheme.gap(GapSize.lg)),
+                  sliver: SliverList.separated(
+                    itemCount: 6,
+                    separatorBuilder: (_, _) => const Gap.md(),
+                    itemBuilder: (context, index) => Card(
+                      title: Text('Night ${index + 1}'),
+                      description: const Text('Main stage, 21:00'),
+                      child: Text(
+                        'Doors at 20:00, the first act as the light goes, '
+                        'and the headliner under the stars.',
+                        style: theme.textTheme.small,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 }

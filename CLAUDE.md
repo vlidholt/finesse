@@ -247,7 +247,7 @@ componentTheme.liquidGlass)` at build: never a window width, never cached.
   with its content in a `FadeTransition`: the shader does not survive an
   opacity layer any better than a backdrop filter.
 - **The app bar has no fill and no edge on glass, and only on a phone or
-  a tablet, and only with shader filters.** `appBarMaterial` (in
+  a tablet.** `appBarMaterial` (in
   `app_bar_layout.dart`) picks one of three: `frosted` (una's own
   bar), `liquid` or `solid`. A desktop's top bar (macOS included) is
   frosted unless `AppBarTheme.liquidGlass` is `always`. On glass with
@@ -261,34 +261,47 @@ componentTheme.liquidGlass)` at build: never a window width, never cached.
   or the implied one) goes on a `LiquidGlassBarGroup` capsule; a logo or
   title stands bare. All actions share one capsule. A bar on glass is
   always `whenScrolled`: the edge would otherwise blur the page's first
-  lines at rest. With no status bar above it (a desktop window, a
-  simulator's frame) a primary bar on glass keeps a small gap above its
-  toolbar (`appBarTopInset`), which `AppBar.heightOf` counts.
-- **In a browser, and without shader filters (Skia), a bar that would be
-  glass is `solid`**, unless its theme says `always` (`kIsWeb` in
-  `appBarMaterial`: a browser page has no status bar for the capsules to
-  hang under, and a browser with shader filters still put them against
-  the top of the window). A large `SliverAppBar` with a `background` on a
-  solid bar keeps its toolbar filled at rest and lays the picture *below*
-  it (`backgroundBelowToolbar`), its buttons plain, and does not pin the
-  picture. Otherwise solid is: the bar colour at full opacity, its hairline, no blur, no
-  scroll edge, no capsules, shown at rest too (a large `SliverAppBar`
-  still fills in as its title goes under), laid out as the frosted bar.
-  The test is `LiquidGlass.hasShaderFilters`, not `kIsWeb`, because the
-  missing piece is the renderer's (`debugHasShaderFilters` stands in for
-  it in tests, which have none). Why: the package's `ProgressiveBlur`
-  blurs uniformly there and stops on a line. Every way of grading a blur
-  from backdrop filters was tried and showed bands on a photograph (six
-  nested bands; six, then 24, strips side by side with a quadratic
-  sigma; a `ShaderMask` over a `BackdropFilter`, which the web ignores; a
-  perspective `ImageFilter.matrix`, which smears; colour-filter alpha
-  mixing), and each backdrop filter is paid on every frame of a scroll: on
-  an iPhone's Safari the solid bar had about half the late frames of six
-  strips. A one-pass shader over a snapshot of the page taken while the
-  frame was composited (`toImageSync` of the body's layer through a
-  `FragmentProgram`) was smooth and in the same frame, but CanvasKit reads
-  every snapshot back from the GPU (about 2.5 ms a frame on a Mac) and it
-  had the most late frames of all on the iPhone.
+  lines at rest.
+- **In a browser (no shader filters), a bar that would be glass is
+  `solid` by default** — the bar colour at full opacity, its hairline, no
+  blur, no capsules, shown at rest too, laid out as the frosted bar — and
+  `liquid` when the bar asks for `LiquidGlassMode.always` (its own
+  `AppBar.liquidGlass` or `AppBarTheme.liquidGlass`) or the theme turns on
+  `LiquidGlassTheme.webScrollEdge`. A large `SliverAppBar` with a
+  `background` on a solid bar keeps its toolbar filled at rest and lays
+  the picture *below* it (`backgroundBelowToolbar`). The test is
+  `LiquidGlass.hasShaderFilters`, not `kIsWeb` (`debugHasShaderFilters`
+  stands in for it in tests, which have none). Every way of grading a blur
+  from backdrop filters showed bands on a photograph (nested bands; 6 or
+  24 strips side by side; a `ShaderMask` over a `BackdropFilter`, which
+  the web ignores; a perspective `ImageFilter.matrix`, which smears;
+  colour-filter alpha mixing), and each is paid every frame of a scroll.
+- **The web scroll edge is una's shader over a snapshot**
+  (`lib/src/utils/scroll_edge_shader.dart`, `shaders/scroll_edge.frag`).
+  `LiquidGlassScrollEdge` without shader filters builds a
+  `ShaderScrollEdge`, a leaf whose layer (`alwaysNeedsAddToScene`), while
+  the frame's *scene* is built — after every dirty boundary has painted,
+  which is why not in paint — takes `toImageSync` of the `Scaffold` body's
+  layer (`ScrollEdgeSource`, a repaint boundary the scaffold always puts
+  around its body, found through `ScrollEdgeSourceScope`) at a third of
+  its resolution and draws it through a 9 × 9 Gaussian whose sigma falls
+  from the screen's edge to nothing, fading into the sharp page where the
+  blur is lighter than a texel and a half, then the page-colour veil. A
+  `SliverAppBar` is inside the body it snapshots, so on glass without
+  shader filters it wraps itself in a `ScrollEdgeExclusion`, a layer that
+  adds nothing while a snapshot is taken (the module's `_taking` flag), or
+  its own buttons would be blurred into its edge. With no source (no
+  scaffold) or before the shader has loaded, the edge is the veil alone.
+  The asset path `packages/una/shaders/` is the one the CI's font-path
+  grep allows. The cost is why it is opt-in: CanvasKit reads every
+  snapshot back from the GPU (about 2.5 ms a frame on a Mac), and on an
+  iPhone's Safari the prototype had the most late frames of every edge
+  measured. Under `flutter test` a frame that takes the snapshot does not
+  complete, so the drawing is checked in a browser only.
+- **A phone's or tablet's primary bar keeps `gap(sm)` above its toolbar
+  where there is no status bar** (a browser, a phone frame in a docs
+  page), glass or not (`appBarTopInset`); a desktop's frosted bar does
+  not. `AppBar.heightOf` counts it.
 - **A bar picks its buttons' look; apps do not ask which material it is
   on.** `Button.variant`/`IconButton.variant` are nullable, and the
   toolbar puts an internal `BarButtonScope` (`bar_button_scope.dart`,
@@ -982,6 +995,16 @@ weight, another font, at or above the reference — is a plain `Icon`.
   global offset; context menus use `topStart` (corner at the pointer).
 - `Textarea` has its own theme; it previously read `TextFieldTheme` for
   padding and alignment, which made every textarea-specific value dead.
+- **Never lay out a fixed grid or list with a scrollable** (`GridView`,
+  `ListView`). A `BoxScrollView` with no padding pads itself with the
+  `MediaQuery` padding, and it restores the offset `PageStorage` keeps for
+  the nearest `PageStorageKey` above it — in a popover, the page's. The
+  calendar's days were a `GridView`: in a date picker's popover they got
+  the top bar's height as a blank row, and on a scrolled docs page opened
+  scrolled and sprang back (`date_picker_open_motion_test.dart`).
+- **An `OverlayPortal` child gets the overlay's `MediaQuery` padding, not
+  its trigger's** (Flutter 3.50): under a scaffold's bar, the bar's height.
+  A popover's content removes it (`popover_padding_test.dart`).
 - **A loop that only ever `await`s a synchronously-completed future never
   returns to the event loop.** Dart drains the *whole* microtask queue before
   taking the next event, so such a loop freezes the app outright: no frames,
