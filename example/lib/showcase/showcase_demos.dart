@@ -129,7 +129,15 @@ class ShowcaseHeader extends StatelessWidget {
       children: [
         text,
         const Gap.xl(),
-        const ShowcaseDemos(),
+        // A list as wide as the page would leave its arrows far from the
+        // names they belong to.
+        const Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: 480),
+            child: ShowcaseDemos(),
+          ),
+        ),
       ],
     );
   }

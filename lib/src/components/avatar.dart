@@ -130,58 +130,66 @@ class Avatar extends StatelessWidget {
         ? null
         : Center(child: this.fallback);
     final image = _image;
-    // An avatar that fills an `AvatarGroup`'s place is already clipped to
-    // that circle by the group.
     final inGroup =
         shape is CircleBorder &&
         shape.eccentricity == 0 &&
         size.width == size.height &&
         AvatarGroupClip.of(context);
 
+    final Widget? content;
+    if (image == null) {
+      // Initials or an icon sit inside the shape: nothing to clip.
+      content = fallback;
+    } else {
+      final picture = Image(
+        image: image,
+        width: size.width,
+        height: size.height,
+        fit: fit,
+        frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+          // An image that is already there is simply shown. One that
+          // arrives later fades in over the fallback, which fades out
+          // under it — so a picture with transparent parts does not
+          // end up with initials showing through.
+          if (wasSynchronouslyLoaded) return child;
+          final loaded = frame != null;
+          final motion = Motion.of(context);
+          return Stack(
+            fit: StackFit.expand,
+            alignment: Alignment.center,
+            children: [
+              if (fallback != null)
+                AnimatedOpacity(
+                  opacity: loaded ? 0 : 1,
+                  duration: motion.normal,
+                  curve: motion.standard,
+                  child: fallback,
+                ),
+              AnimatedOpacity(
+                opacity: loaded ? 1 : 0,
+                duration: motion.normal,
+                curve: motion.standard,
+                child: child,
+              ),
+            ],
+          );
+        },
+        errorBuilder: (context, error, stackTrace) =>
+            fallback ?? const SizedBox.shrink(),
+      );
+      // An avatar that fills an `AvatarGroup`'s place is already clipped to
+      // that circle by the group. Otherwise the picture is cut to the
+      // shape: an oval or a rounded rectangle where the shape is one, which
+      // the renderer clips analytically, a path only for any other shape.
+      content = inGroup ? picture : _clipTo(shape, picture);
+    }
+
     Widget avatar = Container(
       width: size.width,
       height: size.height,
-      clipBehavior: inGroup ? Clip.none : Clip.antiAlias,
       alignment: Alignment.center,
       decoration: ShapeDecoration(shape: shape, color: backgroundColor),
-      child: image == null
-          ? fallback
-          : Image(
-              image: image,
-              width: size.width,
-              height: size.height,
-              fit: fit,
-              frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-                // An image that is already there is simply shown. One that
-                // arrives later fades in over the fallback, which fades out
-                // under it — so a picture with transparent parts does not
-                // end up with initials showing through.
-                if (wasSynchronouslyLoaded) return child;
-                final loaded = frame != null;
-                final motion = Motion.of(context);
-                return Stack(
-                  fit: StackFit.expand,
-                  alignment: Alignment.center,
-                  children: [
-                    if (fallback != null)
-                      AnimatedOpacity(
-                        opacity: loaded ? 0 : 1,
-                        duration: motion.normal,
-                        curve: motion.standard,
-                        child: fallback,
-                      ),
-                    AnimatedOpacity(
-                      opacity: loaded ? 1 : 0,
-                      duration: motion.normal,
-                      curve: motion.standard,
-                      child: child,
-                    ),
-                  ],
-                );
-              },
-              errorBuilder: (context, error, stackTrace) =>
-                  fallback ?? const SizedBox.shrink(),
-            ),
+      child: content,
     );
     // Claimed: an avatar inside this one clips itself again.
     if (inGroup) avatar = AvatarGroupClip(clipped: false, child: avatar);
@@ -194,4 +202,13 @@ class Avatar extends StatelessWidget {
       child: avatar,
     );
   }
+
+  static Widget _clipTo(ShapeBorder shape, Widget child) => switch (shape) {
+    CircleBorder(eccentricity: 0) => ClipOval(child: child),
+    RoundedRectangleBorder(:final borderRadius) => ClipRRect(
+      borderRadius: borderRadius,
+      child: child,
+    ),
+    _ => ClipPath.shape(shape: shape, child: child),
+  };
 }

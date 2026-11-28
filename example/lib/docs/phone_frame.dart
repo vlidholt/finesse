@@ -34,50 +34,57 @@ class PhoneFrame extends StatelessWidget {
       child: Container(
         width: width,
         height: height,
-        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(borderRadius: radius),
         // Painted over the content, so nothing covers the frame's corners.
         foregroundDecoration: BoxDecoration(
           border: Border.all(color: theme.colorScheme.border),
           borderRadius: radius,
         ),
-        child: SpringBuilder(
-          value: keyboardHeight,
-          spring: theme.motion.smooth,
-          tolerance: .05,
-          builder: (context, keyboard, _) => MediaQuery(
-            data: MediaQuery.of(context).copyWith(
-              size: Size(width, height),
-              padding: EdgeInsets.zero,
-              viewPadding: EdgeInsets.zero,
-              viewInsets: EdgeInsets.only(bottom: keyboard < 0 ? 0 : keyboard),
-            ),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                // Its own navigator, and no heroes shared with the app's.
-                // The first page is a slot: a route is built once, and the
-                // screen it shows changes with every build of the example.
-                _Screen(
-                  screen: child,
-                  child: HeroControllerScope.none(
-                    child: Navigator(
-                      onGenerateRoute: (settings) => UnaPageRoute<void>(
-                        settings: settings,
-                        builder: (_) => const _ScreenSlot(),
+        child: ClipRRect(
+          // A rounded-rectangle clip, which the renderer draws without a
+          // path, rather than `Container.clipBehavior`, which clips to the
+          // decoration's path.
+          borderRadius: radius,
+          child: SpringBuilder(
+            value: keyboardHeight,
+            spring: theme.motion.smooth,
+            tolerance: .05,
+            builder: (context, keyboard, _) => MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                size: Size(width, height),
+                padding: EdgeInsets.zero,
+                viewPadding: EdgeInsets.zero,
+                viewInsets: EdgeInsets.only(
+                  bottom: keyboard < 0 ? 0 : keyboard,
+                ),
+              ),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  // Its own navigator, and no heroes shared with the app's.
+                  // The first page is a slot: a route is built once, and the
+                  // screen it shows changes with every build of the example.
+                  _Screen(
+                    screen: child,
+                    child: HeroControllerScope.none(
+                      child: Navigator(
+                        onGenerateRoute: (settings) => UnaPageRoute<void>(
+                          settings: settings,
+                          builder: (_) => const _ScreenSlot(),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                if (keyboard > 0)
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    height: keyboard,
-                    child: const _StandInKeyboard(),
-                  ),
-              ],
+                  if (keyboard > 0)
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      height: keyboard,
+                      child: const _StandInKeyboard(),
+                    ),
+                ],
+              ),
             ),
           ),
         ),

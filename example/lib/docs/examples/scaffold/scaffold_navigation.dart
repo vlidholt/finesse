@@ -84,76 +84,78 @@ class _ScaffoldNavigationExampleState extends State<ScaffoldNavigationExample> {
                   ? 560
                   : 340,
               height: 460,
-              clipBehavior: Clip.antiAlias,
-              decoration: BoxDecoration(
-                borderRadius: theme.radii.xl2,
-              ),
               // Painted over the content, so nothing covers the frame's corners.
               foregroundDecoration: BoxDecoration(
                 border: Border.all(color: theme.colorScheme.border),
                 borderRadius: theme.radii.xl2,
               ),
-              child: MediaQuery.removePadding(
-                context: context,
-                removeTop: true,
-                removeBottom: true,
-                child: NavigationScaffold(
-                  // Auto follows the form factor; the rail is asked for.
-                  layout: isTablet
-                      ? NavigationLayout.rail
-                      : NavigationLayout.auto,
-                  destinations: _destinations,
-                  selectedIndex: index,
-                  onDestinationSelected: (i) => setState(() => index = i),
-                  leading: PhosphorIcon(
-                    PhosphorIconsFill.waves,
-                    size: 28,
-                    color: theme.colorScheme.tint,
-                  ),
-                  title: const Text('Demo'),
-                  actions: [
-                    IconButton.ghost(
-                      icon: const PhosphorIcon(PhosphorIconsRegular.gear),
-                      semanticLabel: 'Settings',
+              child: ClipRRect(
+                // A rounded-rectangle clip, which the renderer draws without a
+                // path, rather than `Container.clipBehavior`, which clips to the
+                // decoration's path.
+                borderRadius: theme.radii.xl2,
+                child: MediaQuery.removePadding(
+                  context: context,
+                  removeTop: true,
+                  removeBottom: true,
+                  child: NavigationScaffold(
+                    // Auto follows the form factor; the rail is asked for.
+                    layout: isTablet
+                        ? NavigationLayout.rail
+                        : NavigationLayout.auto,
+                    destinations: _destinations,
+                    selectedIndex: index,
+                    onDestinationSelected: (i) => setState(() => index = i),
+                    leading: PhosphorIcon(
+                      PhosphorIconsFill.waves,
+                      size: 28,
+                      color: theme.colorScheme.tint,
+                    ),
+                    title: const Text('Demo'),
+                    actions: [
+                      IconButton.ghost(
+                        icon: const PhosphorIcon(PhosphorIconsRegular.gear),
+                        semanticLabel: 'Settings',
+                        onPressed: () {},
+                      ),
+                    ],
+                    mobileActions: [
+                      IconButton.ghost(
+                        icon: const PhosphorIcon(PhosphorIconsRegular.bell),
+                        semanticLabel: 'Notifications',
+                        onPressed: () => setState(() => index = 3),
+                      ),
+                    ],
+                    action: NavigationAction(
+                      icon: const PhosphorIcon(PhosphorIconsBold.plus),
+                      label: 'Create post',
                       onPressed: () {},
                     ),
-                  ],
-                  mobileActions: [
-                    IconButton.ghost(
-                      icon: const PhosphorIcon(PhosphorIconsRegular.bell),
-                      semanticLabel: 'Notifications',
-                      onPressed: () => setState(() => index = 3),
-                    ),
-                  ],
-                  action: NavigationAction(
-                    icon: const PhosphorIcon(PhosphorIconsBold.plus),
-                    label: 'Create post',
-                    onPressed: () {},
-                  ),
-                  // Each destination's page is built when it is first
-                  // shown and kept, with its scroll offset, after that.
-                  body: DestinationStack(
-                    index: index,
-                    axis: isTablet ? Axis.vertical : Axis.horizontal,
-                    builders: [
-                      for (final destination in _destinations)
-                        (context) => PageContainer(
-                          scrollable: true,
-                          child: UnaColumn(
-                            gap: GapSize.lg,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              for (var i = 1; i <= 4; i++)
-                                Card(
-                                  title: Text('${destination.label} $i'),
-                                  description: const Text(
-                                    'The page scrolls beneath the bars.',
+                    // Each destination's page is built when it is first
+                    // shown and kept, with its scroll offset, after that.
+                    body: DestinationStack(
+                      index: index,
+                      axis: isTablet ? Axis.vertical : Axis.horizontal,
+                      builders: [
+                        for (final destination in _destinations)
+                          (context) => PageContainer(
+                            scrollable: true,
+                            child: UnaColumn(
+                              gap: GapSize.lg,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                for (var i = 1; i <= 4; i++)
+                                  Card(
+                                    title: Text('${destination.label} $i'),
+                                    description: const Text(
+                                      'The page scrolls beneath the bars.',
+                                    ),
                                   ),
-                                ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
