@@ -76,6 +76,11 @@ mixin _$ThemeData {
         b.streamingTextTheme,
         t,
       )!,
+      swipeActionsTheme: SwipeActionsTheme.lerp(
+        a.swipeActionsTheme,
+        b.swipeActionsTheme,
+        t,
+      )!,
       indicatorBadgeTheme: IndicatorBadgeTheme.lerp(
         a.indicatorBadgeTheme,
         b.indicatorBadgeTheme,
@@ -319,6 +324,7 @@ mixin _$ThemeData {
     ChatBubbleTheme? chatBubbleTheme,
     ChatListTheme? chatListTheme,
     StreamingTextTheme? streamingTextTheme,
+    SwipeActionsTheme? swipeActionsTheme,
     IndicatorBadgeTheme? indicatorBadgeTheme,
     IconTileTheme? iconTileTheme,
     PhosphorIconTheme? phosphorIconTheme,
@@ -418,6 +424,7 @@ mixin _$ThemeData {
       chatBubbleTheme: chatBubbleTheme ?? _this.chatBubbleTheme,
       chatListTheme: chatListTheme ?? _this.chatListTheme,
       streamingTextTheme: streamingTextTheme ?? _this.streamingTextTheme,
+      swipeActionsTheme: swipeActionsTheme ?? _this.swipeActionsTheme,
       indicatorBadgeTheme: indicatorBadgeTheme ?? _this.indicatorBadgeTheme,
       iconTileTheme: iconTileTheme ?? _this.iconTileTheme,
       phosphorIconTheme: phosphorIconTheme ?? _this.phosphorIconTheme,
@@ -544,6 +551,7 @@ mixin _$ThemeData {
       streamingTextTheme: _this.streamingTextTheme.merge(
         other.streamingTextTheme,
       ),
+      swipeActionsTheme: _this.swipeActionsTheme.merge(other.swipeActionsTheme),
       indicatorBadgeTheme: _this.indicatorBadgeTheme.merge(
         other.indicatorBadgeTheme,
       ),
@@ -679,6 +687,7 @@ mixin _$ThemeData {
         _other.chatBubbleTheme == _this.chatBubbleTheme &&
         _other.chatListTheme == _this.chatListTheme &&
         _other.streamingTextTheme == _this.streamingTextTheme &&
+        _other.swipeActionsTheme == _this.swipeActionsTheme &&
         _other.indicatorBadgeTheme == _this.indicatorBadgeTheme &&
         _other.iconTileTheme == _this.iconTileTheme &&
         _other.phosphorIconTheme == _this.phosphorIconTheme &&
@@ -780,6 +789,7 @@ mixin _$ThemeData {
       _this.chatBubbleTheme,
       _this.chatListTheme,
       _this.streamingTextTheme,
+      _this.swipeActionsTheme,
       _this.indicatorBadgeTheme,
       _this.iconTileTheme,
       _this.phosphorIconTheme,

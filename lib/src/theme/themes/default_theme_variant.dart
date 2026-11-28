@@ -66,6 +66,7 @@ import 'package:una/src/theme/components/slider.dart';
 import 'package:una/src/theme/components/spinner.dart';
 import 'package:una/src/theme/components/stepper.dart';
 import 'package:una/src/theme/components/streaming_text.dart';
+import 'package:una/src/theme/components/swipe_actions.dart';
 import 'package:una/src/theme/components/switch.dart';
 import 'package:una/src/theme/components/table.dart';
 import 'package:una/src/theme/components/tabs.dart';
@@ -2329,6 +2330,19 @@ class DefaultThemeVariant extends ThemeVariant {
       followDistance: 48,
       maxStaggerSteps: 3,
       jumpToLatestMargin: scaled(style.gapSm),
+    );
+  }
+
+  @override
+  SwipeActionsTheme swipeActionsTheme() {
+    return SwipeActionsTheme(
+      // The row's edge over the actions, as a sheet of paper over another:
+      // a soft falloff a few points wide, just enough to read as depth. A
+      // dark page needs more of it to show at all.
+      edgeShadowColor: _isDark
+          ? const Color(0x52000000)
+          : const Color(0x1f000000),
+      edgeShadowWidth: scaled(10),
     );
   }
 

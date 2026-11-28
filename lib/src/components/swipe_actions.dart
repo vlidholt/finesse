@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
@@ -103,6 +104,9 @@ class SwipeAction {
 /// closes, and [onRemoved] is called: take the item out of your list
 /// there.
 ///
+/// The row casts a soft shadow onto the actions it uncovers, at its edge;
+/// its colour and reach are the theme's `SwipeActionsTheme`.
+///
 /// The first of a side's actions is the one at the outer edge. In a
 /// right-to-left layout the sides swap with the text. A drag that starts in
 /// the first 20 logical pixels of the screen's leading edge is left alone
@@ -195,6 +199,21 @@ class _SwipeActionsState extends State<SwipeActions>
   bool _busy = false;
   bool _removing = false;
 
+  /// The side a closing row is coming back from: 1 from the right, -1 from
+  /// the left, 0 while it is not closing. A closing row stops at zero
+  /// rather than pass it, or the other side's actions would show for the
+  /// frames the spring spends beyond it.
+  double _closingFrom = 0;
+
+  /// Where the row is drawn: the spring's value, short of the far side of
+  /// zero while the row closes.
+  double get _visibleShift {
+    final shift = _shift.value;
+    if (_closingFrom > 0) return math.max(0, shift);
+    if (_closingFrom < 0) return math.min(0, shift);
+    return shift;
+  }
+
   /// Whether the row has gone and [SwipeActions.onRemoved] was called.
   bool _removed = false;
   ScrollPosition? _scrollPosition;
@@ -247,6 +266,7 @@ class _SwipeActionsState extends State<SwipeActions>
       _removing = false;
       _open = false;
       _fullArmed = false;
+      _closingFrom = 0;
       _spread.jumpTo(0);
       _shift.jumpTo(0);
       _height.jumpTo(1);
@@ -304,17 +324,31 @@ class _SwipeActionsState extends State<SwipeActions>
       0,
       spring: animate ? motion.snappy : MotionSpring.instant,
     );
-    _shift.animateTo(
-      0,
-      spring: animate ? motion.snappy : MotionSpring.instant,
-      velocity: velocity,
-    );
+    final from = _visibleShift;
+    _closingFrom = from.sign;
+    // Shut is a wall, not a resting point the row may swing through: no
+    // bounce, and no more of a flick's speed than the spring can take
+    // without carrying the row past zero.
+    final spring = animate
+        ? motion.snappy.copyWith(bounce: 0)
+        : MotionSpring.instant;
+    var start = velocity ?? _shift.velocity;
+    if (!spring.isInstant && start.sign == -from.sign) {
+      final seconds =
+          spring.duration.inMicroseconds / Duration.microsecondsPerSecond;
+      final limit = 2 * math.pi / seconds * from.abs();
+      start = start.clamp(-limit, limit);
+    }
+    _shift
+      ..jumpTo(from)
+      ..animateTo(0, spring: spring, velocity: start);
     _setOpen(false);
     _scope?._release(this);
   }
 
   void _settleOpen(double side, {double? velocity}) {
     final motion = Motion.of(context);
+    _closingFrom = 0;
     _spread.animateTo(0, spring: motion.snappy);
     _shift.animateTo(
       side.sign * _openExtent(side),
@@ -346,7 +380,7 @@ class _SwipeActionsState extends State<SwipeActions>
   /// a side that has actions. Anything else is left to whatever scrolls
   /// horizontally around the row.
   bool _canDrag(double direction) {
-    final shift = _shift.value;
+    final shift = _visibleShift;
     if (shift > 0 && direction < 0) return true;
     if (shift < 0 && direction > 0) return true;
     return direction > 0 ? _leftActions.isNotEmpty : _rightActions.isNotEmpty;
@@ -364,8 +398,9 @@ class _SwipeActionsState extends State<SwipeActions>
   void _beginDrag({required bool touch}) {
     _dragTouch = touch;
     _scope?._claim(this);
-    _shift.stop();
-    _dragStart = _shift.value;
+    _dragStart = _visibleShift;
+    _closingFrom = 0;
+    _shift.jumpTo(_dragStart);
   }
 
   void _onDragUpdate(DragUpdateDetails details) =>
@@ -401,7 +436,7 @@ class _SwipeActionsState extends State<SwipeActions>
 
   void _onDragEnd(DragEndDetails details) {
     final velocity = details.primaryVelocity ?? 0;
-    final shift = _shift.value;
+    final shift = _visibleShift;
     if (shift == 0) return _close(animate: false);
     if (_fullArmed) {
       unawaited(_run(_actionsFor(shift).first));
@@ -442,8 +477,6 @@ class _SwipeActionsState extends State<SwipeActions>
       if (!_scrollSwiping) {
         _scrollSwiping = true;
         _beginDrag(touch: false);
-        _shift.stop();
-        _dragStart = _shift.value;
       }
       // Content follows the fingers: a scroll to the right moves the row
       // to the left.
@@ -486,7 +519,10 @@ class _SwipeActionsState extends State<SwipeActions>
     // Out the way it was going. From shut (the menu, a screen reader), away
     // from the side the action is on, so that its colour follows the row
     // out.
-    final shift = _shift.value;
+    final shift = _visibleShift;
+    _closingFrom = 0;
+    // A row held short of zero starts out from where it is drawn.
+    if (shift != _shift.value) _shift.jumpTo(shift);
     final direction = shift != 0
         ? shift.sign
         : (_leftActions.contains(action) ? 1.0 : -1.0);
@@ -537,6 +573,9 @@ class _SwipeActionsState extends State<SwipeActions>
   Widget build(BuildContext context) {
     assert(debugCheckHasTheme(context));
     final actions = _allActions;
+    final swipeTheme = Theme.of(context).swipeActionsTheme;
+    final shadowWidth = swipeTheme.edgeShadowWidth ?? 0;
+    final shadowColor = swipeTheme.edgeShadowColor ?? const Color(0x00000000);
 
     Widget row = RawGestureDetector(
       behavior: HitTestBehavior.translucent,
@@ -557,7 +596,17 @@ class _SwipeActionsState extends State<SwipeActions>
       child: AnimatedBuilder(
         animation: _frame,
         builder: (context, child) {
-          final shift = _shift.value;
+          final shift = _visibleShift;
+          final width = _rowWidth;
+          // The shadow comes in over its own width as the row leaves shut,
+          // and goes as the row leaves the other edge: it never appears
+          // at full strength in one frame.
+          final shadowStrength = shadowWidth <= 0
+              ? 0.0
+              : math
+                        .min(shift.abs(), width - shift.abs())
+                        .clamp(0.0, shadowWidth) /
+                    shadowWidth;
           return ClipRect(
             // Nothing is clipped while the row is where it belongs.
             clipBehavior: shift == 0 ? Clip.none : Clip.hardEdge,
@@ -565,12 +614,19 @@ class _SwipeActionsState extends State<SwipeActions>
               children: [
                 if (shift != 0)
                   Positioned.fill(
+                    // One side's strip never becomes the other's: its
+                    // fills would fade from one action's colour to the
+                    // other's.
+                    key: ValueKey(shift > 0 ? _Slot.left : _Slot.right),
                     child: _ActionStrip(
                       actions: _actionsFor(shift),
                       onLeft: shift > 0,
                       // A spring may carry the row a hair past its own
                       // width; the strip is never wider than the row.
-                      extent: math.min(shift.abs(), _rowWidth),
+                      extent: math.min(shift.abs(), width),
+                      shadowColor: shadowColor,
+                      shadowWidth: shadowWidth,
+                      shadowStrength: shadowStrength,
                       spread: _spread.value.clamp(0.0, 1.0),
                       spreadIndex: _spreadIndex,
                       interactive: _open && !_busy && !_removing,
@@ -661,8 +717,8 @@ class _SwipeActionsState extends State<SwipeActions>
 }
 
 /// The keys of the row's stack: the row keeps its element when the action
-/// strip is put in before it.
-enum _Slot { row }
+/// strip is put in before it, and each side has a strip of its own.
+enum _Slot { row, left, right }
 
 /// A horizontal drag that only competes for a direction the row can go in,
 /// so a row with nothing on one side leaves that swipe to a page view or a
@@ -718,6 +774,9 @@ class _ActionStrip extends StatelessWidget {
     required this.actions,
     required this.onLeft,
     required this.extent,
+    required this.shadowColor,
+    required this.shadowWidth,
+    required this.shadowStrength,
     required this.spread,
     required this.spreadIndex,
     required this.interactive,
@@ -727,6 +786,9 @@ class _ActionStrip extends StatelessWidget {
   final List<SwipeAction> actions;
   final bool onLeft;
   final double extent;
+  final Color shadowColor;
+  final double shadowWidth;
+  final double shadowStrength;
   final double spread;
   final int spreadIndex;
   final bool interactive;
@@ -762,15 +824,73 @@ class _ActionStrip extends StatelessWidget {
         alignment: onLeft ? Alignment.centerLeft : Alignment.centerRight,
         child: SizedBox(
           width: extent,
-          child: Row(
-            textDirection: TextDirection.ltr,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: onLeft ? blocks : blocks.reversed.toList(),
+          child: CustomPaint(
+            foregroundPainter: _EdgeShadowPainter(
+              color: shadowColor,
+              width: shadowWidth,
+              strength: shadowStrength,
+              onLeft: onLeft,
+            ),
+            child: Row(
+              textDirection: TextDirection.ltr,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: onLeft ? blocks : blocks.reversed.toList(),
+            ),
           ),
         ),
       ),
     );
   }
+}
+
+/// The shadow the row casts onto the actions, at the strip's inner edge
+/// (where the row is): one gradient-filled rectangle, darkest at the edge.
+class _EdgeShadowPainter extends CustomPainter {
+  const _EdgeShadowPainter({
+    required this.color,
+    required this.width,
+    required this.strength,
+    required this.onLeft,
+  });
+
+  final Color color;
+  final double width;
+  final double strength;
+  final bool onLeft;
+
+  /// A blurred edge's falloff: steep near the edge, a long faint tail.
+  static const _stops = [0.0, .2, .45, .72, 1.0];
+  static const _alphas = [1.0, .55, .25, .08, 0.0];
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final alpha = color.a * strength;
+    final reach = math.min(width, size.width);
+    if (alpha <= 0 || reach <= 0) return;
+    // The row's edge is at the strip's right end when the strip is on the
+    // left, and at its left end otherwise.
+    final edge = onLeft ? size.width : 0.0;
+    final toward = onLeft ? edge - width : edge + width;
+    canvas.drawRect(
+      onLeft
+          ? Rect.fromLTRB(edge - reach, 0, edge, size.height)
+          : Rect.fromLTRB(0, 0, reach, size.height),
+      Paint()
+        ..shader = ui.Gradient.linear(
+          Offset(edge, 0),
+          Offset(toward, 0),
+          [for (final a in _alphas) color.withValues(alpha: alpha * a)],
+          _stops,
+        ),
+    );
+  }
+
+  @override
+  bool shouldRepaint(_EdgeShadowPainter oldDelegate) =>
+      oldDelegate.color != color ||
+      oldDelegate.width != width ||
+      oldDelegate.strength != strength ||
+      oldDelegate.onLeft != onLeft;
 }
 
 class _ActionBlock extends StatelessWidget {

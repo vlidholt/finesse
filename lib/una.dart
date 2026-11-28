@@ -263,6 +263,7 @@ export 'src/theme/components/slider.dart';
 export 'src/theme/components/spinner.dart';
 export 'src/theme/components/stepper.dart';
 export 'src/theme/components/streaming_text.dart';
+export 'src/theme/components/swipe_actions.dart';
 export 'src/theme/components/switch.dart';
 export 'src/theme/components/table.dart';
 export 'src/theme/components/tabs.dart';

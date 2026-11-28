@@ -62,6 +62,7 @@ import 'package:una/src/theme/components/slider.dart';
 import 'package:una/src/theme/components/spinner.dart';
 import 'package:una/src/theme/components/stepper.dart';
 import 'package:una/src/theme/components/streaming_text.dart';
+import 'package:una/src/theme/components/swipe_actions.dart';
 import 'package:una/src/theme/components/switch.dart';
 import 'package:una/src/theme/components/table.dart';
 import 'package:una/src/theme/components/tabs.dart';
@@ -181,6 +182,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     ChatBubbleTheme? chatBubbleTheme,
     ChatListTheme? chatListTheme,
     StreamingTextTheme? streamingTextTheme,
+    SwipeActionsTheme? swipeActionsTheme,
     IndicatorBadgeTheme? indicatorBadgeTheme,
     IconTileTheme? iconTileTheme,
     PhosphorIconTheme? phosphorIconTheme,
@@ -474,6 +476,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
         chatBubbleTheme: chatBubbleTheme,
         chatListTheme: chatListTheme,
         streamingTextTheme: streamingTextTheme,
+        swipeActionsTheme: swipeActionsTheme,
         indicatorBadgeTheme: indicatorBadgeTheme,
         iconTileTheme: iconTileTheme,
         phosphorIconTheme: phosphorIconTheme,
@@ -660,6 +663,9 @@ class ThemeData extends BaseTheme with _$ThemeData {
       streamingTextTheme: effectiveVariant.streamingTextTheme().merge(
         streamingTextTheme,
       ),
+      swipeActionsTheme: effectiveVariant.swipeActionsTheme().merge(
+        swipeActionsTheme,
+      ),
       indicatorBadgeTheme: effectiveVariant.indicatorBadgeTheme().merge(
         indicatorBadgeTheme,
       ),
@@ -770,6 +776,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     required super.chatBubbleTheme,
     required super.chatListTheme,
     required super.streamingTextTheme,
+    required super.swipeActionsTheme,
     required super.indicatorBadgeTheme,
     required super.iconTileTheme,
     required super.phosphorIconTheme,
@@ -867,6 +874,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
     ChatBubbleTheme? chatBubbleTheme,
     ChatListTheme? chatListTheme,
     StreamingTextTheme? streamingTextTheme,
+    SwipeActionsTheme? swipeActionsTheme,
     IndicatorBadgeTheme? indicatorBadgeTheme,
     IconTileTheme? iconTileTheme,
     PhosphorIconTheme? phosphorIconTheme,
@@ -975,6 +983,7 @@ class ThemeData extends BaseTheme with _$ThemeData {
       chatBubbleTheme: chatBubbleTheme ?? i.chatBubbleTheme,
       chatListTheme: chatListTheme ?? i.chatListTheme,
       streamingTextTheme: streamingTextTheme ?? i.streamingTextTheme,
+      swipeActionsTheme: swipeActionsTheme ?? i.swipeActionsTheme,
       indicatorBadgeTheme: indicatorBadgeTheme ?? i.indicatorBadgeTheme,
       iconTileTheme: iconTileTheme ?? i.iconTileTheme,
       phosphorIconTheme: phosphorIconTheme ?? i.phosphorIconTheme,
@@ -1185,6 +1194,7 @@ final class _ThemeInputs {
     this.chatBubbleTheme,
     this.chatListTheme,
     this.streamingTextTheme,
+    this.swipeActionsTheme,
     this.indicatorBadgeTheme,
     this.iconTileTheme,
     this.phosphorIconTheme,
@@ -1288,6 +1298,7 @@ final class _ThemeInputs {
   final ChatBubbleTheme? chatBubbleTheme;
   final ChatListTheme? chatListTheme;
   final StreamingTextTheme? streamingTextTheme;
+  final SwipeActionsTheme? swipeActionsTheme;
   final IndicatorBadgeTheme? indicatorBadgeTheme;
   final IconTileTheme? iconTileTheme;
   final PhosphorIconTheme? phosphorIconTheme;

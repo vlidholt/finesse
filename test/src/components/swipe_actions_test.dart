@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:una/una.dart';
 
+import '../../frame_sampler.dart';
 import '../../una_harness.dart';
 
 void main() {
@@ -799,6 +800,292 @@ void main() {
       // The second swipe starts with a pointer down outside the first row,
       // which closes it: that is the tap-outside rule, not the scope.
       expect(shiftOf(tester, const Key('row0')), lessThan(-100));
+    });
+  });
+
+  group('SwipeActions closing', () {
+    // Each side in a colour of its own, over a page of a third, so a frame
+    // can tell which side's actions it shows.
+    const pin = Color(0xFFFF00FF);
+    const archive = Color(0xFF00FF00);
+    const page = Color(0xFF0000FF);
+    const row = Color(0xFFFFFFFF);
+
+    SwipeAction coloured(String label, Color color) => SwipeAction(
+      icon: const SizedBox(width: 20, height: 20),
+      label: label,
+      backgroundColor: color,
+      onPressed: () => false,
+    );
+
+    Future<FrameSampler> pumpColoured(WidgetTester tester) async {
+      final sampler = FrameSampler();
+      await pumpUna(
+        tester,
+        sampler.wrap(
+          ColoredBox(
+            color: page,
+            child: host(
+              SwipeActions(
+                key: const Key('row'),
+                leading: [coloured('Pin', pin)],
+                trailing: [coloured('Archive', archive)],
+                child: const ColoredBox(
+                  color: row,
+                  child: SizedBox(width: double.infinity, height: 56),
+                ),
+              ),
+            ),
+          ),
+        ),
+        // No edge shadow: the samples are the actions' own colours.
+        theme: ThemeData(
+          swipeActionsTheme: const SwipeActionsTheme(edgeShadowWidth: 0),
+        ),
+      );
+      return sampler;
+    }
+
+    /// Drags the open row [back] points towards shut at [speed] points a
+    /// second and lets go, with timestamps a velocity tracker believes.
+    Future<double> flickShut(
+      WidgetTester tester, {
+      required double direction,
+      required double back,
+      required double speed,
+    }) async {
+      final row = tester.getRect(find.byKey(const Key('row')));
+      var time = const Duration(seconds: 100);
+      final step = Duration(microseconds: (10 / speed * 1e6).round());
+      final gesture = await tester.createGesture();
+      await gesture.down(row.center, timeStamp: time);
+      for (var moved = 0.0; moved < back; moved += 10) {
+        time += step;
+        await gesture.moveBy(Offset(direction * 10, 0), timeStamp: time);
+        await tester.pump(step);
+      }
+      final released = shiftOf(tester);
+      await gesture.up(timeStamp: time + const Duration(milliseconds: 1));
+      return released;
+    }
+
+    for (final side in [-1.0, 1.0]) {
+      final name = side < 0 ? 'trailing' : 'leading';
+      for (final (back, speed) in [
+        (0.0, 0.0),
+        (30.0, 3000.0),
+        (40.0, 1500.0),
+        (50.0, 800.0),
+        (60.0, 3000.0),
+        (65.0, 6000.0),
+      ]) {
+        testWidgets('the $name side springs shut without showing the other '
+            'side (back $back at $speed)', (tester) async {
+          final sampler = await pumpColoured(tester);
+          await swipe(tester, side * 120, on: find.byKey(const Key('row')));
+          final open = shiftOf(tester);
+          expect(open.sign, side);
+          if (back == 0) {
+            // A tap on the open row shuts it, with no fling at all.
+            await tester.tap(find.byKey(const Key('row')));
+          } else {
+            final released = await flickShut(
+              tester,
+              direction: -side,
+              back: back,
+              speed: speed,
+            );
+            // Let go short of shut, on the side it was open on.
+            expect(released.sign, side);
+          }
+          final rect = tester.getRect(find.byKey(const Key('row')));
+          // The edge the other side's actions would come in at.
+          final far = side < 0
+              ? Offset(rect.left + 1, rect.center.dy)
+              : Offset(rect.right - 2, rect.center.dy);
+          final other = side < 0 ? pin : archive;
+          final otherLabel = side < 0 ? 'Pin' : 'Archive';
+          for (var frame = 0; frame < 40; frame++) {
+            await tester.pump(const Duration(milliseconds: 16));
+            final shift = shiftOf(tester);
+            expect(
+              shift.sign == -side,
+              isFalse,
+              reason: 'frame $frame: the row crossed shut to $shift',
+            );
+            expect(
+              find.text(otherLabel),
+              findsNothing,
+              reason: 'frame $frame: the other side is built',
+            );
+            expect(
+              await sampler.pixel(tester, far),
+              isNot(other),
+              reason: 'frame $frame: the other side shows',
+            );
+          }
+          await tester.pumpAndSettle();
+          expect(shiftOf(tester), 0);
+        });
+      }
+    }
+
+    testWidgets('a drag across shut hands over to the other side at once', (
+      tester,
+    ) async {
+      // Without a strip per side the right-hand strip would take over the
+      // left-hand one's fills and fade them from one colour to the other.
+      final sampler = await pumpColoured(tester);
+      final row = tester.getRect(find.byKey(const Key('row')));
+      final gesture = await tester.startGesture(row.center);
+      addTearDown(gesture.removePointer);
+      for (var i = 0; i < 6; i++) {
+        await gesture.moveBy(const Offset(10, 0));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      expect(shiftOf(tester), greaterThan(20));
+      // Across to the other side in one move.
+      await gesture.moveBy(Offset(-shiftOf(tester) - 30, 0));
+      await tester.pump();
+      expect(shiftOf(tester), lessThan(-20));
+      expect(
+        await sampler.pixel(tester, Offset(row.right - 2, row.center.dy)),
+        archive,
+      );
+    });
+  });
+
+  group('SwipeActions edge shadow', () {
+    const fill = Color(0xFF00FF00);
+
+    Future<FrameSampler> pumpOpen(
+      WidgetTester tester, {
+      ThemeData? theme,
+    }) async {
+      final sampler = FrameSampler();
+      await pumpUna(
+        tester,
+        sampler.wrap(
+          host(
+            SwipeActions(
+              key: const Key('row'),
+              trailing: [
+                SwipeAction(
+                  icon: const SizedBox.shrink(),
+                  label: 'Archive',
+                  backgroundColor: fill,
+                  onPressed: () => false,
+                ),
+              ],
+              child: const ColoredBox(
+                color: Color(0xFFFFFFFF),
+                child: SizedBox(width: double.infinity, height: 56),
+              ),
+            ),
+          ),
+        ),
+        theme: theme,
+      );
+      await swipe(tester, -120, on: find.byKey(const Key('row')));
+      expect(shiftOf(tester), moreOrLessEquals(-76, epsilon: .5));
+      return sampler;
+    }
+
+    /// The fill just inside the row's edge and well clear of it, on the
+    /// action's top row of pixels (clear of its label).
+    Future<(Color, Color)> samples(
+      WidgetTester tester,
+      FrameSampler sampler,
+    ) async {
+      final row = tester.getRect(find.byKey(const Key('row')));
+      final edge = row.right - 76;
+      final colors = await sampler.pixels(tester, [
+        Offset(edge + .5, row.top + 2),
+        Offset(edge + 40, row.top + 2),
+      ]);
+      return (colors[0], colors[1]);
+    }
+
+    testWidgets('the row casts a soft shadow onto the uncovered actions', (
+      tester,
+    ) async {
+      final sampler = await pumpOpen(tester);
+      final (atEdge, clear) = await samples(tester, sampler);
+      expect(clear, fill);
+      expect(atEdge, isNot(fill));
+      // Darker, but only a little.
+      expect(atEdge.g, lessThan(fill.g));
+      expect(atEdge.g, greaterThan(.75));
+    });
+
+    testWidgets('it is a theme value, darker in a dark theme, and zero '
+        'width draws none', (tester) async {
+      final light = ThemeData().swipeActionsTheme;
+      final dark = ThemeData(brightness: Brightness.dark).swipeActionsTheme;
+      expect(light.edgeShadowWidth, greaterThan(0));
+      expect(dark.edgeShadowColor!.a, greaterThan(light.edgeShadowColor!.a));
+
+      final sampler = await pumpOpen(
+        tester,
+        theme: ThemeData(
+          swipeActionsTheme: const SwipeActionsTheme(edgeShadowWidth: 0),
+        ),
+      );
+      final (atEdge, clear) = await samples(tester, sampler);
+      expect(atEdge, fill);
+      expect(clear, fill);
+    });
+
+    testWidgets('it comes in with the swipe rather than at full strength', (
+      tester,
+    ) async {
+      final sampler = FrameSampler();
+      await pumpUna(
+        tester,
+        sampler.wrap(
+          host(
+            SwipeActions(
+              key: const Key('row'),
+              trailing: [
+                SwipeAction(
+                  icon: const SizedBox.shrink(),
+                  label: 'Archive',
+                  backgroundColor: fill,
+                  onPressed: () => false,
+                ),
+              ],
+              child: const ColoredBox(
+                color: Color(0xFFFFFFFF),
+                child: SizedBox(width: double.infinity, height: 56),
+              ),
+            ),
+          ),
+        ),
+      );
+      final row = tester.getRect(find.byKey(const Key('row')));
+      final gesture = await tester.startGesture(row.center);
+      addTearDown(gesture.removePointer);
+      // Past the slop, then two points.
+      for (var i = 0; i < 2; i++) {
+        await gesture.moveBy(const Offset(-10, 0));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      await gesture.moveBy(Offset(-2 - shiftOf(tester), 0));
+      await tester.pump();
+      final shift = shiftOf(tester);
+      expect(shift, moreOrLessEquals(-2, epsilon: .5));
+      final near = await sampler.pixel(
+        tester,
+        Offset(row.right + shift + .5, row.top + 2),
+      );
+      await gesture.moveBy(const Offset(-40, 0));
+      await tester.pump();
+      final wide = await sampler.pixel(
+        tester,
+        Offset(row.right + shiftOf(tester) + .5, row.top + 2),
+      );
+      // The same spot by the row's edge is darker once the shadow is in.
+      expect(near.g, greaterThan(wide.g));
     });
   });
 

@@ -20,7 +20,10 @@ final swipeActionsDoc = ComponentDoc(
           'slides out, the gap closes and `onRemoved` is called. Right-click '
           'a row, or press the menu key while it has the focus, for the same '
           'actions as a menu. '
-          '`SwipeActionsScope` keeps one row open at a time.',
+          '`SwipeActionsScope` keeps one row open at a time. The row casts '
+          'a soft shadow onto the actions it uncovers: its colour and reach '
+          'are `edgeShadowColor` and `edgeShadowWidth` of the theme\'s '
+          '`SwipeActionsTheme` (a width of 0 draws none).',
       minPreviewHeight: 380,
       builder: (_) => const SwipeActionsInboxExample(),
     ),
