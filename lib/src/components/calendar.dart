@@ -1387,12 +1387,10 @@ class _CalendarState extends State<Calendar> {
                   ),
                   // A new month is simply there: a grid that slides in reads
                   // as lag when the month is changed a few times in a row.
-                  GridView.count(
-                    mainAxisSpacing: effectiveGridMainAxisSpacing,
-                    crossAxisSpacing: effectiveGridCrossAxisSpacing,
-                    crossAxisCount: columnsCount,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
+                  _DayGrid(
+                    columns: columnsCount,
+                    rowSpacing: effectiveGridMainAxisSpacing,
+                    columnSpacing: effectiveGridCrossAxisSpacing,
                     children: dateModel.dates.mapIndexed((index, date) {
                       if (date == null) return const SizedBox.shrink();
                       final selected = switch (widget.variant) {
@@ -1691,5 +1689,56 @@ class _CalendarState extends State<Calendar> {
         ),
       ),
     );
+  }
+}
+
+/// The days of a month: rows of [columns] square cells as wide as the room
+/// allows, [rowSpacing] between the rows and [columnSpacing] between the
+/// cells of a row.
+///
+/// Not a `GridView`. A grid view is a scrollable, and every scrollable
+/// takes things from the page around it that a calendar must not have: it
+/// pads itself with the top and bottom of the ambient `MediaQuery` padding
+/// (under a scaffold's bar that is the bar's height, an empty row above the
+/// first week), and it restores the scroll offset `PageStorage` keeps for
+/// the nearest `PageStorageKey` above it — a page's, which it shares — so a
+/// calendar opened on a scrolled page came in scrolled and sprang back.
+class _DayGrid extends StatelessWidget {
+  const _DayGrid({
+    required this.columns,
+    required this.rowSpacing,
+    required this.columnSpacing,
+    required this.children,
+  });
+
+  final int columns;
+  final double rowSpacing;
+  final double columnSpacing;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final rows = <Widget>[];
+    for (var start = 0; start < children.length; start += columns) {
+      if (rows.isNotEmpty && rowSpacing > 0) {
+        rows.add(SizedBox(height: rowSpacing));
+      }
+      final cells = <Widget>[];
+      for (var i = start; i < start + columns; i++) {
+        if (cells.isNotEmpty && columnSpacing > 0) {
+          cells.add(SizedBox(width: columnSpacing));
+        }
+        cells.add(
+          Expanded(
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: i < children.length ? children[i] : const SizedBox(),
+            ),
+          ),
+        );
+      }
+      rows.add(Row(children: cells));
+    }
+    return Column(mainAxisSize: MainAxisSize.min, children: rows);
   }
 }
