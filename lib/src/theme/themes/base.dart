@@ -59,6 +59,7 @@ import 'package:una/src/theme/components/slider.dart';
 import 'package:una/src/theme/components/spinner.dart';
 import 'package:una/src/theme/components/stepper.dart';
 import 'package:una/src/theme/components/streaming_text.dart';
+import 'package:una/src/theme/components/swipe_actions.dart';
 import 'package:una/src/theme/components/switch.dart';
 import 'package:una/src/theme/components/table.dart';
 import 'package:una/src/theme/components/tabs.dart';
@@ -182,6 +183,7 @@ abstract class BaseTheme {
     required this.chatBubbleTheme,
     required this.chatListTheme,
     required this.streamingTextTheme,
+    required this.swipeActionsTheme,
     required this.indicatorBadgeTheme,
     required this.iconTileTheme,
     required this.phosphorIconTheme,
@@ -257,6 +259,9 @@ abstract class BaseTheme {
 
   /// The theme of `StreamingText`.
   final StreamingTextTheme streamingTextTheme;
+
+  /// The theme of `SwipeActions`.
+  final SwipeActionsTheme swipeActionsTheme;
 
   /// The theme of the matching widget.
   final IndicatorBadgeTheme indicatorBadgeTheme;
@@ -750,6 +755,9 @@ abstract class ThemeVariant {
 
   /// Builds the [StreamingTextTheme].
   StreamingTextTheme streamingTextTheme();
+
+  /// Builds the [SwipeActionsTheme].
+  SwipeActionsTheme swipeActionsTheme();
 
   /// Builds the [IndicatorBadgeTheme].
   IndicatorBadgeTheme indicatorBadgeTheme();

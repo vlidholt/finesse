@@ -434,6 +434,7 @@ SurfaceKind
 SwipeAction
 SwipeActions
 SwipeActionsScope
+SwipeActionsTheme
 Switch
 SwitchFormField
 SwitchListTile

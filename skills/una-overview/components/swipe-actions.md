@@ -4,7 +4,7 @@ A row with actions behind it, uncovered by swiping it sideways: archive or delet
 
 ## An inbox
 
-Swipe a row with a finger, drag it with the mouse or swipe two fingers sideways on a trackpad. Let go past half of the actions and they stay open; swipe across most of the row and the outer one runs. An action that returns true removes the row: it slides out, the gap closes and `onRemoved` is called. Right-click a row, or press the menu key while it has the focus, for the same actions as a menu. `SwipeActionsScope` keeps one row open at a time.
+Swipe a row with a finger, drag it with the mouse or swipe two fingers sideways on a trackpad. Let go past half of the actions and they stay open; swipe across most of the row and the outer one runs. An action that returns true removes the row: it slides out, the gap closes and `onRemoved` is called. Right-click a row, or press the menu key while it has the focus, for the same actions as a menu. `SwipeActionsScope` keeps one row open at a time. The row casts a soft shadow onto the actions it uncovers: its colour and reach are `edgeShadowColor` and `edgeShadowWidth` of the theme's `SwipeActionsTheme` (a width of 0 draws none).
 
 ```dart
 import 'package:flutter/widgets.dart';
