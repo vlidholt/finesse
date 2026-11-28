@@ -397,6 +397,11 @@ SidebarTheme
 SidebarTrigger
 SidebarVariant
 Skeleton
+SkeletonCard
+SkeletonChatBubble
+SkeletonListTile
+SkeletonTableRow
+SkeletonText
 SkeletonTheme
 SlateColorScheme
 Slider
@@ -414,6 +419,7 @@ SpanPadding
 Sparkline
 Spinner
 SpinnerTheme
+SpinnerVariant
 SpringBuilder
 SpringController
 SpringSize

@@ -15,9 +15,9 @@ class SkeletonCardExample extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Skeleton(width: 250, height: 16),
+            Skeleton(width: 220, height: 16),
             SizedBox(height: 8),
-            Skeleton(width: 200, height: 16),
+            Skeleton(width: 160, height: 16),
           ],
         ),
       ],

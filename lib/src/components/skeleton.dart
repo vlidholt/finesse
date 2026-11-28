@@ -1,23 +1,41 @@
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/button.dart';
+import 'package:una/src/components/skeleton_paint.dart';
 import 'package:una/src/theme/motion.dart';
 import 'package:una/src/theme/theme.dart';
 import 'package:una/src/utils/debug_check.dart';
 
+/// The shapes a [Skeleton] block can take from the theme.
+enum _SkeletonShape { box, circle, avatar, button, chip }
+
 /// {@template Skeleton}
 /// A placeholder shown while content is loading.
 ///
-/// Mirrors shadcn/ui's `Skeleton`: a muted, rounded block that pulses. Give it
-/// a size the way you would any box — with a [SizedBox], a [width]/[height],
+/// A muted, rounded block that shimmers — a soft band of light sweeping
+/// across it — in the `una` style, and pulses in the shadcn ones. Give it a
+/// size the way you would any box — with a [SizedBox], a [width]/[height],
 /// or by letting it fill its parent.
 ///
 /// ```dart
 /// const Skeleton(width: 200, height: 16)
 /// ```
 ///
-/// Wrap real content once it has loaded rather than nesting it inside the
-/// skeleton; a skeleton is a stand-in, not a container.
+/// Every skeleton on screen moves to one clock, and the shimmer's band is
+/// laid across the whole screen: a column of lines, an avatar beside them
+/// and a card below shimmer as one surface, the band passing over each in
+/// turn. The block is painted, not built, in a layer of its own; under
+/// reduced motion it holds still.
+///
+/// The named constructors take their size and corners from the component
+/// they stand in for — [Skeleton.avatar], [Skeleton.button],
+/// [Skeleton.chip] — and `SkeletonText`, `SkeletonListTile`, `SkeletonCard`,
+/// `SkeletonChatBubble` and `SkeletonTableRow` lay out whole placeholders
+/// in the theme's own metrics.
+///
+/// Swap the real content in once it has loaded rather than nesting it
+/// inside the skeleton; a skeleton is a stand-in, not a container.
 /// {@endtemplate}
-class Skeleton extends StatefulWidget {
+class Skeleton extends StatelessWidget {
   /// {@macro Skeleton}
   const Skeleton({
     super.key,
@@ -31,9 +49,10 @@ class Skeleton extends StatefulWidget {
     this.animate,
     this.shimmer,
     this.child,
-  });
+  }) : _shape = _SkeletonShape.box,
+       _buttonSize = null;
 
-  /// A circular skeleton, useful as an avatar placeholder.
+  /// A circular skeleton [size] across.
   const Skeleton.circle({
     super.key,
     required double size,
@@ -46,7 +65,62 @@ class Skeleton extends StatefulWidget {
     this.child,
   }) : width = size,
        height = size,
-       borderRadius = const BorderRadius.all(Radius.circular(9999));
+       borderRadius = null,
+       _shape = _SkeletonShape.circle,
+       _buttonSize = null;
+
+  /// The placeholder of an `Avatar`: a circle the size the avatar theme
+  /// gives one, or [size] across.
+  const Skeleton.avatar({
+    super.key,
+    double? size,
+    this.color,
+    this.highlightColor,
+    this.duration,
+    this.curve,
+    this.animate,
+    this.shimmer,
+  }) : width = size,
+       height = size,
+       borderRadius = null,
+       child = null,
+       _shape = _SkeletonShape.avatar,
+       _buttonSize = null;
+
+  /// The placeholder of a `Button` of [size]: its height and corners, and
+  /// [width] wide (88 by default).
+  const Skeleton.button({
+    super.key,
+    this.width,
+    ButtonSize size = ButtonSize.regular,
+    this.color,
+    this.highlightColor,
+    this.duration,
+    this.curve,
+    this.animate,
+    this.shimmer,
+  }) : height = null,
+       borderRadius = null,
+       child = null,
+       _shape = _SkeletonShape.button,
+       _buttonSize = size;
+
+  /// The placeholder of a `Chip`: its height and corners, and [width] wide
+  /// (72 by default).
+  const Skeleton.chip({
+    super.key,
+    this.width,
+    this.color,
+    this.highlightColor,
+    this.duration,
+    this.curve,
+    this.animate,
+    this.shimmer,
+  }) : height = null,
+       borderRadius = null,
+       child = null,
+       _shape = _SkeletonShape.chip,
+       _buttonSize = null;
 
   /// The width of the skeleton. Null means "as wide as the parent allows".
   final double? width;
@@ -60,7 +134,7 @@ class Skeleton extends StatefulWidget {
   final Color? color;
 
   /// {@template Skeleton.highlightColor}
-  /// The color the skeleton pulses towards.
+  /// The colour of the shimmer's band, or the colour a pulse fades to.
   /// {@endtemplate}
   final Color? highlightColor;
 
@@ -70,19 +144,20 @@ class Skeleton extends StatefulWidget {
   final BorderRadiusGeometry? borderRadius;
 
   /// {@template Skeleton.duration}
-  /// The duration of one full pulse.
+  /// The duration of one pulse, or of one pass of the shimmer with the
+  /// pause after it.
   /// {@endtemplate}
   final Duration? duration;
 
   /// {@template Skeleton.curve}
-  /// The curve of the pulse.
+  /// The curve of the pulse, or of the shimmer's travel.
   /// {@endtemplate}
   final Curve? curve;
 
   /// {@template Skeleton.animate}
-  /// Whether the skeleton pulses, defaults to `true`.
+  /// Whether the skeleton moves, defaults to `true`.
   ///
-  /// It never animates when the platform asks for reduced motion
+  /// It never moves when the platform asks for reduced motion
   /// (`MediaQuery.disableAnimationsOf`) or the theme's motion is switched
   /// off. Set it to `false` in tests and goldens, where a running animation
   /// would be a source of flake.
@@ -98,139 +173,81 @@ class Skeleton extends StatefulWidget {
   /// to give the placeholder the shape of the content it stands in for.
   final Widget? child;
 
-  @override
-  State<Skeleton> createState() => _SkeletonState();
-}
-
-class _SkeletonState extends State<Skeleton>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 1500),
-  );
-
-  bool _animating = false;
-  bool _shimmering = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _syncAnimation();
-  }
-
-  @override
-  void didUpdateWidget(Skeleton oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.animate != oldWidget.animate ||
-        widget.shimmer != oldWidget.shimmer ||
-        widget.duration != oldWidget.duration) {
-      _syncAnimation();
-    }
-  }
-
-  void _syncAnimation() {
-    final theme = Theme.of(context);
-    _controller.duration =
-        widget.duration ??
-        theme.skeletonTheme.duration ??
-        const Duration(milliseconds: 1500);
-
-    // A placeholder that moves for as long as it is on screen is exactly
-    // what a reduced-motion setting asks to be spared.
-    final motion = Motion.of(context);
-    final shouldAnimate =
-        (widget.animate ?? theme.skeletonTheme.animate ?? true) &&
-        !motion.reduced;
-    final shimmers =
-        widget.shimmer ?? theme.skeletonTheme.shimmer ?? motion.shimmer;
-    if (shouldAnimate == _animating && shimmers == _shimmering) return;
-    _animating = shouldAnimate;
-    _shimmering = shimmers;
-    if (shouldAnimate) {
-      // A pulse goes there and back; a shimmer sweeps one way and starts
-      // again.
-      _controller.repeat(reverse: !shimmers);
-    } else {
-      _controller
-        ..stop()
-        ..value = 0;
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  final _SkeletonShape _shape;
+  final ButtonSize? _buttonSize;
 
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasTheme(context));
     final theme = Theme.of(context);
     final skeletonTheme = theme.skeletonTheme;
+    final motion = Motion.of(context);
 
     final effectiveColor =
-        widget.color ?? skeletonTheme.color ?? theme.colorScheme.muted;
+        color ?? skeletonTheme.color ?? theme.colorScheme.muted;
     final effectiveHighlightColor =
-        widget.highlightColor ??
+        highlightColor ??
         skeletonTheme.highlightColor ??
-        effectiveColor.withValues(alpha: .4);
-    final effectiveRadius =
-        widget.borderRadius ?? skeletonTheme.borderRadius ?? theme.radius;
-    final effectiveCurve =
-        widget.curve ?? skeletonTheme.curve ?? Curves.easeInOut;
+        effectiveColor.withValues(alpha: effectiveColor.a * .4);
+
+    var effectiveWidth = width;
+    var effectiveHeight = height;
+    final BorderRadiusGeometry effectiveRadius;
+    switch (_shape) {
+      case _SkeletonShape.box:
+        effectiveRadius =
+            borderRadius ?? skeletonTheme.borderRadius ?? theme.radius;
+      case _SkeletonShape.circle:
+        effectiveRadius = theme.radii.full;
+      case _SkeletonShape.avatar:
+        final side = width ?? theme.avatarTheme.size?.shortestSide ?? 40;
+        effectiveWidth = side;
+        effectiveHeight = side;
+        effectiveRadius = theme.radii.full;
+      case _SkeletonShape.button:
+        final sizes = theme.buttonSizesTheme;
+        final metrics = switch (_buttonSize!) {
+          ButtonSize.regular => sizes.regular,
+          ButtonSize.sm => sizes.sm,
+          ButtonSize.lg => sizes.lg,
+        };
+        effectiveWidth = width ?? 88;
+        effectiveHeight = metrics?.height ?? 36;
+        effectiveRadius = theme.radii.resolve(theme.style.buttonRadius);
+      case _SkeletonShape.chip:
+        effectiveWidth = width ?? 72;
+        effectiveHeight = theme.chipTheme.height ?? 32;
+        effectiveRadius = theme.chipTheme.borderRadius ?? theme.radii.full;
+    }
+
+    // A placeholder that moves for as long as it is on screen is exactly
+    // what a reduced-motion setting asks to be spared.
+    final moves = (animate ?? skeletonTheme.animate ?? true) && !motion.reduced;
+    final shimmers = shimmer ?? skeletonTheme.shimmer ?? motion.shimmer;
 
     // The placeholder conveys nothing to a screen reader beyond "loading",
     // which the surrounding content is responsible for announcing.
     return ExcludeSemantics(
       child: SizedBox(
-        width: widget.width,
-        height: widget.height,
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, child) {
-            final t = effectiveCurve.transform(_controller.value);
-            if (_shimmering && _animating) {
-              // A band of the highlight, one box wide, travelling from
-              // just off the leading edge to just off the trailing one.
-              final x = -3 + 4 * t;
-              final sign = Directionality.maybeOf(context) == TextDirection.rtl
-                  ? -1.0
-                  : 1.0;
-              return DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment(sign * x, 0),
-                    end: Alignment(sign * (x + 2), 0),
-                    colors: [
-                      effectiveColor,
-                      effectiveHighlightColor,
-                      effectiveColor,
-                    ],
-                  ),
-                  borderRadius: effectiveRadius,
-                ),
-                child: child,
-              );
-            }
-            return DecoratedBox(
-              decoration: BoxDecoration(
-                color: Color.lerp(
-                  effectiveColor,
-                  effectiveHighlightColor,
-                  t,
-                ),
-                borderRadius: effectiveRadius,
-              ),
-              child: child,
-            );
-          },
-          child: widget.child == null
+        width: effectiveWidth,
+        height: effectiveHeight,
+        child: SkeletonPaint(
+          color: effectiveColor,
+          highlightColor: effectiveHighlightColor,
+          borderRadius: effectiveRadius,
+          motion: !moves
+              ? SkeletonMotion.still
+              : shimmers
+              ? SkeletonMotion.shimmer
+              : SkeletonMotion.pulse,
+          period:
+              duration ??
+              skeletonTheme.duration ??
+              const Duration(milliseconds: 1800),
+          curve: curve ?? skeletonTheme.curve ?? Curves.easeInOut,
+          child: child == null
               ? null
-              : Visibility.maintain(
-                  visible: false,
-                  child: widget.child!,
-                ),
+              : Visibility.maintain(visible: false, child: child!),
         ),
       ),
     );

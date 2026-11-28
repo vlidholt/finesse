@@ -25,8 +25,11 @@ final progressRingDoc = ComponentDoc(
       title: 'Gauges and unknown length',
       description:
           'A `sweepAngle` of less than a full turn opens the ring at the '
-          'bottom. With `value: null` the ring spins; `Spinner` stays the '
-          'small inline indicator for a button or a line of text.',
+          'bottom. With `value: null` the ring spins: the arc turns while '
+          'it grows and shrinks, as Material\'s indeterminate indicator '
+          'does, and under reduced motion it holds still and breathes. '
+          '`Spinner` is the small inline indicator for a button or a line '
+          'of text, this same ring by default.',
       minPreviewHeight: 220,
       builder: (_) => const ProgressRingGaugeExample(),
     ),
