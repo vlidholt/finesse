@@ -6,6 +6,7 @@ import 'package:una/src/i18n/localizations_delegate.dart';
 import 'package:una/src/liquid_glass/liquid_glass.dart';
 import 'package:una/src/liquid_glass/tab_bar.dart';
 import 'package:una/src/raw_components/pressable.dart';
+import 'package:una/src/theme/components/bottom_navigation_bar.dart';
 import 'package:una/src/theme/motion.dart';
 import 'package:una/src/theme/theme.dart';
 import 'package:una/src/utils/motion_color.dart';
@@ -400,6 +401,7 @@ class BottomNavigationBar extends StatelessWidget {
     required this.selectedIndex,
     this.onDestinationSelected,
     this.action,
+    this.actionPlacement,
     this.floating,
     this.showLabels,
     this.semanticLabel,
@@ -416,8 +418,14 @@ class BottomNavigationBar extends StatelessWidget {
   /// Called with the index of the destination that was tapped.
   final ValueChanged<int>? onDestinationSelected;
 
-  /// A primary action shown between the two halves of [destinations].
+  /// A primary action shown between the two halves of [destinations], or
+  /// beside the bar (see [actionPlacement]).
   final NavigationAction? action;
+
+  /// Where [action] goes: between the destinations, or on a disc of its own
+  /// at the end of a floating bar, as on Liquid Glass. Defaults to the
+  /// theme's, which is between. On Liquid Glass it is always detached.
+  final NavigationActionPlacement? actionPlacement;
 
   /// Whether the bar floats as a pill. Defaults to the theme's.
   final bool? floating;
@@ -487,7 +495,16 @@ class BottomNavigationBar extends StatelessWidget {
     // A floating bar is as wide as its items, but never wider than the
     // screen: on a narrow phone the items give up width evenly rather than
     // overflow.
-    final itemCount = destinations.length + (action == null ? 0 : 1);
+    final detached =
+        isFloating &&
+        action != null &&
+        (actionPlacement ?? bar.actionPlacement) ==
+            NavigationActionPlacement.detached;
+    // A detached action is as wide as it is tall, on a disc of its own.
+    final itemHeight = bar.itemHeight ?? 48;
+    final discWidth = itemHeight + barPadding.horizontal + 2;
+    final itemCount =
+        destinations.length + (action == null || detached ? 0 : 1);
     final labeled = showLabels ?? bar.showLabels ?? false;
     final baseWidth = bar.itemWidth ?? 52;
     var itemWidth = labeled
@@ -502,7 +519,9 @@ class BottomNavigationBar extends StatelessWidget {
           2 * sideMargin -
           barPadding.horizontal -
           2 -
-          gap * (itemCount - 1);
+          gap * (itemCount - 1) -
+          // The disc, and at least a gap between it and the bar.
+          (detached ? discWidth + 2 * gap : 0);
       final fit = available / itemCount;
       if (fit < itemWidth) itemWidth = fit < 0 ? 0 : fit;
     }
@@ -524,6 +543,7 @@ class BottomNavigationBar extends StatelessWidget {
       Color? background,
       Color? foreground,
       double? iconSize,
+      double? width,
     }) {
       final isSelected = selected ?? false;
       Widget child = Pressable(
@@ -547,7 +567,7 @@ class BottomNavigationBar extends StatelessWidget {
                   ? bar.selectedForegroundColor ?? theme.colorScheme.tint
                   : bar.foregroundColor ?? theme.colorScheme.foregroundSubtle);
           final box = SizedBox(
-            width: isFloating ? itemWidth : null,
+            width: width ?? (isFloating ? itemWidth : null),
             height: bar.itemHeight ?? 48,
             // A cross-fade, not `Color.lerp`: from nothing to the wash
             // that one passes through a half-opaque dark grey, which is
@@ -637,7 +657,7 @@ class BottomNavigationBar extends StatelessWidget {
     final actionIndex = (destinations.length / 2).ceil();
     final children = <Widget>[
       for (final (index, destination) in destinations.indexed) ...[
-        if (action != null && index == actionIndex)
+        if (action != null && !detached && index == actionIndex)
           item(
             icon: actionIcon,
             label: action!.label,
@@ -671,7 +691,7 @@ class BottomNavigationBar extends StatelessWidget {
           selected: index == selectedIndex,
         ),
       ],
-      if (action != null && actionIndex >= destinations.length)
+      if (action != null && !detached && actionIndex >= destinations.length)
         item(
           icon: actionIcon,
           label: action!.label,
@@ -686,6 +706,21 @@ class BottomNavigationBar extends StatelessWidget {
 
     return BottomBarSurface(
       floating: isFloating,
+      detached: detached
+          ? item(
+              icon: actionIcon,
+              label: action!.label,
+              onPressed: action!.onPressed,
+              selected: null,
+              background:
+                  bar.actionBackgroundColor ?? theme.colorScheme.primary,
+              foreground:
+                  bar.actionForegroundColor ??
+                  theme.colorScheme.primaryForeground,
+              iconSize: bar.actionIconSize ?? 22,
+              width: itemHeight,
+            )
+          : null,
       child: MovingIndicator(
         child: Row(
           mainAxisSize: isFloating ? MainAxisSize.min : MainAxisSize.max,

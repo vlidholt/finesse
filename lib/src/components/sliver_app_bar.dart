@@ -1692,9 +1692,14 @@ class _RenderSliverBarBody extends RenderBox
           }
           final canvas = context.canvas;
           if (pin && progress > 0) {
+            // A frosted or solid bar does not blur the picture, so it veils
+            // it more: collapsed, it reads as the bar, with the picture
+            // faint under it.
+            final veil = _fadeBackground ? .4 : .8;
             canvas.drawRect(
               shown.shift(offset),
-              Paint()..color = _veil.withValues(alpha: _veil.a * .4 * progress),
+              Paint()
+                ..color = _veil.withValues(alpha: _veil.a * veil * progress),
             );
           }
           // The page colour behind the titles, where they are, going with

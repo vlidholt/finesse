@@ -3,6 +3,7 @@ import 'package:example/docs/examples/sliver_app_bar/sliver_app_bar_background.d
 import 'package:example/docs/examples/sliver_app_bar/sliver_app_bar_bottom.dart';
 import 'package:example/docs/examples/sliver_app_bar/sliver_app_bar_floating.dart';
 import 'package:example/docs/examples/sliver_app_bar/sliver_app_bar_large.dart';
+import 'package:example/docs/examples/sliver_app_bar/sliver_app_bar_liquid_glass.dart';
 import 'package:flutter/widgets.dart';
 
 final sliverAppBarDoc = ComponentDoc(
@@ -53,6 +54,22 @@ final sliverAppBarDoc = ComponentDoc(
       minPreviewHeight: 620,
       padding: const EdgeInsets.all(24),
       builder: (_) => const SliverAppBarBackgroundExample(),
+    ),
+    ComponentExample(
+      id: 'sliver_app_bar_liquid_glass',
+      title: 'Filled or Liquid Glass, over a picture',
+      description:
+          'Over a `background` picture both bars put their buttons on '
+          'discs. Collapsing, the filled bar veils the pinned picture and '
+          'ends on its hairline, with no blur. On Liquid Glass the bar has '
+          'no fill: the picture is blurred as the titles go, its lower edge '
+          'dissolves into the page scrolled under it, and the buttons stand '
+          'on capsules of glass. In a browser the glass bar keeps that '
+          'soft edge only with `LiquidGlassMode.always` or '
+          '`LiquidGlassTheme.webScrollEdge`.',
+      minPreviewHeight: 600,
+      padding: const EdgeInsets.all(24),
+      builder: (_) => const SliverAppBarLiquidGlassExample(),
     ),
     ComponentExample(
       id: 'sliver_app_bar_floating',

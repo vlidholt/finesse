@@ -23,7 +23,10 @@ class SliverAppBarBackgroundExample extends StatelessWidget {
               title: const Text('Lofoten'),
               subtitle: const Text('Seven days above the Arctic Circle'),
               expandedHeight: 220,
-              background: const _Sky(),
+              background: Image.asset(
+                'assets/images/photo_alpine_lake.jpg',
+                fit: BoxFit.cover,
+              ),
               leading: BackButton(onPressed: () {}),
               actions: [
                 IconButton.ghost(
@@ -50,25 +53,6 @@ class SliverAppBarBackgroundExample extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-/// A stand-in for a photograph: any widget works here, an `Image` above
-/// all.
-class _Sky extends StatelessWidget {
-  const _Sky();
-
-  @override
-  Widget build(BuildContext context) {
-    return const DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xff1f4e6b), Color(0xff4f9aa8), Color(0xfff2b880)],
         ),
       ),
     );

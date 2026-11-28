@@ -32,8 +32,12 @@ final navigationBarDoc = ComponentDoc(
       description:
           'In the default style the bottom bar floats: a glass pill as '
           'wide as its destinations. A `NavigationAction` sits between '
-          'the two halves, for the one thing the app is for. Labels are '
-          'read to assistive technology rather than shown.',
+          'the two halves, for the one thing the app is for — or, with '
+          '`actionPlacement: NavigationActionPlacement.detached`, on a '
+          'disc of its own at the end of the bar, the destinations on a '
+          'pill as wide as they are: the split bar of iOS 26, which a bar '
+          'on Liquid Glass always is. Labels are read to assistive '
+          'technology rather than shown.',
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 32),
       builder: (_) => const NavigationBarBottomExample(),
     ),

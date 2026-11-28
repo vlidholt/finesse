@@ -5,6 +5,17 @@ import 'package:una/src/liquid_glass/liquid_glass_theme.dart';
 
 part 'bottom_navigation_bar.g.theme.dart';
 
+/// Where a `BottomNavigationBar` puts its primary action.
+enum NavigationActionPlacement {
+  /// In the bar, between the two halves of the destinations.
+  between,
+
+  /// On a disc of its own beside a floating bar, as iOS 26 puts it: the
+  /// destinations on a pill as wide as they are, the action at the other
+  /// end. A docked bar keeps it between the destinations.
+  detached,
+}
+
 /// The theme of `BottomNavigationBar`: every value the widget does not set
 /// itself.
 @themeGen
@@ -15,6 +26,7 @@ class BottomNavigationBarTheme with _$BottomNavigationBarTheme {
     bool canMerge = true,
     this.liquidGlass,
     this.floating,
+    this.actionPlacement,
     this.itemWidth,
     this.itemHeight,
     this.iconSize,
@@ -52,6 +64,10 @@ class BottomNavigationBarTheme with _$BottomNavigationBarTheme {
   /// Whether the bar floats as a pill above the page instead of spanning
   /// the bottom edge.
   final bool? floating;
+
+  /// Where the primary action goes; null puts it between the destinations.
+  /// On Liquid Glass it is always detached.
+  final NavigationActionPlacement? actionPlacement;
 
   /// The width of one destination.
   final double? itemWidth;

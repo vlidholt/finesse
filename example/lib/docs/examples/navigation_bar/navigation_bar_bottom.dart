@@ -2,7 +2,8 @@ import 'package:flutter/widgets.dart';
 import 'package:una/una.dart';
 
 /// The phone's bar: a floating glass pill with the primary action between
-/// the two halves of the destinations.
+/// the two halves of the destinations, or detached on a disc of its own
+/// at the end, as on Liquid Glass.
 class NavigationBarBottomExample extends StatefulWidget {
   const NavigationBarBottomExample({super.key});
 
@@ -15,6 +16,7 @@ class _NavigationBarBottomExampleState
     extends State<NavigationBarBottomExample> {
   int index = 0;
   int posts = 0;
+  var placement = NavigationActionPlacement.between;
 
   @override
   Widget build(BuildContext context) {
@@ -23,12 +25,27 @@ class _NavigationBarBottomExampleState
       mainAxisSize: MainAxisSize.min,
       spacing: 16,
       children: [
+        SegmentedControl<NavigationActionPlacement>(
+          value: placement,
+          onChanged: (value) => setState(() => placement = value),
+          segments: const [
+            Segment(
+              value: NavigationActionPlacement.between,
+              label: Text('Between'),
+            ),
+            Segment(
+              value: NavigationActionPlacement.detached,
+              label: Text('Detached'),
+            ),
+          ],
+        ),
         Text(
           posts == 0 ? 'Tap + to post' : 'Posts created: $posts',
           style: theme.textTheme.muted,
         ),
         BottomNavigationBar(
           floating: true,
+          actionPlacement: placement,
           selectedIndex: index,
           onDestinationSelected: (i) => setState(() => index = i),
           action: NavigationAction(

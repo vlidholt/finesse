@@ -481,7 +481,6 @@ void main() {
           ),
         ),
       );
-      final toolbar = toolbarHeight(tester);
       final rest = tester.getRect(largeTitle('Library'));
       final row = tester.getRect(find.byKey(_row)).top;
 
@@ -734,7 +733,6 @@ void main() {
         padding: const EdgeInsets.only(top: 44),
         theme: ThemeData(brightness: Brightness.dark),
       );
-      final toolbar = toolbarHeight(tester);
       expect(
         tester.getRect(smallTitle('Library')).center.dy,
         44 + themeOf(tester, bar()).appBarTheme.height! / 2,
@@ -933,7 +931,6 @@ void main() {
     testWidgets('unpinned, it scrolls away with the page and only comes '
         'back at the top', (tester) async {
       await pump(tester, page(plain(pinned: false)));
-      final toolbar = toolbarHeight(tester);
       await scrollTo(tester, 30);
       expect(
         tester.getRect(find.text('Feed')).center.dy,

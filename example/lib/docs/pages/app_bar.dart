@@ -3,6 +3,7 @@ import 'package:example/docs/examples/app_bar/app_bar_basic.dart';
 import 'package:example/docs/examples/app_bar/app_bar_bottom.dart';
 import 'package:example/docs/examples/app_bar/app_bar_center_title.dart';
 import 'package:example/docs/examples/app_bar/app_bar_leading.dart';
+import 'package:example/docs/examples/app_bar/app_bar_liquid_glass.dart';
 import 'package:example/docs/examples/app_bar/app_bar_middle.dart';
 import 'package:example/docs/examples/app_bar/app_bar_scrolled.dart';
 import 'package:example/docs/examples/app_bar/app_bar_tabs.dart';
@@ -32,6 +33,27 @@ final appBarDoc = ComponentDoc(
           '`SliverAppBar.background` picture. Name a variant to keep it.',
       minPreviewHeight: 260,
       builder: (_) => const AppBarBasicExample(),
+    ),
+    ComponentExample(
+      id: 'app_bar_liquid_glass',
+      title: 'Filled or Liquid Glass',
+      description:
+          'On Liquid Glass the bar has no fill and no hairline: its '
+          'buttons stand on capsules of glass, and once the page has '
+          'scrolled under it the page is blurred more the nearer it is to '
+          'the top and faded into the page colour. Over a picture at the '
+          'top of the page, nothing is blurred until the page moves. '
+          '`liquidGlass` chooses per bar, `AppBarTheme.liquidGlass` for the '
+          'app; `auto` (the default) is Liquid Glass on iOS and macOS at '
+          'the phone and tablet sizes. In a browser that soft edge cannot '
+          'be drawn by the renderer, so a glass bar is solid there unless '
+          'it asks for `LiquidGlassMode.always` or the theme turns on '
+          '`LiquidGlassTheme.webScrollEdge`: then una draws it with its own '
+          'shader, over a snapshot of the page taken every frame the edge '
+          'shows.',
+      minPreviewHeight: 600,
+      padding: const EdgeInsets.all(24),
+      builder: (_) => const AppBarLiquidGlassExample(),
     ),
     ComponentExample(
       id: 'app_bar_leading',

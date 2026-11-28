@@ -18,6 +18,7 @@ class BottomBarSurface extends StatelessWidget {
   const BottomBarSurface({
     required this.floating,
     required this.child,
+    this.detached,
     super.key,
   });
 
@@ -26,6 +27,14 @@ class BottomBarSurface extends StatelessWidget {
 
   /// The bar's content, inside its padding.
   final Widget child;
+
+  /// A control on a disc of its own at the far end of a floating bar, the
+  /// bar then at the start rather than in the middle: iOS 26's split bar.
+  /// Ignored by a docked bar.
+  final Widget? detached;
+
+  /// The horizontal margin of a floating bar with a [detached] control.
+  static const detachedMargin = 16.0;
 
   /// Whether a bar in [context] floats when it is not told.
   static bool floatsIn(BuildContext context) =>
@@ -71,62 +80,80 @@ class BottomBarSurface extends StatelessWidget {
     // A floating bar's hairline can catch the light along its top edge;
     // see `BottomNavigationBarTheme.rimColor`.
     final rimColor = floating ? bar.rimColor : null;
-    Widget content = Container(
-      padding: (bar.padding ?? const EdgeInsets.all(6)).add(
-        EdgeInsets.only(bottom: floating ? 0 : bottomInset),
-      ),
-      decoration: BoxDecoration(
-        color: bar.backgroundColor ?? theme.colorScheme.card,
-        borderRadius: radius,
-        border: floating
-            // With a rim the hairline is painted over the bar, below; the
-            // border still takes its point of layout.
-            ? Border.all(
-                color: rimColor == null ? borderColor : const Color(0x00000000),
-              )
-            : Border(top: BorderSide(color: borderColor)),
-      ),
-      child: child,
-    );
-    if (rimColor != null) {
-      content = CustomPaint(
-        foregroundPainter: _RimPainter(
-          radius: radius,
-          color: borderColor,
-          rimColor: rimColor,
+    Widget surface(Widget child, BorderRadius radius) {
+      Widget content = Container(
+        padding: (bar.padding ?? const EdgeInsets.all(6)).add(
+          EdgeInsets.only(bottom: floating ? 0 : bottomInset),
         ),
-        child: content,
+        decoration: BoxDecoration(
+          color: bar.backgroundColor ?? theme.colorScheme.card,
+          borderRadius: radius,
+          border: floating
+              // With a rim the hairline is painted over the bar, below; the
+              // border still takes its point of layout.
+              ? Border.all(
+                  color: rimColor == null
+                      ? borderColor
+                      : const Color(0x00000000),
+                )
+              : Border(top: BorderSide(color: borderColor)),
+        ),
+        child: child,
+      );
+      if (rimColor != null) {
+        content = CustomPaint(
+          foregroundPainter: _RimPainter(
+            radius: radius,
+            color: borderColor,
+            rimColor: rimColor,
+          ),
+          child: content,
+        );
+      }
+      final glass = Semantics(
+        container: true,
+        explicitChildNodes: true,
+        child: Backdrop(
+          blur: bar.blur ?? 0,
+          saturation: bar.saturation ?? 1,
+          borderRadius: radius,
+          child: content,
+        ),
+      );
+      if (!floating) return glass;
+      return DecoratedBox(
+        // Outside the clip, and after the bar: a shadow painted first
+        // would be sampled by the filter and blurred back into the glass.
+        position: DecorationPosition.foreground,
+        decoration: ShadowDecoration.box(
+          borderRadius: radius,
+          shadows: bar.shadows ?? theme.style.floatingShadow,
+        ),
+        child: glass,
       );
     }
-    final surface = Backdrop(
-      blur: bar.blur ?? 0,
-      saturation: bar.saturation ?? 1,
-      borderRadius: radius,
-      child: content,
-    );
 
-    final semantic = Semantics(
-      container: true,
-      explicitChildNodes: true,
-      child: surface,
+    if (!floating) return surface(child, radius);
+    final margin = (bar.margin ?? const EdgeInsets.only(bottom: 22)).add(
+      EdgeInsets.only(bottom: bottomInset),
     );
-    if (!floating) return semantic;
+    final detached = this.detached;
+    if (detached == null) {
+      return Padding(
+        padding: margin,
+        child: Center(heightFactor: 1, child: surface(child, radius)),
+      );
+    }
     return Padding(
-      padding: (bar.margin ?? const EdgeInsets.only(bottom: 22)).add(
-        EdgeInsets.only(bottom: bottomInset),
+      padding: margin.add(
+        const EdgeInsets.symmetric(horizontal: detachedMargin),
       ),
-      child: Center(
-        heightFactor: 1,
-        child: DecoratedBox(
-          // Outside the clip, and after the bar: a shadow painted first
-          // would be sampled by the filter and blurred back into the glass.
-          position: DecorationPosition.foreground,
-          decoration: ShadowDecoration.box(
-            borderRadius: radius,
-            shadows: bar.shadows ?? theme.style.floatingShadow,
-          ),
-          child: semantic,
-        ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Flexible(child: surface(child, radius)),
+          surface(detached, theme.radii.full),
+        ],
       ),
     );
   }

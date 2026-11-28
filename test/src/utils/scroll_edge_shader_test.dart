@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:una/src/liquid_glass/liquid_glass.dart';
@@ -52,7 +51,6 @@ void main() {
       await pumpUna(
         tester,
         screen(mode: LiquidGlassMode.always),
-        formFactor: FormFactor.desktop,
       );
       expect(find.byType(LiquidGlassBarGroup), findsOneWidget);
       // At the top, nothing is under the bar to blur.

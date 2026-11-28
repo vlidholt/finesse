@@ -32,6 +32,7 @@ mixin _$BottomNavigationBarTheme {
     return BottomNavigationBarTheme(
       liquidGlass: t < 0.5 ? a.liquidGlass : b.liquidGlass,
       floating: t < 0.5 ? a.floating : b.floating,
+      actionPlacement: t < 0.5 ? a.actionPlacement : b.actionPlacement,
       itemWidth: lerpDouble$(a.itemWidth, b.itemWidth, t),
       itemHeight: lerpDouble$(a.itemHeight, b.itemHeight, t),
       iconSize: lerpDouble$(a.iconSize, b.iconSize, t),
@@ -76,6 +77,7 @@ mixin _$BottomNavigationBarTheme {
   BottomNavigationBarTheme copyWith({
     LiquidGlassMode? liquidGlass,
     bool? floating,
+    NavigationActionPlacement? actionPlacement,
     double? itemWidth,
     double? itemHeight,
     double? iconSize,
@@ -104,6 +106,7 @@ mixin _$BottomNavigationBarTheme {
     return BottomNavigationBarTheme(
       liquidGlass: liquidGlass ?? _this.liquidGlass,
       floating: floating ?? _this.floating,
+      actionPlacement: actionPlacement ?? _this.actionPlacement,
       itemWidth: itemWidth ?? _this.itemWidth,
       itemHeight: itemHeight ?? _this.itemHeight,
       iconSize: iconSize ?? _this.iconSize,
@@ -147,6 +150,7 @@ mixin _$BottomNavigationBarTheme {
     return copyWith(
       liquidGlass: other.liquidGlass,
       floating: other.floating,
+      actionPlacement: other.actionPlacement,
       itemWidth: other.itemWidth,
       itemHeight: other.itemHeight,
       iconSize: other.iconSize,
@@ -187,6 +191,7 @@ mixin _$BottomNavigationBarTheme {
 
     return _other.liquidGlass == _this.liquidGlass &&
         _other.floating == _this.floating &&
+        _other.actionPlacement == _this.actionPlacement &&
         _other.itemWidth == _this.itemWidth &&
         _other.itemHeight == _this.itemHeight &&
         _other.iconSize == _this.iconSize &&
@@ -219,6 +224,7 @@ mixin _$BottomNavigationBarTheme {
       runtimeType,
       _this.liquidGlass,
       _this.floating,
+      _this.actionPlacement,
       _this.itemWidth,
       _this.itemHeight,
       _this.iconSize,
