@@ -13,6 +13,11 @@ import 'package:una/src/icons/phosphor_icons.dart';
 import 'package:una/src/theme/components/calendar.dart';
 import 'package:una/src/utils/extensions/date_time.dart';
 
+/// The calendar's grid of days.
+final _dayGrid = find.byWidgetPredicate(
+  (w) => '${w.runtimeType}' == '_DayGrid',
+);
+
 void main() {
   // Helper method to create a test widget wrapped in UnaApp and Scaffold
   Widget createTestWidget(Widget child) {
@@ -46,11 +51,11 @@ void main() {
       expect(find.byType(IconButton), findsNWidgets(2));
 
       // Check weekday names are rendered (default 7 days)
-      expect(find.byType(GridView), findsOneWidget);
+      expect(_dayGrid, findsOneWidget);
 
       // Find the Column containing the calendar month (header, weekdays, grid)
       final monthColumnFinder = find.ancestor(
-        of: find.byType(GridView).first,
+        of: _dayGrid.first,
         matching: find.byType(Column),
       );
       expect(monthColumnFinder, findsOneWidget);
@@ -62,6 +67,9 @@ void main() {
         matching: find.byWidgetPredicate(
           (widget) =>
               widget is Row &&
+              // A week of days is a row of seven as well, as wide as the
+              // month.
+              widget.mainAxisSize == MainAxisSize.min &&
               tester
                       .widgetList(
                         find.descendant(
@@ -102,8 +110,8 @@ void main() {
       final monthYearText = DateFormat('MMMM y').format(now.startOfMonth);
       expect(find.text(monthYearText), findsOneWidget);
 
-      // Check basic layout (GridView for days)
-      expect(find.byType(GridView), findsOneWidget);
+      // Check basic layout (the grid of days)
+      expect(_dayGrid, findsOneWidget);
     });
 
     testWidgets('renders range variant correctly', (WidgetTester tester) async {
@@ -120,8 +128,8 @@ void main() {
       final monthYearText = DateFormat('MMMM y').format(now.startOfMonth);
       expect(find.text(monthYearText), findsOneWidget);
 
-      // Check basic layout (GridView for days)
-      expect(find.byType(GridView), findsOneWidget);
+      // Check basic layout (the grid of days)
+      expect(_dayGrid, findsOneWidget);
     });
 
     testWidgets('displays initial month correctly', (
@@ -445,13 +453,13 @@ void main() {
       expect(find.text(weekNumber), findsNWidgets(2));
 
       // Check grid has 8 columns (7 days + 1 for week numbers)
-      final gridFinder = find.byType(GridView);
-      expect(gridFinder, findsWidgets);
-      final grid = tester.widget<GridView>(gridFinder.first);
+      expect(_dayGrid, findsOneWidget);
+      final firstWeek = find
+          .descendant(of: _dayGrid, matching: find.byType(Row))
+          .first;
       expect(
-        (grid.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount)
-            .crossAxisCount,
-        8,
+        find.descendant(of: firstWeek, matching: find.byType(Expanded)),
+        findsNWidgets(8),
       );
     });
 
@@ -648,7 +656,7 @@ void main() {
           ),
         );
         final days = find.descendant(
-          of: find.byType(GridView),
+          of: _dayGrid,
           matching: find.byType(Button),
         );
         final rects = [

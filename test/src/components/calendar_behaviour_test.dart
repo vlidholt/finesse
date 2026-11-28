@@ -13,6 +13,11 @@ const _small = CalendarTheme(
   dayButtonOutsideMonthTextStyle: TextStyle(fontSize: 8),
 );
 
+/// The calendar's grid of days.
+final _dayGrid = find.byWidgetPredicate(
+  (w) => '${w.runtimeType}' == '_DayGrid',
+);
+
 void main() {
   Finder dayOf(int day) => find.widgetWithText(Button, '$day');
 
@@ -194,7 +199,7 @@ void main() {
       );
       expect(find.text('Month 5'), findsOneWidget);
       expect(tester.getSize(dayOf(15).first), const Size.square(50));
-      expect(tester.getSize(find.byType(GridView)).width, 350);
+      expect(tester.getSize(_dayGrid).width, 350);
     });
 
     for (final direction in TextDirection.values) {

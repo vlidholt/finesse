@@ -646,7 +646,20 @@ class _PopoverState extends State<Popover> with SingleTickerProviderStateMixin {
         arrow: arrow,
         child: PopoverTapGroups(
           groups: [...outerGroups, groupId],
-          child: Builder(builder: widget.builder),
+          // The overlay hands its content the padding of the place it sits
+          // in — under a scaffold's bar, the bar's height — but a popover
+          // floats clear of the screen's edges, and a list in it padded by
+          // that (a `GridView`, a `ListView`) opened with an empty band.
+          child: Builder(
+            builder: (context) => MediaQuery.removePadding(
+              context: context,
+              removeLeft: true,
+              removeTop: true,
+              removeRight: true,
+              removeBottom: true,
+              child: Builder(builder: widget.builder),
+            ),
+          ),
         ),
       ),
     );
