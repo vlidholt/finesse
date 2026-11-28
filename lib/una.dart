@@ -39,7 +39,7 @@ export 'src/components/app_bar.dart';
 export 'src/components/autocomplete.dart'
     hide AutocompleteOptionRow, OptionsPointers;
 export 'src/components/avatar.dart';
-export 'src/components/avatar_group.dart';
+export 'src/components/avatar_group.dart' hide AvatarGroupClip;
 export 'src/components/back_button.dart';
 export 'src/components/badge.dart';
 export 'src/components/bar_chart.dart';

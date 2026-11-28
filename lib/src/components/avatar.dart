@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/avatar_group.dart';
 import 'package:una/src/theme/motion.dart';
 import 'package:una/src/theme/theme.dart';
 import 'package:una/src/utils/debug_check.dart';
@@ -129,11 +130,18 @@ class Avatar extends StatelessWidget {
         ? null
         : Center(child: this.fallback);
     final image = _image;
+    // An avatar that fills an `AvatarGroup`'s place is already clipped to
+    // that circle by the group.
+    final inGroup =
+        shape is CircleBorder &&
+        shape.eccentricity == 0 &&
+        size.width == size.height &&
+        AvatarGroupClip.of(context);
 
-    final avatar = Container(
+    Widget avatar = Container(
       width: size.width,
       height: size.height,
-      clipBehavior: Clip.antiAlias,
+      clipBehavior: inGroup ? Clip.none : Clip.antiAlias,
       alignment: Alignment.center,
       decoration: ShapeDecoration(shape: shape, color: backgroundColor),
       child: image == null
@@ -175,6 +183,8 @@ class Avatar extends StatelessWidget {
                   fallback ?? const SizedBox.shrink(),
             ),
     );
+    // Claimed: an avatar inside this one clips itself again.
+    if (inGroup) avatar = AvatarGroupClip(clipped: false, child: avatar);
     // The same widget with a label or without, so the avatar keeps its
     // state (an image that has loaded) when one comes or goes.
     return Semantics(

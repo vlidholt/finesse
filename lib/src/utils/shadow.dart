@@ -178,10 +178,21 @@ class _ShadowPainter extends BoxPainter {
 
 /// Whether [decoration] fills its whole shape with an opaque colour, so
 /// that nothing painted under it shows.
-bool _isOpaque(Decoration decoration) =>
-    decoration is BoxDecoration &&
-    decoration.backgroundBlendMode == null &&
-    (decoration.color?.a ?? 0) >= 1;
+///
+/// A colour or a gradient fills the shape [Decoration.getClipPath]
+/// describes, for a [ShapeDecoration] (a superellipse control) as for a
+/// box. A gradient counts when every stop is opaque.
+bool _isOpaque(Decoration decoration) {
+  bool fills(Color? color, Gradient? gradient) =>
+      (color?.a ?? 0) >= 1 ||
+      (gradient != null && gradient.colors.every((c) => c.a >= 1));
+  return switch (decoration) {
+    BoxDecoration(:final color, :final gradient, backgroundBlendMode: null) =>
+      fills(color, gradient),
+    ShapeDecoration(:final color, :final gradient) => fills(color, gradient),
+    _ => false,
+  };
+}
 
 /// Paints [shadows] outside the shape [decoration] describes for [rect], the
 /// way CSS clips an outer `box-shadow` to the border box.

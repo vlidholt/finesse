@@ -218,6 +218,44 @@ void main() {
     expect(opaque, isNot(contains(#clipPath)));
     expect(opaque, isNot(contains(#clipRect)));
 
+    // So does an opaque gradient, and an opaque fill of any other shape
+    // (a superellipse control), whose clip would be the costly kind.
+    for (final decoration in [
+      ShadowDecoration.box(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFFFFFFF), Color(0xFF000000)],
+        ),
+        borderRadius: BorderRadius.circular(10),
+        shadows: Shadows.lg,
+      ),
+      ShadowDecoration(
+        shadows: Shadows.lg,
+        decoration: ShapeDecoration(
+          color: const Color(0xFFFFFFFF),
+          shape: RoundedSuperellipseBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      ),
+    ]) {
+      final calls = callsOf(decoration);
+      expect(calls, isNot(contains(#clipPath)));
+      expect(calls, isNot(contains(#clipRect)));
+    }
+    // A gradient that fades out is not opaque.
+    expect(
+      callsOf(
+        ShadowDecoration.box(
+          gradient: const LinearGradient(
+            colors: [Color(0xFFFFFFFF), Color(0x00FFFFFF)],
+          ),
+          borderRadius: BorderRadius.circular(10),
+          shadows: Shadows.lg,
+        ),
+      ),
+      contains(#clipRect),
+    );
+
     // A translucent one is clipped — by the bounding rectangle, which
     // needs no mask, and by four slivers a corner radius across. A single
     // path the size of the shadow is rasterised on the CPU on every frame

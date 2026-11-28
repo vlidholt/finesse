@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:una/una.dart';
@@ -394,6 +395,61 @@ void main() {
         tester.getRect(find.text('2 mutual')).left,
         tester.getRect(find.byType(AvatarGroup)).right,
       );
+    });
+
+    testWidgets('an avatar in the group is clipped once, by the group', (
+      tester,
+    ) async {
+      Iterable<RenderObject> clipsAbove(Finder finder) sync* {
+        RenderObject? object = tester.renderObject(finder);
+        while (object != null && object is! RenderView) {
+          if ((object is RenderClipOval && object.clipBehavior != Clip.none) ||
+              (object is RenderClipPath && object.clipBehavior != Clip.none)) {
+            yield object;
+          }
+          object = object.parent;
+        }
+      }
+
+      await pumpUna(
+        tester,
+        const Center(
+          child: AvatarGroup(
+            children: [
+              Avatar(null, fallback: Text('A', key: Key('plain'))),
+              // An avatar nested in another still clips itself.
+              Avatar(
+                null,
+                fallback: Stack(
+                  children: [
+                    SizedBox.square(dimension: 40),
+                    Positioned(
+                      right: 0,
+                      bottom: 0,
+                      child: Avatar(
+                        null,
+                        size: Size.square(12),
+                        fallback: Text('b', key: Key('nested')),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+      expect(clipsAbove(find.byKey(const Key('plain'))), hasLength(1));
+      expect(clipsAbove(find.byKey(const Key('nested'))), hasLength(2));
+
+      // Outside a group an avatar clips itself.
+      await pumpUna(
+        tester,
+        const Center(
+          child: Avatar(null, fallback: Text('A', key: Key('alone'))),
+        ),
+      );
+      expect(clipsAbove(find.byKey(const Key('alone'))), hasLength(1));
     });
   });
 }

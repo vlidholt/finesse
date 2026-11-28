@@ -1272,7 +1272,19 @@ rules below were all found there.
   by the bounding rectangle (`ClipOp.difference`, no mask) plus four corner
   slivers, and not at all under an opaque fill; other shapes (a tooltip with
   its arrow) keep the per-contour even-odd clip. Do not replace it with one
-  `clipPath`; `shadow_test.dart` counts and measures the clips.
+  `clipPath`; `shadow_test.dart` counts and measures the clips. "Opaque"
+  is a colour or a gradient with every stop opaque, on a `BoxDecoration`
+  or a `ShapeDecoration`. A shadow that only an opaque surface ever shows
+  over may be a plain `boxShadow` (the Liquid Glass slider thumb's, faded
+  with its handle, as the package paints it).
+- **Counting clips.** Demo's `perf_support.dart` counts `shapeClips` per
+  frame; to find their owners, walk the painted render tree for
+  `RenderClipPath`/`RRect`/`Oval` with a clip and name each by its
+  creator's ancestors. Measured that way (November 2026), the rest are
+  justified: each card's own content clip (`overflow-hidden`, an rrect,
+  cheap), a translucent card's four shadow slivers, avatars, and the bars'
+  backdrop clip. An `AvatarGroup` clips its child to the circle and tells
+  the first round `Avatar` in it (`AvatarGroupClip`) not to clip again.
 - **Images develop in through `RevealImage`**, whose reveal is one
   `ColorFiltered` (alpha, exposure and saturation in one matrix) over the
   placeholder while it plays and the bare `RawImage` after; a picture

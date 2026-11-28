@@ -777,6 +777,13 @@ was measured from (Strand, until it moved), is its own repository,
   una's own; all of them now draw `GlassSlider`'s thumb, press, lens and
   squash included, with room for the lens's stretch, which the package's
   own slider clipped at its top and bottom in a fast drag.
+- **Fewer clips and layers.** An avatar in an `AvatarGroup` is clipped
+  once, by the group, not by the group and then by itself. An outer shadow
+  under an opaque gradient or an opaque fill of any shape (a superellipse
+  control) is no longer clipped to the outside of the element, as under an
+  opaque colour already. The Liquid Glass slider thumb paints its drop
+  shadow whole, as the package does, and fades its handle by its colour
+  instead of through an opacity layer.
 - A popover, menu, select list, date picker or tooltip stayed on screen
   when its anchor was hidden: in an `IndexedStack` child that is not
   showing, a hidden `Visibility`, an `Offstage`, under an `Opacity` of zero

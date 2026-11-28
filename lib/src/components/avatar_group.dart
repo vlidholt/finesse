@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:una/src/components/avatar.dart';
 import 'package:una/src/theme/theme.dart';
 
 /// A row of overlapping avatars, each ringed in the colour of the surface
@@ -83,7 +85,7 @@ class AvatarGroup extends StatelessWidget {
                     child: FittedBox(
                       fit: BoxFit.cover,
                       clipBehavior: Clip.hardEdge,
-                      child: children[i],
+                      child: AvatarGroupClip(clipped: true, child: children[i]),
                     ),
                   ),
                 ),
@@ -93,4 +95,33 @@ class AvatarGroup extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Tells the [Avatar] that fills an [AvatarGroup]'s place that the group
+/// already clips it to a circle, so it does not clip itself a second time:
+/// two clips of one shape around every avatar in a row of them.
+///
+/// The first square, round [Avatar] below claims it and puts `clipped:
+/// false` around its own content, so an avatar nested deeper (a badge on
+/// a badge) still clips itself.
+@internal
+class AvatarGroupClip extends InheritedWidget {
+  /// Marks whether [child] is already clipped to its circle.
+  const AvatarGroupClip({
+    required this.clipped,
+    required super.child,
+    super.key,
+  });
+
+  /// Whether the group clips [child] to a circle.
+  final bool clipped;
+
+  /// Whether an avatar at [context] is clipped by its group.
+  static bool of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<AvatarGroupClip>()?.clipped ??
+      false;
+
+  @override
+  bool updateShouldNotify(AvatarGroupClip oldWidget) =>
+      clipped != oldWidget.clipped;
 }

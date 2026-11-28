@@ -100,7 +100,7 @@ class UnaBoxBorder extends Border {
         !_radiusSafeForSuper) {
       canvas
         ..save()
-        ..clipPath(Path()..addRRect(borderRadius.toRRect(rect)));
+        ..clipRRect(borderRadius.toRRect(rect));
       paintBorder(
         canvas,
         rect,

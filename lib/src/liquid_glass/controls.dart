@@ -313,23 +313,39 @@ class _LiquidGlassSliderThumbState extends State<LiquidGlassSliderThumb>
               width: restWidth,
               height: restHeight,
               child: DecoratedBox(
-                decoration: ShadowDecoration.box(
+                // Painted whole, as the package paints it, not cut out
+                // under the thumb (see `ShadowDecoration`): the opaque
+                // material covers it at rest, and it has faded with the
+                // material by the time the lens is clear. The cut-out
+                // would cost five clips a frame for nothing.
+                decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(restHeight / 2),
-                  shadows: [
-                    BoxShadow(
-                      color: Color.from(
-                        alpha: .15 * shadowOpacity,
-                        red: 0,
-                        green: 0,
-                        blue: 0,
+                  boxShadow: [
+                    if (shadowOpacity > 0)
+                      BoxShadow(
+                        color: Color.from(
+                          alpha: .15 * shadowOpacity,
+                          red: 0,
+                          green: 0,
+                          blue: 0,
+                        ),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
                       ),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                    if (focusColor != null)
-                      BoxShadow(color: focusColor!, spreadRadius: 3),
                   ],
                 ),
+                // The focus ring is solid, and would show through the
+                // lens: that one is cut out.
+                child: focusColor == null
+                    ? null
+                    : DecoratedBox(
+                        decoration: ShadowDecoration.box(
+                          borderRadius: BorderRadius.circular(restHeight / 2),
+                          shadows: [
+                            BoxShadow(color: focusColor!, spreadRadius: 3),
+                          ],
+                        ),
+                      ),
               ),
             ),
           ),
@@ -360,15 +376,13 @@ class _LiquidGlassSliderThumbState extends State<LiquidGlassSliderThumb>
                 const Positioned.fill(
                   child: ColoredBox(color: Color(0x00000000)),
                 ),
-                Opacity(
-                  opacity: materialOpacity,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 1),
-                      borderRadius: corners,
-                    ),
-                    child: const SizedBox.expand(),
+                // One fill, so its fade is its alpha: no layer.
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: materialOpacity),
+                    borderRadius: corners,
                   ),
+                  child: const SizedBox.expand(),
                 ),
               ],
             ),
